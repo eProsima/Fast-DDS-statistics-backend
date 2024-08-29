@@ -1736,16 +1736,13 @@ public:
     eprosima::fastdds::dds::DataReaderListener* reader_listener_;
 
     eprosima::fastdds::dds::DomainParticipant* participant_;
-    eprosima::fastdds::
-            rtps::GUID_t participant_guid_;
+    eprosima::fastdds::rtps::GUID_t participant_guid_;
     std::string participant_guid_str_ = "01.0f.00.00.00.00.00.00.00.00.00.00|0.0.1.c1";
     std::string participant_name_ = "Participant";
 
-    eprosima::fastdds::
-            rtps::GUID_t datareader_guid_;
+    eprosima::fastdds::rtps::GUID_t datareader_guid_;
     std::string datareader_guid_str_ = "01.0f.00.00.00.00.00.00.00.00.00.00|0.0.0.1";
-    eprosima::fastdds::
-            rtps::GUID_t datawriter_guid_;
+    eprosima::fastdds::rtps::GUID_t datawriter_guid_;
     std::string datawriter_guid_str_ = "01.0f.00.00.00.00.00.00.00.00.00.00|0.0.0.2";
 
     std::string topic_name_ = "Topic";

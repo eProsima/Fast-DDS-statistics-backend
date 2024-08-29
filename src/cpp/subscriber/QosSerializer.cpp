@@ -453,9 +453,6 @@ database::Qos reader_proxy_data_to_backend_qos(
 {
     database::Qos reader;
 
-    // TODO: Implement serialization when available in Fast DDS
-    // serialize(reader_data.durabilityService, durability_service_tag, reader);
-
     serialize(reader_data.durability, durability_tag, reader);
     serialize(reader_data.deadline, deadline_tag, reader);
     serialize(reader_data.latency_budget, latency_budget_tag, reader);
@@ -483,11 +480,6 @@ database::Qos writer_proxy_data_to_backend_qos(
 {
     database::Qos writer;
 
-    // TODO: Implement serialization for the following fields when available in Fast DDS
-    // serialize(info.publish_mode, publish_mode_tag, writer);
-    // serialize(info.time_based_filter, time_based_filter_tag, writer);
-    // serialize(info.properties, ...);
-    // serialize(info.resource_limits, ...);
     serialize(info.durability, durability_tag, writer);
     serialize(info.durability_service, durability_service_tag, writer);
     serialize(info.deadline, deadline_tag, writer);

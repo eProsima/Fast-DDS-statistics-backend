@@ -19,6 +19,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
+#include <fastdds/dds/core/detail/DDSReturnCode.hpp>
 #include <fastdds/dds/domain/DomainParticipant.hpp>
 #include <fastdds/dds/domain/DomainParticipantFactory.hpp>
 #include <fastdds/dds/domain/qos/DomainParticipantQos.hpp>
@@ -32,7 +33,7 @@
 #include <fastdds/dds/topic/TopicDataType.hpp>
 #include <fastdds/dds/topic/TopicDescription.hpp>
 #include <fastdds/statistics/topic_names.hpp>
-#include <fastdds/dds/core/detail/DDSReturnCode.hpp>
+
 #include <fastdds_statistics_backend/exception/Exception.hpp>
 #include <fastdds_statistics_backend/listener/CallbackMask.hpp>
 #include <fastdds_statistics_backend/listener/DomainListener.hpp>
@@ -40,11 +41,11 @@
 #include <fastdds_statistics_backend/StatisticsBackend.hpp>
 #include <fastdds_statistics_backend/types/EntityId.hpp>
 #include <fastdds_statistics_backend/types/types.hpp>
-#include <Monitor.hpp>
-#include <topic_types/typesPubSubTypes.hpp>
 
 #include <topic_types/monitorservice_typesPubSubTypes.hpp>
+#include <topic_types/typesPubSubTypes.hpp>
 
+#include <Monitor.hpp>
 
 using namespace eprosima::statistics_backend;
 using namespace eprosima::fastdds::dds;

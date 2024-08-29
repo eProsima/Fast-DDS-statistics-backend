@@ -1,4 +1,4 @@
-// Copyright 2021 Proyectos y Sistemas de Mantenimiento SL (eProsima).
+// Copyright 2024 Proyectos y Sistemas de Mantenimiento SL (eProsima).
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -236,7 +236,6 @@ int main(
     int arg_count = 1;
     bool exit_on_lost_liveliness = false;
     uint32_t seed = 7800, wait = 0;
-    //char* xml_file = nullptr;
     uint32_t samples = 10;
     std::string magic;
     Publisher pub;
@@ -310,7 +309,6 @@ int main(
      */
 
     // Initialize the publisher
-
     pub.init(seed % 230);
 
     // Wait until all DataReaders are matched

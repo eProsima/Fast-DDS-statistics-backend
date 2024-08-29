@@ -23,16 +23,14 @@
 
 #include <database/database.hpp>
 #include <database/database_queue.hpp>
-#include <fastdds_statistics_backend/topic_types/types.hpp>
 
 #include <fastdds_statistics_backend/topic_types/monitorservice_types.hpp>
-
+#include <fastdds_statistics_backend/topic_types/types.hpp>
 
 using namespace eprosima::fastdds::statistics;
 using namespace eprosima::statistics_backend;
 using namespace eprosima::statistics_backend::database;
-using namespace eprosima::fastdds::
-        rtps;
+using namespace eprosima::fastdds::rtps;
 
 using ::testing::_;
 using ::testing::Invoke;
@@ -452,8 +450,7 @@ struct InsertEndpointArgs
         participant_id_ = participant_id;
         topic_id_ = topic_id;
         app_data_ = app_data;
-        return callback_(endpoint_guid, name, alias, qos, is_virtual_metatraffic, locators, kind, participant_id,
-                       topic_id, app_data);
+        return callback_(endpoint_guid, name, alias, qos, is_virtual_metatraffic, locators, kind, participant_id, topic_id, app_data);
     }
 
     std::function<EntityId(
@@ -462,8 +459,7 @@ struct InsertEndpointArgs
                 const std::string& alias,
                 const Qos& qos,
                 const bool& is_virtual_metatraffic,
-                const eprosima::fastdds::
-                        rtps::RemoteLocatorList& locators,
+                const eprosima::fastdds::rtps::RemoteLocatorList& locators,
                 const EntityKind& kind,
                 const EntityId& participant_id,
                 const EntityId& topic_id,
@@ -474,8 +470,7 @@ struct InsertEndpointArgs
     std::string alias_;
     Qos qos_;
     bool is_virtual_metatraffic_;
-    eprosima::fastdds::
-            rtps::RemoteLocatorList locators_;
+    eprosima::fastdds::rtps::RemoteLocatorList locators_;
     EntityKind kind_;
     EntityId participant_id_;
     EntityId topic_id_;
@@ -1482,8 +1477,7 @@ TEST_F(database_queue_tests, push_datawriter)
         // Expectations: Request the backend to notify user (if needed)
         EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
                 on_domain_entity_discovery(EntityId(0), EntityId(3), EntityKind::DATAWRITER,
-                details::StatisticsBackendData::DISCOVERY))
-                .Times(1);
+                details::StatisticsBackendData::DISCOVERY)).Times(1);
 
         // Add to the queue and wait to be processed
         info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::DISCOVERY;
@@ -1553,8 +1547,7 @@ TEST_F(database_queue_tests, push_datawriter)
                     const std::string& alias,
                     const Qos& qos,
                     const bool& is_virtual_metatraffic,
-                    const eprosima::fastdds::
-                            rtps::RemoteLocatorList& locators,
+                    const eprosima::fastdds::rtps::RemoteLocatorList& locators,
                     const EntityKind& kind,
                     const EntityId& participant_id,
                     const EntityId& topic_id,
@@ -1567,7 +1560,6 @@ TEST_F(database_queue_tests, push_datawriter)
                     EXPECT_EQ(is_virtual_metatraffic, false);
                     EXPECT_EQ(locators.unicast[0], info.locators.unicast[0]);
                     EXPECT_EQ(locators.multicast[0], info.locators.multicast[0]);
-
                     EXPECT_EQ(kind, EntityKind::DATAWRITER);
                     EXPECT_EQ(participant_id, EntityId(1));
                     EXPECT_EQ(topic_id, EntityId(2));
@@ -1663,8 +1655,7 @@ TEST_F(database_queue_tests, push_datawriter_topic_does_not_exist)
                     const std::string& alias,
                     const Qos& qos,
                     const bool& is_virtual_metatraffic,
-                    const eprosima::fastdds::
-                            rtps::RemoteLocatorList& locators,
+                    const eprosima::fastdds::rtps::RemoteLocatorList& locators,
                     const EntityKind& kind,
                     const EntityId& participant_id,
                     const EntityId& topic_id,
@@ -1677,7 +1668,6 @@ TEST_F(database_queue_tests, push_datawriter_topic_does_not_exist)
                     EXPECT_EQ(is_virtual_metatraffic, false);
                     EXPECT_EQ(locators.unicast[0], info.locators.unicast[0]);
                     EXPECT_EQ(locators.multicast[0], info.locators.multicast[0]);
-
                     EXPECT_EQ(kind, EntityKind::DATAWRITER);
                     EXPECT_EQ(participant_id, EntityId(1));
                     EXPECT_EQ(topic_id, EntityId(2));
@@ -1806,8 +1796,7 @@ TEST_F(database_queue_tests, push_datareader)
                     const std::string& alias,
                     const Qos& qos,
                     const bool& is_virtual_metatraffic,
-                    const eprosima::fastdds::
-                            rtps::RemoteLocatorList& locators,
+                    const eprosima::fastdds::rtps::RemoteLocatorList& locators,
                     const EntityKind& kind,
                     const EntityId& participant_id,
                     const EntityId& topic_id,
@@ -1820,7 +1809,6 @@ TEST_F(database_queue_tests, push_datareader)
                     EXPECT_EQ(is_virtual_metatraffic, false);
                     EXPECT_EQ(locators.unicast[0], info.locators.unicast[0]);
                     EXPECT_EQ(locators.multicast[0], info.locators.multicast[0]);
-
                     EXPECT_EQ(kind, EntityKind::DATAREADER);
                     EXPECT_EQ(participant_id, EntityId(1));
                     EXPECT_EQ(topic_id, EntityId(2));
@@ -1914,8 +1902,7 @@ TEST_F(database_queue_tests, push_datareader)
                     const std::string& alias,
                     const Qos& qos,
                     const bool& is_virtual_metatraffic,
-                    const eprosima::fastdds::
-                            rtps::RemoteLocatorList& locators,
+                    const eprosima::fastdds::rtps::RemoteLocatorList& locators,
                     const EntityKind& kind,
                     const EntityId& participant_id,
                     const EntityId& topic_id,
@@ -1928,7 +1915,6 @@ TEST_F(database_queue_tests, push_datareader)
                     EXPECT_EQ(is_virtual_metatraffic, false);
                     EXPECT_EQ(locators.unicast[0], info.locators.unicast[0]);
                     EXPECT_EQ(locators.multicast[0], info.locators.multicast[0]);
-
                     EXPECT_EQ(kind, EntityKind::DATAREADER);
                     EXPECT_EQ(participant_id, EntityId(1));
                     EXPECT_EQ(topic_id, EntityId(2));
@@ -2024,8 +2010,7 @@ TEST_F(database_queue_tests, push_datareader_topic_does_not_exist)
                     const std::string& alias,
                     const Qos& qos,
                     const bool& is_virtual_metatraffic,
-                    const eprosima::fastdds::
-                            rtps::RemoteLocatorList& locators,
+                    const eprosima::fastdds::rtps::RemoteLocatorList& locators,
                     const EntityKind& kind,
                     const EntityId& participant_id,
                     const EntityId& topic_id,
@@ -2038,7 +2023,6 @@ TEST_F(database_queue_tests, push_datareader_topic_does_not_exist)
                     EXPECT_EQ(is_virtual_metatraffic, false);
                     EXPECT_EQ(locators.unicast[0], info.locators.unicast[0]);
                     EXPECT_EQ(locators.multicast[0], info.locators.multicast[0]);
-
                     EXPECT_EQ(kind, EntityKind::DATAREADER);
                     EXPECT_EQ(participant_id, EntityId(1));
                     EXPECT_EQ(topic_id, EntityId(2));
@@ -2267,8 +2251,7 @@ TEST_F(database_queue_tests, push_network_latency)
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
     std::array<uint8_t, 16> src_locator_address = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
-    eprosima::fastdds::
-            rtps::Locator_t src_locator_t;
+    eprosima::fastdds::rtps::Locator_t src_locator_t;
     uint16_t src_locator_t_physical_port = 0;
     uint16_t src_locator_t_logical_port = 0;
     IPLocator::setPhysicalPort(src_locator_t, src_locator_t_physical_port);
@@ -2277,15 +2260,13 @@ TEST_F(database_queue_tests, push_network_latency)
     std::string src_locator_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|d.e.f.10";
 
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
-    eprosima::fastdds::
-            rtps::Locator_t dst_locator_t;
+    eprosima::fastdds::rtps::Locator_t dst_locator_t;
     uint16_t dst_locator_t_physical_port = 2048;
     uint16_t dst_locator_t_logical_port = 2048;
     IPLocator::setPhysicalPort(dst_locator_t, dst_locator_t_physical_port);
     IPLocator::setLogicalPort(dst_locator_t, dst_locator_t_logical_port);
     uint32_t dst_locator_port = dst_locator_t.port;
-    std::string dst_locator_str = "TCPv4:[4.3.2.1]:" + std::to_string(dst_locator_t_physical_port) + "-" +
-            std::to_string(dst_locator_t_logical_port);
+    std::string dst_locator_str = "TCPv4:[4.3.2.1]:" + std::to_string(dst_locator_t_physical_port) + "-" + std::to_string(dst_locator_t_logical_port);
 
     // Build the source locator
     DatabaseDataQueueWrapper::StatisticsLocator src_locator;
@@ -2347,8 +2328,7 @@ TEST_F(database_queue_tests, push_network_latency_no_participant)
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
     std::array<uint8_t, 16> src_locator_address = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
-    eprosima::fastdds::
-            rtps::Locator_t src_locator_t;
+    eprosima::fastdds::rtps::Locator_t src_locator_t;
     uint16_t src_locator_t_physical_port = 0;
     uint16_t src_locator_t_logical_port = 0;
     IPLocator::setPhysicalPort(src_locator_t, src_locator_t_physical_port);
@@ -2357,15 +2337,13 @@ TEST_F(database_queue_tests, push_network_latency_no_participant)
     std::string src_locator_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|d.e.f.10";
 
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
-    eprosima::fastdds::
-            rtps::Locator_t dst_locator_t;
+    eprosima::fastdds::rtps::Locator_t dst_locator_t;
     uint16_t dst_locator_t_physical_port = 2048;
     uint16_t dst_locator_t_logical_port = 0;
     IPLocator::setPhysicalPort(dst_locator_t, dst_locator_t_physical_port);
     IPLocator::setLogicalPort(dst_locator_t, dst_locator_t_logical_port);
     uint32_t dst_locator_port = dst_locator_t.port;
-    std::string dst_locator_str = "TCPv4:[4.3.2.1]:" + std::to_string(dst_locator_t_physical_port) + "-" +
-            std::to_string(dst_locator_t_logical_port);
+    std::string dst_locator_str = "TCPv4:[4.3.2.1]:" + std::to_string(dst_locator_t_physical_port) + "-" + std::to_string(dst_locator_t_logical_port);
 
     // Build the source locator
     DatabaseDataQueueWrapper::StatisticsLocator src_locator;
@@ -2413,8 +2391,7 @@ TEST_F(database_queue_tests, push_network_latency_wrong_participant_format)
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
     std::array<uint8_t, 16> src_locator_address = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
-    eprosima::fastdds::
-            rtps::Locator_t src_locator_t;
+    eprosima::fastdds::rtps::Locator_t src_locator_t;
     uint16_t src_locator_t_physical_port = 1;
     uint16_t src_locator_t_logical_port = 0;
     IPLocator::setPhysicalPort(src_locator_t, src_locator_t_physical_port);
@@ -2423,15 +2400,13 @@ TEST_F(database_queue_tests, push_network_latency_wrong_participant_format)
     std::string src_locator_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|d.e.f.10";
 
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
-    eprosima::fastdds::
-            rtps::Locator_t dst_locator_t;
+    eprosima::fastdds::rtps::Locator_t dst_locator_t;
     uint16_t dst_locator_t_physical_port = 2048;
     uint16_t dst_locator_t_logical_port = 0;
     IPLocator::setPhysicalPort(dst_locator_t, dst_locator_t_physical_port);
     IPLocator::setLogicalPort(dst_locator_t, dst_locator_t_logical_port);
     uint32_t dst_locator_port = dst_locator_t.port;
-    std::string dst_locator_str = "TCPv4:[4.3.2.1]:" + std::to_string(dst_locator_t_physical_port) + "-" +
-            std::to_string(dst_locator_t_logical_port);
+    std::string dst_locator_str = "TCPv4:[4.3.2.1]:" + std::to_string(dst_locator_t_physical_port) + "-" + std::to_string(dst_locator_t_logical_port);
 
     // Build the source locator
     DatabaseDataQueueWrapper::StatisticsLocator src_locator;
@@ -2478,8 +2453,7 @@ TEST_F(database_queue_tests, push_network_latency_no_destination_locator)
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
     std::array<uint8_t, 16> src_locator_address = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
-    eprosima::fastdds::
-            rtps::Locator_t src_locator_t;
+    eprosima::fastdds::rtps::Locator_t src_locator_t;
     uint16_t src_locator_t_physical_port = 0;
     uint16_t src_locator_t_logical_port = 0;
     IPLocator::setPhysicalPort(src_locator_t, src_locator_t_physical_port);
@@ -2488,15 +2462,13 @@ TEST_F(database_queue_tests, push_network_latency_no_destination_locator)
     std::string src_locator_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|d.e.f.10";
 
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
-    eprosima::fastdds::
-            rtps::Locator_t dst_locator_t;
+    eprosima::fastdds::rtps::Locator_t dst_locator_t;
     uint16_t dst_locator_t_physical_port = 2048;
     uint16_t dst_locator_t_logical_port = 0;
     IPLocator::setPhysicalPort(dst_locator_t, dst_locator_t_physical_port);
     IPLocator::setLogicalPort(dst_locator_t, dst_locator_t_logical_port);
     uint32_t dst_locator_port = dst_locator_t.port;
-    std::string dst_locator_str = "TCPv4:[4.3.2.1]:" + std::to_string(dst_locator_t_physical_port) + "-" +
-            std::to_string(dst_locator_t_logical_port);
+    std::string dst_locator_str = "TCPv4:[4.3.2.1]:" + std::to_string(dst_locator_t_physical_port) + "-" + std::to_string(dst_locator_t_logical_port);
 
     // Build the source locator
     DatabaseDataQueueWrapper::StatisticsLocator src_locator;
@@ -2770,15 +2742,13 @@ TEST_F(database_queue_tests, push_rtps_sent)
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
-    eprosima::fastdds::
-            rtps::Locator_t dst_locator_t;
+    eprosima::fastdds::rtps::Locator_t dst_locator_t;
     uint16_t dst_locator_t_physical_port = 2048;
     uint16_t dst_locator_t_logical_port = 0;
     IPLocator::setPhysicalPort(dst_locator_t, dst_locator_t_physical_port);
     IPLocator::setLogicalPort(dst_locator_t, dst_locator_t_logical_port);
     uint32_t dst_locator_port = dst_locator_t.port;
-    std::string dst_locator_str = "TCPv4:[4.3.2.1]:" + std::to_string(dst_locator_t_physical_port) + "-" +
-            std::to_string(dst_locator_t_logical_port);
+    std::string dst_locator_str = "TCPv4:[4.3.2.1]:" + std::to_string(dst_locator_t_physical_port) + "-" + std::to_string(dst_locator_t_logical_port);
 
     // Build the writer GUID
     DatabaseDataQueueWrapper::StatisticsGuidPrefix writer_prefix;
@@ -2868,15 +2838,13 @@ TEST_F(database_queue_tests, push_rtps_sent_no_writer)
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
-    eprosima::fastdds::
-            rtps::Locator_t dst_locator_t;
+    eprosima::fastdds::rtps::Locator_t dst_locator_t;
     uint16_t dst_locator_t_physical_port = 2048;
     uint16_t dst_locator_t_logical_port = 0;
     IPLocator::setPhysicalPort(dst_locator_t, dst_locator_t_physical_port);
     IPLocator::setLogicalPort(dst_locator_t, dst_locator_t_logical_port);
     uint32_t dst_locator_port = dst_locator_t.port;
-    std::string dst_locator_str = "TCPv4:[4.3.2.1]:" + std::to_string(dst_locator_t_physical_port) + "-" +
-            std::to_string(dst_locator_t_logical_port);
+    std::string dst_locator_str = "TCPv4:[4.3.2.1]:" + std::to_string(dst_locator_t_physical_port) + "-" + std::to_string(dst_locator_t_logical_port);
 
     // Build the writer GUID
     DatabaseDataQueueWrapper::StatisticsGuidPrefix writer_prefix;
@@ -2934,15 +2902,13 @@ TEST_F(database_queue_tests, push_rtps_sent_no_locator)
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
-    eprosima::fastdds::
-            rtps::Locator_t dst_locator_t;
+    eprosima::fastdds::rtps::Locator_t dst_locator_t;
     uint16_t dst_locator_t_physical_port = 2048;
     uint16_t dst_locator_t_logical_port = 0;
     IPLocator::setPhysicalPort(dst_locator_t, dst_locator_t_physical_port);
     IPLocator::setLogicalPort(dst_locator_t, dst_locator_t_logical_port);
     uint32_t dst_locator_port = dst_locator_t.port;
-    std::string dst_locator_str = "TCPv4:[4.3.2.1]:" + std::to_string(dst_locator_t_physical_port) + "-" +
-            std::to_string(dst_locator_t_logical_port);
+    std::string dst_locator_str = "TCPv4:[4.3.2.1]:" + std::to_string(dst_locator_t_physical_port) + "-" + std::to_string(dst_locator_t_logical_port);
 
     // Build the writer GUID
     DatabaseDataQueueWrapper::StatisticsGuidPrefix writer_prefix;
@@ -3047,15 +3013,13 @@ TEST_F(database_queue_tests, push_rtps_lost)
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
-    eprosima::fastdds::
-            rtps::Locator_t dst_locator_t;
+    eprosima::fastdds::rtps::Locator_t dst_locator_t;
     uint16_t dst_locator_t_physical_port = 2048;
     uint16_t dst_locator_t_logical_port = 0;
     IPLocator::setPhysicalPort(dst_locator_t, dst_locator_t_physical_port);
     IPLocator::setLogicalPort(dst_locator_t, dst_locator_t_logical_port);
     uint32_t dst_locator_port = dst_locator_t.port;
-    std::string dst_locator_str = "TCPv4:[4.3.2.1]:" + std::to_string(dst_locator_t_physical_port) + "-" +
-            std::to_string(dst_locator_t_logical_port);
+    std::string dst_locator_str = "TCPv4:[4.3.2.1]:" + std::to_string(dst_locator_t_physical_port) + "-" + std::to_string(dst_locator_t_logical_port);
 
     // Build the writer GUID
     DatabaseDataQueueWrapper::StatisticsGuidPrefix writer_prefix;
@@ -3145,15 +3109,13 @@ TEST_F(database_queue_tests, push_rtps_lost_no_writer)
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
-    eprosima::fastdds::
-            rtps::Locator_t dst_locator_t;
+    eprosima::fastdds::rtps::Locator_t dst_locator_t;
     uint16_t dst_locator_t_physical_port = 2048;
     uint16_t dst_locator_t_logical_port = 0;
     IPLocator::setPhysicalPort(dst_locator_t, dst_locator_t_physical_port);
     IPLocator::setLogicalPort(dst_locator_t, dst_locator_t_logical_port);
     uint32_t dst_locator_port = dst_locator_t.port;
-    std::string dst_locator_str = "TCPv4:[4.3.2.1]:" + std::to_string(dst_locator_t_physical_port) + "-" +
-            std::to_string(dst_locator_t_logical_port);
+    std::string dst_locator_str = "TCPv4:[4.3.2.1]:" + std::to_string(dst_locator_t_physical_port) + "-" + std::to_string(dst_locator_t_logical_port);
 
     // Build the writer GUID
     DatabaseDataQueueWrapper::StatisticsGuidPrefix writer_prefix;
@@ -3211,15 +3173,13 @@ TEST_F(database_queue_tests, push_rtps_lost_no_locator)
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
-    eprosima::fastdds::
-            rtps::Locator_t dst_locator_t;
+    eprosima::fastdds::rtps::Locator_t dst_locator_t;
     uint16_t dst_locator_t_physical_port = 2048;
     uint16_t dst_locator_t_logical_port = 0;
     IPLocator::setPhysicalPort(dst_locator_t, dst_locator_t_physical_port);
     IPLocator::setLogicalPort(dst_locator_t, dst_locator_t_logical_port);
     uint32_t dst_locator_port = dst_locator_t.port;
-    std::string dst_locator_str = "TCPv4:[4.3.2.1]:" + std::to_string(dst_locator_t_physical_port) + "-" +
-            std::to_string(dst_locator_t_logical_port);
+    std::string dst_locator_str = "TCPv4:[4.3.2.1]:" + std::to_string(dst_locator_t_physical_port) + "-" + std::to_string(dst_locator_t_logical_port);
 
     // Build the writer GUID
     DatabaseDataQueueWrapper::StatisticsGuidPrefix writer_prefix;
@@ -3323,15 +3283,13 @@ TEST_F(database_queue_tests, push_rtps_bytes_no_writer)
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
-    eprosima::fastdds::
-            rtps::Locator_t dst_locator_t;
+    eprosima::fastdds::rtps::Locator_t dst_locator_t;
     uint16_t dst_locator_t_physical_port = 2048;
     uint16_t dst_locator_t_logical_port = 0;
     IPLocator::setPhysicalPort(dst_locator_t, dst_locator_t_physical_port);
     IPLocator::setLogicalPort(dst_locator_t, dst_locator_t_logical_port);
     uint32_t dst_locator_port = dst_locator_t.port;
-    std::string dst_locator_str = "TCPv4:[4.3.2.1]:" + std::to_string(dst_locator_t_physical_port) + "-" +
-            std::to_string(dst_locator_t_logical_port);
+    std::string dst_locator_str = "TCPv4:[4.3.2.1]:" + std::to_string(dst_locator_t_physical_port) + "-" + std::to_string(dst_locator_t_logical_port);
 
     // Build the writer GUID
     DatabaseDataQueueWrapper::StatisticsGuidPrefix writer_prefix;
@@ -3372,8 +3330,7 @@ TEST_F(database_queue_tests, push_rtps_bytes_no_writer)
     ByteToLocatorCountSample sample;
     EntityId domain;
     EntityId entity;
-    EXPECT_THROW(data_queue.do_process_sample_type(domain, entity, EntityKind::DATAWRITER, sample,
-            inner_data), Error);
+    EXPECT_THROW(data_queue.do_process_sample_type(domain, entity, EntityKind::DATAWRITER, sample, inner_data), Error);
 }
 
 //TODO(jepemi) Test currently not executed as it is not supported by the monitor yet. It fails.
@@ -3384,15 +3341,13 @@ TEST_F(database_queue_tests, push_rtps_bytes_no_locator)
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
-    eprosima::fastdds::
-            rtps::Locator_t dst_locator_t;
+    eprosima::fastdds::rtps::Locator_t dst_locator_t;
     uint16_t dst_locator_t_physical_port = 2048;
     uint16_t dst_locator_t_logical_port = 0;
     IPLocator::setPhysicalPort(dst_locator_t, dst_locator_t_physical_port);
     IPLocator::setLogicalPort(dst_locator_t, dst_locator_t_logical_port);
     uint32_t dst_locator_port = dst_locator_t.port;
-    std::string dst_locator_str = "TCPv4:[4.3.2.1]:" + std::to_string(dst_locator_t_physical_port) + "-" +
-            std::to_string(dst_locator_t_logical_port);
+    std::string dst_locator_str = "TCPv4:[4.3.2.1]:" + std::to_string(dst_locator_t_physical_port) + "-" + std::to_string(dst_locator_t_logical_port);
 
     // Build the writer GUID
     DatabaseDataQueueWrapper::StatisticsGuidPrefix writer_prefix;
@@ -3432,8 +3387,7 @@ TEST_F(database_queue_tests, push_rtps_bytes_no_locator)
     ByteToLocatorCountSample sample;
     EntityId domain;
     EntityId entity;
-    EXPECT_THROW(data_queue.do_process_sample_type(domain, entity, EntityKind::DATAWRITER, sample,
-            inner_data), Error);
+    EXPECT_THROW(data_queue.do_process_sample_type(domain, entity, EntityKind::DATAWRITER, sample, inner_data), Error);
 }
 
 TEST_F(database_queue_tests, push_resent_datas)
@@ -4473,8 +4427,7 @@ TEST_F(database_queue_tests, push_sample_datas_no_writer)
     int32_t sn_high = 2048;
     uint32_t sn_low = 4096;
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
-    eprosima::fastdds::
-            rtps::SequenceNumber_t sn (sn_high, sn_low);
+    eprosima::fastdds::rtps::SequenceNumber_t sn (sn_high, sn_low);
 
     // Build the writer GUID
     DatabaseDataQueueWrapper::StatisticsGuidPrefix writer_prefix;
@@ -4777,8 +4730,7 @@ TEST_F(database_queue_tests, push_monitor_incompatible_qos)
     int32_t sn_high = 2048;
     uint32_t sn_low = 4096;
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
-    eprosima::fastdds::
-            rtps::SequenceNumber_t sn (sn_high, sn_low);
+    eprosima::fastdds::rtps::SequenceNumber_t sn (sn_high, sn_low);
     DatabaseDataQueueWrapper::StatisticsGuidPrefix writer_prefix;
     writer_prefix.value(prefix);
     DatabaseDataQueueWrapper::StatisticsEntityId writer_entity_id;
@@ -4852,8 +4804,7 @@ TEST_F(database_queue_tests, push_monitor_incompatible_qos_no_entity)
     int32_t sn_high = 2048;
     uint32_t sn_low = 4096;
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
-    eprosima::fastdds::
-            rtps::SequenceNumber_t sn (sn_high, sn_low);
+    eprosima::fastdds::rtps::SequenceNumber_t sn (sn_high, sn_low);
     DatabaseDataQueueWrapper::StatisticsGuidPrefix writer_prefix;
     writer_prefix.value(prefix);
     DatabaseDataQueueWrapper::StatisticsEntityId writer_entity_id;
@@ -4911,8 +4862,7 @@ TEST_F(database_queue_tests, push_monitor_inconsistent_topic)
     int32_t sn_high = 2048;
     uint32_t sn_low = 4096;
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
-    eprosima::fastdds::
-            rtps::SequenceNumber_t sn (sn_high, sn_low);
+    eprosima::fastdds::rtps::SequenceNumber_t sn (sn_high, sn_low);
     DatabaseDataQueueWrapper::StatisticsGuidPrefix writer_prefix;
     writer_prefix.value(prefix);
     DatabaseDataQueueWrapper::StatisticsEntityId writer_entity_id;
@@ -4979,8 +4929,7 @@ TEST_F(database_queue_tests, push_monitor_inconsistent_topic_no_entity)
     int32_t sn_high = 2048;
     uint32_t sn_low = 4096;
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
-    eprosima::fastdds::
-            rtps::SequenceNumber_t sn (sn_high, sn_low);
+    eprosima::fastdds::rtps::SequenceNumber_t sn (sn_high, sn_low);
     DatabaseDataQueueWrapper::StatisticsGuidPrefix writer_prefix;
     writer_prefix.value(prefix);
     DatabaseDataQueueWrapper::StatisticsEntityId writer_entity_id;
@@ -5031,8 +4980,7 @@ TEST_F(database_queue_tests, push_monitor_liveliness_lost)
     int32_t sn_high = 2048;
     uint32_t sn_low = 4096;
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
-    eprosima::fastdds::
-            rtps::SequenceNumber_t sn (sn_high, sn_low);
+    eprosima::fastdds::rtps::SequenceNumber_t sn (sn_high, sn_low);
     DatabaseDataQueueWrapper::StatisticsGuidPrefix writer_prefix;
     writer_prefix.value(prefix);
     DatabaseDataQueueWrapper::StatisticsEntityId writer_entity_id;
@@ -5099,8 +5047,7 @@ TEST_F(database_queue_tests, push_monitor_liveliness_lost_no_entity)
     int32_t sn_high = 2048;
     uint32_t sn_low = 4096;
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
-    eprosima::fastdds::
-            rtps::SequenceNumber_t sn (sn_high, sn_low);
+    eprosima::fastdds::rtps::SequenceNumber_t sn (sn_high, sn_low);
     DatabaseDataQueueWrapper::StatisticsGuidPrefix writer_prefix;
     writer_prefix.value(prefix);
     DatabaseDataQueueWrapper::StatisticsEntityId writer_entity_id;

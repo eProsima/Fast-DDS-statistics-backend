@@ -20,9 +20,8 @@
 #ifndef _FASTDDS_DDS_PUBLISHER_DATAWRITER_HPP_
 #define _FASTDDS_DDS_PUBLISHER_DATAWRITER_HPP_
 
-#include <fastdds_statistics_backend/topic_types/types.hpp>
-
 #include <fastdds_statistics_backend/topic_types/monitorservice_types.hpp>
+#include <fastdds_statistics_backend/topic_types/types.hpp>
 
 
 

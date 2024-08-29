@@ -339,7 +339,6 @@ EntityId Database::insert_new_endpoint(
     /* Start processing the locator info */
 
     // Routine to process one locator from the locator list of the endpoint
-
     auto process_locators = [&](const eprosima::fastdds::rtps::Locator_t& dds_locator)
             {
                 std::shared_ptr<Locator> locator;
@@ -358,6 +357,7 @@ EntityId Database::insert_new_endpoint(
                 }
                 else
                 {
+                    // The locator is not in the database. Add the new one.
                     locator = std::make_shared<Locator>(to_string(dds_locator));
                     insert_nts(locator, locator->id);
                     details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
@@ -3372,7 +3372,7 @@ bool Database::regenerate_domain_graph_nts(
     }
     else
     {
-        logWarning(BACKEND_DATABASE,
+        EPROSIMA_LOG_WARNING(BACKEND_DATABASE,
                 "Error regenerating graph. No previous graph was found");
         return false;
     }

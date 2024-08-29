@@ -3233,14 +3233,10 @@ TEST_F(database_tests, get_entity_kind_by_guid)
     eprosima::fastdds::statistics::detail::GUID_s reader_guid_s;
     eprosima::fastdds::statistics::detail::GUID_s writer_guid_s;
     eprosima::fastdds::statistics::detail::GUID_s other_guid_s;
-    eprosima::fastdds::
-            rtps::GUID_t participant_guid_t;
-    eprosima::fastdds::
-            rtps::GUID_t reader_guid_t;
-    eprosima::fastdds::
-            rtps::GUID_t writer_guid_t;
-    eprosima::fastdds::
-            rtps::GUID_t other_guid_t;
+    eprosima::fastdds::rtps::GUID_t participant_guid_t;
+    eprosima::fastdds::rtps::GUID_t reader_guid_t;
+    eprosima::fastdds::rtps::GUID_t writer_guid_t;
+    eprosima::fastdds::rtps::GUID_t other_guid_t;
     std::stringstream participant_guid_str("01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1");
     std::stringstream reader_guid_str("01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.4");
     std::stringstream writer_guid_str("01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.3");
@@ -3249,42 +3245,34 @@ TEST_F(database_tests, get_entity_kind_by_guid)
     participant_guid_str >> participant_guid_t;
     memcpy(
         participant_guid_s.guidPrefix().value().data(), participant_guid_t.guidPrefix.value,
-        eprosima::fastdds::
-                rtps::GuidPrefix_t::size);
+        eprosima::fastdds::rtps::GuidPrefix_t::size);
     memcpy(
         participant_guid_s.entityId().value().data(), participant_guid_t.entityId.value,
-        eprosima::fastdds::
-                rtps::EntityId_t::size);
+        eprosima::fastdds::rtps::EntityId_t::size);
 
     reader_guid_str >> reader_guid_t;
     memcpy(
         reader_guid_s.guidPrefix().value().data(), reader_guid_t.guidPrefix.value,
-        eprosima::fastdds::
-                rtps::GuidPrefix_t::size);
+        eprosima::fastdds::rtps::GuidPrefix_t::size);
     memcpy(
         reader_guid_s.entityId().value().data(), reader_guid_t.entityId.value,
-        eprosima::fastdds::
-                rtps::EntityId_t::size);
+        eprosima::fastdds::rtps::EntityId_t::size);
 
     writer_guid_str >> writer_guid_t;
     memcpy(
         writer_guid_s.guidPrefix().value().data(), writer_guid_t.guidPrefix.value,
-        eprosima::fastdds::
-                rtps::GuidPrefix_t::size);
+        eprosima::fastdds::rtps::GuidPrefix_t::size);
     memcpy(
         writer_guid_s.entityId().value().data(), writer_guid_t.entityId.value,
-        eprosima::fastdds::
-                rtps::EntityId_t::size);
+        eprosima::fastdds::rtps::EntityId_t::size);
 
     other_guid_str >> other_guid_t;
     memcpy(
         other_guid_s.guidPrefix().value().data(), other_guid_t.guidPrefix.value,
-        eprosima::fastdds::
-                rtps::GuidPrefix_t::size);
+        eprosima::fastdds::rtps::GuidPrefix_t::size);
     memcpy(
         other_guid_s.entityId().value().data(), other_guid_t.entityId.value,
-        eprosima::fastdds::
-                rtps::EntityId_t::size);
+        eprosima::fastdds::rtps::EntityId_t::size);
 
     EXPECT_EQ(EntityKind::PARTICIPANT, db.get_entity_kind_by_guid(participant_guid_s));
     EXPECT_EQ(EntityKind::DATAREADER, db.get_entity_kind_by_guid(reader_guid_s));

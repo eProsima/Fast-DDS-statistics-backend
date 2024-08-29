@@ -43,7 +43,6 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG OR
     endif()
 endif()
 
-message(STATUS "Configuring HelloWorld example...")
 file(GLOB HELLOWORLD_EXAMPLE_SOURCES_CXX "*.cxx")
 file(GLOB HELLOWORLD_EXAMPLE_SOURCES_CPP "*.cpp")
 
@@ -52,9 +51,6 @@ target_compile_definitions(HelloWorldExample PRIVATE
     $<$<AND:$<NOT:$<BOOL:${WIN32}>>,$<STREQUAL:"${CMAKE_BUILD_TYPE}","Debug">>:__DEBUG>
     $<$<BOOL:${INTERNAL_DEBUG}>:__INTERNALDEBUG> # Internal debug activated.
 )
-
-message(STATUS "Linking HelloWorld example...")
-message(STATUS "    -> RUNTIME DESTINATION examples/cpp/HelloWorldExample/${BIN_INSTALL_DIR}")
 
 target_link_libraries(HelloWorldExample fastdds fastcdr fastdds_statistics_backend)
 install(TARGETS HelloWorldExample

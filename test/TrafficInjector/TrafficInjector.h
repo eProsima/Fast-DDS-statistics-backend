@@ -34,12 +34,12 @@
 
 #include <exception/Exception.hpp>
 #include <MessageSerializer.h>
+
+#include <fastdds_statistics_backend/topic_types/monitorservice_types.hpp>
+#include <fastdds_statistics_backend/topic_types/monitorservice_typesPubSubTypes.hpp>
 #include <topic_types/types.hpp>
 #include <topic_types/typesPubSubTypes.hpp>
 
-#include <fastdds_statistics_backend/topic_types/monitorservice_types.hpp>
-
-#include <fastdds_statistics_backend/topic_types/monitorservice_typesPubSubTypes.hpp>
 #include <types/types.hpp>
 
 

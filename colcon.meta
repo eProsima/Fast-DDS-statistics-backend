@@ -1,0 +1,20 @@
+{
+    "names":
+    {
+        "fastdds":
+        {
+            "cmake-args":
+            [
+                "-DFASTDDS_STATISTICS=ON",
+            ]
+        },
+        "fastdds_statistics_backend":
+        {
+            "cmake-args":
+            [
+                "-DBUILD_DOCS=ON",
+                "-DCOMPILE_EXAMPLES=OFF",
+            ]
+        }
+    }
+}

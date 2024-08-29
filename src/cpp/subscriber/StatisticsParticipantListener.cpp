@@ -53,8 +53,7 @@ std::string to_string(
  * @return true when the entity id corresponds to a builtin statistics writer.
  */
 inline bool is_statistics_builtin(
-        const fastdds::
-                rtps::EntityId_t& entity_id)
+        const EntityId_t& entity_id)
 {
     return 0x60 == (0xE0 & entity_id.value[3]);
 }
@@ -77,8 +76,7 @@ noexcept
 
 // Search for an address different from localhost in the locator list
 bool search_address_in_locators(
-        const eprosima::fastdds::
-                ResourceLimitedVector<Locator_t>& locators,
+        const eprosima::fastdds::ResourceLimitedVector<Locator_t>& locators,
         std::string& address)
 {
     for (auto locator : locators)
@@ -134,7 +132,7 @@ void StatisticsParticipantListener::on_participant_discovery(
         DomainParticipant* /*participant*/,
         ParticipantDiscoveryStatus reason,
         const ParticipantBuiltinTopicData& info,
-        bool&)
+        bool& /*should_be_ignored*/)
 {
     // First stop the data queues until the new entity is created
     data_queue_->stop_consumer();
@@ -143,8 +141,7 @@ void StatisticsParticipantListener::on_participant_discovery(
     std::chrono::system_clock::time_point timestamp = now();
 
     // Meaningful prefix for metatraffic entities
-    const std::string metatraffic_prefix = "___EPROSIMA___METATRAFFIC___DOMAIN_" +
-            std::to_string(domain_id_.value()) + "___";
+    const std::string metatraffic_prefix = "___EPROSIMA___METATRAFFIC___DOMAIN_" + std::to_string(domain_id_.value()) + "___";
     const std::string metatraffic_alias = "_metatraffic_";
 
     // Build the discovery info for the queue
@@ -201,16 +198,13 @@ void StatisticsParticipantListener::on_participant_discovery(
                 return std::string("");
             };
 
-    discovery_info.host = get_property_value(info.properties,
-                    eprosima::fastdds::dds::parameter_policy_physical_data_host);
+    discovery_info.host = get_property_value(info.properties, eprosima::fastdds::dds::parameter_policy_physical_data_host);
     discovery_info.host = discovery_info.host.empty()? "Unknown" : discovery_info.host;
 
-    discovery_info.user = get_property_value(info.properties,
-                    eprosima::fastdds::dds::parameter_policy_physical_data_user);
+    discovery_info.user = get_property_value(info.properties, eprosima::fastdds::dds::parameter_policy_physical_data_user);
     discovery_info.user = discovery_info.user.empty()? "Unknown" : discovery_info.user;
 
-    discovery_info.process = get_property_value(info.properties,
-                    eprosima::fastdds::dds::parameter_policy_physical_data_process);
+    discovery_info.process = get_property_value(info.properties, eprosima::fastdds::dds::parameter_policy_physical_data_process);
     discovery_info.process = discovery_info.process.empty()? "Unknown" : discovery_info.process;
 
     std::string app_id = get_property_value(info.properties, "fastdds.application.id");
@@ -270,9 +264,9 @@ void StatisticsParticipantListener::on_participant_discovery(
 
 void StatisticsParticipantListener::on_data_reader_discovery(
         DomainParticipant* participant,
-        fastdds::rtps::ReaderDiscoveryStatus reason,
-        const fastdds::rtps::SubscriptionBuiltinTopicData& info,
-        bool&)
+        ReaderDiscoveryStatus reason,
+        const SubscriptionBuiltinTopicData& info,
+        bool& /*should_be_ignored*/)
 {
     // Filter out our own statistics readers
     if (participant->guid().guidPrefix == info.guid.guidPrefix)
@@ -329,10 +323,10 @@ void StatisticsParticipantListener::on_data_reader_discovery(
 }
 
 void StatisticsParticipantListener::on_data_writer_discovery(
-        fastdds::dds::DomainParticipant* participant,
-        fastdds::rtps::WriterDiscoveryStatus reason,
-        const fastdds::rtps::PublicationBuiltinTopicData& info,
-        bool&)
+        DomainParticipant* participant,
+        WriterDiscoveryStatus reason,
+        const PublicationBuiltinTopicData& info,
+        bool& /*should_be_ignored*/)
 {
     // Contrary to what it's done in on_subscriber_discovery, here we do not filter our own datawritters, as
     // deactivation of fastdds statistics module is enforced for the statistics backend, and hence none is ever created
@@ -356,21 +350,21 @@ void StatisticsParticipantListener::on_data_writer_discovery(
 
     switch (reason)
     {
-        case fastdds::rtps::WriterDiscoveryStatus::DISCOVERED_WRITER:
+        case WriterDiscoveryStatus::DISCOVERED_WRITER:
         {
             std::cout << "DataWriter discovered: " << info.guid << std::endl;
             discovery_info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::DISCOVERY;
             break;
         }
-        case fastdds::rtps::WriterDiscoveryStatus::CHANGED_QOS_WRITER:
+        case WriterDiscoveryStatus::CHANGED_QOS_WRITER:
         {
             // TODO [ILG] : Process these messages and save the updated QoS
             std::cout << "DataWriter updated: " << info.guid << std::endl;
             discovery_info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::UPDATE;
             break;
         }
-        case fastdds::rtps::WriterDiscoveryStatus::REMOVED_WRITER:
-        case fastdds::rtps::WriterDiscoveryStatus::IGNORED_WRITER:
+        case WriterDiscoveryStatus::REMOVED_WRITER:
+        case WriterDiscoveryStatus::IGNORED_WRITER:
         {
             std::cout << "DataWriter removed: " << info.guid << std::endl;
             discovery_info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY;

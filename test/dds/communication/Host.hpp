@@ -1,4 +1,4 @@
-// Copyright 2020 Proyectos y Sistemas de Mantenimiento SL (eProsima).
+// Copyright 2024 Proyectos y Sistemas de Mantenimiento SL (eProsima).
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -66,8 +66,7 @@ private:
     {
         // Compute the host id
         fastdds::rtps::LocatorList loc;
-        fastdds::
-                rtps::IPFinder::getIP4Address(&loc);
+        fastdds::rtps::IPFinder::getIP4Address(&loc);
 
         {
             if (loc.size() > 0)
@@ -92,11 +91,8 @@ private:
         }
 
         // Compute the MAC id
-        std::vector<fastdds::
-                        rtps::IPFinder::info_MAC> macs;
-        if (fastdds::
-                        rtps::IPFinder::getAllMACAddress(&macs) &&
-                macs.size() > 0)
+        std::vector<fastdds::rtps::IPFinder::info_MAC> macs;
+        if (fastdds::rtps::IPFinder::getAllMACAddress(&macs) && macs.size() > 0)
         {
             fastdds::MD5 md5;
             for (auto& m : macs)
@@ -115,7 +111,7 @@ private:
         }
         else
         {
-            logWarning(UTILS, "Cannot get MAC addresses. Failing back to IP based ID");
+            EPROSIMA_LOG_WARNING(UTILS, "Cannot get MAC addresses. Failing back to IP based ID");
             for (size_t i = 0; i < mac_id_length; i += 2)
             {
                 mac_id_.value[i] = (id_ >> 8);

@@ -24,11 +24,8 @@
 
 #include <fastdds/dds/topic/TopicDescription.hpp>
 
-#include <fastdds_statistics_backend/topic_types/types.hpp>
-
 #include <fastdds_statistics_backend/topic_types/monitorservice_types.hpp>
-
-
+#include <fastdds_statistics_backend/topic_types/types.hpp>
 
 namespace eprosima {
 namespace fastdds {

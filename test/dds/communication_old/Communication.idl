@@ -1,6 +1,0 @@
-@extensibility(APPENDABLE)
-struct Communication
-{
-	unsigned long index;
-	string message;
-};

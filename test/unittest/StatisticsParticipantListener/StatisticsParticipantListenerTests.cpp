@@ -15,19 +15,19 @@
 #include "fastdds/dds/domain/DomainParticipant.hpp"
 #include "subscriber/QosSerializer.hpp"
 
-#include <database/database.hpp>
 #include <database/database_queue.hpp>
+#include <database/database.hpp>
 #include <subscriber/StatisticsParticipantListener.hpp>
-#include <fastdds_statistics_backend/topic_types/types.hpp>
 
 #include <fastdds_statistics_backend/topic_types/monitorservice_types.hpp>
+#include <fastdds_statistics_backend/topic_types/types.hpp>
 
-#include <fastdds/rtps/common/RemoteLocators.hpp>
 #include "fastdds/rtps/common/Locator.hpp"
+#include <fastdds/rtps/common/RemoteLocators.hpp>
 
+#include <gmock/gmock.h>
 #include <gtest_aux.hpp>
 #include <gtest/gtest.h>
-#include <gmock/gmock.h>
 
 #include <utility>
 
@@ -198,8 +198,7 @@ struct InsertEndpointArgs
                 const std::string& alias,
                 const Qos& qos,
                 const bool& is_virtual_metatraffic,
-                const eprosima::fastdds::
-                        rtps::RemoteLocatorList& locators,
+                const eprosima::fastdds::rtps::RemoteLocatorList& locators,
                 const EntityKind& kind,
                 const EntityId& participant_id,
                 const EntityId& topic_id,
@@ -214,8 +213,7 @@ struct InsertEndpointArgs
             const std::string& alias,
             const Qos& qos,
             const bool& is_virtual_metatraffic,
-            const eprosima::fastdds::
-                    rtps::RemoteLocatorList& locators,
+            const eprosima::fastdds::rtps::RemoteLocatorList& locators,
             const EntityKind& kind,
             const EntityId& participant_id,
             const EntityId& topic_id,
@@ -241,8 +239,7 @@ struct InsertEndpointArgs
                 const std::string& alias,
                 const Qos& qos,
                 const bool& is_virtual_metatraffic,
-                const eprosima::fastdds::
-                        rtps::RemoteLocatorList& locators,
+                const eprosima::fastdds::rtps::RemoteLocatorList& locators,
                 const EntityKind& kind,
                 const EntityId& participant_id,
                 const EntityId& topic_id,
@@ -253,8 +250,7 @@ struct InsertEndpointArgs
     std::string alias_;
     Qos qos_;
     bool is_virtual_metatraffic_;
-    eprosima::fastdds::
-            rtps::RemoteLocatorList locators_;
+    eprosima::fastdds::rtps::RemoteLocatorList locators_;
     EntityKind kind_;
     EntityId participant_id_;
     EntityId topic_id_;
@@ -325,11 +321,9 @@ public:
     std::string participant_name_;
     Qos participant_qos_;
     std::string participant_prefix_str_;
-    eprosima::fastdds::
-            rtps::GuidPrefix_t guid_prefix_;
+    eprosima::fastdds::rtps::GuidPrefix_t guid_prefix_;
     std::string participant_guid_str_;
-    eprosima::fastdds::
-            rtps::GUID_t participant_guid_;
+    eprosima::fastdds::rtps::GUID_t participant_guid_;
     std::shared_ptr<DomainParticipant> participant_;
 
     // Topic entity
@@ -340,8 +334,7 @@ public:
     // Reader entity
     std::string reader_guid_str_;
     std::string reader_entity_id_str_;
-    eprosima::fastdds::
-            rtps::GUID_t reader_guid_;
+    eprosima::fastdds::rtps::GUID_t reader_guid_;
 
     // Writer entity
     std::string writer_guid_str_;
@@ -629,12 +622,10 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_not_fir
     std::string participant_2_name = "participant_ name";
     Qos participant_2_qos;
     std::string participant_2_prefix_str = "01.02.03.04.05.06.07.08.09.0a.0b.1c";
-    eprosima::fastdds::
-            rtps::GuidPrefix_t guid_2_prefix;
+    eprosima::fastdds::rtps::GuidPrefix_t guid_2_prefix;
     std::stringstream(participant_2_prefix_str) >> guid_2_prefix;
     std::string participant_2_guid_str = participant_2_prefix_str + "|0.0.1.c1";
-    eprosima::fastdds::
-            rtps::GUID_t participant_2_guid;
+    eprosima::fastdds::rtps::GUID_t participant_2_guid;
     std::stringstream(participant_2_guid_str) >> participant_2_guid;
     std::shared_ptr<DomainParticipant> participant_2 =
             std::make_shared<DomainParticipant>(participant_2_name, participant_2_qos, participant_2_guid_str,
@@ -742,8 +733,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_not_fir
                 const std::string& alias,
                 const Qos& qos,
                 const bool& is_virtual_metatraffic,
-                const eprosima::fastdds::
-                        rtps::RemoteLocatorList& locators,
+                const eprosima::fastdds::rtps::RemoteLocatorList& locators,
                 const EntityKind& kind,
                 const EntityId& participant_id,
                 const EntityId& topic_id,
@@ -952,8 +942,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 const std::string& alias,
                 const Qos& qos,
                 const bool& is_virtual_metatraffic,
-                const eprosima::fastdds::
-                        rtps::RemoteLocatorList& locators,
+                const eprosima::fastdds::rtps::RemoteLocatorList& locators,
                 const EntityKind& kind,
                 const EntityId& participant_id,
                 const EntityId& topic_id,
@@ -1185,8 +1174,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 const std::string& alias,
                 const Qos& qos,
                 const bool& is_virtual_metatraffic,
-                const eprosima::fastdds::
-                        rtps::RemoteLocatorList& locators,
+                const eprosima::fastdds::rtps::RemoteLocatorList& locators,
                 const EntityKind& kind,
                 const EntityId& participant_id,
                 const EntityId& topic_id,
@@ -1407,8 +1395,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 const std::string& alias,
                 const Qos& qos,
                 const bool& is_virtual_metatraffic,
-                const eprosima::fastdds::
-                        rtps::RemoteLocatorList& locators,
+                const eprosima::fastdds::rtps::RemoteLocatorList& locators,
                 const EntityKind& kind,
                 const EntityId& participant_id,
                 const EntityId& topic_id,
@@ -1634,8 +1621,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 const std::string& alias,
                 const Qos& qos,
                 const bool& is_virtual_metatraffic,
-                const eprosima::fastdds::
-                        rtps::RemoteLocatorList& locators,
+                const eprosima::fastdds::rtps::RemoteLocatorList& locators,
                 const EntityKind& kind,
                 const EntityId& participant_id,
                 const EntityId& topic_id,
@@ -1739,8 +1725,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
     data.properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_process, process_pid_);
 
     // Precondition: The Multicast Metatraffic Locator exists and has ID 6
-    eprosima::fastdds::
-            rtps::Locator_t dds_existing_metatraffic_multicast_locator(LOCATOR_KIND_UDPv4, 1024);
+    eprosima::fastdds::rtps::Locator_t dds_existing_metatraffic_multicast_locator(LOCATOR_KIND_UDPv4, 1024);
     dds_existing_metatraffic_multicast_locator.address[12] = 37;
     dds_existing_metatraffic_multicast_locator.address[13] = 11;
     dds_existing_metatraffic_multicast_locator.address[14] = 18;
@@ -1828,8 +1813,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 const std::string& alias,
                 const Qos& qos,
                 const bool& is_virtual_metatraffic,
-                const eprosima::fastdds::
-                        rtps::RemoteLocatorList& locators,
+                const eprosima::fastdds::rtps::RemoteLocatorList& locators,
                 const EntityKind& kind,
                 const EntityId& participant_id,
                 const EntityId& topic_id,
@@ -1932,8 +1916,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
     data.properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_process, process_pid_);
 
     // Precondition: The Unicast Locator exists and has ID 3
-    eprosima::fastdds::
-            rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
+    eprosima::fastdds::rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
     dds_existing_unicast_locator.address[12] = 127;
     dds_existing_unicast_locator.address[15] = 1;
     std::string existing_unicast_locator_name = to_string(dds_existing_unicast_locator);
@@ -1945,8 +1928,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
     data.default_locators.add_unicast_locator(dds_existing_unicast_locator);
 
     // Precondition: The Unicast Metatraffic Locator exists and has ID 4
-    eprosima::fastdds::
-            rtps::Locator_t dds_existing_metatraffic_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
+    eprosima::fastdds::rtps::Locator_t dds_existing_metatraffic_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
     dds_existing_metatraffic_unicast_locator.address[12] = 127;
     dds_existing_metatraffic_unicast_locator.address[15] = 1;
     std::string existing_metatraffic_unicast_locator_name = to_string(dds_existing_metatraffic_unicast_locator);
@@ -1958,8 +1940,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
     data.metatraffic_locators.add_unicast_locator(dds_existing_metatraffic_unicast_locator);
 
     // Precondition: The Multicast Locator exists and has ID 5
-    eprosima::fastdds::
-            rtps::Locator_t dds_existing_multicast_locator(LOCATOR_KIND_UDPv4, 1024);
+    eprosima::fastdds::rtps::Locator_t dds_existing_multicast_locator(LOCATOR_KIND_UDPv4, 1024);
     dds_existing_multicast_locator.address[12] = 127;
     dds_existing_multicast_locator.address[15] = 1;
     std::string existing_multicast_locator_name = to_string(dds_existing_multicast_locator);
@@ -1971,8 +1952,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
     data.default_locators.add_multicast_locator(dds_existing_multicast_locator);
 
     // Precondition: The Multicast Metatraffic Locator exists and has ID 6
-    eprosima::fastdds::
-            rtps::Locator_t dds_existing_metatraffic_multicast_locator(LOCATOR_KIND_UDPv4, 1024);
+    eprosima::fastdds::rtps::Locator_t dds_existing_metatraffic_multicast_locator(LOCATOR_KIND_UDPv4, 1024);
     dds_existing_metatraffic_multicast_locator.address[12] = 127;
     dds_existing_metatraffic_multicast_locator.address[15] = 1;
     std::string existing_metatraffic_multicast_locator_name = to_string(dds_existing_metatraffic_multicast_locator);
@@ -2058,8 +2038,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 const std::string& alias,
                 const Qos& qos,
                 const bool& is_virtual_metatraffic,
-                const eprosima::fastdds::
-                        rtps::RemoteLocatorList& locators,
+                const eprosima::fastdds::rtps::RemoteLocatorList& locators,
                 const EntityKind& kind,
                 const EntityId& participant_id,
                 const EntityId& topic_id,
@@ -2358,8 +2337,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered)
             .WillOnce(Return(true));
 
     // Precondition: The Locator exists and has ID 3
-    eprosima::fastdds::
-            rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
+    eprosima::fastdds::rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
     dds_existing_unicast_locator.address[12] = 127;
     dds_existing_unicast_locator.address[15] = 1;
     std::string existing_unicast_locator_name = to_string(dds_existing_unicast_locator);
@@ -2395,8 +2373,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered)
                 const std::string& alias,
                 const Qos& qos,
                 const bool& is_virtual_metatraffic,
-                const eprosima::fastdds::
-                        rtps::RemoteLocatorList& locators,
+                const eprosima::fastdds::rtps::RemoteLocatorList& locators,
                 const EntityKind& kind,
                 const EntityId& participant_id,
                 const EntityId& topic_id,
@@ -2458,8 +2435,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_undiscovered)
             std::make_pair(EntityId(0), EntityId(2)))));
 
     // Precondition: The Locator exists and has ID 3
-    eprosima::fastdds::
-            rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
+    eprosima::fastdds::rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
     dds_existing_unicast_locator.address[12] = 127;
     dds_existing_unicast_locator.address[15] = 1;
     std::string existing_unicast_locator_name = to_string(dds_existing_unicast_locator);
@@ -2512,8 +2488,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_no_topic)
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>()));
 
     // Precondition: The Locator exists and has ID 3
-    eprosima::fastdds::
-            rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
+    eprosima::fastdds::rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
     dds_existing_unicast_locator.address[12] = 127;
     dds_existing_unicast_locator.address[15] = 1;
     std::string existing_unicast_locator_name = to_string(dds_existing_unicast_locator);
@@ -2567,8 +2542,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_no_topic)
                 const std::string& alias,
                 const Qos& qos,
                 const bool& is_virtual_metatraffic,
-                const eprosima::fastdds::
-                        rtps::RemoteLocatorList& locators,
+                const eprosima::fastdds::rtps::RemoteLocatorList& locators,
                 const EntityKind& kind,
                 const EntityId& participant_id,
                 const EntityId& topic_id,
@@ -2660,8 +2634,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_topics)
             .WillOnce(Return(true));
 
     // Precondition: The Locator exists and has ID 3
-    eprosima::fastdds::
-            rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
+    eprosima::fastdds::rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
     dds_existing_unicast_locator.address[12] = 127;
     dds_existing_unicast_locator.address[15] = 1;
     std::string existing_unicast_locator_name = to_string(dds_existing_unicast_locator);
@@ -2699,8 +2672,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_topics)
                 const std::string& alias,
                 const Qos& qos,
                 const bool& is_virtual_metatraffic,
-                const eprosima::fastdds::
-                        rtps::RemoteLocatorList& locators,
+                const eprosima::fastdds::rtps::RemoteLocatorList& locators,
                 const EntityKind& kind,
                 const EntityId& participant_id,
                 const EntityId& topic_id,
@@ -2768,8 +2740,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_locators)
             .WillOnce(Return(true));
 
     // Precondition: One unicast Locator exists and has ID 3
-    eprosima::fastdds::
-            rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
+    eprosima::fastdds::rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
     dds_existing_unicast_locator.address[12] = 127;
     dds_existing_unicast_locator.address[15] = 1;
     std::string existing_unicast_locator_name = to_string(dds_existing_unicast_locator);
@@ -2778,8 +2749,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_locators)
     existing_unicast_locator->id = 3;
 
     // Precondition: One multicast Locator exists and has ID 4
-    eprosima::fastdds::
-            rtps::Locator_t dds_existing_multicast_locator(LOCATOR_KIND_UDPv4, 1024);
+    eprosima::fastdds::rtps::Locator_t dds_existing_multicast_locator(LOCATOR_KIND_UDPv4, 1024);
     dds_existing_multicast_locator.address[12] = 127;
     dds_existing_multicast_locator.address[15] = 2;
     std::string existing_multicast_locator_name = to_string(dds_existing_multicast_locator);
@@ -2788,8 +2758,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_locators)
     existing_multicast_locator->id = 4;
 
     // Precondition: One unicast Locator does not exist
-    eprosima::fastdds::
-            rtps::Locator_t dds_new_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
+    eprosima::fastdds::rtps::Locator_t dds_new_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
     dds_new_unicast_locator.address[12] = 127;
     dds_new_unicast_locator.address[15] = 3;
     std::string new_unicast_locator_name = to_string(dds_new_unicast_locator);
@@ -2797,8 +2766,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_locators)
             std::make_shared<Locator>(new_unicast_locator_name);
 
     // Precondition: One multicast Locator does not exist
-    eprosima::fastdds::
-            rtps::Locator_t dds_new_multicast_locator(LOCATOR_KIND_UDPv4, 1024);
+    eprosima::fastdds::rtps::Locator_t dds_new_multicast_locator(LOCATOR_KIND_UDPv4, 1024);
     dds_new_multicast_locator.address[12] = 127;
     dds_new_multicast_locator.address[15] = 4;
     std::string new_multicast_locator_name = to_string(dds_new_multicast_locator);
@@ -2845,8 +2813,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_locators)
                 const std::string& alias,
                 const Qos& qos,
                 const bool& is_virtual_metatraffic,
-                const eprosima::fastdds::
-                        rtps::RemoteLocatorList& locators,
+                const eprosima::fastdds::rtps::RemoteLocatorList& locators,
                 const EntityKind& kind,
                 const EntityId& participant_id,
                 const EntityId& topic_id,
@@ -2919,8 +2886,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_locators_no_hos
             .WillOnce(Return(true));
 
     // Precondition: One unicast Locator exists and has ID 3
-    eprosima::fastdds::
-            rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
+    eprosima::fastdds::rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
     dds_existing_unicast_locator.address[12] = 127;
     dds_existing_unicast_locator.address[15] = 1;
     std::string existing_unicast_locator_name = to_string(dds_existing_unicast_locator);
@@ -2930,8 +2896,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_locators_no_hos
     existing_locators.push_back(existing_unicast_locator);
 
     // Precondition: One multicast Locator exists and has ID 4
-    eprosima::fastdds::
-            rtps::Locator_t dds_existing_multicast_locator(LOCATOR_KIND_UDPv4, 1024);
+    eprosima::fastdds::rtps::Locator_t dds_existing_multicast_locator(LOCATOR_KIND_UDPv4, 1024);
     dds_existing_multicast_locator.address[12] = 127;
     dds_existing_multicast_locator.address[15] = 2;
     std::string existing_multicast_locator_name = to_string(dds_existing_multicast_locator);
@@ -2941,8 +2906,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_locators_no_hos
     existing_locators.push_back(existing_multicast_locator);
 
     // Precondition: One unicast Locator does not exist
-    eprosima::fastdds::
-            rtps::Locator_t dds_new_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
+    eprosima::fastdds::rtps::Locator_t dds_new_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
     dds_new_unicast_locator.address[12] = 127;
     dds_new_unicast_locator.address[15] = 3;
     std::string new_unicast_locator_name = to_string(dds_new_unicast_locator);
@@ -2950,8 +2914,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_locators_no_hos
             std::make_shared<Locator>(new_unicast_locator_name);
 
     // Precondition: One multicast Locator does not exist
-    eprosima::fastdds::
-            rtps::Locator_t dds_new_multicast_locator(LOCATOR_KIND_UDPv4, 1024);
+    eprosima::fastdds::rtps::Locator_t dds_new_multicast_locator(LOCATOR_KIND_UDPv4, 1024);
     dds_new_multicast_locator.address[12] = 127;
     dds_new_multicast_locator.address[15] = 4;
     std::string new_multicast_locator_name = to_string(dds_new_multicast_locator);
@@ -2998,8 +2961,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_locators_no_hos
                 const std::string& alias,
                 const Qos& qos,
                 const bool& is_virtual_metatraffic,
-                const eprosima::fastdds::
-                        rtps::RemoteLocatorList& locators,
+                const eprosima::fastdds::rtps::RemoteLocatorList& locators,
                 const EntityKind& kind,
                 const EntityId& participant_id,
                 const EntityId& topic_id,
@@ -3066,8 +3028,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_no_participant)
             std::make_pair(EntityId(0), EntityId(2)))));
 
     // Precondition: The Locator exists and has ID 3
-    eprosima::fastdds::
-            rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
+    eprosima::fastdds::rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
     dds_existing_unicast_locator.address[12] = 127;
     dds_existing_unicast_locator.address[15] = 1;
     std::string existing_unicast_locator_name = to_string(dds_existing_unicast_locator);
@@ -3117,8 +3078,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_no_domain)
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>()));
 
     // Precondition: The Locator exists and has ID 3
-    eprosima::fastdds::
-            rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
+    eprosima::fastdds::rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
     dds_existing_unicast_locator.address[12] = 127;
     dds_existing_unicast_locator.address[15] = 1;
     std::string existing_unicast_locator_name = to_string(dds_existing_unicast_locator);
@@ -3243,8 +3203,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_undiscovered_reader_alr
             .WillOnce(Return(true));
 
     // Precondition: The Locator exists and has ID 3
-    eprosima::fastdds::
-            rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
+    eprosima::fastdds::rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
     dds_existing_unicast_locator.address[12] = 127;
     dds_existing_unicast_locator.address[15] = 1;
     std::string existing_unicast_locator_name = to_string(dds_existing_unicast_locator);
