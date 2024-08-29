@@ -58,7 +58,7 @@ public:
             fastdds::dds::DomainParticipant* /*participant*/,
             fastdds::rtps::ParticipantDiscoveryStatus reason,
             const fastdds::dds::ParticipantBuiltinTopicData& info,
-            bool&) override
+            bool& /*should_be_ignored*/) override
     {
         if (reason == fastdds::rtps::ParticipantDiscoveryStatus::DISCOVERED_PARTICIPANT)
         {

@@ -158,7 +158,8 @@ TEST(qos_serializer_tests, reliability_qos_policy)
 
     Qos serialized_blocking_time;
 
-    eprosima::statistics_backend::subscriber::serialize(qos.max_blocking_time, max_blocking_time_tag, serialized_blocking_time);
+    eprosima::statistics_backend::subscriber::serialize(qos.max_blocking_time, max_blocking_time_tag,
+            serialized_blocking_time);
     expected[field.c_str()][kind_tag] = reliability_best_effort_tag;
     expected[field.c_str()][max_blocking_time_tag] = serialized_blocking_time[max_blocking_time_tag];
     EXPECT_EQ(expected, serialized);

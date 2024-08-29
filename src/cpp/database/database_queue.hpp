@@ -589,7 +589,9 @@ protected:
         }
         eprosima::fastdds::rtps::GUID_t guid;
         memcpy(guid.guidPrefix.value, data.address().data(), eprosima::fastdds::rtps::GuidPrefix_t::size);
-        memcpy(guid.entityId.value, data.address().data() + eprosima::fastdds::rtps::GuidPrefix_t::size, eprosima::fastdds::rtps::EntityId_t::size);
+        memcpy(guid.entityId.value,
+                data.address().data() + eprosima::fastdds::rtps::GuidPrefix_t::size,
+                eprosima::fastdds::rtps::EntityId_t::size);
         std::stringstream ss;
         ss << guid;
         return ss.str();

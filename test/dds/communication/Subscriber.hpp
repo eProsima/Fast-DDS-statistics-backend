@@ -83,11 +83,12 @@ public:
         void on_subscription_matched(
                 eprosima::fastdds::dds::DataReader* reader,
                 const eprosima::fastdds::dds::SubscriptionMatchedStatus& info) override;
-                
+
         uint32_t get_matched()
         {
             return matched_;
         }
+
     private:
 
         Communication comm_;
@@ -104,7 +105,8 @@ public:
         //! Avoids race conditions in callback execution
         std::mutex mutex_;
         std::condition_variable cv_;
-    } listener;
+    }
+    listener;
 
 private:
 

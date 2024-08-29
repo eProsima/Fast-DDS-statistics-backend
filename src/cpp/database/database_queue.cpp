@@ -74,7 +74,9 @@ EntityId DatabaseEntityQueue::process_participant(
         participant_id = database_->get_entity_by_guid(EntityKind::PARTICIPANT, to_string(info.guid)).second;
 
         // Update the entity status and check if its references must also change it status
-        database_->change_entity_status(participant_id, info.discovery_status != details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY);
+        database_->change_entity_status(participant_id,
+                info.discovery_status !=
+                details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY);
 
     }
     catch (BadParameter&)
@@ -125,7 +127,8 @@ EntityId DatabaseEntityQueue::process_participant(
         {
             process_name = info.process;
             process_pid = info.process;
-            EPROSIMA_LOG_INFO(BACKEND_DATABASE, "Process name " + process_name + " does not follow the [command]:[PID] pattern");
+            EPROSIMA_LOG_INFO(BACKEND_DATABASE,
+                    "Process name " + process_name + " does not follow the [command]:[PID] pattern");
         }
         else
         {
@@ -169,10 +172,12 @@ EntityId DatabaseEntityQueue::process_datareader(
     {
         // See if the reader is already in the database
         // This will throw if the reader is unknown
-        datareader_id =database_->get_entity_by_guid(EntityKind::DATAREADER, to_string(info.guid)).second;
+        datareader_id = database_->get_entity_by_guid(EntityKind::DATAREADER, to_string(info.guid)).second;
 
         // Update the entity status and check if its references must also change it status
-        database_->change_entity_status(datareader_id,info.discovery_status != details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY);
+        database_->change_entity_status(datareader_id,
+                info.discovery_status !=
+                details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY);
 
         // Delete inactive entites
         // Get the participant from the database
@@ -241,7 +246,9 @@ EntityId DatabaseEntityQueue::process_datawriter(
         datawriter_id = database_->get_entity_by_guid(EntityKind::DATAWRITER, to_string(info.guid)).second;
 
         // Update the entity status and check if its references must also change it status
-        database_->change_entity_status(datawriter_id, info.discovery_status != details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY);
+        database_->change_entity_status(datawriter_id,
+                info.discovery_status !=
+                details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY);
 
         // Delete inactive entites
         // Get the participant from the database
@@ -1004,7 +1011,8 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample()
             catch (const eprosima::statistics_backend::Exception& e)
             {
                 EPROSIMA_LOG_WARNING(BACKEND_DATABASE_QUEUE,
-                        "Error processing HISTORY2HISTORY_LATENCY event. Data was not added to the statistics collection: " + std::string(e.what()));
+                        "Error processing HISTORY2HISTORY_LATENCY event. Data was not added to the statistics collection: " + std::string(
+                            e.what()));
             }
             break;
         }
@@ -1108,8 +1116,10 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample()
                         static_cast<ByteToLocatorCountSample&>(byte_sample),
                         item.second->entity2locator_traffic());
                 database_->insert(domain, entity, byte_sample);
-                details::StatisticsBackendData::get_instance()->on_data_available(domain, entity, DataKind::RTPS_PACKETS_SENT);
-                details::StatisticsBackendData::get_instance()->on_data_available(domain, entity, DataKind::RTPS_BYTES_SENT);
+                details::StatisticsBackendData::get_instance()->on_data_available(domain, entity,
+                        DataKind::RTPS_PACKETS_SENT);
+                details::StatisticsBackendData::get_instance()->on_data_available(domain, entity,
+                        DataKind::RTPS_BYTES_SENT);
             }
             catch (const eprosima::statistics_backend::Exception& e)
             {
@@ -1148,8 +1158,10 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample()
                         static_cast<ByteToLocatorCountSample&>(byte_sample),
                         item.second->entity2locator_traffic());
                 database_->insert(domain, entity, byte_sample);
-                details::StatisticsBackendData::get_instance()->on_data_available(domain, entity, DataKind::RTPS_PACKETS_LOST);
-                details::StatisticsBackendData::get_instance()->on_data_available(domain, entity, DataKind::RTPS_BYTES_LOST);
+                details::StatisticsBackendData::get_instance()->on_data_available(domain, entity,
+                        DataKind::RTPS_PACKETS_LOST);
+                details::StatisticsBackendData::get_instance()->on_data_available(domain, entity,
+                        DataKind::RTPS_BYTES_LOST);
             }
             catch (const eprosima::statistics_backend::Exception& e)
             {
@@ -1171,7 +1183,8 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample()
                 process_sample_type(domain, entity, EntityKind::DATAWRITER, static_cast<EntityCountSample&>(sample),
                         item.second->entity_count());
                 database_->insert(domain, entity, sample);
-                details::StatisticsBackendData::get_instance()->on_data_available(domain, entity, DataKind::RESENT_DATA);
+                details::StatisticsBackendData::get_instance()->on_data_available(domain, entity,
+                        DataKind::RESENT_DATA);
             }
             catch (const eprosima::statistics_backend::Exception& e)
             {
@@ -1193,7 +1206,8 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample()
                 process_sample_type(domain, entity, EntityKind::DATAWRITER, static_cast<EntityCountSample&>(sample),
                         item.second->entity_count());
                 database_->insert(domain, entity, sample);
-                details::StatisticsBackendData::get_instance()->on_data_available(domain, entity, DataKind::HEARTBEAT_COUNT);
+                details::StatisticsBackendData::get_instance()->on_data_available(domain, entity,
+                        DataKind::HEARTBEAT_COUNT);
             }
             catch (const eprosima::statistics_backend::Exception& e)
             {
@@ -1215,7 +1229,8 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample()
                 process_sample_type(domain, entity, EntityKind::DATAREADER, static_cast<EntityCountSample&>(sample),
                         item.second->entity_count());
                 database_->insert(domain, entity, sample);
-                details::StatisticsBackendData::get_instance()->on_data_available(domain, entity, DataKind::ACKNACK_COUNT);
+                details::StatisticsBackendData::get_instance()->on_data_available(domain, entity,
+                        DataKind::ACKNACK_COUNT);
             }
             catch (const eprosima::statistics_backend::Exception& e)
             {
@@ -1237,7 +1252,8 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample()
                 process_sample_type(domain, entity, EntityKind::DATAREADER, static_cast<EntityCountSample&>(sample),
                         item.second->entity_count());
                 database_->insert(domain, entity, sample);
-                details::StatisticsBackendData::get_instance()->on_data_available(domain, entity, DataKind::NACKFRAG_COUNT);
+                details::StatisticsBackendData::get_instance()->on_data_available(domain, entity,
+                        DataKind::NACKFRAG_COUNT);
             }
             catch (const eprosima::statistics_backend::Exception& e)
             {
@@ -1303,7 +1319,8 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample()
                 process_sample_type(domain, entity, EntityKind::PARTICIPANT, static_cast<EntityCountSample&>(sample),
                         item.second->entity_count());
                 database_->insert(domain, entity, sample);
-                details::StatisticsBackendData::get_instance()->on_data_available(domain, entity, DataKind::PDP_PACKETS);
+                details::StatisticsBackendData::get_instance()->on_data_available(domain, entity,
+                        DataKind::PDP_PACKETS);
             }
             catch (const eprosima::statistics_backend::Exception& e)
             {
@@ -1325,7 +1342,8 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample()
                 process_sample_type(domain, entity, EntityKind::PARTICIPANT, static_cast<EntityCountSample&>(sample),
                         item.second->entity_count());
                 database_->insert(domain, entity, sample);
-                details::StatisticsBackendData::get_instance()->on_data_available(domain, entity, DataKind::EDP_PACKETS);
+                details::StatisticsBackendData::get_instance()->on_data_available(domain, entity,
+                        DataKind::EDP_PACKETS);
             }
             catch (const eprosima::statistics_backend::Exception& e)
             {
@@ -1346,7 +1364,8 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample()
             {
                 process_sample_type(domain, entity, EntityKind::PARTICIPANT, sample, item.second->discovery_time());
                 database_->insert(domain, entity, sample);
-                details::StatisticsBackendData::get_instance()->on_data_available(domain, entity, DataKind::DISCOVERY_TIME);
+                details::StatisticsBackendData::get_instance()->on_data_available(domain, entity,
+                        DataKind::DISCOVERY_TIME);
             }
             catch (const eprosima::statistics_backend::Exception& e)
             {
@@ -1368,7 +1387,8 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample()
                 process_sample_type(domain, entity, EntityKind::DATAWRITER, sample,
                         item.second->sample_identity_count());
                 database_->insert(domain, entity, sample);
-                details::StatisticsBackendData::get_instance()->on_data_available(domain, entity, DataKind::SAMPLE_DATAS);
+                details::StatisticsBackendData::get_instance()->on_data_available(domain, entity,
+                        DataKind::SAMPLE_DATAS);
             }
             catch (const eprosima::statistics_backend::Exception& e)
             {
@@ -1428,13 +1448,15 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>:
                         item.second->value().connection_list());
 
                 updated_entity = database_->insert(domain, entity, sample);
-                details::StatisticsBackendData::get_instance()->on_status_reported(domain, entity, StatusKind::CONNECTION_LIST);
+                details::StatisticsBackendData::get_instance()->on_status_reported(domain, entity,
+                        StatusKind::CONNECTION_LIST);
             }
             catch (const eprosima::statistics_backend::Exception& e)
             {
                 EPROSIMA_LOG_WARNING(BACKEND_DATABASE_QUEUE,
                         "Error processing CONNECTION_LIST status data. Data was not added to the statistics collection: "
-                        + std::string(e.what()));
+                        + std::string(
+                            e.what()));
             }
             break;
         }
@@ -1449,13 +1471,15 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>:
                         item.second->value().incompatible_qos_status());
 
                 updated_entity = database_->insert(domain, entity, sample);
-                details::StatisticsBackendData::get_instance()->on_status_reported(domain, entity, StatusKind::INCOMPATIBLE_QOS);
+                details::StatisticsBackendData::get_instance()->on_status_reported(domain, entity,
+                        StatusKind::INCOMPATIBLE_QOS);
             }
             catch (const eprosima::statistics_backend::Exception& e)
             {
                 EPROSIMA_LOG_WARNING(BACKEND_DATABASE_QUEUE,
                         "Error processing INCOMPATIBLE_QOS status data. Data was not added to the statistics collection: "
-                        + std::string(e.what()));
+                        + std::string(
+                            e.what()));
             }
             break;
         }
@@ -1477,7 +1501,8 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>:
             {
                 EPROSIMA_LOG_WARNING(BACKEND_DATABASE_QUEUE,
                         "Error processing INCONSISTENT_TOPIC status data. Data was not added to the statistics collection: "
-                        + std::string(e.what()));
+                        + std::string(
+                            e.what()));
             }
             break;
         }
@@ -1492,13 +1517,15 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>:
                         item.second->value().liveliness_lost_status());
 
                 updated_entity = database_->insert(domain, entity, sample);
-                details::StatisticsBackendData::get_instance()->on_status_reported(domain, entity, StatusKind::LIVELINESS_LOST);
+                details::StatisticsBackendData::get_instance()->on_status_reported(domain, entity,
+                        StatusKind::LIVELINESS_LOST);
             }
             catch (const eprosima::statistics_backend::Exception& e)
             {
                 EPROSIMA_LOG_WARNING(BACKEND_DATABASE_QUEUE,
                         "Error processing LIVELINESS_LOST status data. Data was not added to the statistics collection: "
-                        + std::string(e.what()));
+                        + std::string(
+                            e.what()));
             }
             break;
         }
@@ -1520,7 +1547,8 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>:
             {
                 EPROSIMA_LOG_WARNING(BACKEND_DATABASE_QUEUE,
                         "Error processing LIVELINESS_CHANGED status data. Data was not added to the statistics collection: "
-                        + std::string(e.what()));
+                        + std::string(
+                            e.what()));
             }
             break;
         }
@@ -1542,7 +1570,8 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>:
             {
                 EPROSIMA_LOG_WARNING(BACKEND_DATABASE_QUEUE,
                         "Error processing DEADLINE_MISSED status data. Data was not added to the statistics collection: "
-                        + std::string(e.what()));
+                        + std::string(
+                            e.what()));
             }
             break;
         }

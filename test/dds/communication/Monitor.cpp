@@ -35,7 +35,6 @@
 #include <StatisticsBackendData.hpp>
 #include <topic_types/typesPubSubTypes.hpp>
 
-
 using namespace eprosima::statistics_backend;
 using namespace eprosima::fastdds::dds;
 using namespace eprosima::fastdds::statistics;
@@ -317,9 +316,7 @@ int main(
                 throw Error("Error: database contains unexpected DATAREADER");
             }
             // Some locators are beyond the monitor domain
-            else if (
-                StatisticsBackend::get_entities(EntityKind::LOCATOR,
-                monitor_id).size() != num_locators)
+            else if (StatisticsBackend::get_entities(EntityKind::LOCATOR, monitor_id).size() != num_locators)
             {
                 throw Error("Error: database contains unexpected LOCATOR");
             }
@@ -451,9 +448,7 @@ int main(
                 throw Error("Error: database contains unexpected DATAREADER");
             }
             // Some locators are beyond the monitor domain
-            else if (
-                StatisticsBackend::get_entities(EntityKind::LOCATOR,
-                monitor_id).size() != num_locators)
+            else if (StatisticsBackend::get_entities(EntityKind::LOCATOR, monitor_id).size() != num_locators)
             {
                 throw Error("Error: database contains unexpected LOCATOR");
             }
@@ -587,9 +582,7 @@ int main(
                 throw Error("Error: database contains unexpected DATAREADER");
             }
             // Some locators are beyond the monitor domain
-            else if (
-                StatisticsBackend::get_entities(EntityKind::LOCATOR,
-                monitor_id).size() != num_locators)
+            else if (StatisticsBackend::get_entities(EntityKind::LOCATOR, monitor_id).size() != num_locators)
             {
                 throw Error("Error: database contains unexpected LOCATOR");
             }
