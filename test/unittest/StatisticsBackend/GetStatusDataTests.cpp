@@ -69,14 +69,14 @@ public:
         db_->insert(domain_->id, datareader_->id, proxy_sample_);
 
         eprosima::fastdds::statistics::Connection connection_sample;
-        connection_sample.mode(eprosima::fastdds::statistics::DATA_SHARING);
+        connection_sample.mode(eprosima::fastdds::statistics::ConnectionMode::DATA_SHARING);
         eprosima::fastdds::statistics::detail::GUID_s guid_s;
-        eprosima::fastrtps::rtps::GUID_t guid_t;
+        eprosima::fastdds::rtps::GUID_t guid_t;
         std::stringstream guid_str("01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1");
         guid_str >> guid_t;
         memcpy(guid_s.guidPrefix().value().data(), guid_t.guidPrefix.value,
-                eprosima::fastrtps::rtps::GuidPrefix_t::size);
-        memcpy(guid_s.entityId().value().data(), guid_t.entityId.value, eprosima::fastrtps::rtps::EntityId_t::size);
+                eprosima::fastdds::rtps::GuidPrefix_t::size);
+        memcpy(guid_s.entityId().value().data(), guid_t.entityId.value, eprosima::fastdds::rtps::EntityId_t::size);
         connection_sample.guid(guid_s);
         eprosima::fastdds::statistics::detail::Locator_s locator;
         locator.kind(1);

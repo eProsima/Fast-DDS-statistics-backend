@@ -54,8 +54,8 @@ void serialize<fastdds::dds::DurabilityQosPolicy> (
 }
 
 template <>
-void serialize<fastrtps::Duration_t> (
-        const fastrtps::Duration_t& qos,
+void serialize<fastdds::dds::Duration_t> (
+        const fastdds::dds::Duration_t& qos,
         const std::string& fieldname,
         database::Qos& serialized)
 {
@@ -449,72 +449,68 @@ void serialize<fastdds::dds::ParameterPropertyList_t> (
 }
 
 database::Qos reader_proxy_data_to_backend_qos(
-        const fastrtps::rtps::ReaderProxyData& reader_data)
+        const fastdds::rtps::SubscriptionBuiltinTopicData& reader_data)
 {
     database::Qos reader;
 
-    serialize(reader_data.m_qos.m_durability, durability_tag, reader);
-    serialize(reader_data.m_qos.m_deadline, deadline_tag, reader);
-    serialize(reader_data.m_qos.m_latencyBudget, latency_budget_tag, reader);
-    serialize(reader_data.m_qos.m_liveliness, liveliness_tag, reader);
-    serialize(reader_data.m_qos.m_reliability, reliability_tag, reader);
-    serialize(reader_data.m_qos.m_ownership, ownership_tag, reader);
-    serialize(reader_data.m_qos.m_destinationOrder, destination_order_tag, reader);
-    serialize(reader_data.m_qos.m_userData, user_data_tag, reader);
-    serialize(reader_data.m_qos.m_timeBasedFilter, time_based_filter_tag, reader);
-    serialize(reader_data.m_qos.m_presentation, presentation_tag, reader);
-    serialize(reader_data.m_qos.m_partition, partition_tag, reader);
-    serialize(reader_data.m_qos.m_topicData, topic_data_tag, reader);
-    serialize(reader_data.m_qos.m_groupData, group_data_tag, reader);
-    serialize(reader_data.m_qos.m_durabilityService, durability_service_tag, reader);
-    serialize(reader_data.m_qos.m_lifespan, lifespan_tag, reader);
-    serialize(reader_data.m_qos.representation, representation_tag, reader);
-    serialize(reader_data.m_qos.type_consistency, type_consistency_tag, reader);
-    serialize(reader_data.m_qos.m_disablePositiveACKs, disable_positive_acks_tag, reader);
-    serialize(reader_data.m_qos.data_sharing, data_sharing_tag, reader);
+    serialize(reader_data.durability, durability_tag, reader);
+    serialize(reader_data.deadline, deadline_tag, reader);
+    serialize(reader_data.latency_budget, latency_budget_tag, reader);
+    serialize(reader_data.lifespan, lifespan_tag, reader);
+    serialize(reader_data.liveliness, liveliness_tag, reader);
+    serialize(reader_data.reliability, reliability_tag, reader);
+    serialize(reader_data.ownership, ownership_tag, reader);
+    serialize(reader_data.destination_order, destination_order_tag, reader);
+    serialize(reader_data.user_data, user_data_tag, reader);
+    serialize(reader_data.time_based_filter, time_based_filter_tag, reader);
+    serialize(reader_data.presentation, presentation_tag, reader);
+    serialize(reader_data.partition, partition_tag, reader);
+    serialize(reader_data.topic_data, topic_data_tag, reader);
+    serialize(reader_data.group_data, group_data_tag, reader);
+    serialize(reader_data.representation, representation_tag, reader);
+    serialize(reader_data.type_consistency, type_consistency_tag, reader);
+    serialize(reader_data.disable_positive_acks, disable_positive_acks_tag, reader);
+    serialize(reader_data.data_sharing, data_sharing_tag, reader);
 
     return reader;
 }
 
 database::Qos writer_proxy_data_to_backend_qos(
-        const fastrtps::rtps::WriterProxyData& writer_data)
+        const fastdds::rtps::PublicationBuiltinTopicData& info)
 {
     database::Qos writer;
 
-    serialize(writer_data.m_qos.m_durability, durability_tag, writer);
-    serialize(writer_data.m_qos.m_durabilityService, durability_service_tag, writer);
-    serialize(writer_data.m_qos.m_deadline, deadline_tag, writer);
-    serialize(writer_data.m_qos.m_latencyBudget, latency_budget_tag, writer);
-    serialize(writer_data.m_qos.m_liveliness, liveliness_tag, writer);
-    serialize(writer_data.m_qos.m_reliability, reliability_tag, writer);
-    serialize(writer_data.m_qos.m_lifespan, lifespan_tag, writer);
-    serialize(writer_data.m_qos.m_userData, user_data_tag, writer);
-    serialize(writer_data.m_qos.m_timeBasedFilter, time_based_filter_tag, writer);
-    serialize(writer_data.m_qos.m_ownership, ownership_tag, writer);
-    serialize(writer_data.m_qos.m_ownershipStrength, ownership_strength_tag, writer);
-    serialize(writer_data.m_qos.m_destinationOrder, destination_order_tag, writer);
-    serialize(writer_data.m_qos.m_presentation, presentation_tag, writer);
-    serialize(writer_data.m_qos.m_partition, partition_tag, writer);
-    serialize(writer_data.m_qos.m_topicData, topic_data_tag, writer);
-    serialize(writer_data.m_qos.m_groupData, group_data_tag, writer);
-    serialize(writer_data.m_qos.m_publishMode, publish_mode_tag, writer);
-    serialize(writer_data.m_qos.representation, representation_tag, writer);
-    serialize(writer_data.m_qos.m_disablePositiveACKs, disable_positive_acks_tag, writer);
-    serialize(writer_data.m_qos.data_sharing, data_sharing_tag, writer);
+    serialize(info.durability, durability_tag, writer);
+    serialize(info.durability_service, durability_service_tag, writer);
+    serialize(info.deadline, deadline_tag, writer);
+    serialize(info.latency_budget, latency_budget_tag, writer);
+    serialize(info.liveliness, liveliness_tag, writer);
+    serialize(info.reliability, reliability_tag, writer);
+    serialize(info.lifespan, lifespan_tag, writer);
+    serialize(info.user_data, user_data_tag, writer);
+    serialize(info.ownership, ownership_tag, writer);
+    serialize(info.ownership_strength, ownership_strength_tag, writer);
+    serialize(info.destination_order, destination_order_tag, writer);
+    serialize(info.presentation, presentation_tag, writer);
+    serialize(info.partition, partition_tag, writer);
+    serialize(info.topic_data, topic_data_tag, writer);
+    serialize(info.group_data, group_data_tag, writer);
+    serialize(info.representation, representation_tag, writer);
+    serialize(info.disable_positive_acks, disable_positive_acks_tag, writer);
+    serialize(info.data_sharing, data_sharing_tag, writer);
 
     return writer;
 }
 
 database::Qos participant_proxy_data_to_backend_qos(
-        const fastrtps::rtps::ParticipantProxyData& participant_data)
+        const fastdds::rtps::ParticipantBuiltinTopicData& participant_data)
 {
     database::Qos participant;
 
-    participant[available_builtin_endpoints_tag] = participant_data.m_availableBuiltinEndpoints;
-    serialize(participant_data.m_leaseDuration, lease_duration_tag, participant);
-    serialize(participant_data.m_properties, properties_tag, participant);
-    serialize(participant_data.m_userData, user_data_tag, participant);
-    participant[vendor_id_tag] = participant_data.m_VendorId;
+    serialize(participant_data.lease_duration, lease_duration_tag, participant);
+    serialize(participant_data.properties, properties_tag, participant);
+    serialize(participant_data.user_data, user_data_tag, participant);
+    participant[vendor_id_tag] = participant_data.vendor_id;
 
     return participant;
 }

@@ -35,7 +35,7 @@ if(GTEST_FOUND)
         ${PROJECT_SOURCE_DIR}/src/cpp)
 
     target_link_libraries(parametrized_fragile_ptr_tests PUBLIC
-        ${GTEST_LIBRARIES} fastrtps fastcdr)
+        ${GTEST_LIBRARIES} fastdds fastcdr)
 
     get_win32_path_dependencies(parametrized_fragile_ptr_tests TEST_FRIENDLY_PATH)
 

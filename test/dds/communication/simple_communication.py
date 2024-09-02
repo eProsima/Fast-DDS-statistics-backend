@@ -1,4 +1,4 @@
-# Copyright 2016 Proyectos y Sistemas de Mantenimiento SL (eProsima).
+# Copyright 2024 Proyectos y Sistemas de Mantenimiento SL (eProsima).
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -100,13 +100,14 @@ def communication(monitor_proc, pid):
                         + (["--xmlfile", real_xml_file_pub] if real_xml_file_pub else [])
                         + extra_pub_args)
 
-                    print("___" + pid + "___subscriber1 communicate...___")
+                    print("___" + pid + "___publisher1 communicate...___")
                     sys.stdout.flush()
                     publisher_proc1.communicate()
 
-                    print("___" + pid + "___publisher1 communicate...___")
+                    print("___" + pid + "___subscriber1 communicate...___")
                     sys.stdout.flush()
                     subscriber1_proc.communicate()
+
 
                 elif (line == ("Stop Monitor_" + pid)):
                     print("___" + pid + "___Stop Monitor___")
@@ -122,6 +123,7 @@ def communication(monitor_proc, pid):
                 sys.stdout.flush()
 
             time.sleep(0.1)
+
     finally:
         monitor_proc.terminate()
         try:

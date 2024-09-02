@@ -34,13 +34,12 @@
 #include <fastdds/dds/topic/qos/TopicQos.hpp>
 #include <fastdds/dds/topic/Topic.hpp>
 #include <fastdds/dds/topic/TopicDescription.hpp>
-#include <fastdds/rtps/attributes/RTPSParticipantAttributes.h>
-#include <fastdds/rtps/attributes/ServerAttributes.h>
-#include <fastdds/rtps/common/Locator.h>
-#include <fastdds/rtps/transport/UDPv4TransportDescriptor.h>
+#include <fastdds/rtps/attributes/RTPSParticipantAttributes.hpp>
+#include <fastdds/rtps/common/Locator.hpp>
+#include <fastdds/rtps/transport/UDPv4TransportDescriptor.hpp>
 #include <fastdds/statistics/dds/subscriber/qos/DataReaderQos.hpp>
 #include <fastdds/statistics/topic_names.hpp>
-#include <fastrtps/utils/IPLocator.h>
+#include <fastdds/utils/IPLocator.hpp>
 
 #include <fastdds_statistics_backend/StatisticsBackend.hpp>
 #include <fastdds_statistics_backend/types/JSONTags.h>
@@ -49,13 +48,15 @@
 #include <database/database.hpp>
 #include <subscriber/StatisticsParticipantListener.hpp>
 #include <subscriber/StatisticsReaderListener.hpp>
-#include <topic_types/typesPubSubTypes.h>
-#include <topic_types/monitorservice_typesPubSubTypes.h>
+#include <topic_types/typesPubSubTypes.hpp>
+
+#include <topic_types/monitorservice_typesPubSubTypes.hpp>
+
+#include "detail/data_aggregation.hpp"
+#include "detail/data_getters.hpp"
+#include "detail/ScopeExit.hpp"
 #include "Monitor.hpp"
 #include "StatisticsBackendData.hpp"
-#include "detail/data_getters.hpp"
-#include "detail/data_aggregation.hpp"
-#include "detail/ScopeExit.hpp"
 
 using namespace eprosima::fastdds::dds;
 using namespace eprosima::fastdds::rtps;
@@ -64,7 +65,6 @@ using namespace eprosima::statistics_backend::details;
 
 namespace eprosima {
 namespace statistics_backend {
-
 
 static const char* topics[] =
 {
@@ -97,9 +97,9 @@ void find_or_create_topic_and_type(
     TopicDescription* topic_desc = monitor.participant->lookup_topicdescription(topic_name);
     if (nullptr != topic_desc)
     {
-        if (topic_desc->get_type_name() != type->getName())
+        if (topic_desc->get_type_name() != type->get_name())
         {
-            throw Error(topic_name + " is not using expected type " + type->getName() +
+            throw Error(topic_name + " is not using expected type " + type->get_name() +
                           " and is using instead type " + topic_desc->get_type_name());
         }
 
@@ -116,13 +116,13 @@ void find_or_create_topic_and_type(
     }
     else
     {
-        if (ReturnCode_t::RETCODE_PRECONDITION_NOT_MET == monitor.participant->register_type(type, type->getName()))
+        if (RETCODE_PRECONDITION_NOT_MET == monitor.participant->register_type(type, type->get_name()))
         {
             // Name already in use
-            throw Error(std::string("Type name ") + type->getName() + " is already in use");
+            throw Error(std::string("Type name ") + type->get_name() + " is already in use");
         }
         monitor.topics[topic_name] =
-                monitor.participant->create_topic(topic_name, type->getName(), TOPIC_QOS_DEFAULT);
+                monitor.participant->create_topic(topic_name, type->get_name(), TOPIC_QOS_DEFAULT);
     }
 }
 
@@ -415,19 +415,6 @@ EntityId StatisticsBackend::init_monitor(
         std::string app_id,
         std::string app_metadata)
 {
-    return init_monitor(DEFAULT_ROS2_SERVER_GUIDPREFIX, discovery_server_locators, domain_listener, callback_mask,
-                   data_mask, app_id, app_metadata);
-}
-
-EntityId StatisticsBackend::init_monitor(
-        std::string discovery_server_guid_prefix,
-        std::string discovery_server_locators,
-        DomainListener* domain_listener,
-        CallbackMask callback_mask,
-        DataKindMask data_mask,
-        std::string app_id,
-        std::string app_metadata)
-{
     /* Deactivate statistics in case they were set */
 #ifdef _WIN32
     _putenv_s("FASTDDS_STATISTICS=", "");
@@ -439,8 +426,6 @@ EntityId StatisticsBackend::init_monitor(
     /* Since configuring the default Qos from an XML is a posibility, we need to load the XML profiles just in case */
     DomainParticipantFactory::get_instance()->load_profiles();
     DomainParticipantQos participant_qos = DomainParticipantFactory::get_instance()->get_default_participant_qos();
-    participant_qos.name("monitor_discovery_server_" + discovery_server_guid_prefix);
-
     /* Avoid using SHM transport by default */
     std::shared_ptr<eprosima::fastdds::rtps::UDPv4TransportDescriptor> udp_transport =
             std::make_shared<eprosima::fastdds::rtps::UDPv4TransportDescriptor>();
@@ -456,18 +441,19 @@ EntityId StatisticsBackend::init_monitor(
         app_metadata,
         "true");
 
+    // Set monitor as SUPER CLIENT
     participant_qos.wire_protocol().builtin.discovery_config.discoveryProtocol =
-            eprosima::fastrtps::rtps::DiscoveryProtocol_t::SUPER_CLIENT;
-    RemoteServerAttributes server;
-    // Set the server guidPrefix
-    server.ReadguidPrefix(discovery_server_guid_prefix.c_str());
+            eprosima::fastdds::rtps::DiscoveryProtocol::SUPER_CLIENT;
+
     // Add locators
     std::stringstream locators(discovery_server_locators);
     std::string locator_str;
+    bool set_locator = false;
+    std::string participant_name;
     while (std::getline(locators, locator_str, ';'))
     {
         std::stringstream ss(locator_str);
-        eprosima::fastrtps::rtps::Locator_t locator;
+        eprosima::fastdds::rtps::Locator_t locator;
         ss >> locator;
         if (!IsLocatorValid(locator) || !IsAddressDefined(locator) || ss.rdbuf()->in_avail() != 0)
         {
@@ -479,18 +465,26 @@ EntityId StatisticsBackend::init_monitor(
         }
 
         // Check unicast/multicast address
-        if (eprosima::fastrtps::rtps::IPLocator::isMulticast(locator))
+        if (eprosima::fastdds::rtps::IPLocator::isMulticast(locator))
         {
-            server.metatrafficMulticastLocatorList.push_back(locator);
+            participant_qos.wire_protocol().builtin.metatrafficMulticastLocatorList.push_back(locator);
         }
         else
         {
-            server.metatrafficUnicastLocatorList.push_back(locator);
+            participant_qos.wire_protocol().builtin.metatrafficUnicastLocatorList.push_back(locator);
+        }
+
+        // Add remote SERVER to Monitor's list of SERVERs
+        participant_qos.wire_protocol().builtin.discovery_config.m_DiscoveryServers.push_back(locator);
+
+        if (!set_locator)
+        {
+            participant_name = "DiscoveryServer_" + locator_str;
+            set_locator = true;
         }
     }
-    participant_qos.wire_protocol().builtin.discovery_config.m_DiscoveryServers.push_back(server);
 
-    return create_and_register_monitor(discovery_server_guid_prefix, domain_listener, callback_mask, data_mask,
+    return create_and_register_monitor(participant_name, domain_listener, callback_mask, data_mask,
                    participant_qos);
 }
 

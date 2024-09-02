@@ -23,13 +23,11 @@
 #include <fastdds/dds/domain/DomainParticipantFactory.hpp>
 #include <fastdds/dds/domain/qos/DomainParticipantQos.hpp>
 #include <fastdds/dds/topic/TopicDataType.hpp>
-#include <fastdds/rtps/attributes/ServerAttributes.h>
 #include <fastdds/rtps/common/GuidPrefix_t.hpp>
-#include <fastdds/rtps/common/Locator.h>
-#include <fastdds/rtps/common/Property.h>
-#include <fastdds/rtps/transport/UDPv4TransportDescriptor.h>
+#include <fastdds/rtps/common/Locator.hpp>
+#include <fastdds/rtps/common/Property.hpp>
+#include <fastdds/rtps/transport/UDPv4TransportDescriptor.hpp>
 #include <fastdds/statistics/topic_names.hpp>
-#include <fastrtps/xmlparser/XMLProfileManager.h>
 
 #include <fastdds_statistics_backend/exception/Exception.hpp>
 #include <fastdds_statistics_backend/listener/CallbackMask.hpp>
@@ -42,13 +40,14 @@
 #include <database/database_queue.hpp>
 #include <Monitor.hpp>
 #include <StatisticsBackendData.hpp>
-#include <topic_types/typesPubSubTypes.h>
+#include <topic_types/typesPubSubTypes.hpp>
+
 
 using namespace eprosima::statistics_backend;
 using namespace eprosima::fastdds::dds;
 using namespace eprosima::fastdds::rtps;
 using namespace eprosima::fastdds::statistics;
-using namespace eprosima::fastrtps::rtps;
+using namespace eprosima::fastdds::rtps;
 
 namespace test {
 
@@ -168,7 +167,6 @@ public:
     std::map<EntityId, eprosima::statistics_backend::details::Monitor*> init_monitors(
             DomainId domain_id,
             DomainListener* domain_listener,
-            const std::string& server_guid_prefix,
             const std::string& server_locators,
             const CallbackMask& callback_mask,
             const DataKindMask& datakind_mask,
@@ -189,30 +187,21 @@ public:
             datakind_mask,
             app_id,
             app_metadata);
-        EntityId monitor_id_2 = StatisticsBackend::init_monitor(
-            server_guid_prefix,
-            server_locators,
-            domain_listener,
-            callback_mask,
-            datakind_mask,
-            app_id,
-            app_metadata);
 
         EXPECT_TRUE(monitor_id.is_valid());
         EXPECT_TRUE(monitor_id_1.is_valid());
-        EXPECT_TRUE(monitor_id_2.is_valid());
 
         std::map<EntityId, eprosima::statistics_backend::details::Monitor*> domain_monitors =
                 test::get_monitors_from_database();
 
-        /* Check that three monitors are created */
-        EXPECT_EQ(domain_monitors.size(), 3u);
+        /* Check that two monitors are created */
+        EXPECT_EQ(domain_monitors.size(), 2u);
 
         return domain_monitors;
     }
 
     void check_locator(
-            const RemoteServerAttributes& server_qos,
+            const DomainParticipantQos& server_qos,
             int32_t kind,
             const std::string& address,
             uint32_t port,
@@ -236,42 +225,35 @@ public:
         // Look for it
         if (is_unicast)
         {
-            EXPECT_NE(std::find(server_qos.metatrafficUnicastLocatorList.begin(),
-                    server_qos.metatrafficUnicastLocatorList.end(), locator),
-                    server_qos.metatrafficUnicastLocatorList.end());
+            EXPECT_NE(std::find(server_qos.wire_protocol().builtin.metatrafficUnicastLocatorList.begin(),
+                    server_qos.wire_protocol().builtin.metatrafficUnicastLocatorList.end(), locator),
+                    server_qos.wire_protocol().builtin.metatrafficUnicastLocatorList.end());
         }
         else
         {
-            EXPECT_NE(std::find(server_qos.metatrafficMulticastLocatorList.begin(),
-                    server_qos.metatrafficMulticastLocatorList.end(), locator),
-                    server_qos.metatrafficMulticastLocatorList.end());
+            EXPECT_NE(std::find(server_qos.wire_protocol().builtin.metatrafficMulticastLocatorList.begin(),
+                    server_qos.wire_protocol().builtin.metatrafficMulticastLocatorList.end(), locator),
+                    server_qos.wire_protocol().builtin.metatrafficMulticastLocatorList.end());
         }
     }
 
     void check_participant_qos(
             const DomainParticipantQos& participant_qos,
-            const std::string& server_guid_prefix,
             const std::string& app_id = "",
             const std::string& app_metadata = "")
     {
         EXPECT_EQ(participant_qos.wire_protocol().builtin.discovery_config.discoveryProtocol,
-                eprosima::fastrtps::rtps::DiscoveryProtocol_t::SUPER_CLIENT);
-
-        RemoteServerAttributes server_qos =
-                participant_qos.wire_protocol().builtin.discovery_config.m_DiscoveryServers.front();
-        GuidPrefix_t guid_prefix;
-        std::istringstream(server_guid_prefix) >> guid_prefix;
-        EXPECT_EQ(server_qos.guidPrefix, guid_prefix);
+                eprosima::fastdds::rtps::DiscoveryProtocol::SUPER_CLIENT);
 
         //Get data from participant discovery info
         auto get_property_value =
-                [](const eprosima::fastrtps::rtps::PropertySeq& properties,
+                [](const eprosima::fastdds::rtps::PropertySeq& properties,
                         const std::string& property_name) -> std::string
                 {
                     auto property = std::find_if(
                         properties.begin(),
                         properties.end(),
-                        [&](const eprosima::fastrtps::rtps::Property& property)
+                        [&](const eprosima::fastdds::rtps::Property& property)
                         {
                             return property.name() == property_name;
                         });
@@ -288,24 +270,13 @@ public:
         EXPECT_EQ(app_id_, app_id);
         EXPECT_EQ(app_metadata_, app_metadata);
 
-        check_locator(server_qos, LOCATOR_KIND_UDPv4, "127.0.0.1", 11811);
+        check_locator(participant_qos, LOCATOR_KIND_UDPv4, "127.0.0.1", 11811);
     }
 
     void check_dds_entities(
-            eprosima::statistics_backend::details::Monitor* monitor,
-            const std::string& server_guid_prefix = "",
-            const std::string& app_id = "",
-            const std::string& app_metadata = "")
+            eprosima::statistics_backend::details::Monitor* monitor)
     {
         EXPECT_NE(nullptr, monitor->participant);
-
-        if (!server_guid_prefix.empty())
-        {
-            DomainParticipantQos participant_qos;
-            monitor->participant->get_qos(participant_qos);
-            check_participant_qos(participant_qos, server_guid_prefix, app_id, app_metadata);
-        }
-
         EXPECT_NE(nullptr, monitor->subscriber);
 
         for (auto topic : topic_types_)
@@ -325,10 +296,9 @@ TEST_F(init_monitor_tests, init_monitor_domain_id_all_callback_all_data)
 {
     DomainId domain_id = 0;
     DomainListener domain_listener;
-    std::string server_guid_prefix = "44.53.01.5f.45.50.52.4f.53.49.4d.41";
     std::string server_locators = "UDPv4:[127.0.0.1]:11811";
 
-    auto domain_monitors = init_monitors(domain_id, &domain_listener, server_guid_prefix, server_locators,
+    auto domain_monitors = init_monitors(domain_id, &domain_listener, server_locators,
                     all_callback_mask_, all_datakind_mask_);
 
     std::vector<EntityId> monitor_ids;
@@ -354,8 +324,6 @@ TEST_F(init_monitor_tests, init_monitor_domain_id_all_callback_all_data)
 
     /* Check the created DDS entities */
     check_dds_entities(domain_monitors[monitor_ids[0]]);
-    check_dds_entities(domain_monitors[monitor_ids[1]], DEFAULT_ROS2_SERVER_GUIDPREFIX);
-    check_dds_entities(domain_monitors[monitor_ids[2]], server_guid_prefix);
 
     // Stop the monitor to avoid interfering on the next test
     for (const auto& monitor : domain_monitors)
@@ -368,12 +336,11 @@ TEST_F(init_monitor_tests, init_monitor_domain_id_all_callback_all_data_known_ap
 {
     DomainId domain_id = 0;
     DomainListener domain_listener;
-    std::string server_guid_prefix = "44.53.01.5f.45.50.52.4f.53.49.4d.41";
     std::string server_locators = "UDPv4:[127.0.0.1]:11811";
 
     std::string app_id = app_id_str[(int)AppId::FASTDDS_MONITOR];
     std::string app_metadata = "metadata";
-    auto domain_monitors = init_monitors(domain_id, &domain_listener, server_guid_prefix, server_locators,
+    auto domain_monitors = init_monitors(domain_id, &domain_listener, server_locators,
                     all_callback_mask_, all_datakind_mask_, app_id, app_metadata);
 
     std::vector<EntityId> monitor_ids;
@@ -398,9 +365,7 @@ TEST_F(init_monitor_tests, init_monitor_domain_id_all_callback_all_data_known_ap
     }
 
     /* Check the created DDS entities */
-    check_dds_entities(domain_monitors[monitor_ids[0]], "", app_id, app_metadata);
-    check_dds_entities(domain_monitors[monitor_ids[1]], DEFAULT_ROS2_SERVER_GUIDPREFIX, app_id, app_metadata);
-    check_dds_entities(domain_monitors[monitor_ids[2]], server_guid_prefix, app_id, app_metadata);
+    check_dds_entities(domain_monitors[monitor_ids[0]]);
 
     // Stop the monitor to avoid interfering on the next test
     for (const auto& monitor : domain_monitors)
@@ -413,10 +378,9 @@ TEST_F(init_monitor_tests, init_monitor_domain_id_no_callback_all_data)
 {
     DomainId domain_id = 0;
     DomainListener domain_listener;
-    std::string server_guid_prefix = "44.53.01.5f.45.50.52.4f.53.49.4d.41";
     std::string server_locators = "UDPv4:[localhost]:11811";
 
-    auto domain_monitors = init_monitors(domain_id, &domain_listener, server_guid_prefix, server_locators,
+    auto domain_monitors = init_monitors(domain_id, &domain_listener, server_locators,
                     CallbackMask::none(), all_datakind_mask_);
 
     std::vector<EntityId> monitor_ids;
@@ -442,8 +406,6 @@ TEST_F(init_monitor_tests, init_monitor_domain_id_no_callback_all_data)
 
     /* Check the created DDS entities */
     check_dds_entities(domain_monitors[monitor_ids[0]]);
-    check_dds_entities(domain_monitors[monitor_ids[1]], DEFAULT_ROS2_SERVER_GUIDPREFIX);
-    check_dds_entities(domain_monitors[monitor_ids[2]], server_guid_prefix);
 
     // Stop the monitor to avoid interfering on the next test
     for (const auto& monitor : domain_monitors)
@@ -456,10 +418,9 @@ TEST_F(init_monitor_tests, init_monitor_domain_id_all_callback_no_data)
 {
     DomainId domain_id = 0;
     DomainListener domain_listener;
-    std::string server_guid_prefix = "44.53.01.5f.45.50.52.4f.53.49.4d.41";
     std::string server_locators = "UDPv4:[127.0.0.1]:11811";
 
-    auto domain_monitors = init_monitors(domain_id, &domain_listener, server_guid_prefix, server_locators,
+    auto domain_monitors = init_monitors(domain_id, &domain_listener, server_locators,
                     all_callback_mask_, DataKindMask::none());
 
     std::vector<EntityId> monitor_ids;
@@ -485,8 +446,6 @@ TEST_F(init_monitor_tests, init_monitor_domain_id_all_callback_no_data)
 
     /* Check the created DDS entities */
     check_dds_entities(domain_monitors[monitor_ids[0]]);
-    check_dds_entities(domain_monitors[monitor_ids[1]], DEFAULT_ROS2_SERVER_GUIDPREFIX);
-    check_dds_entities(domain_monitors[monitor_ids[2]], server_guid_prefix);
 
     // Stop the monitor to avoid interfering on the next test
     for (const auto& monitor : domain_monitors)
@@ -498,10 +457,9 @@ TEST_F(init_monitor_tests, init_monitor_domain_id_all_callback_no_data)
 TEST_F(init_monitor_tests, init_monitor_domain_id_null_listener_all_data)
 {
     DomainId domain_id = 0;
-    std::string server_guid_prefix = "44.53.01.5f.45.50.52.4f.53.49.4d.41";
     std::string server_locators = "UDPv4:[localhost]:11811";
 
-    auto domain_monitors = init_monitors(domain_id, nullptr, server_guid_prefix, server_locators,
+    auto domain_monitors = init_monitors(domain_id, nullptr, server_locators,
                     all_callback_mask_, all_datakind_mask_);
 
     std::vector<EntityId> monitor_ids;
@@ -527,8 +485,6 @@ TEST_F(init_monitor_tests, init_monitor_domain_id_null_listener_all_data)
 
     /* Check the created DDS entities */
     check_dds_entities(domain_monitors[monitor_ids[0]]);
-    check_dds_entities(domain_monitors[monitor_ids[1]], DEFAULT_ROS2_SERVER_GUIDPREFIX);
-    check_dds_entities(domain_monitors[monitor_ids[2]], server_guid_prefix);
 
     // Stop the monitor to avoid interfering on the next test
     for (const auto& monitor : domain_monitors)
@@ -594,10 +550,9 @@ TEST_F(init_monitor_tests, init_monitor_twice)
 {
     DomainId domain_id = 0;
     DomainListener domain_listener;
-    std::string server_guid_prefix = "44.53.01.5f.45.50.52.4f.53.49.4d.41";
     std::string server_locators = "UDPv4:[127.0.0.1]:11811";
 
-    init_monitors(domain_id, &domain_listener, server_guid_prefix, server_locators,
+    init_monitors(domain_id, &domain_listener, server_locators,
             all_callback_mask_, all_datakind_mask_);
 
     EXPECT_THROW(StatisticsBackend::init_monitor(
@@ -610,17 +565,11 @@ TEST_F(init_monitor_tests, init_monitor_twice)
                 nullptr,
                 CallbackMask::none(),
                 DataKindMask::none()), BadParameter);
-    EXPECT_THROW(StatisticsBackend::init_monitor(
-                server_guid_prefix,
-                server_locators,
-                nullptr,
-                CallbackMask::none(),
-                DataKindMask::none()), BadParameter);
 
     auto domain_monitors = test::get_monitors_from_database();
 
-    /* Check that three monitors are created */
-    EXPECT_EQ(domain_monitors.size(), 3u);
+    /* Check that two monitors are created */
+    EXPECT_EQ(domain_monitors.size(), 2u);
 
     std::vector<EntityId> monitor_ids;
     for (const auto& monitor : domain_monitors)
@@ -645,8 +594,6 @@ TEST_F(init_monitor_tests, init_monitor_twice)
 
     /* Check the created DDS entities */
     check_dds_entities(domain_monitors[monitor_ids[0]]);
-    check_dds_entities(domain_monitors[monitor_ids[1]], DEFAULT_ROS2_SERVER_GUIDPREFIX);
-    check_dds_entities(domain_monitors[monitor_ids[2]], server_guid_prefix);
 
     // Stop the monitor to avoid interfering on the next test
     for (const auto& monitor : domain_monitors)
@@ -675,18 +622,15 @@ TEST_F(init_monitor_tests, init_server_monitor_several_locators)
     domain_monitors[monitor_id]->participant->get_qos(participant_qos);
 
     EXPECT_EQ(participant_qos.wire_protocol().builtin.discovery_config.discoveryProtocol,
-            eprosima::fastrtps::rtps::DiscoveryProtocol_t::SUPER_CLIENT);
+            eprosima::fastdds::rtps::DiscoveryProtocol::SUPER_CLIENT);
 
-    const RemoteServerAttributes& server_qos =
-            participant_qos.wire_protocol().builtin.discovery_config.m_DiscoveryServers.front();
+    check_locator(participant_qos, LOCATOR_KIND_UDPv4, "127.0.0.1", 11811);
+    check_locator(participant_qos, LOCATOR_KIND_TCPv4, "127.0.0.1", 11812);
+    check_locator(participant_qos, LOCATOR_KIND_UDPv6, "::1", 11813);
+    check_locator(participant_qos, LOCATOR_KIND_TCPv6, "::1", 11814);
 
-    check_locator(server_qos, LOCATOR_KIND_UDPv4, "127.0.0.1", 11811);
-    check_locator(server_qos, LOCATOR_KIND_TCPv4, "127.0.0.1", 11812);
-    check_locator(server_qos, LOCATOR_KIND_UDPv6, "::1", 11813);
-    check_locator(server_qos, LOCATOR_KIND_TCPv6, "::1", 11814);
-
-    check_locator(server_qos, LOCATOR_KIND_UDPv4, "239.255.0.1", 11821, false);
-    check_locator(server_qos, LOCATOR_KIND_UDPv6, "ff1e::ffff:efff:1", 11823, false);
+    check_locator(participant_qos, LOCATOR_KIND_UDPv4, "239.255.0.1", 11821, false);
+    check_locator(participant_qos, LOCATOR_KIND_UDPv6, "ff1e::ffff:efff:1", 11823, false);
 
     // Stop the monitor to avoid interfering on the next test
     StatisticsBackend::stop_monitor(monitor_id);

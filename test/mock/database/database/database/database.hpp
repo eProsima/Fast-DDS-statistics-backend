@@ -19,8 +19,8 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include "fastdds/rtps/common/Guid.h"
-#include "fastdds/rtps/common/Locator.h"
+#include "fastdds/rtps/common/Guid.hpp"
+#include "fastdds/rtps/common/Locator.hpp"
 #include <fastdds/rtps/common/RemoteLocators.hpp>
 
 #include "database/entities.hpp"
@@ -91,7 +91,7 @@ public:
                 const std::string& alias,
                 const Qos& qos,
                 const bool& is_virtual_metatraffic,
-                const fastrtps::rtps::RemoteLocatorList& locators,
+                const fastdds::rtps::RemoteLocatorList& locators,
                 const EntityKind& kind,
                 const EntityId& participant_id,
                 const EntityId& topic_id,

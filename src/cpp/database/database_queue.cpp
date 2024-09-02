@@ -26,7 +26,7 @@ namespace statistics_backend {
 namespace database {
 
 using namespace eprosima::fastdds::dds;
-using namespace eprosima::fastrtps::rtps;
+using namespace eprosima::fastdds::rtps;
 
 template<typename T>
 std::string to_string(
@@ -71,9 +71,7 @@ EntityId DatabaseEntityQueue::process_participant(
     {
         // See if the participant is already in the database
         // This will throw if the participant is unknown
-        participant_id = database_->get_entity_by_guid(
-            EntityKind::PARTICIPANT, to_string(info.guid))
-                        .second;
+        participant_id = database_->get_entity_by_guid(EntityKind::PARTICIPANT, to_string(info.guid)).second;
 
         // Update the entity status and check if its references must also change it status
         database_->change_entity_status(participant_id,
@@ -129,7 +127,7 @@ EntityId DatabaseEntityQueue::process_participant(
         {
             process_name = info.process;
             process_pid = info.process;
-            logInfo(BACKEND_DATABASE,
+            EPROSIMA_LOG_INFO(BACKEND_DATABASE,
                     "Process name " + process_name + " does not follow the [command]:[PID] pattern");
         }
         else
@@ -150,7 +148,7 @@ EntityId DatabaseEntityQueue::process_participant(
     }
     catch (const std::exception& e)
     {
-        logError(BACKEND_DATABASE_QUEUE, e.what());
+        EPROSIMA_LOG_ERROR(BACKEND_DATABASE_QUEUE, e.what());
     }
 
     graph_updated = database_->update_participant_in_graph(
@@ -174,9 +172,7 @@ EntityId DatabaseEntityQueue::process_datareader(
     {
         // See if the reader is already in the database
         // This will throw if the reader is unknown
-        datareader_id =
-                database_->get_entity_by_guid(
-            EntityKind::DATAREADER, to_string(info.guid)).second;
+        datareader_id = database_->get_entity_by_guid(EntityKind::DATAREADER, to_string(info.guid)).second;
 
         // Update the entity status and check if its references must also change it status
         database_->change_entity_status(datareader_id,
@@ -247,9 +243,7 @@ EntityId DatabaseEntityQueue::process_datawriter(
     {
         // See if the writer is already in the database
         // This will throw if the writer is unknown
-        datawriter_id =
-                database_->get_entity_by_guid(
-            EntityKind::DATAWRITER, to_string(info.guid)).second;
+        datawriter_id = database_->get_entity_by_guid(EntityKind::DATAWRITER, to_string(info.guid)).second;
 
         // Update the entity status and check if its references must also change it status
         database_->change_entity_status(datawriter_id,
@@ -829,7 +823,7 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>:
     sample.kind = StatusKind::INCONSISTENT_TOPIC;
 
     // Appropriate behavior not yet implemented
-    logWarning(BACKEND_DATABASE_QUEUE,
+    EPROSIMA_LOG_WARNING(BACKEND_DATABASE_QUEUE,
             "Warning processing INCONSISTENT_TOPIC status data. Status behavior not yet defined");
     sample.status = StatusLevel::OK_STATUS;
 
@@ -1000,7 +994,7 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample()
 {
     switch (front().second->_d())
     {
-        case StatisticsEventKind::HISTORY2HISTORY_LATENCY:
+        case fastdds::statistics::EventKind::HISTORY2HISTORY_LATENCY:
         {
             HistoryLatencySample sample;
             EntityId domain;
@@ -1016,14 +1010,13 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample()
             }
             catch (const eprosima::statistics_backend::Exception& e)
             {
-                logWarning(BACKEND_DATABASE_QUEUE,
-                        "Error processing HISTORY2HISTORY_LATENCY event. Data was not added to the statistics collection: "
-                        + std::string(
+                EPROSIMA_LOG_WARNING(BACKEND_DATABASE_QUEUE,
+                        "Error processing HISTORY2HISTORY_LATENCY event. Data was not added to the statistics collection: " + std::string(
                             e.what()));
             }
             break;
         }
-        case StatisticsEventKind::NETWORK_LATENCY:
+        case fastdds::statistics::EventKind::NETWORK_LATENCY:
         {
             NetworkLatencySample sample;
             EntityId domain;
@@ -1040,13 +1033,13 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample()
             }
             catch (const eprosima::statistics_backend::Exception& e)
             {
-                logWarning(BACKEND_DATABASE_QUEUE,
+                EPROSIMA_LOG_WARNING(BACKEND_DATABASE_QUEUE,
                         "Error processing NETWORK_LATENCY event. Data was not added to the statistics collection: "
                         + std::string(e.what()));
             }
             break;
         }
-        case StatisticsEventKind::PUBLICATION_THROUGHPUT:
+        case fastdds::statistics::EventKind::PUBLICATION_THROUGHPUT:
         {
             PublicationThroughputSample sample;
             EntityId domain;
@@ -1063,14 +1056,14 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample()
             }
             catch (const eprosima::statistics_backend::Exception& e)
             {
-                logWarning(BACKEND_DATABASE_QUEUE,
+                EPROSIMA_LOG_WARNING(BACKEND_DATABASE_QUEUE,
                         "Error processing PUBLICATION_THROUGHPUT event. Data was not added to the statistics collection: "
                         + std::string(
                             e.what()));
             }
             break;
         }
-        case StatisticsEventKind::SUBSCRIPTION_THROUGHPUT:
+        case fastdds::statistics::EventKind::SUBSCRIPTION_THROUGHPUT:
         {
             SubscriptionThroughputSample sample;
             EntityId domain;
@@ -1087,14 +1080,14 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample()
             }
             catch (const eprosima::statistics_backend::Exception& e)
             {
-                logWarning(BACKEND_DATABASE_QUEUE,
+                EPROSIMA_LOG_WARNING(BACKEND_DATABASE_QUEUE,
                         "Error processing SUBSCRIPTION_THROUGHPUT event. Data was not added to the statistics collection: "
                         + std::string(
                             e.what()));
             }
             break;
         }
-        case StatisticsEventKind::RTPS_SENT:
+        case fastdds::statistics::EventKind::RTPS_SENT:
         {
             RtpsPacketsSentSample packet_sample;
             RtpsBytesSentSample byte_sample;
@@ -1113,7 +1106,7 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample()
             }
             catch (const eprosima::statistics_backend::Exception& e)
             {
-                logWarning(BACKEND_DATABASE_QUEUE,
+                EPROSIMA_LOG_WARNING(BACKEND_DATABASE_QUEUE,
                         "Error processing RTPS_SENT event. Data was not added to the statistics collection: "
                         + std::string(e.what()));
             }
@@ -1130,13 +1123,13 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample()
             }
             catch (const eprosima::statistics_backend::Exception& e)
             {
-                logWarning(BACKEND_DATABASE_QUEUE,
+                EPROSIMA_LOG_WARNING(BACKEND_DATABASE_QUEUE,
                         "Error processing RTPS_SENT event. Data was not added to the statistics collection: "
                         + std::string(e.what()));
             }
             break;
         }
-        case StatisticsEventKind::RTPS_LOST:
+        case fastdds::statistics::EventKind::RTPS_LOST:
         {
 
             RtpsPacketsLostSample packet_sample;
@@ -1155,7 +1148,7 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample()
             }
             catch (const eprosima::statistics_backend::Exception& e)
             {
-                logWarning(BACKEND_DATABASE_QUEUE,
+                EPROSIMA_LOG_WARNING(BACKEND_DATABASE_QUEUE,
                         "Error processing RTPS_LOST event. Data was not added to the statistics collection: "
                         + std::string(e.what()));
             }
@@ -1172,13 +1165,13 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample()
             }
             catch (const eprosima::statistics_backend::Exception& e)
             {
-                logWarning(BACKEND_DATABASE_QUEUE,
+                EPROSIMA_LOG_WARNING(BACKEND_DATABASE_QUEUE,
                         "Error processing RTPS_LOST event. Data was not added to the statistics collection: "
                         + std::string(e.what()));
             }
             break;
         }
-        case StatisticsEventKind::RESENT_DATAS:
+        case fastdds::statistics::EventKind::RESENT_DATAS:
         {
             ResentDataSample sample;
             EntityId domain;
@@ -1195,13 +1188,13 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample()
             }
             catch (const eprosima::statistics_backend::Exception& e)
             {
-                logWarning(BACKEND_DATABASE_QUEUE,
+                EPROSIMA_LOG_WARNING(BACKEND_DATABASE_QUEUE,
                         "Error processing RESENT_DATAS event. Data was not added to the statistics collection: "
                         + std::string(e.what()));
             }
             break;
         }
-        case StatisticsEventKind::HEARTBEAT_COUNT:
+        case fastdds::statistics::EventKind::HEARTBEAT_COUNT:
         {
             HeartbeatCountSample sample;
             EntityId domain;
@@ -1218,13 +1211,13 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample()
             }
             catch (const eprosima::statistics_backend::Exception& e)
             {
-                logWarning(BACKEND_DATABASE_QUEUE,
+                EPROSIMA_LOG_WARNING(BACKEND_DATABASE_QUEUE,
                         "Error processing HEARTBEAT_COUNT event. Data was not added to the statistics collection: "
                         + std::string(e.what()));
             }
             break;
         }
-        case StatisticsEventKind::ACKNACK_COUNT:
+        case fastdds::statistics::EventKind::ACKNACK_COUNT:
         {
             AcknackCountSample sample;
             EntityId domain;
@@ -1241,13 +1234,13 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample()
             }
             catch (const eprosima::statistics_backend::Exception& e)
             {
-                logWarning(BACKEND_DATABASE_QUEUE,
+                EPROSIMA_LOG_WARNING(BACKEND_DATABASE_QUEUE,
                         "Error processing ACKNACK_COUNT event. Data was not added to the statistics collection: "
                         + std::string(e.what()));
             }
             break;
         }
-        case StatisticsEventKind::NACKFRAG_COUNT:
+        case fastdds::statistics::EventKind::NACKFRAG_COUNT:
         {
             NackfragCountSample sample;
             EntityId domain;
@@ -1264,13 +1257,13 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample()
             }
             catch (const eprosima::statistics_backend::Exception& e)
             {
-                logWarning(BACKEND_DATABASE_QUEUE,
+                EPROSIMA_LOG_WARNING(BACKEND_DATABASE_QUEUE,
                         "Error processing NACKFRAG_COUNT event. Data was not added to the statistics collection: "
                         + std::string(e.what()));
             }
             break;
         }
-        case StatisticsEventKind::GAP_COUNT:
+        case fastdds::statistics::EventKind::GAP_COUNT:
         {
             GapCountSample sample;
             EntityId domain;
@@ -1286,13 +1279,13 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample()
             }
             catch (const eprosima::statistics_backend::Exception& e)
             {
-                logWarning(BACKEND_DATABASE_QUEUE,
+                EPROSIMA_LOG_WARNING(BACKEND_DATABASE_QUEUE,
                         "Error processing GAP_COUNT event. Data was not added to the statistics collection: "
                         + std::string(e.what()));
             }
             break;
         }
-        case StatisticsEventKind::DATA_COUNT:
+        case fastdds::statistics::EventKind::DATA_COUNT:
         {
             DataCountSample sample;
             EntityId domain;
@@ -1308,13 +1301,13 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample()
             }
             catch (const eprosima::statistics_backend::Exception& e)
             {
-                logWarning(BACKEND_DATABASE_QUEUE,
+                EPROSIMA_LOG_WARNING(BACKEND_DATABASE_QUEUE,
                         "Error processing DATA_COUNT event. Data was not added to the statistics collection: "
                         + std::string(e.what()));
             }
             break;
         }
-        case StatisticsEventKind::PDP_PACKETS:
+        case fastdds::statistics::EventKind::PDP_PACKETS:
         {
             PdpCountSample sample;
             EntityId domain;
@@ -1331,13 +1324,13 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample()
             }
             catch (const eprosima::statistics_backend::Exception& e)
             {
-                logWarning(BACKEND_DATABASE_QUEUE,
+                EPROSIMA_LOG_WARNING(BACKEND_DATABASE_QUEUE,
                         "Error processing PDP_PACKETS event. Data was not added to the statistics collection: "
                         + std::string(e.what()));
             }
             break;
         }
-        case StatisticsEventKind::EDP_PACKETS:
+        case fastdds::statistics::EventKind::EDP_PACKETS:
         {
             EdpCountSample sample;
             EntityId domain;
@@ -1354,13 +1347,13 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample()
             }
             catch (const eprosima::statistics_backend::Exception& e)
             {
-                logWarning(BACKEND_DATABASE_QUEUE,
+                EPROSIMA_LOG_WARNING(BACKEND_DATABASE_QUEUE,
                         "Error processing EDP_PACKETS event. Data was not added to the statistics collection: "
                         + std::string(e.what()));
             }
             break;
         }
-        case StatisticsEventKind::DISCOVERED_ENTITY:
+        case fastdds::statistics::EventKind::DISCOVERED_ENTITY:
         {
             DiscoveryTimeSample sample;
             EntityId domain;
@@ -1376,13 +1369,13 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample()
             }
             catch (const eprosima::statistics_backend::Exception& e)
             {
-                logWarning(BACKEND_DATABASE_QUEUE,
+                EPROSIMA_LOG_WARNING(BACKEND_DATABASE_QUEUE,
                         "Error processing DISCOVERED_ENTITY event. Data was not added to the statistics collection: "
                         + std::string(e.what()));
             }
             break;
         }
-        case StatisticsEventKind::SAMPLE_DATAS:
+        case fastdds::statistics::EventKind::SAMPLE_DATAS:
         {
             SampleDatasCountSample sample;
             EntityId domain;
@@ -1399,7 +1392,7 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample()
             }
             catch (const eprosima::statistics_backend::Exception& e)
             {
-                logWarning(BACKEND_DATABASE_QUEUE,
+                EPROSIMA_LOG_WARNING(BACKEND_DATABASE_QUEUE,
                         "Error processing SAMPLE_DATAS event. Data was not added to the statistics collection: "
                         + std::string(e.what()));
             }
@@ -1422,7 +1415,7 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>:
 
     switch (front().second->status_kind())
     {
-        case StatisticsStatusKind::PROXY:
+        case fastdds::statistics::StatusKind::PROXY:
         {
             ProxySample sample;
             queue_item_type item = front();
@@ -1437,14 +1430,14 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>:
             }
             catch (const eprosima::statistics_backend::Exception& e)
             {
-                logWarning(BACKEND_DATABASE_QUEUE,
+                EPROSIMA_LOG_WARNING(BACKEND_DATABASE_QUEUE,
                         "Error processing PROXY status data. Data was not added to the statistics collection: "
                         + std::string(
                             e.what()));
             }
             break;
         }
-        case StatisticsStatusKind::CONNECTION_LIST:
+        case fastdds::statistics::StatusKind::CONNECTION_LIST:
         {
             ConnectionListSample sample;
             queue_item_type item = front();
@@ -1460,14 +1453,14 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>:
             }
             catch (const eprosima::statistics_backend::Exception& e)
             {
-                logWarning(BACKEND_DATABASE_QUEUE,
+                EPROSIMA_LOG_WARNING(BACKEND_DATABASE_QUEUE,
                         "Error processing CONNECTION_LIST status data. Data was not added to the statistics collection: "
                         + std::string(
                             e.what()));
             }
             break;
         }
-        case StatisticsStatusKind::INCOMPATIBLE_QOS:
+        case fastdds::statistics::StatusKind::INCOMPATIBLE_QOS:
         {
             IncompatibleQosSample sample;
             queue_item_type item = front();
@@ -1483,14 +1476,14 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>:
             }
             catch (const eprosima::statistics_backend::Exception& e)
             {
-                logWarning(BACKEND_DATABASE_QUEUE,
+                EPROSIMA_LOG_WARNING(BACKEND_DATABASE_QUEUE,
                         "Error processing INCOMPATIBLE_QOS status data. Data was not added to the statistics collection: "
                         + std::string(
                             e.what()));
             }
             break;
         }
-        case StatisticsStatusKind::INCONSISTENT_TOPIC:
+        case fastdds::statistics::StatusKind::INCONSISTENT_TOPIC:
         {
             InconsistentTopicSample sample;
             queue_item_type item = front();
@@ -1506,14 +1499,14 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>:
             }
             catch (const eprosima::statistics_backend::Exception& e)
             {
-                logWarning(BACKEND_DATABASE_QUEUE,
+                EPROSIMA_LOG_WARNING(BACKEND_DATABASE_QUEUE,
                         "Error processing INCONSISTENT_TOPIC status data. Data was not added to the statistics collection: "
                         + std::string(
                             e.what()));
             }
             break;
         }
-        case StatisticsStatusKind::LIVELINESS_LOST:
+        case fastdds::statistics::StatusKind::LIVELINESS_LOST:
         {
             LivelinessLostSample sample;
             queue_item_type item = front();
@@ -1529,14 +1522,14 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>:
             }
             catch (const eprosima::statistics_backend::Exception& e)
             {
-                logWarning(BACKEND_DATABASE_QUEUE,
+                EPROSIMA_LOG_WARNING(BACKEND_DATABASE_QUEUE,
                         "Error processing LIVELINESS_LOST status data. Data was not added to the statistics collection: "
                         + std::string(
                             e.what()));
             }
             break;
         }
-        case StatisticsStatusKind::LIVELINESS_CHANGED:
+        case fastdds::statistics::StatusKind::LIVELINESS_CHANGED:
         {
             LivelinessChangedSample sample;
             queue_item_type item = front();
@@ -1552,14 +1545,14 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>:
             }
             catch (const eprosima::statistics_backend::Exception& e)
             {
-                logWarning(BACKEND_DATABASE_QUEUE,
+                EPROSIMA_LOG_WARNING(BACKEND_DATABASE_QUEUE,
                         "Error processing LIVELINESS_CHANGED status data. Data was not added to the statistics collection: "
                         + std::string(
                             e.what()));
             }
             break;
         }
-        case StatisticsStatusKind::DEADLINE_MISSED:
+        case fastdds::statistics::StatusKind::DEADLINE_MISSED:
         {
             DeadlineMissedSample sample;
             queue_item_type item = front();
@@ -1575,14 +1568,14 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>:
             }
             catch (const eprosima::statistics_backend::Exception& e)
             {
-                logWarning(BACKEND_DATABASE_QUEUE,
+                EPROSIMA_LOG_WARNING(BACKEND_DATABASE_QUEUE,
                         "Error processing DEADLINE_MISSED status data. Data was not added to the statistics collection: "
                         + std::string(
                             e.what()));
             }
             break;
         }
-        case StatisticsStatusKind::SAMPLE_LOST:
+        case fastdds::statistics::StatusKind::SAMPLE_LOST:
         {
             SampleLostSample sample;
             queue_item_type item = front();
@@ -1598,17 +1591,16 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>:
             }
             catch (const eprosima::statistics_backend::Exception& e)
             {
-                logWarning(BACKEND_DATABASE_QUEUE,
+                EPROSIMA_LOG_WARNING(BACKEND_DATABASE_QUEUE,
                         "Error processing SAMPLE_LOST status data. Data was not added to the statistics collection: "
-                        + std::string(
-                            e.what()));
+                        + std::string(e.what()));
             }
             break;
         }
-        case StatisticsStatusKind::STATUSES_SIZE:
+        case fastdds::statistics::StatusKind::STATUSES_SIZE:
         {
             //Not yet implemented
-            logWarning(BACKEND_DATABASE_QUEUE,
+            EPROSIMA_LOG_WARNING(BACKEND_DATABASE_QUEUE,
                     "Warning processing STATUSES_SIZE status data. Not yet implemented");
             break;
         }

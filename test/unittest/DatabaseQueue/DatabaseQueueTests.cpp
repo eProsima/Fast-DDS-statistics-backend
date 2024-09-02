@@ -19,17 +19,18 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include <fastrtps/utils/IPLocator.h>
+#include <fastdds/utils/IPLocator.hpp>
 
 #include <database/database.hpp>
 #include <database/database_queue.hpp>
-#include <fastdds_statistics_backend/topic_types/types.h>
-#include <fastdds_statistics_backend/topic_types/monitorservice_types.h>
+
+#include <fastdds_statistics_backend/topic_types/monitorservice_types.hpp>
+#include <fastdds_statistics_backend/topic_types/types.hpp>
 
 using namespace eprosima::fastdds::statistics;
 using namespace eprosima::statistics_backend;
 using namespace eprosima::statistics_backend::database;
-using namespace eprosima::fastrtps::rtps;
+using namespace eprosima::fastdds::rtps;
 
 using ::testing::_;
 using ::testing::Invoke;
@@ -416,7 +417,8 @@ struct InsertEndpointArgs
                 const std::string& alias,
                 const Qos& qos,
                 const bool& is_virtual_metatraffic,
-                const eprosima::fastrtps::rtps::RemoteLocatorList& locators,
+                const eprosima::fastdds::
+                        rtps::RemoteLocatorList& locators,
                 const EntityKind& kind,
                 const EntityId& participant_id,
                 const EntityId& topic_id,
@@ -431,7 +433,8 @@ struct InsertEndpointArgs
             const std::string& alias,
             const Qos& qos,
             const bool& is_virtual_metatraffic,
-            const eprosima::fastrtps::rtps::RemoteLocatorList& locators,
+            const eprosima::fastdds::
+                    rtps::RemoteLocatorList& locators,
             const EntityKind& kind,
             const EntityId& participant_id,
             const EntityId& topic_id,
@@ -457,7 +460,7 @@ struct InsertEndpointArgs
                 const std::string& alias,
                 const Qos& qos,
                 const bool& is_virtual_metatraffic,
-                const eprosima::fastrtps::rtps::RemoteLocatorList& locators,
+                const eprosima::fastdds::rtps::RemoteLocatorList& locators,
                 const EntityKind& kind,
                 const EntityId& participant_id,
                 const EntityId& topic_id,
@@ -468,7 +471,7 @@ struct InsertEndpointArgs
     std::string alias_;
     Qos qos_;
     bool is_virtual_metatraffic_;
-    eprosima::fastrtps::rtps::RemoteLocatorList locators_;
+    eprosima::fastdds::rtps::RemoteLocatorList locators_;
     EntityKind kind_;
     EntityId participant_id_;
     EntityId topic_id_;
@@ -1438,7 +1441,8 @@ TEST_F(database_queue_tests, push_datawriter)
                     const std::string& alias,
                     const Qos& qos,
                     const bool& is_virtual_metatraffic,
-                    const eprosima::fastrtps::rtps::RemoteLocatorList& locators,
+                    const eprosima::fastdds::
+                            rtps::RemoteLocatorList& locators,
                     const EntityKind& kind,
                     const EntityId& participant_id,
                     const EntityId& topic_id,
@@ -1474,8 +1478,7 @@ TEST_F(database_queue_tests, push_datawriter)
         // Expectations: Request the backend to notify user (if needed)
         EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
                 on_domain_entity_discovery(EntityId(0), EntityId(3), EntityKind::DATAWRITER,
-                details::StatisticsBackendData::DISCOVERY))
-                .Times(1);
+                details::StatisticsBackendData::DISCOVERY)).Times(1);
 
         // Add to the queue and wait to be processed
         info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::DISCOVERY;
@@ -1545,7 +1548,7 @@ TEST_F(database_queue_tests, push_datawriter)
                     const std::string& alias,
                     const Qos& qos,
                     const bool& is_virtual_metatraffic,
-                    const eprosima::fastrtps::rtps::RemoteLocatorList& locators,
+                    const eprosima::fastdds::rtps::RemoteLocatorList& locators,
                     const EntityKind& kind,
                     const EntityId& participant_id,
                     const EntityId& topic_id,
@@ -1558,7 +1561,6 @@ TEST_F(database_queue_tests, push_datawriter)
                     EXPECT_EQ(is_virtual_metatraffic, false);
                     EXPECT_EQ(locators.unicast[0], info.locators.unicast[0]);
                     EXPECT_EQ(locators.multicast[0], info.locators.multicast[0]);
-
                     EXPECT_EQ(kind, EntityKind::DATAWRITER);
                     EXPECT_EQ(participant_id, EntityId(1));
                     EXPECT_EQ(topic_id, EntityId(2));
@@ -1654,7 +1656,7 @@ TEST_F(database_queue_tests, push_datawriter_topic_does_not_exist)
                     const std::string& alias,
                     const Qos& qos,
                     const bool& is_virtual_metatraffic,
-                    const eprosima::fastrtps::rtps::RemoteLocatorList& locators,
+                    const eprosima::fastdds::rtps::RemoteLocatorList& locators,
                     const EntityKind& kind,
                     const EntityId& participant_id,
                     const EntityId& topic_id,
@@ -1667,7 +1669,6 @@ TEST_F(database_queue_tests, push_datawriter_topic_does_not_exist)
                     EXPECT_EQ(is_virtual_metatraffic, false);
                     EXPECT_EQ(locators.unicast[0], info.locators.unicast[0]);
                     EXPECT_EQ(locators.multicast[0], info.locators.multicast[0]);
-
                     EXPECT_EQ(kind, EntityKind::DATAWRITER);
                     EXPECT_EQ(participant_id, EntityId(1));
                     EXPECT_EQ(topic_id, EntityId(2));
@@ -1796,7 +1797,7 @@ TEST_F(database_queue_tests, push_datareader)
                     const std::string& alias,
                     const Qos& qos,
                     const bool& is_virtual_metatraffic,
-                    const eprosima::fastrtps::rtps::RemoteLocatorList& locators,
+                    const eprosima::fastdds::rtps::RemoteLocatorList& locators,
                     const EntityKind& kind,
                     const EntityId& participant_id,
                     const EntityId& topic_id,
@@ -1809,7 +1810,6 @@ TEST_F(database_queue_tests, push_datareader)
                     EXPECT_EQ(is_virtual_metatraffic, false);
                     EXPECT_EQ(locators.unicast[0], info.locators.unicast[0]);
                     EXPECT_EQ(locators.multicast[0], info.locators.multicast[0]);
-
                     EXPECT_EQ(kind, EntityKind::DATAREADER);
                     EXPECT_EQ(participant_id, EntityId(1));
                     EXPECT_EQ(topic_id, EntityId(2));
@@ -1903,7 +1903,7 @@ TEST_F(database_queue_tests, push_datareader)
                     const std::string& alias,
                     const Qos& qos,
                     const bool& is_virtual_metatraffic,
-                    const eprosima::fastrtps::rtps::RemoteLocatorList& locators,
+                    const eprosima::fastdds::rtps::RemoteLocatorList& locators,
                     const EntityKind& kind,
                     const EntityId& participant_id,
                     const EntityId& topic_id,
@@ -1916,7 +1916,6 @@ TEST_F(database_queue_tests, push_datareader)
                     EXPECT_EQ(is_virtual_metatraffic, false);
                     EXPECT_EQ(locators.unicast[0], info.locators.unicast[0]);
                     EXPECT_EQ(locators.multicast[0], info.locators.multicast[0]);
-
                     EXPECT_EQ(kind, EntityKind::DATAREADER);
                     EXPECT_EQ(participant_id, EntityId(1));
                     EXPECT_EQ(topic_id, EntityId(2));
@@ -2012,7 +2011,7 @@ TEST_F(database_queue_tests, push_datareader_topic_does_not_exist)
                     const std::string& alias,
                     const Qos& qos,
                     const bool& is_virtual_metatraffic,
-                    const eprosima::fastrtps::rtps::RemoteLocatorList& locators,
+                    const eprosima::fastdds::rtps::RemoteLocatorList& locators,
                     const EntityKind& kind,
                     const EntityId& participant_id,
                     const EntityId& topic_id,
@@ -2025,7 +2024,6 @@ TEST_F(database_queue_tests, push_datareader_topic_does_not_exist)
                     EXPECT_EQ(is_virtual_metatraffic, false);
                     EXPECT_EQ(locators.unicast[0], info.locators.unicast[0]);
                     EXPECT_EQ(locators.multicast[0], info.locators.multicast[0]);
-
                     EXPECT_EQ(kind, EntityKind::DATAREADER);
                     EXPECT_EQ(participant_id, EntityId(1));
                     EXPECT_EQ(topic_id, EntityId(2));
@@ -2099,7 +2097,7 @@ TEST_F(database_queue_tests, push_history_latency)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->writer_reader_data(inner_data);
-    data->_d(EventKindBits::HISTORY2HISTORY_LATENCY);
+    data->_d(EventKind::HISTORY2HISTORY_LATENCY);
 
     // Precondition: The writer exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(1)
@@ -2171,7 +2169,7 @@ TEST_F(database_queue_tests, push_history_latency_no_reader)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->writer_reader_data(inner_data);
-    data->_d(EventKindBits::HISTORY2HISTORY_LATENCY);
+    data->_d(EventKind::HISTORY2HISTORY_LATENCY);
 
     // Precondition: The writer exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
@@ -2228,7 +2226,7 @@ TEST_F(database_queue_tests, push_history_latency_no_writer)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->writer_reader_data(inner_data);
-    data->_d(EventKindBits::HISTORY2HISTORY_LATENCY);
+    data->_d(EventKind::HISTORY2HISTORY_LATENCY);
 
     // Precondition: The writer does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
@@ -2254,7 +2252,7 @@ TEST_F(database_queue_tests, push_network_latency)
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
     std::array<uint8_t, 16> src_locator_address = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
-    eprosima::fastrtps::rtps::Locator_t src_locator_t;
+    eprosima::fastdds::rtps::Locator_t src_locator_t;
     uint16_t src_locator_t_physical_port = 0;
     uint16_t src_locator_t_logical_port = 0;
     IPLocator::setPhysicalPort(src_locator_t, src_locator_t_physical_port);
@@ -2263,7 +2261,7 @@ TEST_F(database_queue_tests, push_network_latency)
     std::string src_locator_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|d.e.f.10";
 
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
-    eprosima::fastrtps::rtps::Locator_t dst_locator_t;
+    eprosima::fastdds::rtps::Locator_t dst_locator_t;
     uint16_t dst_locator_t_physical_port = 2048;
     uint16_t dst_locator_t_logical_port = 2048;
     IPLocator::setPhysicalPort(dst_locator_t, dst_locator_t_physical_port);
@@ -2292,7 +2290,7 @@ TEST_F(database_queue_tests, push_network_latency)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->locator2locator_data(inner_data);
-    data->_d(EventKindBits::NETWORK_LATENCY);
+    data->_d(EventKind::NETWORK_LATENCY);
 
     // Precondition: The participant exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, src_locator_str)).Times(1)
@@ -2332,7 +2330,7 @@ TEST_F(database_queue_tests, push_network_latency_no_participant)
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
     std::array<uint8_t, 16> src_locator_address = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
-    eprosima::fastrtps::rtps::Locator_t src_locator_t;
+    eprosima::fastdds::rtps::Locator_t src_locator_t;
     uint16_t src_locator_t_physical_port = 0;
     uint16_t src_locator_t_logical_port = 0;
     IPLocator::setPhysicalPort(src_locator_t, src_locator_t_physical_port);
@@ -2341,7 +2339,7 @@ TEST_F(database_queue_tests, push_network_latency_no_participant)
     std::string src_locator_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|d.e.f.10";
 
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
-    eprosima::fastrtps::rtps::Locator_t dst_locator_t;
+    eprosima::fastdds::rtps::Locator_t dst_locator_t;
     uint16_t dst_locator_t_physical_port = 2048;
     uint16_t dst_locator_t_logical_port = 0;
     IPLocator::setPhysicalPort(dst_locator_t, dst_locator_t_physical_port);
@@ -2370,7 +2368,7 @@ TEST_F(database_queue_tests, push_network_latency_no_participant)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->locator2locator_data(inner_data);
-    data->_d(EventKindBits::NETWORK_LATENCY);
+    data->_d(EventKind::NETWORK_LATENCY);
 
     // Precondition: The participant does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, src_locator_str)).Times(AnyNumber())
@@ -2396,7 +2394,7 @@ TEST_F(database_queue_tests, push_network_latency_wrong_participant_format)
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
     std::array<uint8_t, 16> src_locator_address = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
-    eprosima::fastrtps::rtps::Locator_t src_locator_t;
+    eprosima::fastdds::rtps::Locator_t src_locator_t;
     uint16_t src_locator_t_physical_port = 1;
     uint16_t src_locator_t_logical_port = 0;
     IPLocator::setPhysicalPort(src_locator_t, src_locator_t_physical_port);
@@ -2405,7 +2403,7 @@ TEST_F(database_queue_tests, push_network_latency_wrong_participant_format)
     std::string src_locator_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|d.e.f.10";
 
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
-    eprosima::fastrtps::rtps::Locator_t dst_locator_t;
+    eprosima::fastdds::rtps::Locator_t dst_locator_t;
     uint16_t dst_locator_t_physical_port = 2048;
     uint16_t dst_locator_t_logical_port = 0;
     IPLocator::setPhysicalPort(dst_locator_t, dst_locator_t_physical_port);
@@ -2434,7 +2432,7 @@ TEST_F(database_queue_tests, push_network_latency_wrong_participant_format)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->locator2locator_data(inner_data);
-    data->_d(EventKindBits::NETWORK_LATENCY);
+    data->_d(EventKind::NETWORK_LATENCY);
 
     // Precondition: The participant is not searched
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, src_locator_str)).Times(0);
@@ -2459,7 +2457,7 @@ TEST_F(database_queue_tests, push_network_latency_no_destination_locator)
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
     std::array<uint8_t, 16> src_locator_address = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
-    eprosima::fastrtps::rtps::Locator_t src_locator_t;
+    eprosima::fastdds::rtps::Locator_t src_locator_t;
     uint16_t src_locator_t_physical_port = 0;
     uint16_t src_locator_t_logical_port = 0;
     IPLocator::setPhysicalPort(src_locator_t, src_locator_t_physical_port);
@@ -2468,7 +2466,7 @@ TEST_F(database_queue_tests, push_network_latency_no_destination_locator)
     std::string src_locator_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|d.e.f.10";
 
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
-    eprosima::fastrtps::rtps::Locator_t dst_locator_t;
+    eprosima::fastdds::rtps::Locator_t dst_locator_t;
     uint16_t dst_locator_t_physical_port = 2048;
     uint16_t dst_locator_t_logical_port = 0;
     IPLocator::setPhysicalPort(dst_locator_t, dst_locator_t_physical_port);
@@ -2497,7 +2495,7 @@ TEST_F(database_queue_tests, push_network_latency_no_destination_locator)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->locator2locator_data(inner_data);
-    data->_d(EventKindBits::NETWORK_LATENCY);
+    data->_d(EventKind::NETWORK_LATENCY);
 
     // Precondition: The participant exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, src_locator_str)).Times(AnyNumber())
@@ -2572,7 +2570,7 @@ TEST_F(database_queue_tests, push_publication_throughput)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity_data(inner_data);
-    data->_d(EventKindBits::PUBLICATION_THROUGHPUT);
+    data->_d(EventKind::PUBLICATION_THROUGHPUT);
 
     // Precondition: The writer exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(1)
@@ -2627,7 +2625,7 @@ TEST_F(database_queue_tests, push_publication_throughput_no_writer)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity_data(inner_data);
-    data->_d(EventKindBits::PUBLICATION_THROUGHPUT);
+    data->_d(EventKind::PUBLICATION_THROUGHPUT);
 
     // Precondition: The writer does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
@@ -2668,7 +2666,7 @@ TEST_F(database_queue_tests, push_subscription_throughput)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity_data(inner_data);
-    data->_d(EventKindBits::SUBSCRIPTION_THROUGHPUT);
+    data->_d(EventKind::SUBSCRIPTION_THROUGHPUT);
 
     // Precondition: The reader exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(1)
@@ -2723,7 +2721,7 @@ TEST_F(database_queue_tests, push_subscription_throughput_no_reader)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity_data(inner_data);
-    data->_d(EventKindBits::SUBSCRIPTION_THROUGHPUT);
+    data->_d(EventKind::SUBSCRIPTION_THROUGHPUT);
 
     // Precondition: The reader does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(AnyNumber())
@@ -2749,7 +2747,7 @@ TEST_F(database_queue_tests, push_rtps_sent)
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
-    eprosima::fastrtps::rtps::Locator_t dst_locator_t;
+    eprosima::fastdds::rtps::Locator_t dst_locator_t;
     uint16_t dst_locator_t_physical_port = 2048;
     uint16_t dst_locator_t_logical_port = 0;
     IPLocator::setPhysicalPort(dst_locator_t, dst_locator_t_physical_port);
@@ -2783,7 +2781,7 @@ TEST_F(database_queue_tests, push_rtps_sent)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity2locator_traffic(inner_data);
-    data->_d(EventKindBits::RTPS_SENT);
+    data->_d(EventKind::RTPS_SENT);
 
     // Precondition: The writer exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(2)
@@ -2846,7 +2844,7 @@ TEST_F(database_queue_tests, push_rtps_sent_no_writer)
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
-    eprosima::fastrtps::rtps::Locator_t dst_locator_t;
+    eprosima::fastdds::rtps::Locator_t dst_locator_t;
     uint16_t dst_locator_t_physical_port = 2048;
     uint16_t dst_locator_t_logical_port = 0;
     IPLocator::setPhysicalPort(dst_locator_t, dst_locator_t_physical_port);
@@ -2880,7 +2878,7 @@ TEST_F(database_queue_tests, push_rtps_sent_no_writer)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity2locator_traffic(inner_data);
-    data->_d(EventKindBits::RTPS_SENT);
+    data->_d(EventKind::RTPS_SENT);
 
     // Precondition: The writer does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
@@ -2911,7 +2909,7 @@ TEST_F(database_queue_tests, push_rtps_sent_no_locator)
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
-    eprosima::fastrtps::rtps::Locator_t dst_locator_t;
+    eprosima::fastdds::rtps::Locator_t dst_locator_t;
     uint16_t dst_locator_t_physical_port = 2048;
     uint16_t dst_locator_t_logical_port = 0;
     IPLocator::setPhysicalPort(dst_locator_t, dst_locator_t_physical_port);
@@ -2945,7 +2943,7 @@ TEST_F(database_queue_tests, push_rtps_sent_no_locator)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity2locator_traffic(inner_data);
-    data->_d(EventKindBits::RTPS_SENT);
+    data->_d(EventKind::RTPS_SENT);
 
     // Precondition: The writer exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
@@ -3023,7 +3021,7 @@ TEST_F(database_queue_tests, push_rtps_lost)
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
-    eprosima::fastrtps::rtps::Locator_t dst_locator_t;
+    eprosima::fastdds::rtps::Locator_t dst_locator_t;
     uint16_t dst_locator_t_physical_port = 2048;
     uint16_t dst_locator_t_logical_port = 0;
     IPLocator::setPhysicalPort(dst_locator_t, dst_locator_t_physical_port);
@@ -3057,7 +3055,7 @@ TEST_F(database_queue_tests, push_rtps_lost)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity2locator_traffic(inner_data);
-    data->_d(EventKindBits::RTPS_LOST);
+    data->_d(EventKind::RTPS_LOST);
 
     // Precondition: The writer exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(2)
@@ -3120,7 +3118,7 @@ TEST_F(database_queue_tests, push_rtps_lost_no_writer)
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
-    eprosima::fastrtps::rtps::Locator_t dst_locator_t;
+    eprosima::fastdds::rtps::Locator_t dst_locator_t;
     uint16_t dst_locator_t_physical_port = 2048;
     uint16_t dst_locator_t_logical_port = 0;
     IPLocator::setPhysicalPort(dst_locator_t, dst_locator_t_physical_port);
@@ -3154,7 +3152,7 @@ TEST_F(database_queue_tests, push_rtps_lost_no_writer)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity2locator_traffic(inner_data);
-    data->_d(EventKindBits::RTPS_LOST);
+    data->_d(EventKind::RTPS_LOST);
 
     // Precondition: The writer does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
@@ -3185,7 +3183,7 @@ TEST_F(database_queue_tests, push_rtps_lost_no_locator)
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
-    eprosima::fastrtps::rtps::Locator_t dst_locator_t;
+    eprosima::fastdds::rtps::Locator_t dst_locator_t;
     uint16_t dst_locator_t_physical_port = 2048;
     uint16_t dst_locator_t_logical_port = 0;
     IPLocator::setPhysicalPort(dst_locator_t, dst_locator_t_physical_port);
@@ -3219,7 +3217,7 @@ TEST_F(database_queue_tests, push_rtps_lost_no_locator)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity2locator_traffic(inner_data);
-    data->_d(EventKindBits::RTPS_LOST);
+    data->_d(EventKind::RTPS_LOST);
 
     // Precondition: The writer exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
@@ -3296,7 +3294,7 @@ TEST_F(database_queue_tests, push_rtps_bytes_no_writer)
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
-    eprosima::fastrtps::rtps::Locator_t dst_locator_t;
+    eprosima::fastdds::rtps::Locator_t dst_locator_t;
     uint16_t dst_locator_t_physical_port = 2048;
     uint16_t dst_locator_t_logical_port = 0;
     IPLocator::setPhysicalPort(dst_locator_t, dst_locator_t_physical_port);
@@ -3344,8 +3342,7 @@ TEST_F(database_queue_tests, push_rtps_bytes_no_writer)
     ByteToLocatorCountSample sample;
     EntityId domain;
     EntityId entity;
-    EXPECT_THROW(data_queue.do_process_sample_type(domain, entity, EntityKind::DATAWRITER, sample,
-            inner_data), Error);
+    EXPECT_THROW(data_queue.do_process_sample_type(domain, entity, EntityKind::DATAWRITER, sample, inner_data), Error);
 }
 
 //TODO(jepemi) Test currently not executed as it is not supported by the monitor yet. It fails.
@@ -3356,7 +3353,7 @@ TEST_F(database_queue_tests, push_rtps_bytes_no_locator)
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
-    eprosima::fastrtps::rtps::Locator_t dst_locator_t;
+    eprosima::fastdds::rtps::Locator_t dst_locator_t;
     uint16_t dst_locator_t_physical_port = 2048;
     uint16_t dst_locator_t_logical_port = 0;
     IPLocator::setPhysicalPort(dst_locator_t, dst_locator_t_physical_port);
@@ -3403,8 +3400,7 @@ TEST_F(database_queue_tests, push_rtps_bytes_no_locator)
     ByteToLocatorCountSample sample;
     EntityId domain;
     EntityId entity;
-    EXPECT_THROW(data_queue.do_process_sample_type(domain, entity, EntityKind::DATAWRITER, sample,
-            inner_data), Error);
+    EXPECT_THROW(data_queue.do_process_sample_type(domain, entity, EntityKind::DATAWRITER, sample, inner_data), Error);
 }
 
 TEST_F(database_queue_tests, push_resent_datas)
@@ -3431,7 +3427,7 @@ TEST_F(database_queue_tests, push_resent_datas)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity_count(inner_data);
-    data->_d(EventKindBits::RESENT_DATAS);
+    data->_d(EventKind::RESENT_DATAS);
 
     // Precondition: The writer exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(1)
@@ -3486,7 +3482,7 @@ TEST_F(database_queue_tests, push_resent_datas_no_writer)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity_count(inner_data);
-    data->_d(EventKindBits::RESENT_DATAS);
+    data->_d(EventKind::RESENT_DATAS);
 
     // Precondition: The writer does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
@@ -3527,7 +3523,7 @@ TEST_F(database_queue_tests, push_heartbeat_count)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity_count(inner_data);
-    data->_d(EventKindBits::HEARTBEAT_COUNT);
+    data->_d(EventKind::HEARTBEAT_COUNT);
 
     // Precondition: The writer exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(1)
@@ -3582,7 +3578,7 @@ TEST_F(database_queue_tests, push_heartbeat_count_no_writer)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity_count(inner_data);
-    data->_d(EventKindBits::HEARTBEAT_COUNT);
+    data->_d(EventKind::HEARTBEAT_COUNT);
 
     // Precondition: The writer does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
@@ -3623,7 +3619,7 @@ TEST_F(database_queue_tests, push_acknack_count)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity_count(inner_data);
-    data->_d(EventKindBits::ACKNACK_COUNT);
+    data->_d(EventKind::ACKNACK_COUNT);
 
     // Precondition: The reader exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(1)
@@ -3678,7 +3674,7 @@ TEST_F(database_queue_tests, push_acknack_count_no_reader)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity_count(inner_data);
-    data->_d(EventKindBits::ACKNACK_COUNT);
+    data->_d(EventKind::ACKNACK_COUNT);
 
     // Precondition: The reader does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(AnyNumber())
@@ -3719,7 +3715,7 @@ TEST_F(database_queue_tests, push_nackfrag_count)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity_count(inner_data);
-    data->_d(EventKindBits::NACKFRAG_COUNT);
+    data->_d(EventKind::NACKFRAG_COUNT);
 
     // Precondition: The reader exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(1)
@@ -3774,7 +3770,7 @@ TEST_F(database_queue_tests, push_nackfrag_count_no_reader)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity_count(inner_data);
-    data->_d(EventKindBits::NACKFRAG_COUNT);
+    data->_d(EventKind::NACKFRAG_COUNT);
 
     // Precondition: The reader does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(AnyNumber())
@@ -3815,7 +3811,7 @@ TEST_F(database_queue_tests, push_gap_count)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity_count(inner_data);
-    data->_d(EventKindBits::GAP_COUNT);
+    data->_d(EventKind::GAP_COUNT);
 
     // Precondition: The writer exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(1)
@@ -3870,7 +3866,7 @@ TEST_F(database_queue_tests, push_gap_count_no_writer)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity_count(inner_data);
-    data->_d(EventKindBits::GAP_COUNT);
+    data->_d(EventKind::GAP_COUNT);
 
     // Precondition: The writer does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
@@ -3911,7 +3907,7 @@ TEST_F(database_queue_tests, push_data_count)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity_count(inner_data);
-    data->_d(EventKindBits::DATA_COUNT);
+    data->_d(EventKind::DATA_COUNT);
 
     // Precondition: The writer exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(1)
@@ -3966,7 +3962,7 @@ TEST_F(database_queue_tests, push_data_count_no_writer)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity_count(inner_data);
-    data->_d(EventKindBits::DATA_COUNT);
+    data->_d(EventKind::DATA_COUNT);
 
     // Precondition: The writer does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
@@ -4007,7 +4003,7 @@ TEST_F(database_queue_tests, push_pdp_count)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity_count(inner_data);
-    data->_d(EventKindBits::PDP_PACKETS);
+    data->_d(EventKind::PDP_PACKETS);
 
     // Precondition: The participant exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
@@ -4062,7 +4058,7 @@ TEST_F(database_queue_tests, push_pdp_count_no_participant)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity_count(inner_data);
-    data->_d(EventKindBits::PDP_PACKETS);
+    data->_d(EventKind::PDP_PACKETS);
 
     // Precondition: The participant does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
@@ -4103,7 +4099,7 @@ TEST_F(database_queue_tests, push_edp_count)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity_count(inner_data);
-    data->_d(EventKindBits::EDP_PACKETS);
+    data->_d(EventKind::EDP_PACKETS);
 
     // Precondition: The participant exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
@@ -4158,7 +4154,7 @@ TEST_F(database_queue_tests, push_edp_count_no_participant)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity_count(inner_data);
-    data->_d(EventKindBits::EDP_PACKETS);
+    data->_d(EventKind::EDP_PACKETS);
 
     // Precondition: The participant does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
@@ -4216,7 +4212,7 @@ TEST_F(database_queue_tests, push_discovery_times)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->discovery_time(inner_data);
-    data->_d(EventKindBits::DISCOVERED_ENTITY);
+    data->_d(EventKind::DISCOVERED_ENTITY);
 
     // Precondition: The participant exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
@@ -4289,7 +4285,7 @@ TEST_F(database_queue_tests, push_discovery_times_no_participant)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->discovery_time(inner_data);
-    data->_d(EventKindBits::DISCOVERED_ENTITY);
+    data->_d(EventKind::DISCOVERED_ENTITY);
 
     // Precondition: The participant does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
@@ -4347,7 +4343,7 @@ TEST_F(database_queue_tests, push_discovery_times_no_entity)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->discovery_time(inner_data);
-    data->_d(EventKindBits::DISCOVERED_ENTITY);
+    data->_d(EventKind::DISCOVERED_ENTITY);
 
     // Precondition: The participant exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
@@ -4377,7 +4373,8 @@ TEST_F(database_queue_tests, push_sample_datas)
     int32_t sn_high = 2048;
     uint32_t sn_low = 4096;
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
-    eprosima::fastrtps::rtps::SequenceNumber_t sn (sn_high, sn_low);
+    eprosima::fastdds::
+            rtps::SequenceNumber_t sn (sn_high, sn_low);
 
     // Build the writer GUID
     DatabaseDataQueueWrapper::StatisticsGuidPrefix writer_prefix;
@@ -4403,7 +4400,7 @@ TEST_F(database_queue_tests, push_sample_datas)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->sample_identity_count(inner_data);
-    data->_d(EventKindBits::SAMPLE_DATAS);
+    data->_d(EventKind::SAMPLE_DATAS);
 
     // Precondition: The writer exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(1)
@@ -4443,7 +4440,7 @@ TEST_F(database_queue_tests, push_sample_datas_no_writer)
     int32_t sn_high = 2048;
     uint32_t sn_low = 4096;
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
-    eprosima::fastrtps::rtps::SequenceNumber_t sn (sn_high, sn_low);
+    eprosima::fastdds::rtps::SequenceNumber_t sn (sn_high, sn_low);
 
     // Build the writer GUID
     DatabaseDataQueueWrapper::StatisticsGuidPrefix writer_prefix;
@@ -4469,7 +4466,7 @@ TEST_F(database_queue_tests, push_sample_datas_no_writer)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->sample_identity_count(inner_data);
-    data->_d(EventKindBits::SAMPLE_DATAS);
+    data->_d(EventKind::SAMPLE_DATAS);
 
     // Precondition: The writer does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
@@ -4504,7 +4501,7 @@ TEST_F(database_queue_tests, push_monitor_proxy)
 
     // Build the Monitor Service data
     std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
-    eprosima::fastdds::statistics::StatusKind kind = eprosima::fastdds::statistics::StatusKind::PROXY;
+    eprosima::fastdds::statistics::StatusKind::StatusKind kind = eprosima::fastdds::statistics::StatusKind::PROXY;
     MonitorServiceData value;
     std::vector<uint8_t> entity_proxy = {1, 2, 3, 4, 5};
     value.entity_proxy(entity_proxy);
@@ -4567,7 +4564,7 @@ TEST_F(database_queue_tests, push_monitor_proxy_no_entity)
 
     // Build the Monitor Service data
     std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
-    eprosima::fastdds::statistics::StatusKind kind = eprosima::fastdds::statistics::StatusKind::PROXY;
+    eprosima::fastdds::statistics::StatusKind::StatusKind kind = eprosima::fastdds::statistics::StatusKind::PROXY;
     MonitorServiceData value;
     std::vector<uint8_t> entity_proxy = {1, 2, 3, 4, 5};
     value.entity_proxy(entity_proxy);
@@ -4612,7 +4609,7 @@ TEST_F(database_queue_tests, push_monitor_connection_list)
     // Build connection list sequence
     std::vector<Connection> connection_list;
     Connection connection;
-    connection.mode(eprosima::fastdds::statistics::DATA_SHARING);
+    connection.mode(eprosima::fastdds::statistics::ConnectionMode::DATA_SHARING);
     std::array<uint8_t, 4> other_entity_id = {0, 0, 0, 1};
     std::string entity_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
     DatabaseDataQueueWrapper::StatisticsEntityId entity_id;
@@ -4631,7 +4628,8 @@ TEST_F(database_queue_tests, push_monitor_connection_list)
 
     // Build the Monitor Service data
     std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
-    eprosima::fastdds::statistics::StatusKind kind = eprosima::fastdds::statistics::StatusKind::CONNECTION_LIST;
+    eprosima::fastdds::statistics::StatusKind::StatusKind kind =
+            eprosima::fastdds::statistics::StatusKind::CONNECTION_LIST;
     MonitorServiceData value;
     value.connection_list(connection_list);
     data->local_entity(participant_guid);
@@ -4690,7 +4688,7 @@ TEST_F(database_queue_tests, push_monitor_connection_list_no_entity)
     // Build connection list sequence
     std::vector<Connection> connection_list;
     Connection connection;
-    connection.mode(eprosima::fastdds::statistics::DATA_SHARING);
+    connection.mode(eprosima::fastdds::statistics::ConnectionMode::DATA_SHARING);
     std::array<uint8_t, 4> other_entity_id = {0, 0, 0, 1};
     std::string entity_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
     DatabaseDataQueueWrapper::StatisticsEntityId entity_id;
@@ -4709,7 +4707,8 @@ TEST_F(database_queue_tests, push_monitor_connection_list_no_entity)
 
     // Build the Monitor Service data
     std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
-    eprosima::fastdds::statistics::StatusKind kind = eprosima::fastdds::statistics::StatusKind::CONNECTION_LIST;
+    eprosima::fastdds::statistics::StatusKind::StatusKind kind =
+            eprosima::fastdds::statistics::StatusKind::CONNECTION_LIST;
     MonitorServiceData value;
     value.connection_list(connection_list);
     data->local_entity(participant_guid);
@@ -4744,7 +4743,7 @@ TEST_F(database_queue_tests, push_monitor_incompatible_qos)
     int32_t sn_high = 2048;
     uint32_t sn_low = 4096;
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
-    eprosima::fastrtps::rtps::SequenceNumber_t sn (sn_high, sn_low);
+    eprosima::fastdds::rtps::SequenceNumber_t sn (sn_high, sn_low);
     DatabaseDataQueueWrapper::StatisticsGuidPrefix writer_prefix;
     writer_prefix.value(prefix);
     DatabaseDataQueueWrapper::StatisticsEntityId writer_entity_id;
@@ -4766,7 +4765,8 @@ TEST_F(database_queue_tests, push_monitor_incompatible_qos)
 
     // Build the Monitor Service data
     std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
-    eprosima::fastdds::statistics::StatusKind kind = eprosima::fastdds::statistics::StatusKind::INCOMPATIBLE_QOS;
+    eprosima::fastdds::statistics::StatusKind::StatusKind kind =
+            eprosima::fastdds::statistics::StatusKind::INCOMPATIBLE_QOS;
     MonitorServiceData value;
     value.incompatible_qos_status(incompatible_qos_status);
     data->local_entity(writer_guid);
@@ -4817,7 +4817,7 @@ TEST_F(database_queue_tests, push_monitor_incompatible_qos_no_entity)
     int32_t sn_high = 2048;
     uint32_t sn_low = 4096;
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
-    eprosima::fastrtps::rtps::SequenceNumber_t sn (sn_high, sn_low);
+    eprosima::fastdds::rtps::SequenceNumber_t sn (sn_high, sn_low);
     DatabaseDataQueueWrapper::StatisticsGuidPrefix writer_prefix;
     writer_prefix.value(prefix);
     DatabaseDataQueueWrapper::StatisticsEntityId writer_entity_id;
@@ -4839,7 +4839,8 @@ TEST_F(database_queue_tests, push_monitor_incompatible_qos_no_entity)
 
     // Build the Monitor Service data
     std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
-    eprosima::fastdds::statistics::StatusKind kind = eprosima::fastdds::statistics::StatusKind::INCOMPATIBLE_QOS;
+    eprosima::fastdds::statistics::StatusKind::StatusKind kind =
+            eprosima::fastdds::statistics::StatusKind::INCOMPATIBLE_QOS;
     MonitorServiceData value;
     value.incompatible_qos_status(incompatible_qos_status);
     data->local_entity(writer_guid);
@@ -4874,7 +4875,7 @@ TEST_F(database_queue_tests, push_monitor_inconsistent_topic)
     int32_t sn_high = 2048;
     uint32_t sn_low = 4096;
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
-    eprosima::fastrtps::rtps::SequenceNumber_t sn (sn_high, sn_low);
+    eprosima::fastdds::rtps::SequenceNumber_t sn (sn_high, sn_low);
     DatabaseDataQueueWrapper::StatisticsGuidPrefix writer_prefix;
     writer_prefix.value(prefix);
     DatabaseDataQueueWrapper::StatisticsEntityId writer_entity_id;
@@ -4889,7 +4890,8 @@ TEST_F(database_queue_tests, push_monitor_inconsistent_topic)
 
     // Build the Monitor Service data
     std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
-    eprosima::fastdds::statistics::StatusKind kind = eprosima::fastdds::statistics::StatusKind::INCONSISTENT_TOPIC;
+    eprosima::fastdds::statistics::StatusKind::StatusKind kind =
+            eprosima::fastdds::statistics::StatusKind::INCONSISTENT_TOPIC;
     MonitorServiceData value;
     value.inconsistent_topic_status(inconsistent_topic_status);
     data->local_entity(writer_guid);
@@ -4940,7 +4942,7 @@ TEST_F(database_queue_tests, push_monitor_inconsistent_topic_no_entity)
     int32_t sn_high = 2048;
     uint32_t sn_low = 4096;
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
-    eprosima::fastrtps::rtps::SequenceNumber_t sn (sn_high, sn_low);
+    eprosima::fastdds::rtps::SequenceNumber_t sn (sn_high, sn_low);
     DatabaseDataQueueWrapper::StatisticsGuidPrefix writer_prefix;
     writer_prefix.value(prefix);
     DatabaseDataQueueWrapper::StatisticsEntityId writer_entity_id;
@@ -4955,7 +4957,8 @@ TEST_F(database_queue_tests, push_monitor_inconsistent_topic_no_entity)
 
     // Build the Monitor Service data
     std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
-    eprosima::fastdds::statistics::StatusKind kind = eprosima::fastdds::statistics::StatusKind::INCONSISTENT_TOPIC;
+    eprosima::fastdds::statistics::StatusKind::StatusKind kind =
+            eprosima::fastdds::statistics::StatusKind::INCONSISTENT_TOPIC;
     MonitorServiceData value;
     value.inconsistent_topic_status(inconsistent_topic_status);
     data->local_entity(writer_guid);
@@ -4990,7 +4993,7 @@ TEST_F(database_queue_tests, push_monitor_liveliness_lost)
     int32_t sn_high = 2048;
     uint32_t sn_low = 4096;
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
-    eprosima::fastrtps::rtps::SequenceNumber_t sn (sn_high, sn_low);
+    eprosima::fastdds::rtps::SequenceNumber_t sn (sn_high, sn_low);
     DatabaseDataQueueWrapper::StatisticsGuidPrefix writer_prefix;
     writer_prefix.value(prefix);
     DatabaseDataQueueWrapper::StatisticsEntityId writer_entity_id;
@@ -5005,7 +5008,8 @@ TEST_F(database_queue_tests, push_monitor_liveliness_lost)
 
     // Build the Monitor Service data
     std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
-    eprosima::fastdds::statistics::StatusKind kind = eprosima::fastdds::statistics::StatusKind::LIVELINESS_LOST;
+    eprosima::fastdds::statistics::StatusKind::StatusKind kind =
+            eprosima::fastdds::statistics::StatusKind::LIVELINESS_LOST;
     MonitorServiceData value;
     value.liveliness_lost_status(liveliness_lost_status);
     data->local_entity(writer_guid);
@@ -5056,7 +5060,7 @@ TEST_F(database_queue_tests, push_monitor_liveliness_lost_no_entity)
     int32_t sn_high = 2048;
     uint32_t sn_low = 4096;
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
-    eprosima::fastrtps::rtps::SequenceNumber_t sn (sn_high, sn_low);
+    eprosima::fastdds::rtps::SequenceNumber_t sn (sn_high, sn_low);
     DatabaseDataQueueWrapper::StatisticsGuidPrefix writer_prefix;
     writer_prefix.value(prefix);
     DatabaseDataQueueWrapper::StatisticsEntityId writer_entity_id;
@@ -5071,7 +5075,8 @@ TEST_F(database_queue_tests, push_monitor_liveliness_lost_no_entity)
 
     // Build the Monitor Service data
     std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
-    eprosima::fastdds::statistics::StatusKind kind = eprosima::fastdds::statistics::StatusKind::LIVELINESS_LOST;
+    eprosima::fastdds::statistics::StatusKind::StatusKind kind =
+            eprosima::fastdds::statistics::StatusKind::LIVELINESS_LOST;
     MonitorServiceData value;
     value.liveliness_lost_status(liveliness_lost_status);
     data->local_entity(writer_guid);
@@ -5120,7 +5125,8 @@ TEST_F(database_queue_tests, push_monitor_liveliness_changed)
 
     // Build the Monitor Service data
     std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
-    eprosima::fastdds::statistics::StatusKind kind = eprosima::fastdds::statistics::StatusKind::LIVELINESS_CHANGED;
+    eprosima::fastdds::statistics::StatusKind::StatusKind kind =
+            eprosima::fastdds::statistics::StatusKind::LIVELINESS_CHANGED;
     MonitorServiceData value;
     value.liveliness_changed_status(liveliness_changed_status);
     data->local_entity(reader_guid);
@@ -5185,7 +5191,8 @@ TEST_F(database_queue_tests, push_monitor_liveliness_changed_no_entity)
 
     // Build the Monitor Service data
     std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
-    eprosima::fastdds::statistics::StatusKind kind = eprosima::fastdds::statistics::StatusKind::LIVELINESS_CHANGED;
+    eprosima::fastdds::statistics::StatusKind::StatusKind kind =
+            eprosima::fastdds::statistics::StatusKind::LIVELINESS_CHANGED;
     MonitorServiceData value;
     value.liveliness_changed_status(liveliness_changed_status);
     data->local_entity(reader_guid);
@@ -5234,7 +5241,8 @@ TEST_F(database_queue_tests, push_monitor_deadline_missed)
 
     // Build the Monitor Service data
     std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
-    eprosima::fastdds::statistics::StatusKind kind = eprosima::fastdds::statistics::StatusKind::DEADLINE_MISSED;
+    eprosima::fastdds::statistics::StatusKind::StatusKind kind =
+            eprosima::fastdds::statistics::StatusKind::DEADLINE_MISSED;
     MonitorServiceData value;
     value.deadline_missed_status(deadline_missed_status);
     data->local_entity(reader_guid);
@@ -5298,7 +5306,8 @@ TEST_F(database_queue_tests, push_monitor_deadline_missed_no_entity)
 
     // Build the Monitor Service data
     std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
-    eprosima::fastdds::statistics::StatusKind kind = eprosima::fastdds::statistics::StatusKind::DEADLINE_MISSED;
+    eprosima::fastdds::statistics::StatusKind::StatusKind kind =
+            eprosima::fastdds::statistics::StatusKind::DEADLINE_MISSED;
     MonitorServiceData value;
     value.deadline_missed_status(deadline_missed_status);
     data->local_entity(reader_guid);
@@ -5345,7 +5354,7 @@ TEST_F(database_queue_tests, push_monitor_sample_lost)
 
     // Build the Monitor Service data
     std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
-    eprosima::fastdds::statistics::StatusKind kind = eprosima::fastdds::statistics::StatusKind::SAMPLE_LOST;
+    eprosima::fastdds::statistics::StatusKind::StatusKind kind = eprosima::fastdds::statistics::StatusKind::SAMPLE_LOST;
     MonitorServiceData value;
     value.sample_lost_status(sample_lost_status);
     data->local_entity(reader_guid);
@@ -5407,7 +5416,7 @@ TEST_F(database_queue_tests, push_monitor_sample_lost_no_entity)
 
     // Build the Monitor Service data
     std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
-    eprosima::fastdds::statistics::StatusKind kind = eprosima::fastdds::statistics::StatusKind::SAMPLE_LOST;
+    eprosima::fastdds::statistics::StatusKind::StatusKind kind = eprosima::fastdds::statistics::StatusKind::SAMPLE_LOST;
     MonitorServiceData value;
     value.sample_lost_status(sample_lost_status);
     data->local_entity(reader_guid);
@@ -5450,7 +5459,8 @@ TEST_F(database_queue_tests, push_monitor_statuses_size)
 
     // Build the Monitor Service data
     std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
-    eprosima::fastdds::statistics::StatusKind kind = eprosima::fastdds::statistics::StatusKind::STATUSES_SIZE;
+    eprosima::fastdds::statistics::StatusKind::StatusKind kind =
+            eprosima::fastdds::statistics::StatusKind::STATUSES_SIZE;
     MonitorServiceData value;
     uint8_t octet = 1;
     value.statuses_size(octet);

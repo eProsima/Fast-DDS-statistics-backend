@@ -1,4 +1,4 @@
-// Copyright 2016 Proyectos y Sistemas de Mantenimiento SL (eProsima).
+// Copyright 2024 Proyectos y Sistemas de Mantenimiento SL (eProsima).
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,150 +14,220 @@
 
 /**
  * @file Publisher.cpp
+ *
  */
 
-#include <fastdds/dds/domain/DomainParticipantFactory.hpp>
-#include <fastdds/dds/domain/DomainParticipant.hpp>
-#include <fastdds/dds/domain/DomainParticipantListener.hpp>
-#include <fastdds/dds/publisher/Publisher.hpp>
-#include <fastdds/dds/publisher/PublisherListener.hpp>
-#include <fastdds/dds/publisher/qos/PublisherQos.hpp>
-#include <fastdds/dds/publisher/DataWriter.hpp>
-#include <fastdds/dds/publisher/qos/DataWriterQos.hpp>
-
-#include <fastrtps/types/DynamicDataFactory.h>
-#include <fastrtps/attributes/ParticipantAttributes.h>
-#include <fastrtps/attributes/PublisherAttributes.h>
-#include <fastrtps/xmlparser/XMLProfileManager.h>
-
-#include <mutex>
-#include <condition_variable>
-#include <fstream>
-#include <string>
+#include <csignal>
 #include <thread>
 
-#include <Host.hpp>
+#include <fastdds/dds/domain/DomainParticipantFactory.hpp>
+#include <fastdds/dds/publisher/DataWriter.hpp>
+#include <fastdds/dds/publisher/Publisher.hpp>
+#include <fastdds/dds/publisher/qos/DataWriterQos.hpp>
+#include <fastdds/dds/publisher/qos/PublisherQos.hpp>
+#include <fastdds/dds/domain/qos/DomainParticipantQos.hpp>
 
-using namespace eprosima::fastdds::dds;
-using namespace eprosima::fastrtps;
-using namespace eprosima::fastrtps::rtps;
+#include "Publisher.hpp"
+#include "CommunicationPubSubTypes.hpp"
+#include "Host.hpp"
 
-static bool run = true;
+std::mutex mutex;
+std::condition_variable cv;
 
-class ParListener : public DomainParticipantListener
+std::atomic<bool> Publisher::stop_(false);
+Publisher::Publisher()
+    : participant_(nullptr)
+    , publisher_(nullptr)
+    , topic_(nullptr)
+    , writer_(nullptr)
+    , type_(new CommunicationPubSubType())
 {
-public:
+}
 
-    ParListener(
-            bool exit_on_lost_liveliness)
-        : exit_on_lost_liveliness_(exit_on_lost_liveliness)
+bool Publisher::is_stopped()
+{
+    return stop_;
+}
+
+void Publisher::stop()
+{
+    stop_ = true;
+}
+
+bool Publisher::init(
+        uint32_t domain)
+{
+    comm_.index(0);
+    comm_.message("HelloWorld");
+    eprosima::fastdds::dds::DomainParticipantQos pqos;
+    pqos.name("Participant_pub");
+
+    // Activate Fast DDS Statistics module
+    pqos.properties().properties().emplace_back("fastdds.statistics",
+            "HISTORY_LATENCY_TOPIC;" \
+            "NETWORK_LATENCY_TOPIC;" \
+            "PUBLICATION_THROUGHPUT_TOPIC;" \
+            "SUBSCRIPTION_THROUGHPUT_TOPIC;" \
+            "RTPS_SENT_TOPIC;" \
+            "RTPS_LOST_TOPIC;" \
+            "HEARTBEAT_COUNT_TOPIC;" \
+            "ACKNACK_COUNT_TOPIC;" \
+            "NACKFRAG_COUNT_TOPIC;" \
+            "GAP_COUNT_TOPIC;" \
+            "DATA_COUNT_TOPIC;" \
+            "RESENT_DATAS_TOPIC;" \
+            "SAMPLE_DATAS_TOPIC;" \
+            "PDP_PACKETS_TOPIC;" \
+            "EDP_PACKETS_TOPIC;" \
+            "DISCOVERY_TOPIC;" \
+            "PHYSICAL_DATA_TOPIC;" \
+            "MONITOR_SERVICE_TOPIC");
+
+    // CREATE THE PARTICIPANT
+    participant_ = eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->create_participant(domain, pqos);
+
+    if (participant_ == nullptr)
     {
+        std::cout << "Error creating publisher participant" << std::endl;
+        return 1;
     }
 
-    virtual ~ParListener() override
+    std::cout << "Participant " << pqos.name() << " created with GUID " << participant_->guid() << std::endl;
+
+    // REGISTER THE TYPE
+    type_.register_type(participant_);
+
+    // CREATE THE PUBLISHER
+    publisher_ = participant_->create_publisher(eprosima::fastdds::dds::PUBLISHER_QOS_DEFAULT, nullptr);
+
+    if (publisher_ == nullptr)
     {
+        std::cerr << "Error creating publisher" << std::endl;
+        return 1;
     }
 
-    /**
-     * This method is called when a new Participant is discovered, or a previously discovered participant
-     * changes its QOS or is removed.
-     * @param p Pointer to the Participant
-     * @param info DiscoveryInfo.
-     */
-    void on_participant_discovery(
-            DomainParticipant* /*participant*/,
-            rtps::ParticipantDiscoveryInfo&& info) override
+    // CREATE THE TOPIC
+    // Generate topic name
+    std::ostringstream topic_name;
+    topic_name << "HelloWorldTopic_" << (eprosima::Host::instance().id()) << "_" << domain;
+    topic_ = participant_->create_topic(topic_name.str(),
+                    type_.get_type_name(), eprosima::fastdds::dds::TOPIC_QOS_DEFAULT);
+
+    if (topic_ == nullptr)
     {
-        if (info.status == rtps::ParticipantDiscoveryInfo::DISCOVERED_PARTICIPANT)
+        std::cerr << "Error creating publisher topic" << std::endl;
+        return 1;
+    }
+
+    // CREATE THE WRITER
+    // Set DataWriter Qos
+    eprosima::fastdds::dds::DataWriterQos wqos;
+    wqos.liveliness().lease_duration = 3;
+    wqos.liveliness().announcement_period = 1;
+    wqos.liveliness().kind = eprosima::fastdds::dds::AUTOMATIC_LIVELINESS_QOS;
+
+    writer_ = publisher_->create_datawriter(topic_, wqos, &listener);
+
+    if (writer_ == nullptr)
+    {
+        std::cerr << "Error creating publisher writer" << std::endl;
+        return false;
+    }
+
+    std::cout << "DataWriter created with GUID " << writer_->guid() << std::endl;
+
+
+
+    return true;
+}
+
+Publisher::~Publisher()
+{
+    if (participant_ != nullptr)
+    {
+        if (publisher_ != nullptr)
         {
-            std::cout << "Publisher participant " << //participant->getGuid() <<
-                " discovered participant " << info.info.m_guid << std::endl;
-        }
-        else if (info.status == rtps::ParticipantDiscoveryInfo::CHANGED_QOS_PARTICIPANT)
-        {
-            std::cout << "Publisher participant " << //participant->getGuid() <<
-                " detected changes on participant " << info.info.m_guid << std::endl;
-        }
-        else if (info.status == rtps::ParticipantDiscoveryInfo::REMOVED_PARTICIPANT)
-        {
-            std::cout << "Publisher participant " << //participant->getGuid() <<
-                " removed participant " << info.info.m_guid << std::endl;
-        }
-        else if (info.status == rtps::ParticipantDiscoveryInfo::DROPPED_PARTICIPANT)
-        {
-            std::cout << "Publisher participant " << //participant->getGuid() <<
-                " dropped participant " << info.info.m_guid << std::endl;
-            if (exit_on_lost_liveliness_)
+            if (writer_ != nullptr)
             {
-                run = false;
+                publisher_->delete_datawriter(writer_);
             }
+            participant_->delete_publisher(publisher_);
         }
-    }
-
-#if HAVE_SECURITY
-    void onParticipantAuthentication(
-            DomainParticipant* participant,
-            rtps::ParticipantAuthenticationInfo&& info) override
-    {
-        if (rtps::ParticipantAuthenticationInfo::AUTHORIZED_PARTICIPANT == info.status)
+        if (topic_ != nullptr)
         {
-            std::cout << "Publisher participant " << participant->guid() <<
-                " authorized participant " << info.guid << std::endl;
+            participant_->delete_topic(topic_);
         }
-        else
-        {
-            std::cout << "Publisher participant " << participant->guid() <<
-                " unauthorized participant " << info.guid << std::endl;
-        }
+        eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->delete_participant(participant_);
     }
+}
 
-#endif // if HAVE_SECURITY
-
-private:
-
-    bool exit_on_lost_liveliness_;
-};
-
-class PubListener : public PublisherListener
+void Publisher::PubListener::on_publication_matched(
+        eprosima::fastdds::dds::DataWriter*,
+        const eprosima::fastdds::dds::PublicationMatchedStatus& info)
 {
-public:
-
-    PubListener()
-        : matched_(0)
+    std::unique_lock<std::mutex> lock(mutex);
+    if (info.current_count_change == 1)
     {
+        matched_ = info.current_count;
+        std::cout << "Publisher matched." << std::endl;
+        cv.notify_all();
     }
-
-    ~PubListener() override
+    else if (info.current_count_change == -1)
     {
+        matched_ = info.current_count;
+        std::cout << "Publisher unmatched." << std::endl;
+        cv.notify_all();
     }
-
-    void on_publication_matched(
-            DataWriter* /*publisher*/,
-            const PublicationMatchedStatus& info) override
+    else
     {
-        std::unique_lock<std::mutex> lock(mutex_);
-        if (info.current_count_change == 1)
-        {
-            std::cout << "Publisher matched with subscriber " << info.last_subscription_handle
-                      << ": " << ++matched_ << std::endl;
-        }
-        else if (info.current_count_change == -1)
-        {
-            std::cout << "Publisher unmatched with subscriber " << info.last_subscription_handle
-                      << ": " << --matched_ << std::endl;
-        }
-        else
-        {
-            std::cout << info.current_count_change
-                      << " is not a valid value for PublicationMatchedStatus current count change" << std::endl;
-        }
-        cv_.notify_all();
+        std::cout << info.current_count_change
+                  << " is not a valid value for PublicationMatchedStatus current count change" << std::endl;
     }
+}
 
-    std::mutex mutex_;
-    std::condition_variable cv_;
-    unsigned int matched_;
-};
+void Publisher::runThread(
+        uint32_t samples,
+        uint32_t sleep)
+{
+    while (!is_stopped() && (samples == 0 || comm_.index() < samples))
+    {
+        publish();
+        std::cout << "Message: " << comm_.message() << " with index: " << comm_.index()
+                  << " SENT" << std::endl;
+        std::this_thread::sleep_for(std::chrono::milliseconds(sleep));
+    }
+}
+
+void Publisher::run(
+        uint32_t samples,
+        uint32_t sleep)
+{
+    stop_ = false;
+    std::thread thread(&Publisher::runThread, this, samples, sleep);
+    if (samples == 0)
+    {
+        std::cout << "Publisher running. Please press CTRL+C to stop the Publisher at any time." << std::endl;
+    }
+    else
+    {
+        std::cout << "Publisher running " << samples <<
+            " samples. Please press CTRL+C to stop the Publisher at any time." << std::endl;
+    }
+    signal(SIGINT, [](int signum)
+            {
+                std::cout << "SIGINT received, stopping Publisher execution." << std::endl;
+                static_cast<void>(signum); Publisher::stop();
+            });
+
+    thread.join();
+    Publisher::stop();
+}
+
+void Publisher::publish()
+{
+    comm_.index(comm_.index() + 1);
+    writer_->write(&comm_);
+}
 
 int main(
         int argc,
@@ -166,9 +236,9 @@ int main(
     int arg_count = 1;
     bool exit_on_lost_liveliness = false;
     uint32_t seed = 7800, wait = 0;
-    //char* xml_file = nullptr;
-    uint32_t samples = 4;
+    uint32_t samples = 10;
     std::string magic;
+    Publisher pub;
 
     while (arg_count < argc)
     {
@@ -238,126 +308,29 @@ int main(
        }
      */
 
-    xmlparser::XMLProfileManager::loadXMLFile("example_type.xml");
+    // Initialize the publisher
+    pub.init(seed % 230);
 
-    DomainParticipantQos participant_qos;
-    participant_qos.wire_protocol().builtin.typelookup_config.use_server = true;
-    ParListener participant_listener(exit_on_lost_liveliness);
-    DomainParticipant* participant =
-            DomainParticipantFactory::get_instance()->create_participant(seed % 230, participant_qos,
-                    &participant_listener);
-
-    if (participant == nullptr)
-    {
-        std::cerr << "Error creating publisher participant" << std::endl;
-        return 1;
-    }
-
-    types::DynamicType_ptr dyn_type = xmlparser::XMLProfileManager::getDynamicTypeByName("TypeLookup")->build();
-    TypeSupport type(new types::DynamicPubSubType(dyn_type));
-    type.register_type(participant);
-
-    PubListener listener;
-    StatusMask mask = StatusMask::publication_matched();
-
-    // Generate topic name
-    std::ostringstream topic_name;
-    topic_name << "HelloWorldTopic_" << (eprosima::Host::instance().id()) << "_" << seed;
-
-    //CREATE THE PUBLISHER
-    DataWriterQos wqos;
-    wqos.liveliness().lease_duration = 3;
-    wqos.liveliness().announcement_period = 1;
-    wqos.liveliness().kind = eprosima::fastdds::dds::AUTOMATIC_LIVELINESS_QOS;
-
-    Publisher* publisher = participant->create_publisher(PUBLISHER_QOS_DEFAULT, &listener, mask);
-    if (publisher == nullptr)
-    {
-        std::cout << "Error creating publisher" << std::endl;
-        DomainParticipantFactory::get_instance()->delete_participant(participant);
-        return 1;
-    }
-    Topic* topic = participant->create_topic(topic_name.str(), type.get_type_name(), TOPIC_QOS_DEFAULT);
-    if (topic == nullptr)
-    {
-        std::cout << "Error creating publisher topic" << std::endl;
-        participant->delete_publisher(publisher);
-        DomainParticipantFactory::get_instance()->delete_participant(participant);
-        return 1;
-    }
-
-    DataWriter* writer = publisher->create_datawriter(topic, wqos, nullptr);
-    if (writer == nullptr)
-    {
-        participant->delete_publisher(publisher);
-        participant->delete_topic(topic);
-        DomainParticipantFactory::get_instance()->delete_participant(participant);
-        return 1;
-    }
-
+    // Wait until all DataReaders are matched
     if (wait > 0)
     {
-        std::unique_lock<std::mutex> lock(listener.mutex_);
-        listener.cv_.wait(lock, [&]
+        std::unique_lock<std::mutex> lock(mutex);
+        cv.wait(lock, [&]
                 {
-                    return listener.matched_ >= wait;
+                    return pub.listener.get_matched() >= wait;
                 });
+        std::this_thread::sleep_for(std::chrono::seconds(1));
     }
 
-    types::DynamicData_ptr data(types::DynamicDataFactory::get_instance()->create_data(dyn_type));
-    data->set_string_value("Hello DDS Dynamic World", 0);
-    data->set_uint32_value(1, 1);
-    types::DynamicData* inner = data->loan_value(2);
-    inner->set_byte_value(10, 0);
-    data->return_loaned_value(inner);
+    pub.run(samples, 10);
 
-    for (int i = 0; i < 5; i++)
-    {
-        writer->write(data.get());
-
-        uint32_t index;
-        data->get_uint32_value(index, 1);
-
-        if (index == samples)
-        {
-            data->set_uint32_value(1, 1);
-        }
-        else
-        {
-            data->set_uint32_value(index + 1, 1);
-        }
-
-        inner = data->loan_value(2);
-        octet inner_count;
-        inner->get_byte_value(inner_count, 0);
-        inner->set_byte_value(inner_count + 1, 0);
-        data->return_loaned_value(inner);
-
-        std::this_thread::sleep_for(std::chrono::milliseconds(250));
-    }
-
-    if (wait > 0)
-    {
-        std::unique_lock<std::mutex> lock(listener.mutex_);
-        listener.cv_.wait(lock, [&]
-                {
-                    return listener.matched_ == 0;
-                });
-    }
-
-    if (writer != nullptr)
-    {
-        publisher->delete_datawriter(writer);
-    }
-    if (publisher != nullptr)
-    {
-        participant->delete_publisher(publisher);
-    }
-    if (topic != nullptr)
-    {
-        participant->delete_topic(topic);
-    }
-    DomainParticipantFactory::get_instance()->delete_participant(participant);
+    // Stop the thread until publisher execution is finished
+    std::unique_lock<std::mutex> lock(mutex);
+    cv.wait(lock, [&]
+            {
+                return pub.is_stopped();
+            });
 
     return 0;
+
 }

@@ -9,7 +9,7 @@ Initializing a monitor on a certain Domain ID makes *eProsima Fast DDS Statistic
 start monitoring the statistics data and entity discoveries on that domain.
 No statistics data will be gathered unless there is a monitor initialized in the required domain.
 
-|StatisticsBackend-api| provides three overloads of |init_monitor-api| that can be used to start a monitorization on a
+|StatisticsBackend-api| provides two overloads of |init_monitor-api| that can be used to start a monitorization on a
 DDS domain or a *Fast DDS* Discovery Server network.
 
 .. literalinclude:: /code/StatisticsBackendTests.cpp

@@ -16,6 +16,7 @@
 /**
  * @file StatisticsParticipantListener.cpp
  */
+#include <utility>
 
 #include "subscriber/StatisticsParticipantListener.hpp"
 
@@ -23,6 +24,7 @@
 #include <fastdds/dds/domain/DomainParticipant.hpp>
 #include <fastdds/dds/domain/DomainParticipantListener.hpp>
 #include <fastdds/dds/log/Log.hpp>
+#include <fastdds/rtps/writer/WriterDiscoveryStatus.hpp>
 #include <fastdds/rtps/common/EntityId_t.hpp>
 
 #include "database/database_queue.hpp"
@@ -34,7 +36,7 @@ namespace statistics_backend {
 namespace subscriber {
 
 using namespace eprosima::fastdds::dds;
-using namespace eprosima::fastrtps::rtps;
+using namespace eprosima::fastdds::rtps;
 
 template<typename T>
 std::string to_string(
@@ -51,7 +53,7 @@ std::string to_string(
  * @return true when the entity id corresponds to a builtin statistics writer.
  */
 inline bool is_statistics_builtin(
-        const fastrtps::rtps::EntityId_t& entity_id)
+        const EntityId_t& entity_id)
 {
     return 0x60 == (0xE0 & entity_id.value[3]);
 }
@@ -74,7 +76,7 @@ noexcept
 
 // Search for an address different from localhost in the locator list
 bool search_address_in_locators(
-        const eprosima::fastrtps::ResourceLimitedVector<Locator_t>& locators,
+        const eprosima::fastdds::ResourceLimitedVector<Locator_t>& locators,
         std::string& address)
 {
     for (auto locator : locators)
@@ -92,7 +94,7 @@ bool search_address_in_locators(
 
 // Return a IP obtained from participant locators
 std::string get_address(
-        const ParticipantProxyData& info)
+        const ParticipantBuiltinTopicData& info)
 {
     // The IP is obtained from the announced locators
     // Search for a locator with an IP different from localhost
@@ -128,7 +130,9 @@ std::string get_address(
 
 void StatisticsParticipantListener::on_participant_discovery(
         DomainParticipant* /*participant*/,
-        ParticipantDiscoveryInfo&& info)
+        ParticipantDiscoveryStatus reason,
+        const ParticipantBuiltinTopicData& info,
+        bool& /*should_be_ignored*/)
 {
     // First stop the data queues until the new entity is created
     data_queue_->stop_consumer();
@@ -137,38 +141,41 @@ void StatisticsParticipantListener::on_participant_discovery(
     std::chrono::system_clock::time_point timestamp = now();
 
     // Meaningful prefix for metatraffic entities
-    const std::string metatraffic_prefix = "___EPROSIMA___METATRAFFIC___DOMAIN_" +
-            std::to_string(domain_id_.value()) + "___";
+    const std::string metatraffic_prefix = "___EPROSIMA___METATRAFFIC___DOMAIN_" + std::to_string(domain_id_.value()) +
+            "___";
     const std::string metatraffic_alias = "_metatraffic_";
 
     // Build the discovery info for the queue
     database::EntityDiscoveryInfo discovery_info(EntityKind::PARTICIPANT);
     discovery_info.domain_id = domain_id_;
-    discovery_info.guid = info.info.m_guid;
-    discovery_info.qos = subscriber::participant_proxy_data_to_backend_qos(info.info);
+    discovery_info.guid = info.guid;
+    discovery_info.qos = subscriber::participant_proxy_data_to_backend_qos(info);
 
-    discovery_info.address = get_address(info.info);
-    discovery_info.participant_name = info.info.m_participantName.to_string();
+    discovery_info.address = get_address(info);
+    discovery_info.participant_name = info.participant_name.to_string();
 
     discovery_info.entity_status = StatusLevel::OK_STATUS;
 
-    switch (info.status)
+    switch (reason)
     {
-        case ParticipantDiscoveryInfo::DISCOVERED_PARTICIPANT:
+        case ParticipantDiscoveryStatus::DISCOVERED_PARTICIPANT:
         {
+            std::cout << "DomainParticipant discovered: " << info.guid << std::endl;
             discovery_info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::DISCOVERY;
             break;
         }
-        case ParticipantDiscoveryInfo::CHANGED_QOS_PARTICIPANT:
+        case ParticipantDiscoveryStatus::CHANGED_QOS_PARTICIPANT:
         {
             // TODO [ILG] : Process these messages and save the updated QoS
+            std::cout << "DomainParticipant udated: " << info.guid << std::endl;
             discovery_info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::UPDATE;
             break;
         }
-        case ParticipantDiscoveryInfo::REMOVED_PARTICIPANT:
-        case ParticipantDiscoveryInfo::DROPPED_PARTICIPANT:
-        case ParticipantDiscoveryInfo::IGNORED_PARTICIPANT:
+        case ParticipantDiscoveryStatus::REMOVED_PARTICIPANT:
+        case ParticipantDiscoveryStatus::DROPPED_PARTICIPANT:
+        case ParticipantDiscoveryStatus::IGNORED_PARTICIPANT:
         {
+            std::cout << "DomainParticipant removed: " << info.guid << std::endl;
             discovery_info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY;
             break;
         }
@@ -192,23 +199,23 @@ void StatisticsParticipantListener::on_participant_discovery(
                 return std::string("");
             };
 
-    discovery_info.host = get_property_value(info.info.m_properties,
+    discovery_info.host = get_property_value(info.properties,
                     eprosima::fastdds::dds::parameter_policy_physical_data_host);
     discovery_info.host = discovery_info.host.empty()? "Unknown" : discovery_info.host;
 
-    discovery_info.user = get_property_value(info.info.m_properties,
+    discovery_info.user = get_property_value(info.properties,
                     eprosima::fastdds::dds::parameter_policy_physical_data_user);
     discovery_info.user = discovery_info.user.empty()? "Unknown" : discovery_info.user;
 
-    discovery_info.process = get_property_value(info.info.m_properties,
+    discovery_info.process = get_property_value(info.properties,
                     eprosima::fastdds::dds::parameter_policy_physical_data_process);
     discovery_info.process = discovery_info.process.empty()? "Unknown" : discovery_info.process;
 
-    std::string app_id = get_property_value(info.info.m_properties, "fastdds.application.id");
+    std::string app_id = get_property_value(info.properties, "fastdds.application.id");
     auto it = app_id_enum.find(app_id);
     discovery_info.app_id = it != app_id_enum.end()? it->second : AppId::UNKNOWN;
 
-    discovery_info.app_metadata = get_property_value(info.info.m_properties, "fastdds.application.metadata");
+    discovery_info.app_metadata = get_property_value(info.properties, "fastdds.application.metadata");
 
     entity_queue_->push(timestamp, discovery_info);
 
@@ -223,19 +230,19 @@ void StatisticsParticipantListener::on_participant_discovery(
             // Push it to the queue
             database::EntityDiscoveryInfo datawriter_discovery_info(EntityKind::DATAWRITER);
 
-            for (auto dds_locator : info.info.metatraffic_locators.unicast)
+            for (auto dds_locator : info.metatraffic_locators.unicast)
             {
                 datawriter_discovery_info.locators.add_unicast_locator(dds_locator);
             }
-            for (auto dds_locator : info.info.metatraffic_locators.multicast)
+            for (auto dds_locator : info.metatraffic_locators.multicast)
             {
                 datawriter_discovery_info.locators.add_multicast_locator(dds_locator);
             }
-            for (auto dds_locator : info.info.default_locators.unicast)
+            for (auto dds_locator : info.default_locators.unicast)
             {
                 datawriter_discovery_info.locators.add_unicast_locator(dds_locator);
             }
-            for (auto dds_locator : info.info.default_locators.multicast)
+            for (auto dds_locator : info.default_locators.multicast)
             {
                 datawriter_discovery_info.locators.add_multicast_locator(dds_locator);
             }
@@ -243,7 +250,7 @@ void StatisticsParticipantListener::on_participant_discovery(
             datawriter_discovery_info.domain_id = domain_id_;
             datawriter_discovery_info.topic_name = metatraffic_prefix + "TOPIC";
             datawriter_discovery_info.type_name = metatraffic_prefix + "TYPE";
-            datawriter_discovery_info.guid = info.info.m_guid;
+            datawriter_discovery_info.guid = info.guid;
             datawriter_discovery_info.qos = meta_traffic_qos;
             datawriter_discovery_info.alias = metatraffic_alias;
             datawriter_discovery_info.is_virtual_metatraffic = true;
@@ -259,12 +266,14 @@ void StatisticsParticipantListener::on_participant_discovery(
     monitor_service_status_data_queue_->start_consumer();
 }
 
-void StatisticsParticipantListener::on_subscriber_discovery(
+void StatisticsParticipantListener::on_data_reader_discovery(
         DomainParticipant* participant,
-        ReaderDiscoveryInfo&& info)
+        ReaderDiscoveryStatus reason,
+        const SubscriptionBuiltinTopicData& info,
+        bool& /*should_be_ignored*/)
 {
     // Filter out our own statistics readers
-    if (participant->guid().guidPrefix == info.info.guid().guidPrefix)
+    if (participant->guid().guidPrefix == info.guid.guidPrefix)
     {
         return;
     }
@@ -278,29 +287,32 @@ void StatisticsParticipantListener::on_subscriber_discovery(
     // Build the discovery info for the queue
     database::EntityDiscoveryInfo discovery_info(EntityKind::DATAREADER);
     discovery_info.domain_id = domain_id_;
-    discovery_info.guid = info.info.guid();
-    discovery_info.qos = subscriber::reader_proxy_data_to_backend_qos(info.info);
+    discovery_info.guid = info.guid;
+    discovery_info.qos = subscriber::reader_proxy_data_to_backend_qos(info);
 
-    discovery_info.topic_name = info.info.topicName().to_string();
-    discovery_info.type_name = info.info.typeName().to_string();
-    discovery_info.locators = info.info.remote_locators();
+    discovery_info.topic_name = info.topic_name.to_string();
+    discovery_info.type_name = info.type_name.to_string();
+    discovery_info.locators = info.remote_locators;
 
-    switch (info.status)
+    switch (reason)
     {
-        case ReaderDiscoveryInfo::DISCOVERED_READER:
+        case ReaderDiscoveryStatus::DISCOVERED_READER:
         {
+            std::cout << "DataReader discovered: " << info.guid << std::endl;
             discovery_info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::DISCOVERY;
             break;
         }
-        case ReaderDiscoveryInfo::CHANGED_QOS_READER:
+        case ReaderDiscoveryStatus::CHANGED_QOS_READER:
         {
             // TODO [ILG] : Process these messages and save the updated QoS
+            std::cout << "DataReader updated: " << info.guid << std::endl;
             discovery_info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::UPDATE;
             break;
         }
-        case ReaderDiscoveryInfo::REMOVED_READER:
-        case ReaderDiscoveryInfo::IGNORED_READER:
+        case ReaderDiscoveryStatus::REMOVED_READER:
+        case ReaderDiscoveryStatus::IGNORED_READER:
         {
+            std::cout << "DataReader removed: " << info.guid << std::endl;
             discovery_info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY;
             break;
         }
@@ -314,9 +326,11 @@ void StatisticsParticipantListener::on_subscriber_discovery(
     monitor_service_status_data_queue_->start_consumer();
 }
 
-void StatisticsParticipantListener::on_publisher_discovery(
+void StatisticsParticipantListener::on_data_writer_discovery(
         DomainParticipant* participant,
-        WriterDiscoveryInfo&& info)
+        WriterDiscoveryStatus reason,
+        const PublicationBuiltinTopicData& info,
+        bool& /*should_be_ignored*/)
 {
     // Contrary to what it's done in on_subscriber_discovery, here we do not filter our own datawritters, as
     // deactivation of fastdds statistics module is enforced for the statistics backend, and hence none is ever created
@@ -331,29 +345,32 @@ void StatisticsParticipantListener::on_publisher_discovery(
     // Build the discovery info for the queue
     database::EntityDiscoveryInfo discovery_info(EntityKind::DATAWRITER);
     discovery_info.domain_id = domain_id_;
-    discovery_info.guid = info.info.guid();
-    discovery_info.qos = subscriber::writer_proxy_data_to_backend_qos(info.info);
+    discovery_info.guid = info.guid;
+    discovery_info.qos = subscriber::writer_proxy_data_to_backend_qos(info);
 
-    discovery_info.topic_name = info.info.topicName().to_string();
-    discovery_info.type_name = info.info.typeName().to_string();
-    discovery_info.locators = info.info.remote_locators();
+    discovery_info.topic_name = info.topic_name.to_string();
+    discovery_info.type_name = info.type_name.to_string();
+    discovery_info.locators = info.remote_locators;
 
-    switch (info.status)
+    switch (reason)
     {
-        case WriterDiscoveryInfo::DISCOVERED_WRITER:
+        case WriterDiscoveryStatus::DISCOVERED_WRITER:
         {
+            std::cout << "DataWriter discovered: " << info.guid << std::endl;
             discovery_info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::DISCOVERY;
             break;
         }
-        case WriterDiscoveryInfo::CHANGED_QOS_WRITER:
+        case WriterDiscoveryStatus::CHANGED_QOS_WRITER:
         {
             // TODO [ILG] : Process these messages and save the updated QoS
+            std::cout << "DataWriter updated: " << info.guid << std::endl;
             discovery_info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::UPDATE;
             break;
         }
-        case WriterDiscoveryInfo::REMOVED_WRITER:
-        case WriterDiscoveryInfo::IGNORED_WRITER:
+        case WriterDiscoveryStatus::REMOVED_WRITER:
+        case WriterDiscoveryStatus::IGNORED_WRITER:
         {
+            std::cout << "DataWriter removed: " << info.guid << std::endl;
             discovery_info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY;
             break;
         }

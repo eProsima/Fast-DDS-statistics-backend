@@ -26,8 +26,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_DETAIL_SCOPE_EXIT_HPP_
-#define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_DETAIL_SCOPE_EXIT_HPP_
+#ifndef FASTDDS_STATISTICS_BACKEND_SRC_CPP_DETAIL__SCOPE_EXIT_HPP
+#define FASTDDS_STATISTICS_BACKEND_SRC_CPP_DETAIL__SCOPE_EXIT_HPP
 
 #include <utility>
 
@@ -90,4 +90,4 @@ make_scope_exit(
 #define EPROSIMA_BACKEND_MAKE_SCOPE_EXIT(code) \
     eprosima::statistics_backend::details::make_scope_exit([&]() {code;})
 
-#endif  // _EPROSIMA_FASTDDS_STATISTICS_BACKEND_DETAIL_SCOPE_EXIT_HPP_
+#endif  // FASTDDS_STATISTICS_BACKEND_SRC_CPP_DETAIL__SCOPE_EXIT_HPP

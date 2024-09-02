@@ -1,7 +1,7 @@
 {
     "names":
     {
-        "fastrtps":
+        "fastdds":
         {
             "cmake-args":
             [
@@ -12,7 +12,7 @@
         {
             "cmake-args":
             [
-                "-DBUILD_DOCS=OFF",
+                "-DBUILD_DOCS=ON",
                 "-DCOMPILE_EXAMPLES=OFF",
             ]
         }

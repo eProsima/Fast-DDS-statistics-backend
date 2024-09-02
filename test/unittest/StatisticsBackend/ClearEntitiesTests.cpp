@@ -23,6 +23,8 @@
 #include <DatabaseUtils.hpp>
 #include <subscriber/StatisticsParticipantListener.hpp>
 
+#include <utility>
+
 using namespace eprosima::statistics_backend::subscriber;
 
 bool StatisticsBackendTest::has_database_been_set_ = false;
@@ -157,29 +159,33 @@ TEST_F(clear_inactive_entities_tests, clear_inactive_entities_endpoint)
     // Simulate a DATA(Uw) for DataWriter
     {
         // Start building the discovered writer info
-        eprosima::fastrtps::rtps::WriterProxyData data(1, 1);
+        eprosima::fastdds::rtps::PublicationBuiltinTopicData data;
+
+        // Set max unicast and multicast locators
+        data.remote_locators = eprosima::fastdds::rtps::RemoteLocatorList(1, 1);
 
         // The discovered writer is in the participant
-        eprosima::fastrtps::rtps::GUID_t writer_guid_;
+        eprosima::fastdds::rtps::GUID_t writer_guid_;
         std::stringstream(datawriter->guid) >> writer_guid_;
-        data.guid(writer_guid_);
+        data.guid = writer_guid_;
 
         // The discovered writer is in the topic
-        data.topicName(topic->name);
-        data.typeName(topic->data_type);
+        data.topic_name = topic->name;
+        data.type_name = topic->data_type;
 
         // The discovered writer contains the locator
-        eprosima::fastrtps::rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
+        eprosima::fastdds::rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
         dds_existing_unicast_locator.address[12] = 127;
         dds_existing_unicast_locator.address[15] = 1;
-        data.add_unicast_locator(dds_existing_unicast_locator);
+        data.remote_locators.add_unicast_locator(dds_existing_unicast_locator);
 
         // Finish building the discovered writer info
-        eprosima::fastrtps::rtps::WriterDiscoveryInfo info(data);
-        info.status = eprosima::fastrtps::rtps::WriterDiscoveryInfo::REMOVED_WRITER;
+        eprosima::fastdds::rtps::WriterDiscoveryStatus status =
+                eprosima::fastdds::rtps::WriterDiscoveryStatus::REMOVED_WRITER;
 
         // Execution: Call the listener
-        participant_listener->on_publisher_discovery(&statistics_participant, std::move(info));
+        bool should_be_ignored = false; // Set to false to avoid ignoring the entity
+        participant_listener->on_data_writer_discovery(&statistics_participant, status, data, should_be_ignored);
     }
 
     // Check that DataWriter is inactive
@@ -201,29 +207,34 @@ TEST_F(clear_inactive_entities_tests, clear_inactive_entities_endpoint)
     // Simulate a DATA(Ur) for DataReader
     {
         // Start building the discovered reader info
-        eprosima::fastrtps::rtps::ReaderProxyData data(1, 1);
+        eprosima::fastdds::rtps::SubscriptionBuiltinTopicData data;
+
+        // Set max unicast and multicast locators
+        data.remote_locators.unicast = eprosima::fastdds::ResourceLimitedContainerConfig::fixed_size_configuration(1);
+        data.remote_locators.multicast = eprosima::fastdds::ResourceLimitedContainerConfig::fixed_size_configuration(1);
 
         // The discovered reader is in the participant
-        eprosima::fastrtps::rtps::GUID_t reader_guid_;
+        eprosima::fastdds::rtps::GUID_t reader_guid_;
         std::stringstream(datareader->guid) >> reader_guid_;
-        data.guid(reader_guid_);
+        data.guid = reader_guid_;
 
         // The discovered reader is in the topic
-        data.topicName(topic->name);
-        data.typeName(topic->data_type);
+        data.topic_name = topic->name;
+        data.type_name = topic->data_type;
 
         // The discovered reader contains the locator
-        eprosima::fastrtps::rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
+        eprosima::fastdds::rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
         dds_existing_unicast_locator.address[12] = 127;
         dds_existing_unicast_locator.address[15] = 1;
-        data.add_unicast_locator(dds_existing_unicast_locator);
+        data.remote_locators.add_unicast_locator(dds_existing_unicast_locator);
 
         // Finish building the discovered reader info
-        eprosima::fastrtps::rtps::ReaderDiscoveryInfo info(data);
-        info.status = eprosima::fastrtps::rtps::ReaderDiscoveryInfo::REMOVED_READER;
+        eprosima::fastdds::rtps::ReaderDiscoveryStatus status =
+                eprosima::fastdds::rtps::ReaderDiscoveryStatus::REMOVED_READER;
 
         // Execution: Call the listener
-        participant_listener->on_subscriber_discovery(&statistics_participant, std::move(info));
+        bool should_be_ignored = false; // Set to false to avoid ignoring the entity
+        participant_listener->on_data_reader_discovery(&statistics_participant, status, data, should_be_ignored);
     }
 
     // Check that DataReader is inactive, and thus topic
@@ -251,21 +262,22 @@ TEST_F(clear_inactive_entities_tests, clear_inactive_entities_participant)
     // Simulate a DATA(Up) for Participant
 
     // Start building the discovered reader info
-    eprosima::fastrtps::rtps::RTPSParticipantAllocationAttributes allocation;
-    eprosima::fastrtps::rtps::ParticipantProxyData data(allocation);
+
+    eprosima::fastdds::rtps::ParticipantBuiltinTopicData data;
 
     // Precondition: The discovered participant has the given GUID and name
-    eprosima::fastrtps::rtps::GUID_t participant_guid_;
+    eprosima::fastdds::rtps::GUID_t participant_guid_;
     std::stringstream(participant->guid) >> participant_guid_;
-    data.m_guid = participant_guid_;
-    data.m_participantName = participant->name;
+    data.guid = participant_guid_;
+    data.participant_name = participant->name;
 
     // Finish building the discovered reader info
-    eprosima::fastrtps::rtps::ParticipantDiscoveryInfo info(data);
-    info.status = eprosima::fastrtps::rtps::ParticipantDiscoveryInfo::DROPPED_PARTICIPANT;
+    eprosima::fastdds::rtps::ParticipantDiscoveryStatus status =
+            eprosima::fastdds::rtps::ParticipantDiscoveryStatus::DROPPED_PARTICIPANT;
 
     // Execution: Call the listener
-    participant_listener->on_participant_discovery(&statistics_participant, std::move(info));
+    bool should_be_ignored = false; // Set to false to avoid ignoring the entity
+    participant_listener->on_participant_discovery(&statistics_participant, status, data, should_be_ignored);
 
     // Check that entities are not alive
     ASSERT_FALSE(StatisticsBackendTest::is_active(participant->id));

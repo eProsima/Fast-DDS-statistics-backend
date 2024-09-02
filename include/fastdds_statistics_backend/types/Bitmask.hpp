@@ -17,8 +17,8 @@
  * @file Bitmask.hpp
  */
 
-#ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_TYPES_BITMASK_HPP_
-#define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_TYPES_BITMASK_HPP_
+#ifndef FASTDDS_STATISTICS_BACKEND_TYPES__BITMASK_HPP
+#define FASTDDS_STATISTICS_BACKEND_TYPES__BITMASK_HPP
 
 #include <type_traits>
 
@@ -85,20 +85,23 @@ public:
     Bitmask(
             const Bitmask<E>& other) = default;
 
-    Bitmask<E>& operator=(
+    Bitmask<E>& operator =(
             const Bitmask<E>& other) = default;
 
-    void set (const E& value)
+    void set (
+            const E& value)
     {
         mask_ |= static_cast<underlying_type>(value);
     }
 
-    void clear (const E& value)
+    void clear (
+            const E& value)
     {
         mask_ &= ~static_cast<underlying_type>(value);
     }
 
-    bool is_set(const E& value) const
+    bool is_set(
+            const E& value) const
     {
         underlying_type v = static_cast<underlying_type>(value);
         return (mask_ & v) == v;
@@ -114,73 +117,84 @@ public:
         return Bitmask(static_cast<underlying_type>(-1));
     }
 
-    Bitmask<E>& operator&= (const Bitmask& other)
+    Bitmask<E>& operator &= (
+            const Bitmask& other)
     {
         mask_ &= other.mask_;
         return *this;
     }
 
-    Bitmask<E>& operator&= (const E& value)
+    Bitmask<E>& operator &= (
+            const E& value)
     {
         mask_ &= static_cast<underlying_type>(value);
         return *this;
     }
 
-    Bitmask<E> operator& (const Bitmask& other) const
+    Bitmask<E> operator & (
+            const Bitmask& other) const
     {
         Bitmask result = *this;
         return result &= other;
     }
 
-    Bitmask<E> operator& (const E& value) const
+    Bitmask<E> operator & (
+            const E& value) const
     {
         Bitmask result = *this;
         return result &= value;
     }
 
-    Bitmask<E>& operator|= (const Bitmask& other)
+    Bitmask<E>& operator |= (
+            const Bitmask& other)
     {
         mask_ |= other.mask_;
         return *this;
     }
 
-    Bitmask<E>& operator|= (const E& value)
+    Bitmask<E>& operator |= (
+            const E& value)
     {
         mask_ |= static_cast<underlying_type>(value);
         return *this;
     }
 
-    Bitmask<E> operator| (const Bitmask& other) const
+    Bitmask<E> operator | (
+            const Bitmask& other) const
     {
         Bitmask result = *this;
         return result |= other;
     }
 
-    Bitmask<E> operator| (const E& value) const
+    Bitmask<E> operator | (
+            const E& value) const
     {
         Bitmask result = *this;
         return result |= value;
     }
 
-    Bitmask<E>& operator^= (const Bitmask& other)
+    Bitmask<E>& operator ^= (
+            const Bitmask& other)
     {
         mask_ ^= other.mask_;
         return *this;
     }
 
-    Bitmask<E>& operator^= (const E& value)
+    Bitmask<E>& operator ^= (
+            const E& value)
     {
         mask_ ^= static_cast<underlying_type>(value);
         return *this;
     }
 
-    Bitmask<E> operator^ (const Bitmask& other) const
+    Bitmask<E> operator ^ (
+            const Bitmask& other) const
     {
         Bitmask result = *this;
         return result ^= other;
     }
 
-    Bitmask<E> operator~ () const
+    Bitmask<E> operator ~ () const
     {
         Bitmask result(~mask_);
         return result;
@@ -198,28 +212,33 @@ private:
 };
 
 template<typename E>
-Bitmask<E> operator& (const E& lhs, const E& rhs)
+Bitmask<E> operator & (
+        const E& lhs,
+        const E& rhs)
 {
     Bitmask<E> result (lhs);
     return result &= rhs;
 }
 
 template<typename E>
-Bitmask<E> operator| (const E& lhs, const E& rhs)
+Bitmask<E> operator | (
+        const E& lhs,
+        const E& rhs)
 {
     Bitmask<E> result (lhs);
     return result |= rhs;
 }
 
 template<typename E>
-Bitmask<E> operator^ (const E& lhs, const E& rhs)
+Bitmask<E> operator ^ (
+        const E& lhs,
+        const E& rhs)
 {
     Bitmask<E> result (lhs);
     return result ^= rhs;
 }
 
-
 } //namespace statistics_backend
 } //namespace eprosima
 
-#endif // _EPROSIMA_FASTDDS_STATISTICS_BACKEND_TYPES_BITMASK_HPP_
+#endif // FASTDDS_STATISTICS_BACKEND_TYPES__BITMASK_HPP

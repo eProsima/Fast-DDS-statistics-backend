@@ -16,13 +16,14 @@
 #include <fastdds/dds/subscriber/SampleInfo.hpp>
 #include <fastdds/statistics/topic_names.hpp>
 
-#include <fastrtps/utils/IPLocator.h>
+#include <fastdds/utils/IPLocator.hpp>
 
 #include <database/database.hpp>
 #include <database/database_queue.hpp>
 #include <subscriber/StatisticsReaderListener.hpp>
-#include <fastdds_statistics_backend/topic_types/types.h>
-#include <fastdds_statistics_backend/topic_types/monitorservice_types.h>
+#include <fastdds_statistics_backend/topic_types/types.hpp>
+
+#include <fastdds_statistics_backend/topic_types/monitorservice_types.hpp>
 
 #include <gtest_aux.hpp>
 #include <gtest/gtest.h>
@@ -346,7 +347,7 @@ TEST_F(statistics_reader_listener_tests, new_history_latency_received)
 
     std::shared_ptr<StatisticsData> data = std::make_shared<StatisticsData>();
     data->writer_reader_data(inner_data);
-    data->_d(EventKindBits::HISTORY2HISTORY_LATENCY);
+    data->_d(EventKind::HISTORY2HISTORY_LATENCY);
 
     add_sample_to_reader_history(data, get_default_info());
 
@@ -388,20 +389,20 @@ TEST_F(statistics_reader_listener_tests, new_history_latency_received)
 TEST_F(statistics_reader_listener_tests, new_network_latency_received)
 {
     std::array<uint8_t, 16> src_locator_address = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
-    eprosima::fastrtps::rtps::Locator_t src_locator_t;
+    eprosima::fastdds::rtps::Locator_t src_locator_t;
     uint16_t src_locator_t_physical_port = 0;
     uint16_t src_locator_t_logical_port = 0;
-    eprosima::fastrtps::rtps::IPLocator::setPhysicalPort(src_locator_t, src_locator_t_physical_port);
-    eprosima::fastrtps::rtps::IPLocator::setLogicalPort(src_locator_t, src_locator_t_logical_port);
+    eprosima::fastdds::rtps::IPLocator::setPhysicalPort(src_locator_t, src_locator_t_physical_port);
+    eprosima::fastdds::rtps::IPLocator::setLogicalPort(src_locator_t, src_locator_t_logical_port);
     uint32_t src_locator_port = src_locator_t.port;
     std::string src_locator_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|d.e.f.10";
 
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
-    eprosima::fastrtps::rtps::Locator_t dst_locator_t;
+    eprosima::fastdds::rtps::Locator_t dst_locator_t;
     uint16_t dst_locator_t_physical_port = 2048;
     uint16_t dst_locator_t_logical_port = 0;
-    eprosima::fastrtps::rtps::IPLocator::setPhysicalPort(dst_locator_t, dst_locator_t_physical_port);
-    eprosima::fastrtps::rtps::IPLocator::setLogicalPort(dst_locator_t, dst_locator_t_logical_port);
+    eprosima::fastdds::rtps::IPLocator::setPhysicalPort(dst_locator_t, dst_locator_t_physical_port);
+    eprosima::fastdds::rtps::IPLocator::setLogicalPort(dst_locator_t, dst_locator_t_logical_port);
     uint32_t dst_locator_port = dst_locator_t.port;
     std::string dst_locator_str = "TCPv4:[4.3.2.1]:" + std::to_string(dst_locator_t_physical_port) + "-" +
             std::to_string(dst_locator_t_logical_port);
@@ -426,7 +427,7 @@ TEST_F(statistics_reader_listener_tests, new_network_latency_received)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->locator2locator_data(inner_data);
-    data->_d(EventKindBits::NETWORK_LATENCY);
+    data->_d(EventKind::NETWORK_LATENCY);
 
     add_sample_to_reader_history(data, get_default_info());
 
@@ -487,7 +488,7 @@ TEST_F(statistics_reader_listener_tests, new_publication_throughput_received)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity_data(inner_data);
-    data->_d(EventKindBits::PUBLICATION_THROUGHPUT);
+    data->_d(EventKind::PUBLICATION_THROUGHPUT);
 
     add_sample_to_reader_history(data, get_default_info());
 
@@ -543,7 +544,7 @@ TEST_F(statistics_reader_listener_tests, new_subscription_throughput_received)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity_data(inner_data);
-    data->_d(EventKindBits::SUBSCRIPTION_THROUGHPUT);
+    data->_d(EventKind::SUBSCRIPTION_THROUGHPUT);
 
     add_sample_to_reader_history(data, get_default_info());
 
@@ -584,11 +585,11 @@ TEST_F(statistics_reader_listener_tests, new_rtps_sent_received)
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
-    eprosima::fastrtps::rtps::Locator_t dst_locator_t;
+    eprosima::fastdds::rtps::Locator_t dst_locator_t;
     uint16_t dst_locator_t_physical_port = 2048;
     uint16_t dst_locator_t_logical_port = 0;
-    eprosima::fastrtps::rtps::IPLocator::setPhysicalPort(dst_locator_t, dst_locator_t_physical_port);
-    eprosima::fastrtps::rtps::IPLocator::setLogicalPort(dst_locator_t, dst_locator_t_logical_port);
+    eprosima::fastdds::rtps::IPLocator::setPhysicalPort(dst_locator_t, dst_locator_t_physical_port);
+    eprosima::fastdds::rtps::IPLocator::setLogicalPort(dst_locator_t, dst_locator_t_logical_port);
     uint32_t dst_locator_port = dst_locator_t.port;
     std::string dst_locator_str = "TCPv4:[4.3.2.1]:" + std::to_string(dst_locator_t_physical_port) + "-" +
             std::to_string(dst_locator_t_logical_port);
@@ -618,7 +619,7 @@ TEST_F(statistics_reader_listener_tests, new_rtps_sent_received)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity2locator_traffic(inner_data);
-    data->_d(EventKindBits::RTPS_SENT);
+    data->_d(EventKind::RTPS_SENT);
 
     add_sample_to_reader_history(data, get_default_info());
 
@@ -679,11 +680,11 @@ TEST_F(statistics_reader_listener_tests, new_rtps_lost_received)
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
-    eprosima::fastrtps::rtps::Locator_t dst_locator_t;
+    eprosima::fastdds::rtps::Locator_t dst_locator_t;
     uint16_t dst_locator_t_physical_port = 2048;
     uint16_t dst_locator_t_logical_port = 0;
-    eprosima::fastrtps::rtps::IPLocator::setPhysicalPort(dst_locator_t, dst_locator_t_physical_port);
-    eprosima::fastrtps::rtps::IPLocator::setLogicalPort(dst_locator_t, dst_locator_t_logical_port);
+    eprosima::fastdds::rtps::IPLocator::setPhysicalPort(dst_locator_t, dst_locator_t_physical_port);
+    eprosima::fastdds::rtps::IPLocator::setLogicalPort(dst_locator_t, dst_locator_t_logical_port);
     uint32_t dst_locator_port = dst_locator_t.port;
     std::string dst_locator_str = "TCPv4:[4.3.2.1]:" + std::to_string(dst_locator_t_physical_port) + "-" +
             std::to_string(dst_locator_t_logical_port);
@@ -713,7 +714,7 @@ TEST_F(statistics_reader_listener_tests, new_rtps_lost_received)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity2locator_traffic(inner_data);
-    data->_d(EventKindBits::RTPS_LOST);
+    data->_d(EventKind::RTPS_LOST);
 
     add_sample_to_reader_history(data, get_default_info());
 
@@ -789,7 +790,7 @@ TEST_F(statistics_reader_listener_tests, new_resent_datas_received)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity_count(inner_data);
-    data->_d(EventKindBits::RESENT_DATAS);
+    data->_d(EventKind::RESENT_DATAS);
 
     add_sample_to_reader_history(data, get_default_info());
 
@@ -845,7 +846,7 @@ TEST_F(statistics_reader_listener_tests, new_heartbeat_count_received)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity_count(inner_data);
-    data->_d(EventKindBits::HEARTBEAT_COUNT);
+    data->_d(EventKind::HEARTBEAT_COUNT);
 
     add_sample_to_reader_history(data, get_default_info());
 
@@ -901,7 +902,7 @@ TEST_F(statistics_reader_listener_tests, new_acknack_count_received)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity_count(inner_data);
-    data->_d(EventKindBits::ACKNACK_COUNT);
+    data->_d(EventKind::ACKNACK_COUNT);
 
     add_sample_to_reader_history(data, get_default_info());
 
@@ -957,7 +958,7 @@ TEST_F(statistics_reader_listener_tests, new_nackfrag_count_received)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity_count(inner_data);
-    data->_d(EventKindBits::NACKFRAG_COUNT);
+    data->_d(EventKind::NACKFRAG_COUNT);
 
     add_sample_to_reader_history(data, get_default_info());
 
@@ -1013,7 +1014,7 @@ TEST_F(statistics_reader_listener_tests, new_gap_count_received)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity_count(inner_data);
-    data->_d(EventKindBits::GAP_COUNT);
+    data->_d(EventKind::GAP_COUNT);
 
     add_sample_to_reader_history(data, get_default_info());
 
@@ -1069,7 +1070,7 @@ TEST_F(statistics_reader_listener_tests, new_data_count_received)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity_count(inner_data);
-    data->_d(EventKindBits::DATA_COUNT);
+    data->_d(EventKind::DATA_COUNT);
 
     add_sample_to_reader_history(data, get_default_info());
 
@@ -1125,7 +1126,7 @@ TEST_F(statistics_reader_listener_tests, new_pdp_count_received)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity_count(inner_data);
-    data->_d(EventKindBits::PDP_PACKETS);
+    data->_d(EventKind::PDP_PACKETS);
 
     add_sample_to_reader_history(data, get_default_info());
 
@@ -1181,7 +1182,7 @@ TEST_F(statistics_reader_listener_tests, new_edp_count_received)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->entity_count(inner_data);
-    data->_d(EventKindBits::EDP_PACKETS);
+    data->_d(EventKind::EDP_PACKETS);
 
     add_sample_to_reader_history(data, get_default_info());
 
@@ -1252,7 +1253,7 @@ TEST_F(statistics_reader_listener_tests, new_discovery_times_received)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->discovery_time(inner_data);
-    data->_d(EventKindBits::DISCOVERED_ENTITY);
+    data->_d(EventKind::DISCOVERED_ENTITY);
 
     add_sample_to_reader_history(data, get_default_info());
 
@@ -1298,7 +1299,7 @@ TEST_F(statistics_reader_listener_tests, new_sample_datas_received)
     int32_t sn_high = 2048;
     uint32_t sn_low = 4096;
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
-    eprosima::fastrtps::rtps::SequenceNumber_t sn (sn_high, sn_low);
+    eprosima::fastdds::rtps::SequenceNumber_t sn (sn_high, sn_low);
 
     // Build the writer GUID
     DatabaseDataQueue<StatisticsData>::StatisticsGuidPrefix writer_prefix;
@@ -1324,7 +1325,7 @@ TEST_F(statistics_reader_listener_tests, new_sample_datas_received)
 
     std::shared_ptr<eprosima::fastdds::statistics::Data> data = std::make_shared<eprosima::fastdds::statistics::Data>();
     data->sample_identity_count(inner_data);
-    data->_d(EventKindBits::SAMPLE_DATAS);
+    data->_d(EventKind::SAMPLE_DATAS);
 
     add_sample_to_reader_history(data, get_default_info());
 
@@ -1366,7 +1367,7 @@ TEST_F(statistics_reader_listener_tests, new_monitor_service_sample_received)
     int32_t sn_high = 2048;
     uint32_t sn_low = 4096;
     std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
-    eprosima::fastrtps::rtps::SequenceNumber_t sn (sn_high, sn_low);
+    eprosima::fastdds::rtps::SequenceNumber_t sn (sn_high, sn_low);
 
     // Build the writer GUID
     DatabaseDataQueue<MonitorServiceData>::StatisticsGuidPrefix writer_prefix;
@@ -1376,7 +1377,7 @@ TEST_F(statistics_reader_listener_tests, new_monitor_service_sample_received)
     DatabaseDataQueue<MonitorServiceData>::StatisticsGuid writer_guid;
     writer_guid.guidPrefix(writer_prefix);
     writer_guid.entityId(writer_entity_id);
-    StatusKind kind = StatusKind::PROXY;
+    StatusKind::StatusKind kind = StatusKind::PROXY;
     MonitorServiceData value;
     std::vector<uint8_t> entity_proxy = {1, 2, 3, 4, 5};
     value.entity_proxy(entity_proxy);

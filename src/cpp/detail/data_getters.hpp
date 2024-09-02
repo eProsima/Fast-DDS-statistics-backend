@@ -16,8 +16,8 @@
  * @file data_getters.hpp
  */
 
-#ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_DETAIL_DATA_GETTERS_HPP_
-#define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_DETAIL_DATA_GETTERS_HPP_
+#ifndef FASTDDS_STATISTICS_BACKEND_SRC_CPP_DETAIL__DATA_GETTERS_HPP
+#define FASTDDS_STATISTICS_BACKEND_SRC_CPP_DETAIL__DATA_GETTERS_HPP
 
 #include <algorithm>  // std::max
 #include <memory>     // std::unique_ptr
@@ -251,4 +251,4 @@ detail::IteratorPair get_iterators(
 } // namespace statistics_backend
 } // namespace eprosima
 
-#endif // _EPROSIMA_FASTDDS_STATISTICS_BACKEND_DETAIL_DATA_GETTERS_HPP_
+#endif // FASTDDS_STATISTICS_BACKEND_SRC_CPP_DETAIL__DATA_GETTERS_HPP

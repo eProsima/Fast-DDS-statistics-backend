@@ -18,7 +18,7 @@
   <url type="repository">https://github.com/eProsima/Fast-DDS-statistics-backend</url>
 
   <depend>fastcdr</depend>
-  <depend>fastrtps</depend>
+  <depend>fastdds</depend>
 
   <buildtool_depend>cmake</buildtool_depend>
 

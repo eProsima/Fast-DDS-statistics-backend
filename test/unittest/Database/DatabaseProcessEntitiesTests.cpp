@@ -20,7 +20,7 @@
 #include <gtest/gtest.h>
 
 #include <fastdds/rtps/common/RemoteLocators.hpp>
-#include <fastdds/rtps/common/Locator.h>
+#include <fastdds/rtps/common/Locator.hpp>
 
 #include <fastdds_statistics_backend/exception/Exception.hpp>
 #include <fastdds_statistics_backend/types/EntityId.hpp>
@@ -32,8 +32,7 @@
 #include <DatabaseUtils.hpp>
 
 using namespace eprosima::statistics_backend;
-using namespace eprosima::statistics_backend::database;
-using namespace eprosima::fastrtps::rtps;
+using namespace eprosima::fastdds::rtps;
 
 class database_process_entities_tests : public ::testing::Test
 {
@@ -819,14 +818,13 @@ TEST_F(database_process_entities_tests, insert_new_endpoint_datawriter)
     /* Create a DataWriter*/
     Locator_t unicast_locator;
     std::stringstream(unicast_locator_str) >> unicast_locator;
-    std::shared_ptr<Locator> ulocator = std::make_shared<Locator>(unicast_locator_str);
+    std::shared_ptr<database::Locator> ulocator = std::make_shared<database::Locator>(unicast_locator_str);
     EntityId ulocator_id = db.insert(ulocator);
 
     Locator_t multicast_locator;
     std::stringstream(multicast_locator_str) >> multicast_locator;
-    std::shared_ptr<Locator> mlocator = std::make_shared<Locator>(multicast_locator_str);
+    std::shared_ptr<database::Locator> mlocator = std::make_shared<database::Locator>(multicast_locator_str);
     EntityId mlocator_id = db.insert(mlocator);
-
     RemoteLocatorList locators;
     locators.add_unicast_locator(unicast_locator);
     locators.add_multicast_locator(multicast_locator);
@@ -868,7 +866,7 @@ TEST_F(database_process_entities_tests, insert_new_endpoint_datawriter)
     ASSERT_EQ(topics[domain_id][topic_id].get(), datawriters[domain_id][endpoint_id]->topic.get());
     ASSERT_EQ(topics[domain_id][topic_id]->data_writers[endpoint_id].get(), datawriters[domain_id][endpoint_id].get());
 
-    std::map<EntityId, std::shared_ptr<Locator>> locators_db = db.locators();
+    std::map<EntityId, std::shared_ptr<database::Locator>> locators_db = db.locators();
     ASSERT_EQ(locators_db[ulocator_id].get(), datawriters[domain_id][endpoint_id]->locators[ulocator_id].get());
     ASSERT_EQ(locators_db[ulocator_id]->data_writers[endpoint_id].get(), datawriters[domain_id][endpoint_id].get());
     ASSERT_EQ(locators_db[mlocator_id].get(), datawriters[domain_id][endpoint_id]->locators[mlocator_id].get());
@@ -903,12 +901,12 @@ TEST_F(database_process_entities_tests, insert_new_endpoint_datareader)
     /* Create a DataWriter*/
     Locator_t unicast_locator;
     std::stringstream(unicast_locator_str) >> unicast_locator;
-    std::shared_ptr<Locator> ulocator = std::make_shared<Locator>(unicast_locator_str);
+    std::shared_ptr<database::Locator> ulocator = std::make_shared<database::Locator>(unicast_locator_str);
     EntityId ulocator_id = db.insert(ulocator);
 
     Locator_t multicast_locator;
     std::stringstream(multicast_locator_str) >> multicast_locator;
-    std::shared_ptr<Locator> mlocator = std::make_shared<Locator>(multicast_locator_str);
+    std::shared_ptr<database::Locator> mlocator = std::make_shared<database::Locator>(multicast_locator_str);
     EntityId mlocator_id = db.insert(mlocator);
 
     RemoteLocatorList locators;
@@ -952,7 +950,7 @@ TEST_F(database_process_entities_tests, insert_new_endpoint_datareader)
     ASSERT_EQ(topics[domain_id][topic_id].get(), datareaders[domain_id][endpoint_id]->topic.get());
     ASSERT_EQ(topics[domain_id][topic_id]->data_readers[endpoint_id].get(), datareaders[domain_id][endpoint_id].get());
 
-    std::map<EntityId, std::shared_ptr<Locator>> locators_db = db.locators();
+    std::map<EntityId, std::shared_ptr<database::Locator>> locators_db = db.locators();
     ASSERT_EQ(locators_db[ulocator_id].get(), datareaders[domain_id][endpoint_id]->locators[ulocator_id].get());
     ASSERT_EQ(locators_db[ulocator_id]->data_readers[endpoint_id].get(), datareaders[domain_id][endpoint_id].get());
     ASSERT_EQ(locators_db[mlocator_id].get(), datareaders[domain_id][endpoint_id]->locators[mlocator_id].get());
@@ -987,12 +985,12 @@ TEST_F(database_process_entities_tests, insert_new_endpoint_already_exists)
     /* Insert a DataReader*/
     Locator_t unicast_locator;
     std::stringstream(unicast_locator_str) >> unicast_locator;
-    std::shared_ptr<Locator> ulocator = std::make_shared<Locator>(unicast_locator_str);
+    std::shared_ptr<database::Locator> ulocator = std::make_shared<database::Locator>(unicast_locator_str);
     EntityId ulocator_id = db.insert(ulocator);
 
     Locator_t multicast_locator;
     std::stringstream(multicast_locator_str) >> multicast_locator;
-    std::shared_ptr<Locator> mlocator = std::make_shared<Locator>(multicast_locator_str);
+    std::shared_ptr<database::Locator> mlocator = std::make_shared<database::Locator>(multicast_locator_str);
     EntityId mlocator_id = db.insert(mlocator);
 
     RemoteLocatorList locators;
@@ -1045,12 +1043,12 @@ TEST_F(database_process_entities_tests, insert_new_endpoint_no_topic)
     /* Insert a DataReader*/
     Locator_t unicast_locator;
     std::stringstream(unicast_locator_str) >> unicast_locator;
-    std::shared_ptr<Locator> ulocator = std::make_shared<Locator>(unicast_locator_str);
+    std::shared_ptr<database::Locator> ulocator = std::make_shared<database::Locator>(unicast_locator_str);
     db.insert(ulocator);
 
     Locator_t multicast_locator;
     std::stringstream(multicast_locator_str) >> multicast_locator;
-    std::shared_ptr<Locator> mlocator = std::make_shared<Locator>(multicast_locator_str);
+    std::shared_ptr<database::Locator> mlocator = std::make_shared<database::Locator>(multicast_locator_str);
     db.insert(mlocator);
 
     RemoteLocatorList locators;
@@ -1089,12 +1087,12 @@ TEST_F(database_process_entities_tests, insert_new_endpoint_no_participant)
     /* Insert a DataReader*/
     Locator_t unicast_locator;
     std::stringstream(unicast_locator_str) >> unicast_locator;
-    std::shared_ptr<Locator> ulocator = std::make_shared<Locator>(unicast_locator_str);
+    std::shared_ptr<database::Locator> ulocator = std::make_shared<database::Locator>(unicast_locator_str);
     db.insert(ulocator);
 
     Locator_t multicast_locator;
     std::stringstream(multicast_locator_str) >> multicast_locator;
-    std::shared_ptr<Locator> mlocator = std::make_shared<Locator>(multicast_locator_str);
+    std::shared_ptr<database::Locator> mlocator = std::make_shared<database::Locator>(multicast_locator_str);
     db.insert(mlocator);
 
     RemoteLocatorList locators;
@@ -1190,7 +1188,7 @@ TEST_F(database_process_entities_tests, insert_new_endpoint_no_locators)
     ASSERT_EQ(topics[domain_id][topic_id].get(), datareaders[domain_id][endpoint_id]->topic.get());
     ASSERT_EQ(topics[domain_id][topic_id]->data_readers[endpoint_id].get(), datareaders[domain_id][endpoint_id].get());
 
-    std::map<EntityId, std::shared_ptr<Locator>> locators_db = db.locators();
+    std::map<EntityId, std::shared_ptr<database::Locator>> locators_db = db.locators();
     ASSERT_EQ(2u, datareaders[domain_id][endpoint_id]->locators.size());
     ASSERT_EQ(2u, locators_db.size());
 }

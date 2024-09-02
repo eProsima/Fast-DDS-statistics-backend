@@ -44,10 +44,10 @@ include(${PROJECT_SOURCE_DIR}/cmake/common/asan.cmake)
 ###############################################################################
 # Load external projects.
 ###############################################################################
-set(FASTDDS_MIN_VERSION "2.13.0")
+set(FASTDDS_MIN_VERSION "3.0.0")
 
 find_package(fastcdr REQUIRED)
-find_package(fastrtps ${FASTDDS_MIN_VERSION} REQUIRED)
+find_package(fastdds ${FASTDDS_MIN_VERSION} REQUIRED)
 
 ###############################################################################
 # Test system configuration

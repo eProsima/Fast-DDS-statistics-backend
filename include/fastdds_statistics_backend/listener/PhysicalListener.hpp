@@ -16,8 +16,8 @@
  * @file PhysicalListener.hpp
  */
 
-#ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_LISTENER_PHYSICALLISTENER_HPP_
-#define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_LISTENER_PHYSICALLISTENER_HPP_
+#ifndef FASTDDS_STATISTICS_BACKEND_LISTENER__PHYSICAL_LISTENER_HPP
+#define FASTDDS_STATISTICS_BACKEND_LISTENER__PHYSICAL_LISTENER_HPP
 
 #include <fastdds_statistics_backend/fastdds_statistics_backend_dll.h>
 #include <fastdds_statistics_backend/types/types.hpp>
@@ -96,4 +96,4 @@ public:
 } // namespace statistics_backend
 } // namespace eprosima
 
-#endif // _EPROSIMA_FASTDDS_STATISTICS_BACKEND_LISTENER_PHYSICALLISTENER_HPP_
+#endif // FASTDDS_STATISTICS_BACKEND_LISTENER__PHYSICAL_LISTENER_HPP

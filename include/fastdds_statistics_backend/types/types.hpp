@@ -17,13 +17,13 @@
  * @file types.hpp
  */
 
-#ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_TYPES_TYPES_HPP_
-#define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_TYPES_TYPES_HPP_
+#ifndef FASTDDS_STATISTICS_BACKEND_TYPES__TYPES_HPP
+#define FASTDDS_STATISTICS_BACKEND_TYPES__TYPES_HPP
 
 #include <fastdds_statistics_backend/nlohmann-json/json.hpp>
 #include <fastdds_statistics_backend/types/Bitmask.hpp>
 #include <fastdds_statistics_backend/types/EntityId.hpp>
-#include <fastdds_statistics_backend/topic_types/monitorservice_types.h>
+#include <fastdds_statistics_backend/topic_types/monitorservice_types.hpp>
 
 #include <chrono>
 
@@ -646,4 +646,4 @@ struct SampleLostSample : MonitorServiceSample
 } //namespace statistics_backend
 } //namespace eprosima
 
-#endif // _EPROSIMA_FASTDDS_STATISTICS_BACKEND_TYPES_TYPES_HPP_
+#endif // FASTDDS_STATISTICS_BACKEND_TYPES__TYPES_HPP

@@ -16,14 +16,14 @@
  * @file Monitor.hpp
  */
 
-#ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_MONITOR_HPP_
-#define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_MONITOR_HPP_
+#ifndef FASTDDS_STATISTICS_BACKEND_SRC_CPP__MONITOR_HPP
+#define FASTDDS_STATISTICS_BACKEND_SRC_CPP__MONITOR_HPP
 
 #include <map>
 #include <string>
 
-#include <fastdds_statistics_backend/listener/DomainListener.hpp>
 #include <fastdds_statistics_backend/listener/CallbackMask.hpp>
+#include <fastdds_statistics_backend/listener/DomainListener.hpp>
 #include <fastdds_statistics_backend/types/EntityId.hpp>
 
 namespace eprosima {
@@ -100,4 +100,4 @@ struct Monitor
 } // namespace statistics_backend
 } // namespace eprosima
 
-#endif //_EPROSIMA_FASTDDS_STATISTICS_BACKEND_MONITOR_HPP_
+#endif //FASTDDS_STATISTICS_BACKEND_SRC_CPP__MONITOR_HPP
