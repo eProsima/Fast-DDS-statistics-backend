@@ -282,6 +282,12 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
 
+      - name: Sync repository
+        uses: eProsima/eProsima-CI/external/checkout@v0
+        with:
+          path: src
+          ref: ${{ inputs.ref }}
+
       - name: Install libtinyxml in ubuntu
         uses: eProsima/eProsima-CI/ubuntu/install_apt_packages@v0
         with:
@@ -308,6 +314,12 @@ jobs:
   uncrustify:
     runs-on: ubuntu-22.04
     steps:
+
+      - name: Sync repository
+        uses: eProsima/eProsima-CI/external/checkout@v0
+        with:
+          path: src
+          ref: ${{ inputs.ref }}
 
       - name: Uncrustify
         uses: eProsima/eProsima-CI/ubuntu/uncrustify@v0
