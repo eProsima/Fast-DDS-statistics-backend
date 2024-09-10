@@ -287,7 +287,7 @@ bool Database::is_type_in_database(
     if (type_idls_.find(type_name) != type_idls_.end())
     {
         return true;
-    } 
+    }
     else
     {
         return false;
@@ -295,8 +295,8 @@ bool Database::is_type_in_database(
 }
 
 void Database::insert_new_type_idl(
-            const std::string& type_name,
-            const std::string& type_idl)
+        const std::string& type_name,
+        const std::string& type_idl)
 {
     std::lock_guard<std::shared_timed_mutex> guard(mutex_);
     if (type_name.empty() || type_idl.empty())
@@ -305,7 +305,6 @@ void Database::insert_new_type_idl(
     }
     type_idls_[type_name] = type_idl;
 }
-
 
 EntityId Database::insert_new_endpoint(
         const std::string& endpoint_guid,
@@ -2131,13 +2130,15 @@ std::vector<std::pair<EntityId, EntityId>> Database::get_entities_by_name_nts(
     return entities;
 }
 
-std::string Database::get_type_idl(const std::string& type_name) const
+std::string Database::get_type_idl(
+        const std::string& type_name) const
 {
     std::shared_lock<std::shared_timed_mutex> lock(mutex_);
     return get_type_idl_nts(type_name);
 }
 
-std::string Database::get_type_idl_nts(const std::string& type_name) const
+std::string Database::get_type_idl_nts(
+        const std::string& type_name) const
 {
     auto it = type_idls_.find(type_name);
     if (it != type_idls_.end())
@@ -5346,7 +5347,7 @@ Info Database::get_info(
             break;
         }
     }
-    
+
     return info;
 
 }

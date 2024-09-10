@@ -162,10 +162,10 @@ public:
      * @param type_name The type name of the Topic.
      *
      * @return True if the Topic data type is in the database.
-     */   
+     */
     bool is_type_in_database(
             const std::string& type_name);
-    
+
     /**
      * @brief Insert a new type IDL into the database.
      * @param topic_type The type of the topic.
@@ -471,7 +471,7 @@ public:
      * @return The IDL representation of the type in std::string format.
      */
     std::string get_type_idl(
-            const std::string& type_name) const;    
+            const std::string& type_name) const;
 
     /**
      * @brief Get the entity of a given EntityKind that matches with the requested GUID.
@@ -1204,7 +1204,7 @@ protected:
      * @return The IDL representation of the type in std::string format.
      */
     std::string get_type_idl_nts(
-            const std::string& type_name) const;    
+            const std::string& type_name) const;
 
     /**
      * @brief Get the entity of a given EntityKind that matches with the requested GUID. This method is not thread safe.
@@ -1486,13 +1486,13 @@ protected:
     std::map<EntityId, std::map<EntityId, std::shared_ptr<Topic>>> topics_;
 
     /**
-     * Collection of topic IDLs sorted by topic data types, with which they are biunivocally identified. 
+     * Collection of topic IDLs sorted by topic data types, with which they are biunivocally identified.
      * This is used to store the IDLs of the discovered topics
-     * 
+     *
      * Each value in the collection is in turn a map of the actual Topic IDLs sorted by data type
      */
     std::map<std::string, std::string> type_idls_;
-    
+
     //! Graph map describing per domain complete topology of the entities.
     std::map<EntityId, Graph> domain_view_graph;
 
