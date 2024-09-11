@@ -1,4 +1,4 @@
-// Copyright 2024 Proyectos y Sistemas de Mantenimiento SL (eProsima).
+// Copyright 2016 Proyectos y Sistemas de Mantenimiento SL (eProsima).
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -80,9 +80,9 @@ public:
     eProsima_user_DllExport Communication(
             const Communication& x)
     {
-        m_index = x.m_index;
+                    m_index = x.m_index;
 
-        m_message = x.m_message;
+                    m_message = x.m_message;
 
     }
 
@@ -105,9 +105,9 @@ public:
             const Communication& x)
     {
 
-        m_index = x.m_index;
+                    m_index = x.m_index;
 
-        m_message = x.m_message;
+                    m_message = x.m_message;
 
         return *this;
     }
@@ -133,7 +133,7 @@ public:
             const Communication& x) const
     {
         return (m_index == x.m_index &&
-               m_message == x.m_message);
+           m_message == x.m_message);
     }
 
     /*!
@@ -174,6 +174,7 @@ public:
         return m_index;
     }
 
+
     /*!
      * @brief This function copies the value in member message
      * @param _message New value to be copied in member message
@@ -211,6 +212,8 @@ public:
     {
         return m_message;
     }
+
+
 
 private:
 
