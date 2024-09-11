@@ -322,25 +322,30 @@ void StatisticsParticipantListener::on_data_reader_discovery(
         }
     }
 
-    // Create IDL representation of the discovered type
-    // Get remote type information
-    xtypes::TypeObject remote_type_object;
-    if (RETCODE_OK != DomainParticipantFactory::get_instance()->type_object_registry().get_type_object(
-                info.type_information.type_information.complete().typeid_with_size().type_id(),
-                remote_type_object))
+    // In case of a new data reader discovered, add type info if available
+    if (ReaderDiscoveryStatus::DISCOVERED_READER == reason && info.type_information.assigned() == true)
     {
-        // Error
-        return;
+        // Create IDL representation of the discovered type
+        // Get remote type information
+        xtypes::TypeObject remote_type_object;
+        if (RETCODE_OK != DomainParticipantFactory::get_instance()->type_object_registry().get_type_object(
+                    info.type_information.type_information.complete().typeid_with_size().type_id(),
+                    remote_type_object))
+        {
+            EPROSIMA_LOG_ERROR(STATISTICS_PARTICIPANT_LISTENER,
+                    "Error getting type object for type " << info.type_name);
+            return;
+        }
+
+        // Build remotely discovered type
+        DynamicType::_ref_type remote_type = DynamicTypeBuilderFactory::get_instance()->create_type_w_type_object(
+            remote_type_object)->build();
+
+        // Serialize DynamicType into its IDL representation
+        std::stringstream idl;
+        idl_serialize(remote_type, idl);
+        discovery_info.type_idl = idl.str();
     }
-
-    // Build remotely discovered type
-    DynamicType::_ref_type remote_type = DynamicTypeBuilderFactory::get_instance()->create_type_w_type_object(
-        remote_type_object)->build();
-
-    // Serialize DynamicType into its IDL representation
-    std::stringstream idl;
-    idl_serialize(remote_type, idl);
-    discovery_info.type_idl = idl.str();
 
     entity_queue_->push(timestamp, discovery_info);
 
@@ -401,25 +406,31 @@ void StatisticsParticipantListener::on_data_writer_discovery(
             break;
         }
     }
-    // Create IDL representation of the discovered type
-    // Get remote type information
-    xtypes::TypeObject remote_type_object;
-    if (RETCODE_OK != DomainParticipantFactory::get_instance()->type_object_registry().get_type_object(
-                info.type_information.type_information.complete().typeid_with_size().type_id(),
-                remote_type_object))
+
+    // In case of a new data writer discovered, add type info if available
+    if (WriterDiscoveryStatus::DISCOVERED_WRITER == reason && info.type_information.assigned() == true)
     {
-        // Error
-        return;
+        // Create IDL representation of the discovered type
+        // Get remote type information
+        xtypes::TypeObject remote_type_object;
+        if (RETCODE_OK != DomainParticipantFactory::get_instance()->type_object_registry().get_type_object(
+                    info.type_information.type_information.complete().typeid_with_size().type_id(),
+                    remote_type_object))
+        {
+            EPROSIMA_LOG_ERROR(STATISTICS_PARTICIPANT_LISTENER,
+                    "Error getting type object for type " << info.type_name);
+            return;
+        }
+
+        // Build remotely discovered type
+        DynamicType::_ref_type remote_type = DynamicTypeBuilderFactory::get_instance()->create_type_w_type_object(
+            remote_type_object)->build();
+
+        // Serialize DynamicType into its IDL representation
+        std::stringstream idl;
+        idl_serialize(remote_type, idl);
+        discovery_info.type_idl = idl.str();
     }
-
-    // Build remotely discovered type
-    DynamicType::_ref_type remote_type = DynamicTypeBuilderFactory::get_instance()->create_type_w_type_object(
-        remote_type_object)->build();
-
-    // Serialize DynamicType into its IDL representation
-    std::stringstream idl;
-    idl_serialize(remote_type, idl);
-    discovery_info.type_idl = idl.str();
 
     entity_queue_->push(timestamp, discovery_info);
 

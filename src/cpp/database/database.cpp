@@ -299,9 +299,9 @@ void Database::insert_new_type_idl(
         const std::string& type_idl)
 {
     std::lock_guard<std::shared_timed_mutex> guard(mutex_);
-    if (type_name.empty() || type_idl.empty())
+    if (type_name.empty())
     {
-        throw BadParameter("Type name or type IDL cannot be empty");
+        throw BadParameter("Type name cannot be empty");
     }
     type_idls_[type_name] = type_idl;
 }

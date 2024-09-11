@@ -1391,6 +1391,8 @@ TEST_F(database_queue_tests, push_datawriter)
             std::make_pair(EntityId(0), EntityId(2)))));
     EXPECT_CALL(database, is_topic_in_database(_, EntityId(2))).Times(AnyNumber())
             .WillRepeatedly(Return(true));
+    EXPECT_CALL(database, is_type_in_database(type_name)).Times(AnyNumber())
+            .WillRepeatedly(Return(true));
 
     // Datawriter undiscovery: FAILURE
     {
@@ -1625,6 +1627,9 @@ TEST_F(database_queue_tests, push_datawriter_topic_does_not_exist)
     EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name)).Times(AnyNumber())
             .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>()));
 
+    EXPECT_CALL(database, is_type_in_database(type_name)).Times(AnyNumber())
+            .WillRepeatedly(Return(false));
+
     // Datawriter discovery: SUCCESS
     {
         // Precondition: The writer does not exist
@@ -1680,6 +1685,10 @@ TEST_F(database_queue_tests, push_datawriter_topic_does_not_exist)
 
         EXPECT_CALL(database, insert_new_endpoint(_, _, _, _, _, _, _, _, _, _)).Times(1)
                 .WillOnce(Invoke(&insert_datawriter_args, &InsertEndpointArgs::insert));
+
+        // Expectation: Add the type to the database
+        EXPECT_CALL(database, is_type_in_database(type_name)).Times(1).WillOnce(Return(false));
+        EXPECT_CALL(database, insert_new_type_idl(type_name, "")).Times(1);
 
         // Expectation: Modify graph and notify user
         EXPECT_CALL(database, update_endpoint_in_graph(_, _, _, _)).Times(1).WillOnce(Return(true));
@@ -1745,6 +1754,8 @@ TEST_F(database_queue_tests, push_datareader)
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,
             std::make_pair(EntityId(0), EntityId(2)))));
     EXPECT_CALL(database, is_topic_in_database(_, EntityId(2))).Times(AnyNumber())
+            .WillRepeatedly(Return(true));
+    EXPECT_CALL(database, is_type_in_database(type_name)).Times(AnyNumber())
             .WillRepeatedly(Return(true));
 
     // Datareader undiscovery: FAILURE
@@ -1979,6 +1990,8 @@ TEST_F(database_queue_tests, push_datareader_topic_does_not_exist)
     // Precondition: The topic does not exist
     EXPECT_CALL(database, get_entities_by_name(EntityKind::TOPIC, topic_name)).Times(AnyNumber())
             .WillOnce(Return(std::vector<std::pair<EntityId, EntityId>>()));
+    EXPECT_CALL(database, is_type_in_database(type_name)).Times(AnyNumber())
+            .WillOnce(Return(false));
 
     // Datareader discovery: SUCCESS
     {
@@ -2035,6 +2048,10 @@ TEST_F(database_queue_tests, push_datareader_topic_does_not_exist)
 
         EXPECT_CALL(database, insert_new_endpoint(_, _, _, _, _, _, _, _, _, _)).Times(1)
                 .WillOnce(Invoke(&insert_datareader_args, &InsertEndpointArgs::insert));
+
+        // Expectation: Add the type to the database
+        EXPECT_CALL(database, is_type_in_database(type_name)).Times(1).WillOnce(Return(false));
+        EXPECT_CALL(database, insert_new_type_idl(type_name, "")).Times(1);
 
         // Expectation: Modify graph and notify user
         EXPECT_CALL(database, update_endpoint_in_graph(_, _, _, _)).Times(1).WillOnce(Return(true));
