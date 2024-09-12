@@ -141,7 +141,6 @@ public:
             const std::string& topic_type,
             const EntityId& topic_id);
 
-
     /**
      * @brief Create new Topic and insert it in database.
      * @param name The name of the Topic.

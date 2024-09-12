@@ -547,7 +547,6 @@ std::string StatisticsBackend::get_type_idl(
     }
     Info topic_info = StatisticsBackend::get_info(entity_id);
     return StatisticsBackendData::get_instance()->database_->get_type_idl(topic_info[DATA_TYPE_TAG]);
-
 }
 
 std::vector<StatisticsData> StatisticsBackend::get_data(

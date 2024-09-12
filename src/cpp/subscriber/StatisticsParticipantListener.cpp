@@ -353,8 +353,6 @@ void StatisticsParticipantListener::on_data_reader_discovery(
     entity_queue_->flush();
     data_queue_->start_consumer();
     monitor_service_status_data_queue_->start_consumer();
-
-
 }
 
 void StatisticsParticipantListener::on_data_writer_discovery(

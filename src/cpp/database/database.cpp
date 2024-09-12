@@ -283,15 +283,7 @@ EntityId Database::insert_new_topic(
 bool Database::is_type_in_database(
         const std::string& type_name)
 {
-
-    if (type_idls_.find(type_name) != type_idls_.end())
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    return (type_idls_.find(type_name) != type_idls_.end());
 }
 
 void Database::insert_new_type_idl(
@@ -5349,7 +5341,6 @@ Info Database::get_info(
     }
 
     return info;
-
 }
 
 void Database::check_entity_kinds(
