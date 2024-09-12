@@ -1,4 +1,4 @@
-// Copyright 2024 Proyectos y Sistemas de Mantenimiento SL (eProsima).
+// Copyright 2016 Proyectos y Sistemas de Mantenimiento SL (eProsima).
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -113,8 +113,13 @@ void serialize_key(
         eprosima::fastcdr::Cdr& scdr,
         const Communication& data)
 {
+
     static_cast<void>(scdr);
     static_cast<void>(data);
+                        scdr << data.index();
+
+                        scdr << data.message();
+
 }
 
 
