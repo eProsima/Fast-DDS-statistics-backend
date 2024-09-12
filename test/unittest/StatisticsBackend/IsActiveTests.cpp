@@ -544,7 +544,6 @@ TEST_F(is_active_tests, discover_datawriter_on_inactive_domain)
         // The discovered reader is in the topic
         data.topic_name = topic->name;
         data.type_name = topic->data_type;
-
         // The discovered reader contains the locator
         eprosima::fastdds::rtps::Locator_t dds_existing_unicast_locator(LOCATOR_KIND_UDPv4, 1024);
         dds_existing_unicast_locator.address[12] = 127;

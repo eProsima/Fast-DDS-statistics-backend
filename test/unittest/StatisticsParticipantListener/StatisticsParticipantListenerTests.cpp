@@ -608,6 +608,10 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered)
         on_domain_entity_discovery(EntityId(0), EntityId(11), EntityKind::TOPIC,
         eprosima::statistics_backend::details::StatisticsBackendData::DiscoveryStatus::DISCOVERY)).Times(1);
 
+    // Expectation: Metatraffic type is ignored
+    EXPECT_CALL(database, is_type_in_database(metatraffic_type_name_)).Times(1).WillOnce(Return(false));
+    EXPECT_CALL(database, insert_new_type_idl(metatraffic_type_name_, "")).Times(0);
+
     // Execution: Call the listener
     eprosima::fastdds::rtps::ParticipantDiscoveryStatus status =
             eprosima::fastdds::rtps::ParticipantDiscoveryStatus::DISCOVERED_PARTICIPANT;
@@ -699,6 +703,11 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_not_fir
 
     EXPECT_CALL(database, insert_new_participant(_, _, _, _, _, _, _)).Times(1)
             .WillOnce(Invoke(&insert_args, &InsertParticipantArgs::insert));
+
+    // Expectation: Metatraffic topic types are ignored
+    EXPECT_CALL(database, is_type_in_database(metatraffic_type_name_)).Times(1)
+            .WillOnce(Return(false));
+    EXPECT_CALL(database, insert_new_type_idl(metatraffic_type_name_, "")).Times(0);
 
     // Expectation: The host already exists with ID 13, the user already exists with ID 14 and the process already exists with ID 15
     ProcessPhysicalArgs process_physical_args([&](
@@ -935,6 +944,11 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
     EXPECT_CALL(database, insert_new_topic(_, _, _, _)).Times(1)
             .WillOnce(Invoke(&insert_topic_args, &InsertTopicArgs::insert));
 
+    // Expectation: Metatraffic topic types are ignored
+    EXPECT_CALL(database, is_type_in_database(metatraffic_type_name_)).Times(1)
+            .WillOnce(Return(false));
+    EXPECT_CALL(database, insert_new_type_idl(metatraffic_prefix + "TYPE", "")).Times(0);
+
     // Expectation: The Metatraffic Endpoint is added to the database. We do not care about the given ID
     InsertEndpointArgs insert_datawriter_args([&](
                 const std::string& endpoint_guid,
@@ -1123,6 +1137,11 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
     EXPECT_CALL(database, insert_new_participant(_, _, _, _, _, _, _)).Times(1)
             .WillOnce(Invoke(&insert_args, &InsertParticipantArgs::insert));
 
+    // Expectation: Metatraffic topic types are ignored
+    EXPECT_CALL(database, is_type_in_database(metatraffic_type_name_)).Times(1)
+            .WillOnce(Return(false));
+    EXPECT_CALL(database, insert_new_type_idl(metatraffic_prefix + "TYPE", "")).Times(0);
+
     // Expectation: The host is created and given ID 13, the user is created and given ID 14 and the process is created and given ID 15
     ProcessPhysicalArgs process_physical_args([&](
                 const std::string& host_name,
@@ -1166,6 +1185,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
 
     EXPECT_CALL(database, insert_new_topic(_, _, _, _)).Times(1)
             .WillOnce(Invoke(&insert_topic_args, &InsertTopicArgs::insert));
+
 
     // Expectation: The Metatraffic Endpoint is added to the database. We do not care about the given ID
     InsertEndpointArgs insert_datawriter_args([&](
@@ -1343,6 +1363,11 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
 
     EXPECT_CALL(database, insert_new_participant(_, _, _, _, _, _, _)).Times(1)
             .WillOnce(Invoke(&insert_args, &InsertParticipantArgs::insert));
+
+    // Expectation: Metatraffic topic types are ignored
+    EXPECT_CALL(database, is_type_in_database(metatraffic_type_name_)).Times(1)
+            .WillOnce(Return(false));
+    EXPECT_CALL(database, insert_new_type_idl(metatraffic_type_name_, "")).Times(0);
 
     // Expectation: The host is created and given ID 13, the user is created and given ID 14 and the process is created and given ID 15
     ProcessPhysicalArgs process_physical_args([&](
@@ -1570,6 +1595,11 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
     EXPECT_CALL(database, insert_new_participant(_, _, _, _, _, _, _)).Times(1)
             .WillOnce(Invoke(&insert_args, &InsertParticipantArgs::insert));
 
+    // Expectation: Metatraffic topic types are ignored
+    EXPECT_CALL(database, is_type_in_database(metatraffic_type_name_)).Times(1)
+            .WillOnce(Return(false));
+    EXPECT_CALL(database, insert_new_type_idl(metatraffic_type_name_, "")).Times(0);
+
     // Expectation: The host is created and given ID 13, the user is created and given ID 14 and the process is created and given ID 15
     ProcessPhysicalArgs process_physical_args([&](
                 const std::string& host_name,
@@ -1762,6 +1792,11 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
     EXPECT_CALL(database, insert_new_participant(_, _, _, _, _, _, _)).Times(1)
             .WillOnce(Invoke(&insert_args, &InsertParticipantArgs::insert));
 
+    // Expectation: Metatraffic topic types are ignored
+    EXPECT_CALL(database, is_type_in_database(metatraffic_type_name_)).Times(1)
+            .WillOnce(Return(false));
+
+    EXPECT_CALL(database, insert_new_type_idl(metatraffic_type_name_, "")).Times(0);
     // Expectation: The host is created and given ID 13, the user is created and given ID 14 and the process is created and given ID 15
     ProcessPhysicalArgs process_physical_args([&](
                 const std::string& host_name,
@@ -1986,6 +2021,11 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
 
     EXPECT_CALL(database, insert_new_participant(_, _, _, _, _, _, _)).Times(1)
             .WillOnce(Invoke(&insert_args, &InsertParticipantArgs::insert));
+
+    // Expectation: Metatraffic topic types are ignored
+    EXPECT_CALL(database, is_type_in_database(metatraffic_type_name_)).Times(1)
+            .WillOnce(Return(false));
+    EXPECT_CALL(database, insert_new_type_idl(metatraffic_type_name_, "")).Times(0);
 
     // Expectation: The host is created and given ID 13, the user is created and given ID 14 and the process is created and given ID 15
     ProcessPhysicalArgs process_physical_args([&](
@@ -2403,6 +2443,10 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered)
     // Precondition: The reader change it status
     EXPECT_CALL(database, change_entity_status(EntityId(10), true)).Times(1);
 
+    // Expectation: Type is already added to the database
+    EXPECT_CALL(database, is_type_in_database(type_name_)).Times(1)
+            .WillOnce(Return(true));
+
     // Expectation: Modify graph and notify user
     EXPECT_CALL(database,
             update_endpoint_in_graph(EntityId(0), EntityId(1), EntityId(2), EntityId(10))).Times(1).WillOnce(Return(
@@ -2573,6 +2617,11 @@ TEST_F(statistics_participant_listener_tests, new_reader_no_topic)
     // Precondition: The reader change it status
     EXPECT_CALL(database, change_entity_status(EntityId(11), true)).Times(1);
 
+    // Expectation: Add type to the database
+    EXPECT_CALL(database, is_type_in_database(type_name_)).Times(1)
+            .WillOnce(Return(false));
+    EXPECT_CALL(database, insert_new_type_idl(type_name_, "")).Times(1);
+
     // Expectation: Modify graph and notify user (twice, also from participant update)
     EXPECT_CALL(database,
             update_endpoint_in_graph(EntityId(0), EntityId(1), EntityId(10),
@@ -2702,6 +2751,10 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_topics)
 
     // Precondition: The reader change it status
     EXPECT_CALL(database, change_entity_status(EntityId(10), true)).Times(1);
+
+    // Expectation: Type is already added to the database
+    EXPECT_CALL(database, is_type_in_database(type_name_)).Times(1)
+            .WillOnce(Return(true));
 
     // Expectation: Modify graph and notify user (twice, also from participant update)
     EXPECT_CALL(database,
@@ -2846,6 +2899,10 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_locators)
 
     // Precondition: The reader change it status
     EXPECT_CALL(database, change_entity_status(EntityId(11), true)).Times(1);
+
+    // Expectation: Type already added to the database
+    EXPECT_CALL(database, is_type_in_database(type_name_)).Times(1)
+            .WillOnce(Return(true));
 
     // Expectation: Modify graph and notify user (twice, also from participant update)
     EXPECT_CALL(database,
@@ -2994,6 +3051,10 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_locators_no_hos
 
     // Precondition: The reader change it status
     EXPECT_CALL(database, change_entity_status(EntityId(11), true)).Times(1);
+
+    // Expectation: Type already added to the database
+    EXPECT_CALL(database, is_type_in_database(type_name_)).Times(1)
+            .WillOnce(Return(true));
 
     // Expectation: Modify graph and notify user (twice, also from participant update)
     EXPECT_CALL(database,
@@ -3342,6 +3403,10 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered)
     // Precondition: The writer change it status
     EXPECT_CALL(database, change_entity_status(EntityId(10), true)).Times(1);
 
+    // Expectation: Type already added to the database
+    EXPECT_CALL(database, is_type_in_database(type_name_)).Times(1)
+            .WillOnce(Return(true));
+
     // Expectation: Modify graph and notify user
     EXPECT_CALL(database,
             update_endpoint_in_graph(EntityId(0), EntityId(1), EntityId(2), EntityId(10))).Times(1).WillOnce(Return(
@@ -3512,6 +3577,11 @@ TEST_F(statistics_participant_listener_tests, new_writer_no_topic)
     // Precondition: The writer change it status
     EXPECT_CALL(database, change_entity_status(EntityId(11), true)).Times(1);
 
+    // Expectation: Add the type to the database
+    EXPECT_CALL(database, is_type_in_database(type_name_)).Times(1)
+            .WillOnce(Return(false));
+    EXPECT_CALL(database, insert_new_type_idl(type_name_, "")).Times(1);
+
     // Expectation: Modify graph and notify user (twice, also from participant update)
     EXPECT_CALL(database,
             update_endpoint_in_graph(EntityId(0), EntityId(1), EntityId(10),
@@ -3662,6 +3732,10 @@ TEST_F(statistics_participant_listener_tests, new_writer_several_locators)
     // Precondition: The writer change it status
     EXPECT_CALL(database, change_entity_status(EntityId(11), true)).Times(1);
 
+    // Expectation: Type already added to the database
+    EXPECT_CALL(database, is_type_in_database(type_name_)).Times(1)
+            .WillOnce(Return(true));
+
     // Expectation: Modify graph and notify user (twice, also from participant update)
     EXPECT_CALL(database,
             update_endpoint_in_graph(EntityId(0), EntityId(1), EntityId(2), EntityId(11))).Times(1).WillOnce(Return(
@@ -3803,6 +3877,10 @@ TEST_F(statistics_participant_listener_tests, new_writer_several_locators_no_hos
 
     // Precondition: The writer change it status
     EXPECT_CALL(database, change_entity_status(EntityId(11), true)).Times(1);
+
+    // Expectation: Type already added to the database
+    EXPECT_CALL(database, is_type_in_database(type_name_)).Times(1)
+            .WillOnce(Return(true));
 
     // Expectation: Modify graph and notify user (twice, also from participant update)
     EXPECT_CALL(database,

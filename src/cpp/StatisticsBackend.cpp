@@ -537,6 +537,18 @@ Info StatisticsBackend::get_info(
     return StatisticsBackendData::get_instance()->database_->get_info(entity_id);
 }
 
+std::string StatisticsBackend::get_type_idl(
+        EntityId entity_id)
+{
+    // Check if the entity is a topic
+    if (EntityKind::TOPIC != get_type(entity_id))
+    {
+        throw BadParameter("EntityId received does not match with a valid topic entity");
+    }
+    Info topic_info = StatisticsBackend::get_info(entity_id);
+    return StatisticsBackendData::get_instance()->database_->get_type_idl(topic_info[DATA_TYPE_TAG]);
+}
+
 std::vector<StatisticsData> StatisticsBackend::get_data(
         DataKind data_type,
         const std::vector<EntityId>& entity_ids_source,

@@ -157,6 +157,24 @@ public:
             const EntityId& domain_id);
 
     /**
+     * @brief Check if a Topic data type is already in the database
+     * @param type_name The type name of the Topic.
+     *
+     * @return True if the Topic data type is in the database.
+     */
+    bool is_type_in_database(
+            const std::string& type_name);
+
+    /**
+     * @brief Insert a new type IDL into the database.
+     * @param topic_type The type of the topic.
+     * @param topic_idl The IDL representation of the type
+     */
+    void insert_new_type_idl(
+            const std::string& topic_type,
+            const std::string& topic_idl);
+
+    /**
      * @brief Create new Endpoint and corresponding Locator, and insert them in database.
      * @param endpoint_guid The GUID of the Endpoint.
      * @param name The name of the Endpoint.
@@ -443,6 +461,16 @@ public:
     std::vector<std::pair<EntityId, EntityId>> get_entities_by_name(
             EntityKind entity_kind,
             const std::string& name) const;
+
+    /**
+     * @brief Get the type IDL of a given type name, if it exists.
+     *
+     * @param type_name The name of the data type for which to search.
+     * @throws eprosima::statistics_backend::BadParameter if \c type_name does not exist in the database.
+     * @return The IDL representation of the type in std::string format.
+     */
+    std::string get_type_idl(
+            const std::string& type_name) const;
 
     /**
      * @brief Get the entity of a given EntityKind that matches with the requested GUID.
@@ -1168,6 +1196,16 @@ protected:
             const std::string& name) const;
 
     /**
+     * @brief Get the type IDL of a given type name, if it exists. This method is not thread safe.
+     *
+     * @param type_name The name of the data type for which to search.
+     * @throws eprosima::statistics_backend::BadParameter if \c type_name does not exist in the database.
+     * @return The IDL representation of the type in std::string format.
+     */
+    std::string get_type_idl_nts(
+            const std::string& type_name) const;
+
+    /**
      * @brief Get the entity of a given EntityKind that matches with the requested GUID. This method is not thread safe.
      *
      * @param entity_kind The EntityKind of the fetched entities.
@@ -1445,6 +1483,14 @@ protected:
      * Each value in the collection is in turn a map of the actual Topics sorted by EntityId
      */
     std::map<EntityId, std::map<EntityId, std::shared_ptr<Topic>>> topics_;
+
+    /**
+     * Collection of topic IDLs sorted by topic data types, with which they are biunivocally identified.
+     * This is used to store the IDLs of the discovered topics
+     *
+     * Each value in the collection is in turn a map of the actual Topic IDLs sorted by data type
+     */
+    std::map<std::string, std::string> type_idls_;
 
     //! Graph map describing per domain complete topology of the entities.
     std::map<EntityId, Graph> domain_view_graph;
