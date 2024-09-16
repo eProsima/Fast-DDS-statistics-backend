@@ -133,7 +133,7 @@ struct EntityCountSample : StatisticsSample
         {
             // This should return an exception but keep this way for now until we verify that the exception is
             // properly handled by the monitor
-            return this;
+            return *this;
         }
     }
 
