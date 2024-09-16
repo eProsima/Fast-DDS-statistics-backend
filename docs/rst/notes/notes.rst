@@ -13,6 +13,10 @@ This release includes the following **updates**:
 * Regenerate types with Fast DDS-Gen v4.0.1.
 * Remove datasharing directory info from monitor GUI.
 
+This release includes the following **bugfixes**:
+
+* Remove uncorrectly used assertions.
+
 This release includes the following **dependencies update**:
 
 .. list-table::
