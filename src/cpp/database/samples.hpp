@@ -22,6 +22,7 @@
 
 #include <chrono>
 
+#include <fastdds/dds/log/Log.hpp>
 #include <fastdds_statistics_backend/exception/Exception.hpp>
 #include <fastdds_statistics_backend/types/types.hpp>
 
@@ -122,19 +123,18 @@ struct EntityCountSample : StatisticsSample
     inline EntityCountSample operator -(
             const EntityCountSample& other) const noexcept
     {
+        EntityCountSample ret(kind);
+        ret.src_ts = src_ts;
         if (count >= other.count)
         {
-            EntityCountSample ret(kind);
-            ret.src_ts = src_ts;
             ret.count = count - other.count;
-            return ret;
         }
         else
         {
-            // This should return an exception but keep this way for now until we verify that the exception is
-            // properly handled by the monitor
-            return *this;
+            logWarning(STATISTICS_BACKEND, "Subtraction of EntityCountSample resulted in a negative number");
+            ret.count = 0;
         }
+        return ret;
     }
 
     uint64_t count;
