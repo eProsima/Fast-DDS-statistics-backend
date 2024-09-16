@@ -8,7 +8,7 @@
 [![Forks](https://img.shields.io/github/forks/eProsima/Fast-DDS-statistics-backend.svg)](https://github.com/eProsima/Fast-DDS-statistics-backend/network/members)
 [![Stars](https://img.shields.io/github/stars/eProsima/Fast-DDS-statistics-backend.svg)](https://github.com/eProsima/Fast-RTPS/stargazers)
 [![test](https://github.com/eProsima/Fast-DDS-statistics-backend/actions/workflows/test.yml/badge.svg)](https://github.com/eProsima/Fast-DDS-statistics-backend/actions/workflows/test.yml)
-[![codecov](https://codecov.io/gh/eProsima/Fast-DDS-statistics-backend/branch/main/graph/badge.svg?token=6NA5PVA9QL)](https://codecov.io/gh/eProsima/Fast-DDS-statistics-backend)
+[![codecov](https://codecov.io/gh/eProsima/Fast-DDS-statistics-backend/branch/v2.0.0/graph/badge.svg?token=6NA5PVA9QL)](https://codecov.io/gh/eProsima/Fast-DDS-statistics-backend)
 
 
 *eProsima Fast DDS Statistics Backend* is a C++ library that provides collection and procession the statistics measurements reported by *Fast DDS Statistics Module*.
@@ -55,9 +55,9 @@ cd <path_to_ws>
 mkdir -p fastdds_statistics_backend_ws/src
 cd fastdds_statistics_backend_ws
 # Get workspace setup file
-wget https://raw.githubusercontent.com/eProsima/Fast-DDS-statistics-backend/main/fastdds_statistics_backend.repos
+wget https://raw.githubusercontent.com/eProsima/Fast-DDS-statistics-backend/v2.0.0/fastdds_statistics_backend.repos
 # Get build options file
-wget https://raw.githubusercontent.com/eProsima/Fast-DDS-statistics-backend/main/colcon.meta
+wget https://raw.githubusercontent.com/eProsima/Fast-DDS-statistics-backend/v2.0.0/colcon.meta
 # Download repositories
 vcs import src < fastdds_statistics_backend.repos
 # Build the workspace
