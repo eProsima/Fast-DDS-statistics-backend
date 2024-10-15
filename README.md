@@ -23,6 +23,12 @@ The Backend provides a easy-to-use and user friendly API that abstracts the deta
 * Check whether an entity is active.
 * Retrieve statistics on all the aspects of the communication reported by the *Fast DDS Statistics Module*, with the possibility of specifying time windows, bins, and different statistics to apply.
 
+## Commercial support
+
+Looking for commercial support? Write us to info@eprosima.com
+
+Find more about us at [eProsima’s webpage](https://eprosima.com/).
+
 ## Installation guide
 
 This tutorial shows how to build and install *Fast DDS Statistics Backend* using [colcon](https://colcon.readthedocs.io), a command line tool to build sets of software packages.
