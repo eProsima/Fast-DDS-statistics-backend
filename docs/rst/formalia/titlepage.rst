@@ -1,8 +1,6 @@
-.. raw:: html
-
-  <h1>
-    eProsima Fast DDS Statistics Backend Documentation
-  </h1>
+##################################################
+eProsima Fast DDS Statistics Backend Documentation
+##################################################
 
 .. image:: /rst/figures/logo.png
   :height: 100px
