@@ -112,7 +112,7 @@ This section explains how to use it to compile *eProsima Fast DDS Statistics Bac
 
        mkdir ~/Fast-DDS-statistics-backend
        cd ~/Fast-DDS-statistics-backend
-       wget https://raw.githubusercontent.com/eProsima/Fast-DDS-statistics-backend/master/fastdds_statistics_backend.repos
+       wget https://raw.githubusercontent.com/eProsima/Fast-DDS-statistics-backend/v2.1.0/fastdds_statistics_backend.repos
        mkdir src
        vcs import src < fastdds_statistics_backend.repos
 
