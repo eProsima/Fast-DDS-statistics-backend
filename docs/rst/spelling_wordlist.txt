@@ -8,10 +8,12 @@ CMake
 colcon
 Colcon
 datareader
+datasharing
 datawriter
 destructor
 eProsima
 Foonathan
+gcovr
 Github
 Gtest
 intraprocess
@@ -28,4 +30,5 @@ QoS
 Subclassed
 Todo
 timepoint
+uncorrectly
 wget
