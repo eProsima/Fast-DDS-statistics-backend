@@ -417,7 +417,7 @@ public:
         metatraffic_topic_ = std::make_shared<Topic>(metatraffic_topic_name_, metatraffic_type_name_, domain_);
 
         // Metatraffic Endpoint entity
-        metatraffic_endpoint_name_ = "DataWriter_" + metatraffic_prefix + "TOPIC_0.0.1.c1";
+        metatraffic_endpoint_name_ = metatraffic_prefix + "TOPIC_0.0.1.c1";
         metatraffic_qos_ = {{"description", "This is a virtual placeholder endpoint with no real counterpart"}};
         metatraffic_endpoint_ = std::make_shared<DataWriter>(metatraffic_endpoint_name_, metatraffic_qos_,
                         participant_guid_str_, participant_, metatraffic_topic_);
@@ -552,7 +552,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered)
                 const std::pair<AppId, std::string> app_data)
             {
                 EXPECT_EQ(endpoint_guid, participant_guid_str_);
-                EXPECT_EQ(name, "DataWriter_" + metatraffic_prefix + "TOPIC_0.0.1.c1");
+                EXPECT_EQ(name, metatraffic_prefix + "TOPIC_0.0.1.c1");
                 EXPECT_EQ(alias, "_metatraffic_");
                 EXPECT_EQ(qos, metatraffic_qos_);
                 EXPECT_EQ(is_virtual_metatraffic, true);
@@ -749,7 +749,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_not_fir
                 const std::pair<AppId, std::string> app_data)
             {
                 EXPECT_EQ(endpoint_guid, participant_2_guid_str);
-                EXPECT_EQ(name, "DataWriter_" + metatraffic_prefix + "TOPIC_0.0.1.c1");
+                EXPECT_EQ(name, metatraffic_prefix + "TOPIC_0.0.1.c1");
                 EXPECT_EQ(alias, "_metatraffic_");
                 EXPECT_EQ(qos, metatraffic_qos_);
                 EXPECT_EQ(is_virtual_metatraffic, true);
@@ -963,7 +963,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 const std::pair<AppId, std::string> app_data)
             {
                 EXPECT_EQ(endpoint_guid, participant_guid_str_);
-                EXPECT_EQ(name, "DataWriter_" + metatraffic_prefix + "TOPIC_0.0.1.c1");
+                EXPECT_EQ(name, metatraffic_prefix + "TOPIC_0.0.1.c1");
                 EXPECT_EQ(alias, "_metatraffic_");
                 EXPECT_EQ(qos, metatraffic_qos_);
                 EXPECT_EQ(is_virtual_metatraffic, true);
@@ -1201,7 +1201,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 const std::pair<AppId, std::string> app_data)
             {
                 EXPECT_EQ(endpoint_guid, participant_guid_str_);
-                EXPECT_EQ(name, "DataWriter_" + metatraffic_prefix + "TOPIC_0.0.1.c1");
+                EXPECT_EQ(name, metatraffic_prefix + "TOPIC_0.0.1.c1");
                 EXPECT_EQ(alias, "_metatraffic_");
                 EXPECT_EQ(qos, metatraffic_qos_);
                 EXPECT_EQ(is_virtual_metatraffic, true);
@@ -1427,7 +1427,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 const std::pair<AppId, std::string> app_data)
             {
                 EXPECT_EQ(endpoint_guid, participant_guid_str_);
-                EXPECT_EQ(name, "DataWriter_" + metatraffic_prefix + "TOPIC_0.0.1.c1");
+                EXPECT_EQ(name, metatraffic_prefix + "TOPIC_0.0.1.c1");
                 EXPECT_EQ(alias, "_metatraffic_");
                 EXPECT_EQ(qos, metatraffic_qos_);
                 EXPECT_EQ(is_virtual_metatraffic, true);
@@ -1658,7 +1658,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 const std::pair<AppId, std::string> app_data)
             {
                 EXPECT_EQ(endpoint_guid, participant_guid_str_);
-                EXPECT_EQ(name, "DataWriter_" + metatraffic_prefix + "TOPIC_0.0.1.c1");
+                EXPECT_EQ(name, metatraffic_prefix + "TOPIC_0.0.1.c1");
                 EXPECT_EQ(alias, "_metatraffic_");
                 EXPECT_EQ(qos, metatraffic_qos_);
                 EXPECT_EQ(is_virtual_metatraffic, true);
@@ -1855,7 +1855,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 const std::pair<AppId, std::string> app_data)
             {
                 EXPECT_EQ(endpoint_guid, participant_guid_str_);
-                EXPECT_EQ(name, "DataWriter_" + metatraffic_prefix + "TOPIC_0.0.1.c1");
+                EXPECT_EQ(name, metatraffic_prefix + "TOPIC_0.0.1.c1");
                 EXPECT_EQ(alias, "_metatraffic_");
                 EXPECT_EQ(qos, metatraffic_qos_);
                 EXPECT_EQ(is_virtual_metatraffic, true);
@@ -2085,7 +2085,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 const std::pair<AppId, std::string> app_data)
             {
                 EXPECT_EQ(endpoint_guid, participant_guid_str_);
-                EXPECT_EQ(name, "DataWriter_" + metatraffic_prefix + "TOPIC_0.0.1.c1");
+                EXPECT_EQ(name, metatraffic_prefix + "TOPIC_0.0.1.c1");
                 EXPECT_EQ(alias, "_metatraffic_");
                 EXPECT_EQ(qos, metatraffic_qos_);
                 EXPECT_EQ(is_virtual_metatraffic, true);
@@ -2420,7 +2420,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered)
                 const std::pair<AppId, std::string> app_data)
             {
                 EXPECT_EQ(endpoint_guid, reader_guid_str_);
-                EXPECT_EQ(name, std::string("DataReader_") + topic_->name + "_" + reader_entity_id_str_);
+                EXPECT_EQ(name, topic_->name + "_" + reader_entity_id_str_);
                 EXPECT_EQ(alias, "");
                 EXPECT_EQ(qos, reader_proxy_data_to_backend_qos(data));
                 EXPECT_EQ(is_virtual_metatraffic, false);
@@ -2593,7 +2593,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_no_topic)
                 const std::pair<AppId, std::string> app_data)
             {
                 EXPECT_EQ(endpoint_guid, reader_guid_str_);
-                EXPECT_EQ(name, std::string("DataReader_") + topic_->name + "_" + reader_entity_id_str_);
+                EXPECT_EQ(name, topic_->name + "_" + reader_entity_id_str_);
                 EXPECT_EQ(alias, "");
                 EXPECT_EQ(qos, reader_proxy_data_to_backend_qos(data));
                 EXPECT_EQ(is_virtual_metatraffic, false);
@@ -2728,7 +2728,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_topics)
                 const std::pair<AppId, std::string> app_data)
             {
                 EXPECT_EQ(endpoint_guid, reader_guid_str_);
-                EXPECT_EQ(name, std::string("DataReader_") + topic_->name + "_" + reader_entity_id_str_);
+                EXPECT_EQ(name, topic_->name + "_" + reader_entity_id_str_);
                 EXPECT_EQ(alias, "");
                 EXPECT_EQ(qos, reader_proxy_data_to_backend_qos(data));
                 EXPECT_EQ(is_virtual_metatraffic, false);
@@ -2873,7 +2873,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_locators)
                 const std::pair<AppId, std::string> app_data)
             {
                 EXPECT_EQ(endpoint_guid, reader_guid_str_);
-                EXPECT_EQ(name, std::string("DataReader_") + topic_->name + "_" + reader_entity_id_str_);
+                EXPECT_EQ(name, topic_->name + "_" + reader_entity_id_str_);
                 EXPECT_EQ(alias, "");
                 EXPECT_EQ(qos, reader_proxy_data_to_backend_qos(data));
                 EXPECT_EQ(is_virtual_metatraffic, false);
@@ -3025,7 +3025,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_locators_no_hos
                 const std::pair<AppId, std::string> app_data)
             {
                 EXPECT_EQ(endpoint_guid, reader_guid_str_);
-                EXPECT_EQ(name, std::string("DataReader_") + topic_->name + "_" + reader_entity_id_str_);
+                EXPECT_EQ(name, topic_->name + "_" + reader_entity_id_str_);
                 EXPECT_EQ(alias, "");
                 EXPECT_EQ(qos, reader_proxy_data_to_backend_qos(data));
                 EXPECT_EQ(is_virtual_metatraffic, false);
@@ -3380,7 +3380,7 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered)
                 const std::pair<AppId, std::string> app_data)
             {
                 EXPECT_EQ(endpoint_guid, writer_guid_str_);
-                EXPECT_EQ(name, std::string("DataWriter_") + topic_->name + "_" + writer_entity_id_str_);
+                EXPECT_EQ(name, topic_->name + "_" + writer_entity_id_str_);
                 EXPECT_EQ(alias, "");
                 EXPECT_EQ(qos, writer_proxy_data_to_backend_qos(data));
                 EXPECT_EQ(is_virtual_metatraffic, false);
@@ -3553,7 +3553,7 @@ TEST_F(statistics_participant_listener_tests, new_writer_no_topic)
                 const std::pair<AppId, std::string> app_data)
             {
                 EXPECT_EQ(endpoint_guid, writer_guid_str_);
-                EXPECT_EQ(name, std::string("DataWriter_") + topic_->name + "_" + writer_entity_id_str_);
+                EXPECT_EQ(name, topic_->name + "_" + writer_entity_id_str_);
                 EXPECT_EQ(alias, "");
                 EXPECT_EQ(qos, writer_proxy_data_to_backend_qos(data));
                 EXPECT_EQ(is_virtual_metatraffic, false);
@@ -3705,7 +3705,7 @@ TEST_F(statistics_participant_listener_tests, new_writer_several_locators)
                 const std::pair<AppId, std::string> app_data)
             {
                 EXPECT_EQ(endpoint_guid, writer_guid_str_);
-                EXPECT_EQ(name, std::string("DataWriter_") + topic_->name + "_" + writer_entity_id_str_);
+                EXPECT_EQ(name, topic_->name + "_" + writer_entity_id_str_);
                 EXPECT_EQ(alias, "");
                 EXPECT_EQ(qos, writer_proxy_data_to_backend_qos(data));
                 EXPECT_EQ(is_virtual_metatraffic, false);
@@ -3851,7 +3851,7 @@ TEST_F(statistics_participant_listener_tests, new_writer_several_locators_no_hos
                 const std::pair<AppId, std::string> app_data)
             {
                 EXPECT_EQ(endpoint_guid, writer_guid_str_);
-                EXPECT_EQ(name, std::string("DataWriter_") + topic_->name + "_" + writer_entity_id_str_);
+                EXPECT_EQ(name, topic_->name + "_" + writer_entity_id_str_);
                 EXPECT_EQ(alias, "");
                 EXPECT_EQ(qos, writer_proxy_data_to_backend_qos(data));
                 EXPECT_EQ(is_virtual_metatraffic, false);

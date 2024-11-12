@@ -380,11 +380,11 @@ EntityId DatabaseEntityQueue::process_endpoint_discovery(
 
     if (info.kind() == EntityKind::DATAREADER)
     {
-        name << "DataReader_" << info.topic_name << "_" << info.guid.entityId;
+        name << info.topic_name << "_" << info.guid.entityId;
     }
     else
     {
-        name << "DataWriter_" << info.topic_name << "_" << info.guid.entityId;
+        name << info.topic_name << "_" << info.guid.entityId;
     }
 
     // Endpoint AppId and metadata
