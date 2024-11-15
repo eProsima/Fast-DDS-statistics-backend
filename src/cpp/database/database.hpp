@@ -713,7 +713,7 @@ public:
      */
     EntityId get_domain_id(
             const EntityId& entity_id);
-    
+
     /**
      * @brief Check if the entities passed correspond to the specified entity kind.
      *

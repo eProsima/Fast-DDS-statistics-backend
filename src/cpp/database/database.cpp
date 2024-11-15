@@ -5347,7 +5347,7 @@ EntityId Database::get_endpoint_topic_id(
         const EntityId& endpoint_id)
 {
     std::shared_lock<std::shared_timed_mutex> lock(mutex_);
-    std::shared_ptr<const Entity> endpoint = get_entity_nts(endpoint_id); 
+    std::shared_ptr<const Entity> endpoint = get_entity_nts(endpoint_id);
 
     // Check if the entity is a valid endpoint
     if (endpoint->kind != EntityKind::DATAWRITER && endpoint->kind != EntityKind::DATAREADER)
@@ -5364,7 +5364,7 @@ EntityId Database::get_domain_id(
     std::shared_lock<std::shared_timed_mutex> lock(mutex_);
     std::shared_ptr<const Entity> entity = get_entity_nts(entity_id);
 
-    switch(entity->kind)
+    switch (entity->kind)
     {
         case EntityKind::DOMAIN:
         {
@@ -5390,6 +5390,7 @@ EntityId Database::get_domain_id(
     }
 
 }
+
 void Database::check_entity_kinds(
         EntityKind kind,
         const std::vector<EntityId>& entity_ids,
