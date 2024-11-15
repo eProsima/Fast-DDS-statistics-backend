@@ -549,6 +549,18 @@ std::string StatisticsBackend::get_type_idl(
     return StatisticsBackendData::get_instance()->database_->get_type_idl(topic_info[DATA_TYPE_TAG]);
 }
 
+EntityId StatisticsBackend::get_endpoint_topic_id(
+        EntityId endpoint_id)
+{
+    return StatisticsBackendData::get_instance()->database_->get_endpoint_topic_id(endpoint_id);
+}
+
+EntityId StatisticsBackend::get_domain_id(
+        EntityId entity_id)
+{
+    return StatisticsBackendData::get_instance()->database_->get_domain_id(entity_id);
+}
+
 std::vector<StatisticsData> StatisticsBackend::get_data(
         DataKind data_type,
         const std::vector<EntityId>& entity_ids_source,
