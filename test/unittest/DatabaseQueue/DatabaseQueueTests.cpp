@@ -1356,7 +1356,7 @@ TEST_F(database_queue_tests, push_datawriter)
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
     // Create the writer info
-    std::string datawriter_name = "DataWriter_topic_name_0.0.0.1";  //< Name constructed from the topic and entity_id
+    std::string datawriter_name = "topic_name_0.0.0.1";  //< Name constructed from the topic and entity_id
     Qos datawriter_qos;
     std::string datawriter_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
     std::string topic_name = "topic_name";
@@ -1594,7 +1594,7 @@ TEST_F(database_queue_tests, push_datawriter_topic_does_not_exist)
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
     // Create the writer info
-    std::string datawriter_name = "DataWriter_topic_name_0.0.0.1";  //< Name constructed from the topic and entity_id
+    std::string datawriter_name = "topic_name_0.0.0.1";  //< Name constructed from the topic and entity_id
     Qos datawriter_qos;
     std::string datawriter_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
     std::string topic_name = "topic_name";
@@ -1720,7 +1720,7 @@ TEST_F(database_queue_tests, push_datareader)
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
     // Create the reader info
-    std::string datareader_name = "DataReader_topic_name_0.0.0.2";  //< Name constructed from the topic and entity_id
+    std::string datareader_name = "topic_name_0.0.0.2";  //< Name constructed from the topic and entity_id
     Qos datareader_qos;
     std::string datareader_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
     std::string topic_name = "topic_name";
@@ -1958,7 +1958,7 @@ TEST_F(database_queue_tests, push_datareader_topic_does_not_exist)
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
     // Create the reader info
-    std::string datareader_name = "DataReader_topic_name_0.0.0.2";  //< Name constructed from the topic and entity_id
+    std::string datareader_name = "topic_name_0.0.0.2";  //< Name constructed from the topic and entity_id
     Qos datareader_qos;
     std::string datareader_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
     std::string topic_name = "topic_name";
