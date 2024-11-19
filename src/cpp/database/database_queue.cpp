@@ -190,7 +190,7 @@ EntityId DatabaseEntityQueue::process_datareader(
             if (participant_id.first != info.domain_id)
             {
                 throw BadParameter("Participant " + to_string(participant_guid)
-                          +  " found in the database but it is not in the current domain");
+                              +  " found in the database but it is not in the current domain");
             }
         }
         catch (const Exception&)
@@ -265,7 +265,7 @@ EntityId DatabaseEntityQueue::process_datawriter(
             if (participant_id.first != info.domain_id)
             {
                 throw BadParameter("Participant " + to_string(participant_guid)
-                          +  " found in the database but it is not in the current domain");
+                              +  " found in the database but it is not in the current domain");
             }
         }
         catch (const Exception&)
@@ -328,7 +328,7 @@ EntityId DatabaseEntityQueue::process_endpoint_discovery(
         if (participant_id.first != info.domain_id)
         {
             throw BadParameter("Participant " + to_string(participant_guid)
-                        +  " found in the database but it is not in the current domain");
+                          +  " found in the database but it is not in the current domain");
         }
     }
     catch (const Exception&)
@@ -377,15 +377,7 @@ EntityId DatabaseEntityQueue::process_endpoint_discovery(
     // Create the endpoint
     EntityId endpoint_id;
     std::stringstream name;
-
-    if (info.kind() == EntityKind::DATAREADER)
-    {
-        name << info.topic_name << "_" << info.guid.entityId;
-    }
-    else
-    {
-        name << info.topic_name << "_" << info.guid.entityId;
-    }
+    name << info.topic_name << "_" << info.guid.entityId;
 
     // Endpoint AppId and metadata
     // TODO: get app data from info (parameters), not from participant
