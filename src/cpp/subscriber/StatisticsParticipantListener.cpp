@@ -164,14 +164,14 @@ void StatisticsParticipantListener::on_participant_discovery(
     {
         case ParticipantDiscoveryStatus::DISCOVERED_PARTICIPANT:
         {
-            std::cout << "DomainParticipant discovered: " << info.guid << std::endl;
+            EPROSIMA_LOG_INFO(StatisticsParticipantListener, "DomainParticipant discovered: " << info.guid);
             discovery_info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::DISCOVERY;
             break;
         }
         case ParticipantDiscoveryStatus::CHANGED_QOS_PARTICIPANT:
         {
             // TODO [ILG] : Process these messages and save the updated QoS
-            std::cout << "DomainParticipant udated: " << info.guid << std::endl;
+            EPROSIMA_LOG_INFO(StatisticsParticipantListener, "DomainParticipant updated: " << info.guid);
             discovery_info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::UPDATE;
             break;
         }
@@ -179,7 +179,7 @@ void StatisticsParticipantListener::on_participant_discovery(
         case ParticipantDiscoveryStatus::DROPPED_PARTICIPANT:
         case ParticipantDiscoveryStatus::IGNORED_PARTICIPANT:
         {
-            std::cout << "DomainParticipant removed: " << info.guid << std::endl;
+            EPROSIMA_LOG_INFO(StatisticsParticipantListener, "DomainParticipant removed: " << info.guid);
             discovery_info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY;
             break;
         }
@@ -302,21 +302,21 @@ void StatisticsParticipantListener::on_data_reader_discovery(
     {
         case ReaderDiscoveryStatus::DISCOVERED_READER:
         {
-            std::cout << "DataReader discovered: " << info.guid << std::endl;
+            EPROSIMA_LOG_INFO(StatisticsParticipantListener, "DataReader discovered: " << info.guid);
             discovery_info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::DISCOVERY;
             break;
         }
         case ReaderDiscoveryStatus::CHANGED_QOS_READER:
         {
             // TODO [ILG] : Process these messages and save the updated QoS
-            std::cout << "DataReader updated: " << info.guid << std::endl;
+            EPROSIMA_LOG_INFO(StatisticsParticipantListener, "DataReader updated: " << info.guid);
             discovery_info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::UPDATE;
             break;
         }
         case ReaderDiscoveryStatus::REMOVED_READER:
         case ReaderDiscoveryStatus::IGNORED_READER:
         {
-            std::cout << "DataReader removed: " << info.guid << std::endl;
+            EPROSIMA_LOG_INFO(StatisticsParticipantListener, "DataReader removed: " << info.guid);
             discovery_info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY;
             break;
         }
@@ -385,21 +385,21 @@ void StatisticsParticipantListener::on_data_writer_discovery(
     {
         case WriterDiscoveryStatus::DISCOVERED_WRITER:
         {
-            std::cout << "DataWriter discovered: " << info.guid << std::endl;
+            EPROSIMA_LOG_INFO(StatisticsParticipantListener, "DataWriter discovered: " << info.guid);
             discovery_info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::DISCOVERY;
             break;
         }
         case WriterDiscoveryStatus::CHANGED_QOS_WRITER:
         {
             // TODO [ILG] : Process these messages and save the updated QoS
-            std::cout << "DataWriter updated: " << info.guid << std::endl;
+            EPROSIMA_LOG_INFO(StatisticsParticipantListener, "DataWriter updated: " << info.guid);
             discovery_info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::UPDATE;
             break;
         }
         case WriterDiscoveryStatus::REMOVED_WRITER:
         case WriterDiscoveryStatus::IGNORED_WRITER:
         {
-            std::cout << "DataWriter removed: " << info.guid << std::endl;
+            EPROSIMA_LOG_INFO(StatisticsParticipantListener, "DataWriter removed: " << info.guid);
             discovery_info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY;
             break;
         }
