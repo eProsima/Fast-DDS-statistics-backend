@@ -348,7 +348,9 @@ pygments_style = 'sphinx'
 
 suppress_warnings = [
     'cpp.duplicate_declaration',
-    'cpp.parse_function_declaration'
+    'cpp.parse_function_declaration',
+    'config.cache'
+
 ]
 
 # If true, `todo` and `todoList` produce output, else they produce nothing.

@@ -274,6 +274,28 @@ public:
             EntityId entity_id);
 
     /**
+     * @brief Returns the id of the topic associated to an endpoint.
+     *
+     * @param endpoint_id The ID of a given endpoint.
+     *
+     * @return EntityId of the topic on which the endpoint publishes/receives messages.
+     */
+    FASTDDS_STATISTICS_BACKEND_DllAPI
+    static EntityId get_endpoint_topic_id(
+            EntityId endpoint_id);
+
+    /**
+     * @brief Returns the id of the domain to which a given entity (Domain, DomainParticipant, Topic, endpoints) belongs.
+     *
+     * @param entity_id The ID of a given entity.
+     *
+     * @return EntityId of the domain.
+     */
+    FASTDDS_STATISTICS_BACKEND_DllAPI
+    static EntityId get_domain_id(
+            EntityId entity_id);
+
+    /**
      * @brief Provides access to the data measured during the monitoring.
      *
      * Use this function for data types that relate to two entities,

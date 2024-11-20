@@ -5343,6 +5343,54 @@ Info Database::get_info(
     return info;
 }
 
+EntityId Database::get_endpoint_topic_id(
+        const EntityId& endpoint_id)
+{
+    std::shared_lock<std::shared_timed_mutex> lock(mutex_);
+    std::shared_ptr<const Entity> endpoint = get_entity_nts(endpoint_id);
+
+    // Check if the entity is a valid endpoint
+    if (endpoint->kind != EntityKind::DATAWRITER && endpoint->kind != EntityKind::DATAREADER)
+    {
+        throw BadParameter("Error: Entity is not a valid endpoint");
+    }
+
+    return std::dynamic_pointer_cast<const DDSEndpoint>(endpoint)->topic->id;
+}
+
+EntityId Database::get_domain_id(
+        const EntityId& entity_id)
+{
+    std::shared_lock<std::shared_timed_mutex> lock(mutex_);
+    std::shared_ptr<const Entity> entity = get_entity_nts(entity_id);
+
+    switch (entity->kind)
+    {
+        case EntityKind::DOMAIN:
+        {
+            return entity_id;
+        }
+        case EntityKind::PARTICIPANT:
+        {
+            return std::dynamic_pointer_cast<const DomainParticipant>(entity)->domain->id;
+        }
+        case EntityKind::TOPIC:
+        {
+            return std::dynamic_pointer_cast<const Topic>(entity)->domain->id;
+        }
+        case EntityKind::DATAWRITER:
+        case EntityKind::DATAREADER:
+        {
+            return std::dynamic_pointer_cast<const DDSEndpoint>(entity)->participant->domain->id;
+        }
+        default:
+        {
+            return EntityId::invalid();
+        }
+    }
+
+}
+
 void Database::check_entity_kinds(
         EntityKind kind,
         const std::vector<EntityId>& entity_ids,

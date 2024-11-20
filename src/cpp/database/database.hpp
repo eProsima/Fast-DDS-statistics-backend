@@ -695,6 +695,26 @@ public:
             const EntityId& entity_id);
 
     /**
+     * @brief Returns the id of the topic associated to an endpoint.
+     *
+     * @param endpoint_id The ID of a given endpoint.
+     *
+     * @return EntityId of the topic on which the endpoint publishes/receives messages.
+     */
+    EntityId get_endpoint_topic_id(
+            const EntityId& endpoint_id);
+
+    /**
+     * @brief Returns the id of the domain associated to a given entity (Domain, Participant, topic and endpoint).
+     *
+     * @param entity_id The ID of an entity.
+     *
+     * @return EntityId of the domain which the entity belongs.
+     */
+    EntityId get_domain_id(
+            const EntityId& entity_id);
+
+    /**
      * @brief Check if the entities passed correspond to the specified entity kind.
      *
      * @param kind The expected EntityKind of the entities provided.
