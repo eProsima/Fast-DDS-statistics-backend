@@ -33,6 +33,9 @@ constexpr uint32_t eprosima_fastdds_statistics_BaseStatus_s_max_key_cdr_typesize
 
 
 
+constexpr uint32_t eprosima_fastdds_statistics_ExtendedIncompatibleQoSStatus_s_max_cdr_typesize {36UL};
+constexpr uint32_t eprosima_fastdds_statistics_ExtendedIncompatibleQoSStatus_s_max_key_cdr_typesize {0UL};
+
 constexpr uint32_t eprosima_fastdds_statistics_DeadlineMissedStatus_s_max_cdr_typesize {24UL};
 constexpr uint32_t eprosima_fastdds_statistics_DeadlineMissedStatus_s_max_key_cdr_typesize {0UL};
 
@@ -85,7 +88,6 @@ eProsima_user_DllExport void serialize_key(
         eprosima::fastcdr::Cdr& scdr,
         const eprosima::fastdds::statistics::BaseStatus_s& data);
 
-
 eProsima_user_DllExport void serialize_key(
         eprosima::fastcdr::Cdr& scdr,
         const eprosima::fastdds::statistics::IncompatibleQoSStatus_s& data);
@@ -98,10 +100,9 @@ eProsima_user_DllExport void serialize_key(
         eprosima::fastcdr::Cdr& scdr,
         const eprosima::fastdds::statistics::DeadlineMissedStatus_s& data);
 
-
-
-
-
+eProsima_user_DllExport void serialize_key(
+        eprosima::fastcdr::Cdr& scdr,
+        const eprosima::fastdds::statistics::ExtendedIncompatibleQoSStatus_s& data);
 
 eProsima_user_DllExport void serialize_key(
         eprosima::fastcdr::Cdr& scdr,
