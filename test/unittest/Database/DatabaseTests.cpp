@@ -2598,7 +2598,7 @@ TEST_F(database_tests, insert_monitor_service_sample_incompatible_qos)
     sample_2.incompatible_qos_status.policies(qos_policy_count_seq_2);
     ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_2));
     ASSERT_EQ(participant->status, StatusLevel::OK_STATUS);
-    ASSERT_EQ(writer->status, StatusLevel::ERROR_STATUS);
+    ASSERT_EQ(writer->status, StatusLevel::OK_STATUS);
     ASSERT_EQ(reader->status, StatusLevel::OK_STATUS);
 
     ASSERT_EQ(writer->monitor_service_data.incompatible_qos.size(), 2u);
@@ -2846,6 +2846,76 @@ TEST_F(database_tests, insert_monitor_service_sample_sample_lost_wrong_entity)
     ASSERT_EQ(reader->status, StatusLevel::OK_STATUS);
 }
 
+TEST_F(database_tests, insert_monitor_service_sample_extended_incompatible_qos)
+{
+    ExtendedIncompatibleQosSample sample;
+    eprosima::fastdds::statistics::ExtendedIncompatibleQoSStatus_s status;
+    std::stringstream remote_entity_guid_str("01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1");
+    eprosima::fastdds::statistics::detail::GUID_s remote_entity_guid_s;
+    eprosima::fastdds::rtps::GUID_t remote_entity_guid_t;
+
+    remote_entity_guid_str >> remote_entity_guid_t;
+    memcpy(remote_entity_guid_s.guidPrefix().value().data(), remote_entity_guid_t.guidPrefix.value,
+            eprosima::fastdds::rtps::GuidPrefix_t::size);
+    memcpy(remote_entity_guid_s.entityId().value().data(), remote_entity_guid_t.entityId.value,
+            eprosima::fastdds::rtps::EntityId_t::size);
+
+    sample.kind = StatusKind::EXTENDED_INCOMPATIBLE_QOS;
+    sample.status = StatusLevel::OK_STATUS;
+    sample.src_ts = std::chrono::system_clock::now();
+    status.remote_guid(remote_entity_guid_s);
+    status.current_incompatible_policies(std::vector<uint32_t>{0});
+    sample.extended_incompatible_qos_status = {status};
+    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample));
+    ASSERT_NO_THROW(db.insert(domain_id, reader_id, sample));
+    ASSERT_EQ(participant->status, StatusLevel::OK_STATUS);
+    ASSERT_EQ(writer->status, StatusLevel::OK_STATUS);
+    ASSERT_EQ(reader->status, StatusLevel::OK_STATUS);
+
+    ExtendedIncompatibleQosSample sample_2;
+    sample_2.kind = StatusKind::EXTENDED_INCOMPATIBLE_QOS;
+    sample_2.status = StatusLevel::ERROR_STATUS;
+    sample_2.src_ts = std::chrono::system_clock::now();
+    status.current_incompatible_policies(std::vector<uint32_t>{1, 2});
+    sample_2.extended_incompatible_qos_status = {status};
+    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_2));
+    ASSERT_EQ(participant->status, StatusLevel::OK_STATUS);
+    ASSERT_EQ(writer->status, StatusLevel::ERROR_STATUS);
+    ASSERT_EQ(reader->status, StatusLevel::OK_STATUS);
+
+    ASSERT_EQ(writer->monitor_service_data.extended_incompatible_qos.size(), 2u);
+    ASSERT_EQ(reader->monitor_service_data.extended_incompatible_qos.size(), 1u);
+    ASSERT_EQ(writer->monitor_service_data.extended_incompatible_qos[0], static_cast<ExtendedIncompatibleQosSample>(sample));
+    ASSERT_EQ(writer->monitor_service_data.extended_incompatible_qos[1], static_cast<ExtendedIncompatibleQosSample>(sample_2));
+}
+
+TEST_F(database_tests, insert_monitor_service_sample_extended_incompatible_qos_wrong_entity)
+{
+    ExtendedIncompatibleQosSample sample;
+    eprosima::fastdds::statistics::ExtendedIncompatibleQoSStatus_s status;
+    std::stringstream remote_entity_guid_str("01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1");
+    eprosima::fastdds::statistics::detail::GUID_s remote_entity_guid_s;
+    eprosima::fastdds::rtps::GUID_t remote_entity_guid_t;
+
+    remote_entity_guid_str >> remote_entity_guid_t;
+    memcpy(remote_entity_guid_s.guidPrefix().value().data(), remote_entity_guid_t.guidPrefix.value,
+            eprosima::fastdds::rtps::GuidPrefix_t::size);
+    memcpy(remote_entity_guid_s.entityId().value().data(), remote_entity_guid_t.entityId.value,
+            eprosima::fastdds::rtps::EntityId_t::size);
+
+    sample.kind = StatusKind::EXTENDED_INCOMPATIBLE_QOS;
+    sample.status = StatusLevel::OK_STATUS;
+    sample.src_ts = std::chrono::system_clock::now();
+    status.remote_guid(remote_entity_guid_s);
+    status.current_incompatible_policies(std::vector<uint32_t>{0});
+    sample.extended_incompatible_qos_status = {status};
+    ASSERT_THROW(db.insert(domain_id, db.generate_entity_id(), sample), BadParameter);
+    ASSERT_THROW(db.insert(domain_id, participant_id, sample), BadParameter);
+    ASSERT_EQ(participant->status, StatusLevel::OK_STATUS);
+    ASSERT_EQ(writer->status, StatusLevel::OK_STATUS);
+    ASSERT_EQ(reader->status, StatusLevel::OK_STATUS);
+}
+
 TEST_F(database_tests, insert_monitor_service_sample_invalid)
 {
     MonitorServiceSample sample;
@@ -2877,6 +2947,9 @@ TEST_F(database_tests, insert_monitor_service_sample_valid_wrong_domain)
 
     SampleLostSample sample_lost_sample;
     ASSERT_THROW(db.insert(db.generate_entity_id(), reader_id, sample_lost_sample), BadParameter);
+
+    ExtendedIncompatibleQosSample extended_incompatible_qos_sample;
+    ASSERT_THROW(db.insert(db.generate_entity_id(), writer_id, extended_incompatible_qos_sample), BadParameter);
 }
 
 TEST_F(database_tests, get_monitor_service_sample_invalid)

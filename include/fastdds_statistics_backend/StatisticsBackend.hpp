@@ -607,7 +607,7 @@ public:
 
     /**
      * @brief Desiralize entity guid to string format.
-     * @param guid Entity guid.
+     * @param data Entity guid.
      */
     FASTDDS_STATISTICS_BACKEND_DllAPI
     static std::string deserialize_guid(
