@@ -604,6 +604,14 @@ public:
     static void set_alias(
             EntityId entity_id,
             const std::string& alias);
+
+    /**
+     * @brief Desiralize entity guid to string format.
+     * @param guid Entity guid.
+     */
+    FASTDDS_STATISTICS_BACKEND_DllAPI
+    static std::string deserialize_guid(
+            fastdds::statistics::detail::GUID_s data);
 };
 
 } // namespace statistics_backend

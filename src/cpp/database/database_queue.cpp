@@ -993,6 +993,43 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>:
     }
 }
 
+template<>
+template<>
+void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>::process_sample_type(
+        EntityId& domain,
+        EntityId& entity,
+        const StatisticsGuid& local_entity_guid,
+        ExtendedIncompatibleQosSample& sample,
+        const StatisticsExtendedIncompatibleQosSStatus& item) const
+{
+    EntityKind entity_kind = database_->get_entity_kind_by_guid(local_entity_guid);
+
+    sample.extended_incompatible_qos_status = item;
+    sample.kind = StatusKind::EXTENDED_INCOMPATIBLE_QOS;
+
+    if (item.empty())
+    {
+        sample.status = StatusLevel::OK_STATUS;
+    }
+    else
+    {
+        sample.status = StatusLevel::ERROR_STATUS;
+    }
+
+    std::string guid = deserialize_guid(local_entity_guid);
+
+    try
+    {
+        auto found_entity = database_->get_entity_by_guid(entity_kind, guid);
+        domain = found_entity.first;
+        entity = found_entity.second;
+    }
+    catch (BadParameter&)
+    {
+        throw Error("Entity " + guid + " not found");
+    }
+}
+
 template<typename T>
 void process_sample()
 {
@@ -1603,6 +1640,28 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>:
             {
                 EPROSIMA_LOG_WARNING(BACKEND_DATABASE_QUEUE,
                         "Error processing SAMPLE_LOST status data. Data was not added to the statistics collection: "
+                        + std::string(e.what()));
+            }
+            break;
+        }
+        case fastdds::statistics::StatusKind::EXTENDED_INCOMPATIBLE_QOS:
+        {
+            ExtendedIncompatibleQosSample sample;
+            queue_item_type item = front();
+            sample.src_ts = item.first;
+            try
+            {
+                process_sample_type(domain, entity, item.second->local_entity(), sample,
+                        item.second->value().extended_incompatible_qos_status());
+
+                updated_entity = database_->insert(domain, entity, sample);
+                details::StatisticsBackendData::get_instance()->on_status_reported(domain, entity,
+                        StatusKind::EXTENDED_INCOMPATIBLE_QOS);
+            }
+            catch (const eprosima::statistics_backend::Exception& e)
+            {
+                EPROSIMA_LOG_WARNING(BACKEND_DATABASE_QUEUE,
+                        "Error processing EXTENDED_INCOMPATIBLE_QOS status data. Data was not added to the statistics collection: "
                         + std::string(e.what()));
             }
             break;
