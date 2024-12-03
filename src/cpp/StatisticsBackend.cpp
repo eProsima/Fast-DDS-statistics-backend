@@ -821,7 +821,8 @@ void StatisticsBackend::get_status_data(
         const EntityId& entity_id,
         ExtendedIncompatibleQosSample& status_data)
 {
-    StatisticsBackendData::get_instance()->database_->get_status_data<ExtendedIncompatibleQosSample>(entity_id, status_data);
+    StatisticsBackendData::get_instance()->database_->get_status_data<ExtendedIncompatibleQosSample>(entity_id,
+            status_data);
 }
 
 Graph StatisticsBackend::get_domain_view_graph(
@@ -992,5 +993,6 @@ std::string StatisticsBackend::deserialize_guid(
     ss << guid;
     return ss.str();
 }
+
 } // namespace statistics_backend
 } // namespace eprosima

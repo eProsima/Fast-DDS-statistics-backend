@@ -1662,7 +1662,8 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>:
             {
                 EPROSIMA_LOG_WARNING(BACKEND_DATABASE_QUEUE,
                         "Error processing EXTENDED_INCOMPATIBLE_QOS status data. Data was not added to the statistics collection: "
-                        + std::string(e.what()));
+                        + std::string(
+                            e.what()));
             }
             break;
         }

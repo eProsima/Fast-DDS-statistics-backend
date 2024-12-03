@@ -2885,8 +2885,10 @@ TEST_F(database_tests, insert_monitor_service_sample_extended_incompatible_qos)
 
     ASSERT_EQ(writer->monitor_service_data.extended_incompatible_qos.size(), 2u);
     ASSERT_EQ(reader->monitor_service_data.extended_incompatible_qos.size(), 1u);
-    ASSERT_EQ(writer->monitor_service_data.extended_incompatible_qos[0], static_cast<ExtendedIncompatibleQosSample>(sample));
-    ASSERT_EQ(writer->monitor_service_data.extended_incompatible_qos[1], static_cast<ExtendedIncompatibleQosSample>(sample_2));
+    ASSERT_EQ(writer->monitor_service_data.extended_incompatible_qos[0],
+            static_cast<ExtendedIncompatibleQosSample>(sample));
+    ASSERT_EQ(writer->monitor_service_data.extended_incompatible_qos[1],
+            static_cast<ExtendedIncompatibleQosSample>(sample_2));
 }
 
 TEST_F(database_tests, insert_monitor_service_sample_extended_incompatible_qos_wrong_entity)

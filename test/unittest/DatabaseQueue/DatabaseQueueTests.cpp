@@ -5564,7 +5564,7 @@ TEST_F(database_queue_tests, push_monitor_extended_incompatible_qos_no_entity)
             eprosima::fastdds::rtps::EntityId_t::size);
 
     status.remote_guid(remote_entity_guid_s);
-    status.current_incompatible_policies(std::vector<uint32_t>{1,2,3});
+    status.current_incompatible_policies(std::vector<uint32_t>{1, 2, 3});
 
     // Build the Monitor Service data
     std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
