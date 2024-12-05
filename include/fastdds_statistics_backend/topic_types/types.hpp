@@ -92,7 +92,7 @@ public:
     eProsima_user_DllExport EntityId_s(
             const EntityId_s& x)
     {
-                    m_value = x.m_value;
+        m_value = x.m_value;
 
     }
 
@@ -114,7 +114,7 @@ public:
             const EntityId_s& x)
     {
 
-                    m_value = x.m_value;
+        m_value = x.m_value;
 
         return *this;
     }
@@ -189,8 +189,6 @@ public:
         return m_value;
     }
 
-
-
 private:
 
     std::array<uint8_t, 4> m_value{0};
@@ -225,7 +223,7 @@ public:
     eProsima_user_DllExport GuidPrefix_s(
             const GuidPrefix_s& x)
     {
-                    m_value = x.m_value;
+        m_value = x.m_value;
 
     }
 
@@ -247,7 +245,7 @@ public:
             const GuidPrefix_s& x)
     {
 
-                    m_value = x.m_value;
+        m_value = x.m_value;
 
         return *this;
     }
@@ -322,8 +320,6 @@ public:
         return m_value;
     }
 
-
-
 private:
 
     std::array<uint8_t, 12> m_value{0};
@@ -358,9 +354,9 @@ public:
     eProsima_user_DllExport GUID_s(
             const GUID_s& x)
     {
-                    m_guidPrefix = x.m_guidPrefix;
+        m_guidPrefix = x.m_guidPrefix;
 
-                    m_entityId = x.m_entityId;
+        m_entityId = x.m_entityId;
 
     }
 
@@ -383,9 +379,9 @@ public:
             const GUID_s& x)
     {
 
-                    m_guidPrefix = x.m_guidPrefix;
+        m_guidPrefix = x.m_guidPrefix;
 
-                    m_entityId = x.m_entityId;
+        m_entityId = x.m_entityId;
 
         return *this;
     }
@@ -411,7 +407,7 @@ public:
             const GUID_s& x) const
     {
         return (m_guidPrefix == x.m_guidPrefix &&
-           m_entityId == x.m_entityId);
+               m_entityId == x.m_entityId);
     }
 
     /*!
@@ -462,7 +458,6 @@ public:
         return m_guidPrefix;
     }
 
-
     /*!
      * @brief This function copies the value in member entityId
      * @param _entityId New value to be copied in member entityId
@@ -501,8 +496,6 @@ public:
         return m_entityId;
     }
 
-
-
 private:
 
     GuidPrefix_s m_guidPrefix;
@@ -538,9 +531,9 @@ public:
     eProsima_user_DllExport SequenceNumber_s(
             const SequenceNumber_s& x)
     {
-                    m_high = x.m_high;
+        m_high = x.m_high;
 
-                    m_low = x.m_low;
+        m_low = x.m_low;
 
     }
 
@@ -563,9 +556,9 @@ public:
             const SequenceNumber_s& x)
     {
 
-                    m_high = x.m_high;
+        m_high = x.m_high;
 
-                    m_low = x.m_low;
+        m_low = x.m_low;
 
         return *this;
     }
@@ -591,7 +584,7 @@ public:
             const SequenceNumber_s& x) const
     {
         return (m_high == x.m_high &&
-           m_low == x.m_low);
+               m_low == x.m_low);
     }
 
     /*!
@@ -632,7 +625,6 @@ public:
         return m_high;
     }
 
-
     /*!
      * @brief This function sets a value in member low
      * @param _low New value for member low
@@ -660,8 +652,6 @@ public:
     {
         return m_low;
     }
-
-
 
 private:
 
@@ -698,9 +688,9 @@ public:
     eProsima_user_DllExport SampleIdentity_s(
             const SampleIdentity_s& x)
     {
-                    m_writer_guid = x.m_writer_guid;
+        m_writer_guid = x.m_writer_guid;
 
-                    m_sequence_number = x.m_sequence_number;
+        m_sequence_number = x.m_sequence_number;
 
     }
 
@@ -723,9 +713,9 @@ public:
             const SampleIdentity_s& x)
     {
 
-                    m_writer_guid = x.m_writer_guid;
+        m_writer_guid = x.m_writer_guid;
 
-                    m_sequence_number = x.m_sequence_number;
+        m_sequence_number = x.m_sequence_number;
 
         return *this;
     }
@@ -751,7 +741,7 @@ public:
             const SampleIdentity_s& x) const
     {
         return (m_writer_guid == x.m_writer_guid &&
-           m_sequence_number == x.m_sequence_number);
+               m_sequence_number == x.m_sequence_number);
     }
 
     /*!
@@ -802,7 +792,6 @@ public:
         return m_writer_guid;
     }
 
-
     /*!
      * @brief This function copies the value in member sequence_number
      * @param _sequence_number New value to be copied in member sequence_number
@@ -841,8 +830,6 @@ public:
         return m_sequence_number;
     }
 
-
-
 private:
 
     GUID_s m_writer_guid;
@@ -878,11 +865,11 @@ public:
     eProsima_user_DllExport Locator_s(
             const Locator_s& x)
     {
-                    m_kind = x.m_kind;
+        m_kind = x.m_kind;
 
-                    m_port = x.m_port;
+        m_port = x.m_port;
 
-                    m_address = x.m_address;
+        m_address = x.m_address;
 
     }
 
@@ -906,11 +893,11 @@ public:
             const Locator_s& x)
     {
 
-                    m_kind = x.m_kind;
+        m_kind = x.m_kind;
 
-                    m_port = x.m_port;
+        m_port = x.m_port;
 
-                    m_address = x.m_address;
+        m_address = x.m_address;
 
         return *this;
     }
@@ -937,8 +924,8 @@ public:
             const Locator_s& x) const
     {
         return (m_kind == x.m_kind &&
-           m_port == x.m_port &&
-           m_address == x.m_address);
+               m_port == x.m_port &&
+               m_address == x.m_address);
     }
 
     /*!
@@ -979,7 +966,6 @@ public:
         return m_kind;
     }
 
-
     /*!
      * @brief This function sets a value in member port
      * @param _port New value for member port
@@ -1007,7 +993,6 @@ public:
     {
         return m_port;
     }
-
 
     /*!
      * @brief This function copies the value in member address
@@ -1047,8 +1032,6 @@ public:
         return m_address;
     }
 
-
-
 private:
 
     int32_t m_kind{0};
@@ -1087,17 +1070,17 @@ public:
     eProsima_user_DllExport DiscoveryTime(
             const DiscoveryTime& x)
     {
-                    m_local_participant_guid = x.m_local_participant_guid;
+        m_local_participant_guid = x.m_local_participant_guid;
 
-                    m_remote_entity_guid = x.m_remote_entity_guid;
+        m_remote_entity_guid = x.m_remote_entity_guid;
 
-                    m_time = x.m_time;
+        m_time = x.m_time;
 
-                    m_host = x.m_host;
+        m_host = x.m_host;
 
-                    m_user = x.m_user;
+        m_user = x.m_user;
 
-                    m_process = x.m_process;
+        m_process = x.m_process;
 
     }
 
@@ -1124,17 +1107,17 @@ public:
             const DiscoveryTime& x)
     {
 
-                    m_local_participant_guid = x.m_local_participant_guid;
+        m_local_participant_guid = x.m_local_participant_guid;
 
-                    m_remote_entity_guid = x.m_remote_entity_guid;
+        m_remote_entity_guid = x.m_remote_entity_guid;
 
-                    m_time = x.m_time;
+        m_time = x.m_time;
 
-                    m_host = x.m_host;
+        m_host = x.m_host;
 
-                    m_user = x.m_user;
+        m_user = x.m_user;
 
-                    m_process = x.m_process;
+        m_process = x.m_process;
 
         return *this;
     }
@@ -1164,11 +1147,11 @@ public:
             const DiscoveryTime& x) const
     {
         return (m_local_participant_guid == x.m_local_participant_guid &&
-           m_remote_entity_guid == x.m_remote_entity_guid &&
-           m_time == x.m_time &&
-           m_host == x.m_host &&
-           m_user == x.m_user &&
-           m_process == x.m_process);
+               m_remote_entity_guid == x.m_remote_entity_guid &&
+               m_time == x.m_time &&
+               m_host == x.m_host &&
+               m_user == x.m_user &&
+               m_process == x.m_process);
     }
 
     /*!
@@ -1219,7 +1202,6 @@ public:
         return m_local_participant_guid;
     }
 
-
     /*!
      * @brief This function copies the value in member remote_entity_guid
      * @param _remote_entity_guid New value to be copied in member remote_entity_guid
@@ -1258,7 +1240,6 @@ public:
         return m_remote_entity_guid;
     }
 
-
     /*!
      * @brief This function sets a value in member time
      * @param _time New value for member time
@@ -1286,7 +1267,6 @@ public:
     {
         return m_time;
     }
-
 
     /*!
      * @brief This function copies the value in member host
@@ -1326,7 +1306,6 @@ public:
         return m_host;
     }
 
-
     /*!
      * @brief This function copies the value in member user
      * @param _user New value to be copied in member user
@@ -1365,7 +1344,6 @@ public:
         return m_user;
     }
 
-
     /*!
      * @brief This function copies the value in member process
      * @param _process New value to be copied in member process
@@ -1403,8 +1381,6 @@ public:
     {
         return m_process;
     }
-
-
 
 private:
 
@@ -1445,9 +1421,9 @@ public:
     eProsima_user_DllExport EntityCount(
             const EntityCount& x)
     {
-                    m_guid = x.m_guid;
+        m_guid = x.m_guid;
 
-                    m_count = x.m_count;
+        m_count = x.m_count;
 
     }
 
@@ -1470,9 +1446,9 @@ public:
             const EntityCount& x)
     {
 
-                    m_guid = x.m_guid;
+        m_guid = x.m_guid;
 
-                    m_count = x.m_count;
+        m_count = x.m_count;
 
         return *this;
     }
@@ -1498,7 +1474,7 @@ public:
             const EntityCount& x) const
     {
         return (m_guid == x.m_guid &&
-           m_count == x.m_count);
+               m_count == x.m_count);
     }
 
     /*!
@@ -1549,7 +1525,6 @@ public:
         return m_guid;
     }
 
-
     /*!
      * @brief This function sets a value in member count
      * @param _count New value for member count
@@ -1577,8 +1552,6 @@ public:
     {
         return m_count;
     }
-
-
 
 private:
 
@@ -1615,9 +1588,9 @@ public:
     eProsima_user_DllExport SampleIdentityCount(
             const SampleIdentityCount& x)
     {
-                    m_sample_id = x.m_sample_id;
+        m_sample_id = x.m_sample_id;
 
-                    m_count = x.m_count;
+        m_count = x.m_count;
 
     }
 
@@ -1640,9 +1613,9 @@ public:
             const SampleIdentityCount& x)
     {
 
-                    m_sample_id = x.m_sample_id;
+        m_sample_id = x.m_sample_id;
 
-                    m_count = x.m_count;
+        m_count = x.m_count;
 
         return *this;
     }
@@ -1668,7 +1641,7 @@ public:
             const SampleIdentityCount& x) const
     {
         return (m_sample_id == x.m_sample_id &&
-           m_count == x.m_count);
+               m_count == x.m_count);
     }
 
     /*!
@@ -1719,7 +1692,6 @@ public:
         return m_sample_id;
     }
 
-
     /*!
      * @brief This function sets a value in member count
      * @param _count New value for member count
@@ -1747,8 +1719,6 @@ public:
     {
         return m_count;
     }
-
-
 
 private:
 
@@ -1785,15 +1755,15 @@ public:
     eProsima_user_DllExport Entity2LocatorTraffic(
             const Entity2LocatorTraffic& x)
     {
-                    m_src_guid = x.m_src_guid;
+        m_src_guid = x.m_src_guid;
 
-                    m_dst_locator = x.m_dst_locator;
+        m_dst_locator = x.m_dst_locator;
 
-                    m_packet_count = x.m_packet_count;
+        m_packet_count = x.m_packet_count;
 
-                    m_byte_count = x.m_byte_count;
+        m_byte_count = x.m_byte_count;
 
-                    m_byte_magnitude_order = x.m_byte_magnitude_order;
+        m_byte_magnitude_order = x.m_byte_magnitude_order;
 
     }
 
@@ -1819,15 +1789,15 @@ public:
             const Entity2LocatorTraffic& x)
     {
 
-                    m_src_guid = x.m_src_guid;
+        m_src_guid = x.m_src_guid;
 
-                    m_dst_locator = x.m_dst_locator;
+        m_dst_locator = x.m_dst_locator;
 
-                    m_packet_count = x.m_packet_count;
+        m_packet_count = x.m_packet_count;
 
-                    m_byte_count = x.m_byte_count;
+        m_byte_count = x.m_byte_count;
 
-                    m_byte_magnitude_order = x.m_byte_magnitude_order;
+        m_byte_magnitude_order = x.m_byte_magnitude_order;
 
         return *this;
     }
@@ -1856,10 +1826,10 @@ public:
             const Entity2LocatorTraffic& x) const
     {
         return (m_src_guid == x.m_src_guid &&
-           m_dst_locator == x.m_dst_locator &&
-           m_packet_count == x.m_packet_count &&
-           m_byte_count == x.m_byte_count &&
-           m_byte_magnitude_order == x.m_byte_magnitude_order);
+               m_dst_locator == x.m_dst_locator &&
+               m_packet_count == x.m_packet_count &&
+               m_byte_count == x.m_byte_count &&
+               m_byte_magnitude_order == x.m_byte_magnitude_order);
     }
 
     /*!
@@ -1910,7 +1880,6 @@ public:
         return m_src_guid;
     }
 
-
     /*!
      * @brief This function copies the value in member dst_locator
      * @param _dst_locator New value to be copied in member dst_locator
@@ -1949,7 +1918,6 @@ public:
         return m_dst_locator;
     }
 
-
     /*!
      * @brief This function sets a value in member packet_count
      * @param _packet_count New value for member packet_count
@@ -1977,7 +1945,6 @@ public:
     {
         return m_packet_count;
     }
-
 
     /*!
      * @brief This function sets a value in member byte_count
@@ -2007,7 +1974,6 @@ public:
         return m_byte_count;
     }
 
-
     /*!
      * @brief This function sets a value in member byte_magnitude_order
      * @param _byte_magnitude_order New value for member byte_magnitude_order
@@ -2035,8 +2001,6 @@ public:
     {
         return m_byte_magnitude_order;
     }
-
-
 
 private:
 
@@ -2076,11 +2040,11 @@ public:
     eProsima_user_DllExport WriterReaderData(
             const WriterReaderData& x)
     {
-                    m_writer_guid = x.m_writer_guid;
+        m_writer_guid = x.m_writer_guid;
 
-                    m_reader_guid = x.m_reader_guid;
+        m_reader_guid = x.m_reader_guid;
 
-                    m_data = x.m_data;
+        m_data = x.m_data;
 
     }
 
@@ -2104,11 +2068,11 @@ public:
             const WriterReaderData& x)
     {
 
-                    m_writer_guid = x.m_writer_guid;
+        m_writer_guid = x.m_writer_guid;
 
-                    m_reader_guid = x.m_reader_guid;
+        m_reader_guid = x.m_reader_guid;
 
-                    m_data = x.m_data;
+        m_data = x.m_data;
 
         return *this;
     }
@@ -2135,8 +2099,8 @@ public:
             const WriterReaderData& x) const
     {
         return (m_writer_guid == x.m_writer_guid &&
-           m_reader_guid == x.m_reader_guid &&
-           m_data == x.m_data);
+               m_reader_guid == x.m_reader_guid &&
+               m_data == x.m_data);
     }
 
     /*!
@@ -2187,7 +2151,6 @@ public:
         return m_writer_guid;
     }
 
-
     /*!
      * @brief This function copies the value in member reader_guid
      * @param _reader_guid New value to be copied in member reader_guid
@@ -2226,7 +2189,6 @@ public:
         return m_reader_guid;
     }
 
-
     /*!
      * @brief This function sets a value in member data
      * @param _data New value for member data
@@ -2254,8 +2216,6 @@ public:
     {
         return m_data;
     }
-
-
 
 private:
 
@@ -2293,11 +2253,11 @@ public:
     eProsima_user_DllExport Locator2LocatorData(
             const Locator2LocatorData& x)
     {
-                    m_src_locator = x.m_src_locator;
+        m_src_locator = x.m_src_locator;
 
-                    m_dst_locator = x.m_dst_locator;
+        m_dst_locator = x.m_dst_locator;
 
-                    m_data = x.m_data;
+        m_data = x.m_data;
 
     }
 
@@ -2321,11 +2281,11 @@ public:
             const Locator2LocatorData& x)
     {
 
-                    m_src_locator = x.m_src_locator;
+        m_src_locator = x.m_src_locator;
 
-                    m_dst_locator = x.m_dst_locator;
+        m_dst_locator = x.m_dst_locator;
 
-                    m_data = x.m_data;
+        m_data = x.m_data;
 
         return *this;
     }
@@ -2352,8 +2312,8 @@ public:
             const Locator2LocatorData& x) const
     {
         return (m_src_locator == x.m_src_locator &&
-           m_dst_locator == x.m_dst_locator &&
-           m_data == x.m_data);
+               m_dst_locator == x.m_dst_locator &&
+               m_data == x.m_data);
     }
 
     /*!
@@ -2404,7 +2364,6 @@ public:
         return m_src_locator;
     }
 
-
     /*!
      * @brief This function copies the value in member dst_locator
      * @param _dst_locator New value to be copied in member dst_locator
@@ -2443,7 +2402,6 @@ public:
         return m_dst_locator;
     }
 
-
     /*!
      * @brief This function sets a value in member data
      * @param _data New value for member data
@@ -2471,8 +2429,6 @@ public:
     {
         return m_data;
     }
-
-
 
 private:
 
@@ -2510,9 +2466,9 @@ public:
     eProsima_user_DllExport EntityData(
             const EntityData& x)
     {
-                    m_guid = x.m_guid;
+        m_guid = x.m_guid;
 
-                    m_data = x.m_data;
+        m_data = x.m_data;
 
     }
 
@@ -2535,9 +2491,9 @@ public:
             const EntityData& x)
     {
 
-                    m_guid = x.m_guid;
+        m_guid = x.m_guid;
 
-                    m_data = x.m_data;
+        m_data = x.m_data;
 
         return *this;
     }
@@ -2563,7 +2519,7 @@ public:
             const EntityData& x) const
     {
         return (m_guid == x.m_guid &&
-           m_data == x.m_data);
+               m_data == x.m_data);
     }
 
     /*!
@@ -2614,7 +2570,6 @@ public:
         return m_guid;
     }
 
-
     /*!
      * @brief This function sets a value in member data
      * @param _data New value for member data
@@ -2642,8 +2597,6 @@ public:
     {
         return m_data;
     }
-
-
 
 private:
 
@@ -2680,13 +2633,13 @@ public:
     eProsima_user_DllExport PhysicalData(
             const PhysicalData& x)
     {
-                    m_participant_guid = x.m_participant_guid;
+        m_participant_guid = x.m_participant_guid;
 
-                    m_host = x.m_host;
+        m_host = x.m_host;
 
-                    m_user = x.m_user;
+        m_user = x.m_user;
 
-                    m_process = x.m_process;
+        m_process = x.m_process;
 
     }
 
@@ -2711,13 +2664,13 @@ public:
             const PhysicalData& x)
     {
 
-                    m_participant_guid = x.m_participant_guid;
+        m_participant_guid = x.m_participant_guid;
 
-                    m_host = x.m_host;
+        m_host = x.m_host;
 
-                    m_user = x.m_user;
+        m_user = x.m_user;
 
-                    m_process = x.m_process;
+        m_process = x.m_process;
 
         return *this;
     }
@@ -2745,9 +2698,9 @@ public:
             const PhysicalData& x) const
     {
         return (m_participant_guid == x.m_participant_guid &&
-           m_host == x.m_host &&
-           m_user == x.m_user &&
-           m_process == x.m_process);
+               m_host == x.m_host &&
+               m_user == x.m_user &&
+               m_process == x.m_process);
     }
 
     /*!
@@ -2798,7 +2751,6 @@ public:
         return m_participant_guid;
     }
 
-
     /*!
      * @brief This function copies the value in member host
      * @param _host New value to be copied in member host
@@ -2836,7 +2788,6 @@ public:
     {
         return m_host;
     }
-
 
     /*!
      * @brief This function copies the value in member user
@@ -2876,7 +2827,6 @@ public:
         return m_user;
     }
 
-
     /*!
      * @brief This function copies the value in member process
      * @param _process New value to be copied in member process
@@ -2914,8 +2864,6 @@ public:
     {
         return m_process;
     }
-
-
 
 private:
 
@@ -2983,37 +2931,37 @@ public:
 
         switch (x.selected_member_)
         {
-                        case 0x00000001:
-                            writer_reader_data_() = x.m_writer_reader_data;
-                            break;
+            case 0x00000001:
+                writer_reader_data_() = x.m_writer_reader_data;
+                break;
 
-                        case 0x00000002:
-                            locator2locator_data_() = x.m_locator2locator_data;
-                            break;
+            case 0x00000002:
+                locator2locator_data_() = x.m_locator2locator_data;
+                break;
 
-                        case 0x00000003:
-                            entity_data_() = x.m_entity_data;
-                            break;
+            case 0x00000003:
+                entity_data_() = x.m_entity_data;
+                break;
 
-                        case 0x00000004:
-                            entity2locator_traffic_() = x.m_entity2locator_traffic;
-                            break;
+            case 0x00000004:
+                entity2locator_traffic_() = x.m_entity2locator_traffic;
+                break;
 
-                        case 0x00000005:
-                            entity_count_() = x.m_entity_count;
-                            break;
+            case 0x00000005:
+                entity_count_() = x.m_entity_count;
+                break;
 
-                        case 0x00000006:
-                            discovery_time_() = x.m_discovery_time;
-                            break;
+            case 0x00000006:
+                discovery_time_() = x.m_discovery_time;
+                break;
 
-                        case 0x00000007:
-                            sample_identity_count_() = x.m_sample_identity_count;
-                            break;
+            case 0x00000007:
+                sample_identity_count_() = x.m_sample_identity_count;
+                break;
 
-                        case 0x00000008:
-                            physical_data_() = x.m_physical_data;
-                            break;
+            case 0x00000008:
+                physical_data_() = x.m_physical_data;
+                break;
 
         }
     }
@@ -3029,37 +2977,37 @@ public:
 
         switch (x.selected_member_)
         {
-                        case 0x00000001:
-                            writer_reader_data_() = std::move(x.m_writer_reader_data);
-                            break;
+            case 0x00000001:
+                writer_reader_data_() = std::move(x.m_writer_reader_data);
+                break;
 
-                        case 0x00000002:
-                            locator2locator_data_() = std::move(x.m_locator2locator_data);
-                            break;
+            case 0x00000002:
+                locator2locator_data_() = std::move(x.m_locator2locator_data);
+                break;
 
-                        case 0x00000003:
-                            entity_data_() = std::move(x.m_entity_data);
-                            break;
+            case 0x00000003:
+                entity_data_() = std::move(x.m_entity_data);
+                break;
 
-                        case 0x00000004:
-                            entity2locator_traffic_() = std::move(x.m_entity2locator_traffic);
-                            break;
+            case 0x00000004:
+                entity2locator_traffic_() = std::move(x.m_entity2locator_traffic);
+                break;
 
-                        case 0x00000005:
-                            entity_count_() = std::move(x.m_entity_count);
-                            break;
+            case 0x00000005:
+                entity_count_() = std::move(x.m_entity_count);
+                break;
 
-                        case 0x00000006:
-                            discovery_time_() = std::move(x.m_discovery_time);
-                            break;
+            case 0x00000006:
+                discovery_time_() = std::move(x.m_discovery_time);
+                break;
 
-                        case 0x00000007:
-                            sample_identity_count_() = std::move(x.m_sample_identity_count);
-                            break;
+            case 0x00000007:
+                sample_identity_count_() = std::move(x.m_sample_identity_count);
+                break;
 
-                        case 0x00000008:
-                            physical_data_() = std::move(x.m_physical_data);
-                            break;
+            case 0x00000008:
+                physical_data_() = std::move(x.m_physical_data);
+                break;
 
         }
     }
@@ -3075,37 +3023,37 @@ public:
 
         switch (x.selected_member_)
         {
-                        case 0x00000001:
-                            writer_reader_data_() = x.m_writer_reader_data;
-                            break;
+            case 0x00000001:
+                writer_reader_data_() = x.m_writer_reader_data;
+                break;
 
-                        case 0x00000002:
-                            locator2locator_data_() = x.m_locator2locator_data;
-                            break;
+            case 0x00000002:
+                locator2locator_data_() = x.m_locator2locator_data;
+                break;
 
-                        case 0x00000003:
-                            entity_data_() = x.m_entity_data;
-                            break;
+            case 0x00000003:
+                entity_data_() = x.m_entity_data;
+                break;
 
-                        case 0x00000004:
-                            entity2locator_traffic_() = x.m_entity2locator_traffic;
-                            break;
+            case 0x00000004:
+                entity2locator_traffic_() = x.m_entity2locator_traffic;
+                break;
 
-                        case 0x00000005:
-                            entity_count_() = x.m_entity_count;
-                            break;
+            case 0x00000005:
+                entity_count_() = x.m_entity_count;
+                break;
 
-                        case 0x00000006:
-                            discovery_time_() = x.m_discovery_time;
-                            break;
+            case 0x00000006:
+                discovery_time_() = x.m_discovery_time;
+                break;
 
-                        case 0x00000007:
-                            sample_identity_count_() = x.m_sample_identity_count;
-                            break;
+            case 0x00000007:
+                sample_identity_count_() = x.m_sample_identity_count;
+                break;
 
-                        case 0x00000008:
-                            physical_data_() = x.m_physical_data;
-                            break;
+            case 0x00000008:
+                physical_data_() = x.m_physical_data;
+                break;
 
         }
 
@@ -3123,37 +3071,37 @@ public:
 
         switch (x.selected_member_)
         {
-                        case 0x00000001:
-                            writer_reader_data_() = std::move(x.m_writer_reader_data);
-                            break;
+            case 0x00000001:
+                writer_reader_data_() = std::move(x.m_writer_reader_data);
+                break;
 
-                        case 0x00000002:
-                            locator2locator_data_() = std::move(x.m_locator2locator_data);
-                            break;
+            case 0x00000002:
+                locator2locator_data_() = std::move(x.m_locator2locator_data);
+                break;
 
-                        case 0x00000003:
-                            entity_data_() = std::move(x.m_entity_data);
-                            break;
+            case 0x00000003:
+                entity_data_() = std::move(x.m_entity_data);
+                break;
 
-                        case 0x00000004:
-                            entity2locator_traffic_() = std::move(x.m_entity2locator_traffic);
-                            break;
+            case 0x00000004:
+                entity2locator_traffic_() = std::move(x.m_entity2locator_traffic);
+                break;
 
-                        case 0x00000005:
-                            entity_count_() = std::move(x.m_entity_count);
-                            break;
+            case 0x00000005:
+                entity_count_() = std::move(x.m_entity_count);
+                break;
 
-                        case 0x00000006:
-                            discovery_time_() = std::move(x.m_discovery_time);
-                            break;
+            case 0x00000006:
+                discovery_time_() = std::move(x.m_discovery_time);
+                break;
 
-                        case 0x00000007:
-                            sample_identity_count_() = std::move(x.m_sample_identity_count);
-                            break;
+            case 0x00000007:
+                sample_identity_count_() = std::move(x.m_sample_identity_count);
+                break;
 
-                        case 0x00000008:
-                            physical_data_() = std::move(x.m_physical_data);
-                            break;
+            case 0x00000008:
+                physical_data_() = std::move(x.m_physical_data);
+                break;
 
         }
 
@@ -3169,43 +3117,52 @@ public:
     {
         bool ret_value {false};
 
-        if (m__d == x.m__d &&
-                selected_member_ == x.selected_member_)
+        if (x.selected_member_ == selected_member_)
         {
-            switch (selected_member_)
+            if (0x0FFFFFFFu != selected_member_)
             {
-                                case 0x00000001:
-                                    ret_value = (m_writer_reader_data == x.m_writer_reader_data);
-                                    break;
+                if (x.m__d == m__d)
+                {
+                    switch (selected_member_)
+                    {
+                        case 0x00000001:
+                            ret_value = (x.m_writer_reader_data == m_writer_reader_data);
+                            break;
 
-                                case 0x00000002:
-                                    ret_value = (m_locator2locator_data == x.m_locator2locator_data);
-                                    break;
+                        case 0x00000002:
+                            ret_value = (x.m_locator2locator_data == m_locator2locator_data);
+                            break;
 
-                                case 0x00000003:
-                                    ret_value = (m_entity_data == x.m_entity_data);
-                                    break;
+                        case 0x00000003:
+                            ret_value = (x.m_entity_data == m_entity_data);
+                            break;
 
-                                case 0x00000004:
-                                    ret_value = (m_entity2locator_traffic == x.m_entity2locator_traffic);
-                                    break;
+                        case 0x00000004:
+                            ret_value = (x.m_entity2locator_traffic == m_entity2locator_traffic);
+                            break;
 
-                                case 0x00000005:
-                                    ret_value = (m_entity_count == x.m_entity_count);
-                                    break;
+                        case 0x00000005:
+                            ret_value = (x.m_entity_count == m_entity_count);
+                            break;
 
-                                case 0x00000006:
-                                    ret_value = (m_discovery_time == x.m_discovery_time);
-                                    break;
+                        case 0x00000006:
+                            ret_value = (x.m_discovery_time == m_discovery_time);
+                            break;
 
-                                case 0x00000007:
-                                    ret_value = (m_sample_identity_count == x.m_sample_identity_count);
-                                    break;
+                        case 0x00000007:
+                            ret_value = (x.m_sample_identity_count == m_sample_identity_count);
+                            break;
 
-                                case 0x00000008:
-                                    ret_value = (m_physical_data == x.m_physical_data);
-                                    break;
+                        case 0x00000008:
+                            ret_value = (x.m_physical_data == m_physical_data);
+                            break;
 
+                    }
+                }
+            }
+            else
+            {
+                ret_value = true;
             }
         }
 
@@ -3234,76 +3191,77 @@ public:
 
         switch (__d)
         {
-                        case EventKind::HISTORY2HISTORY_LATENCY:
-                            if (0x00000001 == selected_member_)
-                            {
-                                valid_discriminator = true;
-                            }
-                            break;
+            case EventKind::HISTORY2HISTORY_LATENCY:
+                if (0x00000001 == selected_member_)
+                {
+                    valid_discriminator = true;
+                }
+                break;
 
-                        case EventKind::NETWORK_LATENCY:
-                            if (0x00000002 == selected_member_)
-                            {
-                                valid_discriminator = true;
-                            }
-                            break;
+            case EventKind::NETWORK_LATENCY:
+                if (0x00000002 == selected_member_)
+                {
+                    valid_discriminator = true;
+                }
+                break;
 
-                        case EventKind::PUBLICATION_THROUGHPUT:
-                        case EventKind::SUBSCRIPTION_THROUGHPUT:
-                            if (0x00000003 == selected_member_)
-                            {
-                                valid_discriminator = true;
-                            }
-                            break;
+            case EventKind::PUBLICATION_THROUGHPUT:
+            case EventKind::SUBSCRIPTION_THROUGHPUT:
+                if (0x00000003 == selected_member_)
+                {
+                    valid_discriminator = true;
+                }
+                break;
 
-                        case EventKind::RTPS_SENT:
-                        case EventKind::RTPS_LOST:
-                            if (0x00000004 == selected_member_)
-                            {
-                                valid_discriminator = true;
-                            }
-                            break;
+            case EventKind::RTPS_SENT:
+            case EventKind::RTPS_LOST:
+                if (0x00000004 == selected_member_)
+                {
+                    valid_discriminator = true;
+                }
+                break;
 
-                        case EventKind::RESENT_DATAS:
-                        case EventKind::HEARTBEAT_COUNT:
-                        case EventKind::ACKNACK_COUNT:
-                        case EventKind::NACKFRAG_COUNT:
-                        case EventKind::GAP_COUNT:
-                        case EventKind::DATA_COUNT:
-                        case EventKind::PDP_PACKETS:
-                        case EventKind::EDP_PACKETS:
-                            if (0x00000005 == selected_member_)
-                            {
-                                valid_discriminator = true;
-                            }
-                            break;
+            case EventKind::RESENT_DATAS:
+            case EventKind::HEARTBEAT_COUNT:
+            case EventKind::ACKNACK_COUNT:
+            case EventKind::NACKFRAG_COUNT:
+            case EventKind::GAP_COUNT:
+            case EventKind::DATA_COUNT:
+            case EventKind::PDP_PACKETS:
+            case EventKind::EDP_PACKETS:
+                if (0x00000005 == selected_member_)
+                {
+                    valid_discriminator = true;
+                }
+                break;
 
-                        case EventKind::DISCOVERED_ENTITY:
-                            if (0x00000006 == selected_member_)
-                            {
-                                valid_discriminator = true;
-                            }
-                            break;
+            case EventKind::DISCOVERED_ENTITY:
+                if (0x00000006 == selected_member_)
+                {
+                    valid_discriminator = true;
+                }
+                break;
 
-                        case EventKind::SAMPLE_DATAS:
-                            if (0x00000007 == selected_member_)
-                            {
-                                valid_discriminator = true;
-                            }
-                            break;
+            case EventKind::SAMPLE_DATAS:
+                if (0x00000007 == selected_member_)
+                {
+                    valid_discriminator = true;
+                }
+                break;
 
-                        case EventKind::PHYSICAL_DATA:
-                            if (0x00000008 == selected_member_)
-                            {
-                                valid_discriminator = true;
-                            }
-                            break;
+            case EventKind::PHYSICAL_DATA:
+                if (0x00000008 == selected_member_)
+                {
+                    valid_discriminator = true;
+                }
+                break;
 
         }
 
         if (!valid_discriminator)
         {
-            throw eprosima::fastcdr::exception::BadParamException("Discriminator doesn't correspond with the selected union member");
+            throw eprosima::fastcdr::exception::BadParamException(
+                      "Discriminator doesn't correspond with the selected union member");
         }
 
         m__d = __d;
@@ -3370,7 +3328,6 @@ public:
         return m_writer_reader_data;
     }
 
-
     /*!
      * @brief This function copies the value in member locator2locator_data
      * @param _locator2locator_data New value to be copied in member locator2locator_data
@@ -3422,7 +3379,6 @@ public:
 
         return m_locator2locator_data;
     }
-
 
     /*!
      * @brief This function copies the value in member entity_data
@@ -3476,7 +3432,6 @@ public:
         return m_entity_data;
     }
 
-
     /*!
      * @brief This function copies the value in member entity2locator_traffic
      * @param _entity2locator_traffic New value to be copied in member entity2locator_traffic
@@ -3528,7 +3483,6 @@ public:
 
         return m_entity2locator_traffic;
     }
-
 
     /*!
      * @brief This function copies the value in member entity_count
@@ -3582,7 +3536,6 @@ public:
         return m_entity_count;
     }
 
-
     /*!
      * @brief This function copies the value in member discovery_time
      * @param _discovery_time New value to be copied in member discovery_time
@@ -3634,7 +3587,6 @@ public:
 
         return m_discovery_time;
     }
-
 
     /*!
      * @brief This function copies the value in member sample_identity_count
@@ -3688,7 +3640,6 @@ public:
         return m_sample_identity_count;
     }
 
-
     /*!
      * @brief This function copies the value in member physical_data
      * @param _physical_data New value to be copied in member physical_data
@@ -3741,7 +3692,6 @@ public:
         return m_physical_data;
     }
 
-
     void _default()
     {
         if (member_destructor_)
@@ -3752,153 +3702,175 @@ public:
         selected_member_ = 0x0FFFFFFFu;
     }
 
-
 private:
 
-            WriterReaderData& writer_reader_data_()
+    WriterReaderData& writer_reader_data_()
+    {
+        if (0x00000001 != selected_member_)
+        {
+            if (member_destructor_)
             {
-                if (0x00000001 != selected_member_)
-                {
-                    if (member_destructor_)
-                    {
-                        member_destructor_();
-                    }
-
-                    selected_member_ = 0x00000001;
-                    member_destructor_ = [&]() {m_writer_reader_data.~WriterReaderData();};
-                    new(&m_writer_reader_data) WriterReaderData();
-
-                }
-
-                return m_writer_reader_data;
+                member_destructor_();
             }
 
-            Locator2LocatorData& locator2locator_data_()
-            {
-                if (0x00000002 != selected_member_)
-                {
-                    if (member_destructor_)
+            selected_member_ = 0x00000001;
+            member_destructor_ = [&]()
                     {
-                        member_destructor_();
-                    }
+                        m_writer_reader_data.~WriterReaderData();
+                    };
+            new(&m_writer_reader_data) WriterReaderData();
 
-                    selected_member_ = 0x00000002;
-                    member_destructor_ = [&]() {m_locator2locator_data.~Locator2LocatorData();};
-                    new(&m_locator2locator_data) Locator2LocatorData();
+        }
 
-                }
+        return m_writer_reader_data;
+    }
 
-                return m_locator2locator_data;
+    Locator2LocatorData& locator2locator_data_()
+    {
+        if (0x00000002 != selected_member_)
+        {
+            if (member_destructor_)
+            {
+                member_destructor_();
             }
 
-            EntityData& entity_data_()
-            {
-                if (0x00000003 != selected_member_)
-                {
-                    if (member_destructor_)
+            selected_member_ = 0x00000002;
+            member_destructor_ = [&]()
                     {
-                        member_destructor_();
-                    }
+                        m_locator2locator_data.~Locator2LocatorData();
+                    };
+            new(&m_locator2locator_data) Locator2LocatorData();
 
-                    selected_member_ = 0x00000003;
-                    member_destructor_ = [&]() {m_entity_data.~EntityData();};
-                    new(&m_entity_data) EntityData();
+        }
 
-                }
+        return m_locator2locator_data;
+    }
 
-                return m_entity_data;
+    EntityData& entity_data_()
+    {
+        if (0x00000003 != selected_member_)
+        {
+            if (member_destructor_)
+            {
+                member_destructor_();
             }
 
-            Entity2LocatorTraffic& entity2locator_traffic_()
-            {
-                if (0x00000004 != selected_member_)
-                {
-                    if (member_destructor_)
+            selected_member_ = 0x00000003;
+            member_destructor_ = [&]()
                     {
-                        member_destructor_();
-                    }
+                        m_entity_data.~EntityData();
+                    };
+            new(&m_entity_data) EntityData();
 
-                    selected_member_ = 0x00000004;
-                    member_destructor_ = [&]() {m_entity2locator_traffic.~Entity2LocatorTraffic();};
-                    new(&m_entity2locator_traffic) Entity2LocatorTraffic();
+        }
 
-                }
+        return m_entity_data;
+    }
 
-                return m_entity2locator_traffic;
+    Entity2LocatorTraffic& entity2locator_traffic_()
+    {
+        if (0x00000004 != selected_member_)
+        {
+            if (member_destructor_)
+            {
+                member_destructor_();
             }
 
-            EntityCount& entity_count_()
-            {
-                if (0x00000005 != selected_member_)
-                {
-                    if (member_destructor_)
+            selected_member_ = 0x00000004;
+            member_destructor_ = [&]()
                     {
-                        member_destructor_();
-                    }
+                        m_entity2locator_traffic.~Entity2LocatorTraffic();
+                    };
+            new(&m_entity2locator_traffic) Entity2LocatorTraffic();
 
-                    selected_member_ = 0x00000005;
-                    member_destructor_ = [&]() {m_entity_count.~EntityCount();};
-                    new(&m_entity_count) EntityCount();
+        }
 
-                }
+        return m_entity2locator_traffic;
+    }
 
-                return m_entity_count;
+    EntityCount& entity_count_()
+    {
+        if (0x00000005 != selected_member_)
+        {
+            if (member_destructor_)
+            {
+                member_destructor_();
             }
 
-            DiscoveryTime& discovery_time_()
-            {
-                if (0x00000006 != selected_member_)
-                {
-                    if (member_destructor_)
+            selected_member_ = 0x00000005;
+            member_destructor_ = [&]()
                     {
-                        member_destructor_();
-                    }
+                        m_entity_count.~EntityCount();
+                    };
+            new(&m_entity_count) EntityCount();
 
-                    selected_member_ = 0x00000006;
-                    member_destructor_ = [&]() {m_discovery_time.~DiscoveryTime();};
-                    new(&m_discovery_time) DiscoveryTime();
+        }
 
-                }
+        return m_entity_count;
+    }
 
-                return m_discovery_time;
+    DiscoveryTime& discovery_time_()
+    {
+        if (0x00000006 != selected_member_)
+        {
+            if (member_destructor_)
+            {
+                member_destructor_();
             }
 
-            SampleIdentityCount& sample_identity_count_()
-            {
-                if (0x00000007 != selected_member_)
-                {
-                    if (member_destructor_)
+            selected_member_ = 0x00000006;
+            member_destructor_ = [&]()
                     {
-                        member_destructor_();
-                    }
+                        m_discovery_time.~DiscoveryTime();
+                    };
+            new(&m_discovery_time) DiscoveryTime();
 
-                    selected_member_ = 0x00000007;
-                    member_destructor_ = [&]() {m_sample_identity_count.~SampleIdentityCount();};
-                    new(&m_sample_identity_count) SampleIdentityCount();
+        }
 
-                }
+        return m_discovery_time;
+    }
 
-                return m_sample_identity_count;
+    SampleIdentityCount& sample_identity_count_()
+    {
+        if (0x00000007 != selected_member_)
+        {
+            if (member_destructor_)
+            {
+                member_destructor_();
             }
 
-            PhysicalData& physical_data_()
-            {
-                if (0x00000008 != selected_member_)
-                {
-                    if (member_destructor_)
+            selected_member_ = 0x00000007;
+            member_destructor_ = [&]()
                     {
-                        member_destructor_();
-                    }
+                        m_sample_identity_count.~SampleIdentityCount();
+                    };
+            new(&m_sample_identity_count) SampleIdentityCount();
 
-                    selected_member_ = 0x00000008;
-                    member_destructor_ = [&]() {m_physical_data.~PhysicalData();};
-                    new(&m_physical_data) PhysicalData();
+        }
 
-                }
+        return m_sample_identity_count;
+    }
 
-                return m_physical_data;
+    PhysicalData& physical_data_()
+    {
+        if (0x00000008 != selected_member_)
+        {
+            if (member_destructor_)
+            {
+                member_destructor_();
             }
 
+            selected_member_ = 0x00000008;
+            member_destructor_ = [&]()
+                    {
+                        m_physical_data.~PhysicalData();
+                    };
+            new(&m_physical_data) PhysicalData();
+
+        }
+
+        return m_physical_data;
+    }
 
     uint32_t m__d {2147483647};
 

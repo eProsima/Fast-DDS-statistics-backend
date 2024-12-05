@@ -10,12 +10,16 @@ Colcon
 datareader
 datasharing
 datawriter
+Deserialize
 destructor
+eprosima
 eProsima
+ExtendedIncompatibleQosSample
 Foonathan
 gcovr
 Github
 Gtest
+guid
 intraprocess
 metatraffic
 monitorization
@@ -28,7 +32,7 @@ preprocessed
 Qos
 QoS
 Subclassed
-Todo
 timepoint
+Todo
 uncorrectly
 wget

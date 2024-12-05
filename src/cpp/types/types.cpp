@@ -88,5 +88,12 @@ void SampleLostSample::clear()
     sample_lost_status.total_count(0);
 }
 
+FASTDDS_STATISTICS_BACKEND_DllAPI
+void ExtendedIncompatibleQosSample::clear()
+{
+    MonitorServiceSample::clear();
+    extended_incompatible_qos_status.clear();
+}
+
 } // namespace statistics_backend
 } // namespace eprosima

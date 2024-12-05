@@ -5,7 +5,7 @@
         {
             "cmake-args":
             [
-                "-DCMAKE_CXX_FLAGS='/WX /EHsc'",
+                "-DCMAKE_CXX_FLAGS='/WX /EHsc /bigobj'",
                 "-Ax64",
                 "-T host=x64"
             ]

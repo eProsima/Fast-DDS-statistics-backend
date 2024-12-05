@@ -97,6 +97,7 @@ void DataReaderMonitorServiceData::clear(
     inconsistent_topic.clear(t_to);
     deadline_missed.clear(t_to);
     sample_lost.clear(t_to);
+    extended_incompatible_qos.clear(t_to);
     static_cast<void>(clear_last_reported);
 }
 
@@ -110,6 +111,7 @@ void DataWriterMonitorServiceData::clear(
     liveliness_lost.clear(t_to);
     inconsistent_topic.clear(t_to);
     deadline_missed.clear(t_to);
+    extended_incompatible_qos.clear(t_to);
     static_cast<void>(clear_last_reported);
 }
 

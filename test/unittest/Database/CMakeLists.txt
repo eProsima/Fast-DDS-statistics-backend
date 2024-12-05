@@ -309,6 +309,8 @@ set(DATABASE_TEST_LIST
     insert_monitor_service_sample_deadline_missed_wrong_entity
     insert_monitor_service_sample_sample_lost
     insert_monitor_service_sample_sample_lost_wrong_entity
+    insert_monitor_service_sample_extended_incompatible_qos
+    insert_monitor_service_sample_extended_incompatible_qos_wrong_entity
     # get_invalid_status_data
     get_monitor_service_sample_invalid
     # entity_status_logic

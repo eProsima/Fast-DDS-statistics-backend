@@ -5458,6 +5458,142 @@ TEST_F(database_queue_tests, push_monitor_sample_lost_no_entity)
     monitor_data_queue.flush();
 }
 
+TEST_F(database_queue_tests, push_monitor_extended_incompatible_qos)
+{
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
+
+    // Build the writer GUID
+    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
+    std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
+    DatabaseDataQueueWrapper::StatisticsGuidPrefix writer_prefix;
+    writer_prefix.value(prefix);
+    DatabaseDataQueueWrapper::StatisticsEntityId writer_entity_id;
+    writer_entity_id.value(writer_id);
+    DatabaseDataQueueWrapper::StatisticsGuid writer_guid;
+    writer_guid.guidPrefix(writer_prefix);
+    writer_guid.entityId(writer_entity_id);
+
+    // Build incompatible qos status
+    eprosima::fastdds::statistics::ExtendedIncompatibleQoSStatus_s status;
+    std::stringstream remote_entity_guid_str("01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1");
+    eprosima::fastdds::statistics::detail::GUID_s remote_entity_guid_s;
+    eprosima::fastdds::rtps::GUID_t remote_entity_guid_t;
+
+    remote_entity_guid_str >> remote_entity_guid_t;
+    memcpy(remote_entity_guid_s.guidPrefix().value().data(), remote_entity_guid_t.guidPrefix.value,
+            eprosima::fastdds::rtps::GuidPrefix_t::size);
+    memcpy(remote_entity_guid_s.entityId().value().data(), remote_entity_guid_t.entityId.value,
+            eprosima::fastdds::rtps::EntityId_t::size);
+
+    status.remote_guid(remote_entity_guid_s);
+    status.current_incompatible_policies(std::vector<uint32_t>{1, 2, 3});
+
+    eprosima::fastdds::statistics::ExtendedIncompatibleQoSStatusSeq_s status_seq({status});
+
+    // Build the Monitor Service data
+    std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
+    eprosima::fastdds::statistics::StatusKind::StatusKind kind =
+            eprosima::fastdds::statistics::StatusKind::EXTENDED_INCOMPATIBLE_QOS;
+    MonitorServiceData value;
+    value.extended_incompatible_qos_status({status});
+    data->local_entity(writer_guid);
+    data->status_kind(kind);
+    data->value(value);
+
+    // Precondition: The writer exists and has ID 1
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(1)
+            .WillOnce(Return(std::make_pair(EntityId(0), EntityId(1))));
+    EXPECT_CALL(database, get_entity_kind_by_guid(writer_guid)).Times(1)
+            .WillOnce(Return(EntityKind::DATAWRITER));
+
+    // Expectation: The insert method is called with appropriate arguments
+    InsertMonitorServiceDataArgs args([&](
+                const EntityId& domain_id,
+                const EntityId& entity_id,
+                const MonitorServiceSample& sample)
+            {
+                EXPECT_EQ(entity_id, 1);
+                EXPECT_EQ(domain_id, 0);
+                EXPECT_EQ(sample.kind, eprosima::statistics_backend::StatusKind::EXTENDED_INCOMPATIBLE_QOS);
+                EXPECT_EQ(sample.status, StatusLevel::ERROR_STATUS);
+                EXPECT_EQ(dynamic_cast<const ExtendedIncompatibleQosSample&>(sample).extended_incompatible_qos_status,
+                status_seq);
+
+                return false;
+            });
+    EXPECT_CALL(database, insert(_, _, testing::Matcher<const MonitorServiceSample&>(_))).Times(1)
+            .WillRepeatedly(Invoke(&args, &InsertMonitorServiceDataArgs::insert));
+
+    // Expectation: The user is notified
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+            on_status_reported(EntityId(0), EntityId(1),
+            eprosima::statistics_backend::StatusKind::EXTENDED_INCOMPATIBLE_QOS)).Times(1);
+
+    // Add to the queue and wait to be processed
+    monitor_data_queue.push(timestamp, data);
+    monitor_data_queue.flush();
+}
+
+TEST_F(database_queue_tests, push_monitor_extended_incompatible_qos_no_entity)
+{
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
+
+    // Build the writer GUID
+    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
+    std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
+    DatabaseDataQueueWrapper::StatisticsGuidPrefix writer_prefix;
+    writer_prefix.value(prefix);
+    DatabaseDataQueueWrapper::StatisticsEntityId writer_entity_id;
+    writer_entity_id.value(writer_id);
+    DatabaseDataQueueWrapper::StatisticsGuid writer_guid;
+    writer_guid.guidPrefix(writer_prefix);
+    writer_guid.entityId(writer_entity_id);
+
+    // Build incompatible qos status
+    eprosima::fastdds::statistics::ExtendedIncompatibleQoSStatus_s status;
+    std::stringstream remote_entity_guid_str("01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1");
+    eprosima::fastdds::statistics::detail::GUID_s remote_entity_guid_s;
+    eprosima::fastdds::rtps::GUID_t remote_entity_guid_t;
+
+    remote_entity_guid_str >> remote_entity_guid_t;
+    memcpy(remote_entity_guid_s.guidPrefix().value().data(), remote_entity_guid_t.guidPrefix.value,
+            eprosima::fastdds::rtps::GuidPrefix_t::size);
+    memcpy(remote_entity_guid_s.entityId().value().data(), remote_entity_guid_t.entityId.value,
+            eprosima::fastdds::rtps::EntityId_t::size);
+
+    status.remote_guid(remote_entity_guid_s);
+    status.current_incompatible_policies(std::vector<uint32_t>{1, 2, 3});
+
+    // Build the Monitor Service data
+    std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
+    eprosima::fastdds::statistics::StatusKind::StatusKind kind =
+            eprosima::fastdds::statistics::StatusKind::EXTENDED_INCOMPATIBLE_QOS;
+    MonitorServiceData value;
+    value.extended_incompatible_qos_status({status});
+    data->local_entity(writer_guid);
+    data->status_kind(kind);
+    data->value(value);
+
+    // Precondition: The writer does not exist
+    EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
+            .WillOnce(Throw(BadParameter("Error")));
+    EXPECT_CALL(database, get_entity_kind_by_guid(writer_guid)).Times(1)
+            .WillOnce(Return(EntityKind::DATAWRITER));
+
+    // Expectation: The insert method is never called, data dropped
+    EXPECT_CALL(database, insert(_, _, testing::Matcher<const MonitorServiceSample&>(_))).Times(0);
+
+    // Expectation: The user is not notified
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+            on_status_reported(_, _, _)).Times(0);
+
+    // Add to the queue and wait to be processed
+    monitor_data_queue.push(timestamp, data);
+    monitor_data_queue.flush();
+}
+
 TEST_F(database_queue_tests, push_monitor_statuses_size)
 {
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();

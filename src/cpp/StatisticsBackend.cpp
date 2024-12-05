@@ -36,6 +36,7 @@
 #include <fastdds/dds/topic/TopicDescription.hpp>
 #include <fastdds/rtps/attributes/RTPSParticipantAttributes.hpp>
 #include <fastdds/rtps/common/Locator.hpp>
+#include <fastdds/rtps/common/Guid.hpp>
 #include <fastdds/rtps/transport/UDPv4TransportDescriptor.hpp>
 #include <fastdds/statistics/dds/subscriber/qos/DataReaderQos.hpp>
 #include <fastdds/statistics/topic_names.hpp>
@@ -814,6 +815,16 @@ void StatisticsBackend::get_status_data(
     StatisticsBackendData::get_instance()->database_->get_status_data<SampleLostSample>(entity_id, status_data);
 }
 
+template <>
+FASTDDS_STATISTICS_BACKEND_DllAPI
+void StatisticsBackend::get_status_data(
+        const EntityId& entity_id,
+        ExtendedIncompatibleQosSample& status_data)
+{
+    StatisticsBackendData::get_instance()->database_->get_status_data<ExtendedIncompatibleQosSample>(entity_id,
+            status_data);
+}
+
 Graph StatisticsBackend::get_domain_view_graph(
         const EntityId& domain_id)
 {
@@ -970,6 +981,17 @@ void StatisticsBackend::set_alias(
         const std::string& alias)
 {
     StatisticsBackendData::get_instance()->database_->set_alias(entity_id, alias);
+}
+
+std::string StatisticsBackend::deserialize_guid(
+        fastdds::statistics::detail::GUID_s data)
+{
+    eprosima::fastdds::rtps::GUID_t guid;
+    memcpy(guid.guidPrefix.value, data.guidPrefix().value().data(), eprosima::fastdds::rtps::GuidPrefix_t::size);
+    memcpy(guid.entityId.value, data.entityId().value().data(), eprosima::fastdds::rtps::EntityId_t::size);
+    std::stringstream ss;
+    ss << guid;
+    return ss.str();
 }
 
 } // namespace statistics_backend

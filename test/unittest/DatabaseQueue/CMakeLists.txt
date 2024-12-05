@@ -119,6 +119,8 @@ if(GTEST_FOUND AND GMOCK_FOUND)
         push_monitor_deadline_missed_no_entity
         push_monitor_sample_lost
         push_monitor_sample_lost_no_entity
+        push_monitor_extended_incompatible_qos
+        push_monitor_extended_incompatible_qos_no_entity
         push_monitor_statuses_size
         )
 

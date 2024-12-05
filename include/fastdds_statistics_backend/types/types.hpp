@@ -312,8 +312,11 @@ enum class StatusKind : int32_t
     /// Tracks the number of times that this entity lost samples.
     SAMPLE_LOST                 = 1 << 7,
 
+    /// Tracks the current incompatible QoS policies of that entity with another remote entity.
+    EXTENDED_INCOMPATIBLE_QOS   = 1 << 8,
+
     ///
-    STATUSES_SIZE               = 1 << 8,
+    STATUSES_SIZE               = 1 << 9,
 };
 
 /**
@@ -641,6 +644,37 @@ struct SampleLostSample : MonitorServiceSample
     }
 
     eprosima::fastdds::statistics::SampleLostStatus_s sample_lost_status;
+};
+
+/** @struct ExtendedIncompatibleQosSample
+ * Extended incompatible QoS sample containing the incompatible policies of this entity with another remote entity.
+ */
+struct ExtendedIncompatibleQosSample : MonitorServiceSample
+{
+    ExtendedIncompatibleQosSample()
+        : MonitorServiceSample(StatusKind::EXTENDED_INCOMPATIBLE_QOS)
+    {
+    }
+
+    virtual ~ExtendedIncompatibleQosSample() = default;
+
+    FASTDDS_STATISTICS_BACKEND_DllAPI
+    void clear() final;
+
+    inline bool operator ==(
+            const ExtendedIncompatibleQosSample& other) const noexcept
+    {
+        return (MonitorServiceSample::operator ==(other) &&
+               extended_incompatible_qos_status == other.extended_incompatible_qos_status);
+    }
+
+    inline bool operator !=(
+            const ExtendedIncompatibleQosSample& other) const noexcept
+    {
+        return !(*this == other);
+    }
+
+    eprosima::fastdds::statistics::ExtendedIncompatibleQoSStatusSeq_s extended_incompatible_qos_status;
 };
 
 } //namespace statistics_backend

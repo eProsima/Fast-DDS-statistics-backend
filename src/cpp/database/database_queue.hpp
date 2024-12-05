@@ -69,6 +69,7 @@ public:
     using StatisticsLivelinessChangedStatus = eprosima::fastdds::statistics::LivelinessChangedStatus_s;
     using StatisticsDeadlineMissedStatus = eprosima::fastdds::statistics::DeadlineMissedStatus_s;
     using StatisticsSampleLostStatus = eprosima::fastdds::statistics::SampleLostStatus_s;
+    using StatisticsExtendedIncompatibleQosSStatus = eprosima::fastdds::statistics::ExtendedIncompatibleQoSStatusSeq_s;
     using StatisticsEntityId = eprosima::fastdds::statistics::detail::EntityId_s;
     using StatisticsGuidPrefix = eprosima::fastdds::statistics::detail::GuidPrefix_s;
     using StatisticsGuid = eprosima::fastdds::statistics::detail::GUID_s;
@@ -816,6 +817,15 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>:
         EntityId& entity,
         const StatisticsGuid& local_entity_guid,
         SampleLostSample& sample,
+        const StatisticsSampleLostStatus& item) const;
+
+template<>
+template<>
+void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>::process_sample_type(
+        EntityId& domain,
+        EntityId& entity,
+        const StatisticsGuid& local_entity_guid,
+        ExtendedIncompatibleQosSample& sample,
         const StatisticsSampleLostStatus& item) const;
 
 } //namespace database

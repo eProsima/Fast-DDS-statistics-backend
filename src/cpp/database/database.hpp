@@ -1579,6 +1579,10 @@ template <>
 void Database::get_status_data(
         const EntityId& entity_id,
         SampleLostSample& status_data);
+template <>
+void Database::get_status_data(
+        const EntityId& entity_id,
+        ExtendedIncompatibleQosSample& status_data);
 
 } //namespace database
 } //namespace statistics_backend
