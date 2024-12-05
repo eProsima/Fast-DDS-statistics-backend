@@ -606,7 +606,7 @@ public:
             const std::string& alias);
 
     /**
-     * @brief Desiralize entity guid to string format.
+     * @brief Deserialize entity guid to string format.
      * @param data Entity guid.
      */
     FASTDDS_STATISTICS_BACKEND_DllAPI
