@@ -17,11 +17,12 @@
  * @file samples.hpp
  */
 
-#ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_DATABASE_SAMPLES_HPP_
-#define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_DATABASE_SAMPLES_HPP_
+#ifndef FASTDDS_STATISTICS_BACKEND_SRC_CPP_DATABASE__SAMPLES_HPP
+#define FASTDDS_STATISTICS_BACKEND_SRC_CPP_DATABASE__SAMPLES_HPP
 
 #include <chrono>
 
+#include <fastdds/dds/log/Log.hpp>
 #include <fastdds_statistics_backend/exception/Exception.hpp>
 #include <fastdds_statistics_backend/types/types.hpp>
 
@@ -122,10 +123,17 @@ struct EntityCountSample : StatisticsSample
     inline EntityCountSample operator -(
             const EntityCountSample& other) const noexcept
     {
-        assert(count >= other.count);
         EntityCountSample ret(kind);
         ret.src_ts = src_ts;
-        ret.count = count - other.count;
+        if (count >= other.count)
+        {
+            ret.count = count - other.count;
+        }
+        else
+        {
+            logWarning(STATISTICS_BACKEND, "Subtraction of EntityCountSample resulted in a negative number");
+            ret.count = 0;
+        }
         return ret;
     }
 
@@ -738,4 +746,4 @@ struct SampleDatasCountSample : EntityCountSample
 } //namespace statistics_backend
 } //namespace eprosima
 
-#endif // _EPROSIMA_FASTDDS_STATISTICS_BACKEND_DATABASE_SAMPLES_HPP_
+#endif // FASTDDS_STATISTICS_BACKEND_SRC_CPP_DATABASE__SAMPLES_HPP

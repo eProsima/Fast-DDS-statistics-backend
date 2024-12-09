@@ -19,8 +19,8 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include "fastdds/rtps/common/Guid.h"
-#include "fastdds/rtps/common/Locator.h"
+#include "fastdds/rtps/common/Guid.hpp"
+#include "fastdds/rtps/common/Locator.hpp"
 #include <fastdds/rtps/common/RemoteLocators.hpp>
 
 #include "database/entities.hpp"
@@ -79,6 +79,13 @@ public:
                 const std::string& topic_type,
                 const EntityId& topic_id));
 
+    MOCK_METHOD1(is_type_in_database, bool(
+                const std::string& type_name));
+
+    MOCK_METHOD2(insert_new_type_idl, void(
+                const std::string& type_name,
+                const std::string& type_idl));
+
     MOCK_METHOD4(insert_new_topic, EntityId(
                 const std::string& name,
                 const std::string& type_name,
@@ -91,7 +98,7 @@ public:
                 const std::string& alias,
                 const Qos& qos,
                 const bool& is_virtual_metatraffic,
-                const fastrtps::rtps::RemoteLocatorList& locators,
+                const fastdds::rtps::RemoteLocatorList& locators,
                 const EntityKind& kind,
                 const EntityId& participant_id,
                 const EntityId& topic_id,

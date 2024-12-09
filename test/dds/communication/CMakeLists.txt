@@ -1,4 +1,4 @@
-# Copyright 2019 Proyectos y Sistemas de Mantenimiento SL (eProsima).
+# Copyright 2024 Proyectos y Sistemas de Mantenimiento SL (eProsima).
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,10 +19,11 @@ find_package(PythonInterp 3)
 ###############################################################################
 
 # types test
+file(GLOB COMMUNICATION_SOURCES_CXX "*.cxx")
 set(DDS_PUBLISHER_SOURCE
     Publisher.cpp
     )
-add_executable(DDSSimpleCommunicationPublisher ${DDS_PUBLISHER_SOURCE})
+add_executable(DDSSimpleCommunicationPublisher ${DDS_PUBLISHER_SOURCE} ${COMMUNICATION_SOURCES_CXX})
 
 if(MSVC)
     target_compile_definitions(DDSSimpleCommunicationPublisher PRIVATE
@@ -36,14 +37,14 @@ target_compile_definitions(DDSSimpleCommunicationPublisher PRIVATE
     $<$<AND:$<NOT:$<BOOL:${WIN32}>>,$<STREQUAL:"${CMAKE_BUILD_TYPE}","Debug">>:__DEBUG>
     $<$<BOOL:${INTERNAL_DEBUG}>:__INTERNALDEBUG> # Internal debug activated.
     )
-target_link_libraries(DDSSimpleCommunicationPublisher fastrtps fastcdr foonathan_memory ${CMAKE_DL_LIBS})
+target_link_libraries(DDSSimpleCommunicationPublisher fastdds fastcdr foonathan_memory ${CMAKE_DL_LIBS})
 
 get_win32_path_dependencies(DDSSimpleCommunicationPublisher TEST_FRIENDLY_PATH)
 
 set(DDS_SUBSCRIBER_SOURCE
     Subscriber.cpp
     )
-add_executable(DDSSimpleCommunicationSubscriber ${DDS_SUBSCRIBER_SOURCE})
+add_executable(DDSSimpleCommunicationSubscriber ${DDS_SUBSCRIBER_SOURCE} ${COMMUNICATION_SOURCES_CXX})
 
 if(MSVC)
     target_compile_definitions(DDSSimpleCommunicationSubscriber PRIVATE
@@ -57,7 +58,7 @@ target_compile_definitions(DDSSimpleCommunicationSubscriber PRIVATE
     $<$<AND:$<NOT:$<BOOL:${WIN32}>>,$<STREQUAL:"${CMAKE_BUILD_TYPE}","Debug">>:__DEBUG>
     $<$<BOOL:${INTERNAL_DEBUG}>:__INTERNALDEBUG> # Internal debug activated.
     )
-target_link_libraries(DDSSimpleCommunicationSubscriber fastrtps fastcdr foonathan_memory ${CMAKE_DL_LIBS})
+target_link_libraries(DDSSimpleCommunicationSubscriber fastdds fastcdr foonathan_memory ${CMAKE_DL_LIBS})
 
 get_win32_path_dependencies(DDSSimpleCommunicationSubscriber TEST_FRIENDLY_PATH)
 
@@ -79,7 +80,7 @@ target_compile_definitions(DDSSimpleCommunicationMonitor PRIVATE
     $<$<AND:$<NOT:$<BOOL:${WIN32}>>,$<STREQUAL:"${CMAKE_BUILD_TYPE}","Debug">>:__DEBUG>
     $<$<BOOL:${INTERNAL_DEBUG}>:__INTERNALDEBUG> # Internal debug activated.
     )
-target_link_libraries(DDSSimpleCommunicationMonitor ${PROJECT_NAME} fastrtps fastcdr foonathan_memory ${CMAKE_DL_LIBS})
+target_link_libraries(DDSSimpleCommunicationMonitor ${PROJECT_NAME} fastdds fastcdr foonathan_memory ${CMAKE_DL_LIBS})
 
 get_win32_path_dependencies(DDSSimpleCommunicationMonitor TEST_FRIENDLY_PATH)
 
@@ -89,8 +90,6 @@ get_win32_path_dependencies(DDSSimpleCommunicationMonitor TEST_FRIENDLY_PATH)
 #  types test
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/simple_communication.py
     ${CMAKE_CURRENT_BINARY_DIR}/simple_communication.py COPYONLY)
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/example_type.xml
-    ${CMAKE_CURRENT_BINARY_DIR}/example_type.xml COPYONLY)
 
 ###############################################################################
 # Tests specification

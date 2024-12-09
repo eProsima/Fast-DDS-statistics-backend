@@ -16,8 +16,8 @@
  * @file data_aggregation.hpp
  */
 
-#ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_DETAIL_DATA_AGGREGATION_HPP_
-#define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_DETAIL_DATA_AGGREGATION_HPP_
+#ifndef FASTDDS_STATISTICS_BACKEND_SRC_CPP_DETAIL__DATA_AGGREGATION_HPP
+#define FASTDDS_STATISTICS_BACKEND_SRC_CPP_DETAIL__DATA_AGGREGATION_HPP
 
 #include <algorithm>  // std::min, std::max, std::nth_element
 #include <cassert>    // assert
@@ -233,4 +233,4 @@ std::unique_ptr<detail::IDataAggregator> get_data_aggregator(
 } // namespace statistics_backend
 } // namespace eprosima
 
-#endif // _EPROSIMA_FASTDDS_STATISTICS_BACKEND_DETAIL_DATA_AGGREGATION_HPP_
+#endif // FASTDDS_STATISTICS_BACKEND_SRC_CPP_DETAIL__DATA_AGGREGATION_HPP

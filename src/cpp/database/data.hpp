@@ -17,8 +17,8 @@
  * @file data.hpp
  */
 
-#ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_DATABASE_DATA_HPP_
-#define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_DATABASE_DATA_HPP_
+#ifndef FASTDDS_STATISTICS_BACKEND_SRC_CPP_DATABASE__DATA_HPP
+#define FASTDDS_STATISTICS_BACKEND_SRC_CPP_DATABASE__DATA_HPP
 
 #include <chrono>
 #include <vector>
@@ -447,4 +447,4 @@ struct DomainParticipantMonitorServiceData : public Data
 } //namespace statistics_backend
 } //namespace eprosima
 
-#endif // _EPROSIMA_FASTDDS_STATISTICS_BACKEND_DATABASE_DATA_HPP_
+#endif // FASTDDS_STATISTICS_BACKEND_SRC_CPP_DATABASE__DATA_HPP

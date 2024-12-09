@@ -19,6 +19,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
+#include <fastdds/dds/core/detail/DDSReturnCode.hpp>
 #include <fastdds/dds/domain/DomainParticipant.hpp>
 #include <fastdds/dds/domain/DomainParticipantFactory.hpp>
 #include <fastdds/dds/domain/qos/DomainParticipantQos.hpp>
@@ -40,9 +41,11 @@
 #include <fastdds_statistics_backend/StatisticsBackend.hpp>
 #include <fastdds_statistics_backend/types/EntityId.hpp>
 #include <fastdds_statistics_backend/types/types.hpp>
+
+#include <topic_types/monitorservice_typesPubSubTypes.hpp>
+#include <topic_types/typesPubSubTypes.hpp>
+
 #include <Monitor.hpp>
-#include <topic_types/typesPubSubTypes.h>
-#include <topic_types/monitorservice_typesPubSubTypes.h>
 
 using namespace eprosima::statistics_backend;
 using namespace eprosima::fastdds::dds;
@@ -167,16 +170,16 @@ public:
                 .WillByDefault(ReturnRef(datareader_qos_));
 
         ON_CALL(domain_participant_, register_type(_, _))
-                .WillByDefault(Return(eprosima::fastrtps::types::ReturnCode_t::RETCODE_OK));
+                .WillByDefault(Return(eprosima::fastdds::dds::RETCODE_OK));
 
         for (auto topic_type : topic_types_)
         {
-            topics_[topic_type.first] = Topic(topic_type.first, topic_type.second->getName());
-            ON_CALL(domain_participant_, create_topic(topic_type.first, topic_type.second->getName(), _, _, _))
+            topics_[topic_type.first] = Topic(topic_type.first, topic_type.second->get_name());
+            ON_CALL(domain_participant_, create_topic(topic_type.first, topic_type.second->get_name(), _, _, _))
                     .WillByDefault(Return(&topics_[topic_type.first]));
-            ON_CALL(domain_participant_, create_topic(topic_type.first, topic_type.second->getName(), _, _))
+            ON_CALL(domain_participant_, create_topic(topic_type.first, topic_type.second->get_name(), _, _))
                     .WillByDefault(Return(&topics_[topic_type.first]));
-            ON_CALL(domain_participant_, create_topic(topic_type.first, topic_type.second->getName(), _))
+            ON_CALL(domain_participant_, create_topic(topic_type.first, topic_type.second->get_name(), _))
                     .WillByDefault(Return(&topics_[topic_type.first]));
 
             ON_CALL(domain_participant_, lookup_topicdescription(topic_type.first))
@@ -205,7 +208,6 @@ public:
     {
         DomainId domain_id = 0;
         DomainListener domain_listener;
-        std::string server_guid_prefix = "44.53.01.5f.45.50.52.4f.53.49.4d.41";
         std::string server_locators = "UDPv4:[127.0.0.1]:11811";
 
         EXPECT_THROW(StatisticsBackend::init_monitor(
@@ -218,19 +220,12 @@ public:
                     &domain_listener,
                     all_callback_mask_,
                     all_datakind_mask_), Error);
-        EXPECT_THROW(StatisticsBackend::init_monitor(
-                    server_guid_prefix,
-                    server_locators,
-                    &domain_listener,
-                    all_callback_mask_,
-                    all_datakind_mask_), Error);
     }
 
     void check_init_monitor_discovery_server_failure(
             const std::string& server_locators)
     {
         DomainListener domain_listener;
-        std::string server_guid_prefix = "44.53.01.5f.45.50.52.4f.53.49.4d.41";
 
         EXPECT_THROW(StatisticsBackend::init_monitor(
                     server_locators,
@@ -238,7 +233,6 @@ public:
                     all_callback_mask_,
                     all_datakind_mask_), BadParameter);
         EXPECT_THROW(StatisticsBackend::init_monitor(
-                    server_guid_prefix,
                     server_locators,
                     &domain_listener,
                     all_callback_mask_,
@@ -271,13 +265,13 @@ TEST_F(init_monitor_factory_fails_tests, init_monitor_participant_creation_fails
     check_init_monitor_failure();
 
     // 3 calls expected to create_participant
-    ASSERT_EQ(domain_participant_factory_->create_participant_count, 3u);
+    ASSERT_EQ(domain_participant_factory_->create_participant_count, 2u);
 }
 
 TEST_F(init_monitor_factory_fails_tests, init_monitor_subscriber_creation_fails)
 {
     // Expect failure on the subscriber creation
-    EXPECT_CALL(domain_participant_, create_subscriber(_, _, _)).Times(3)
+    EXPECT_CALL(domain_participant_, create_subscriber(_, _, _)).Times(2)
             .WillRepeatedly(Return(nullptr));
 
     check_init_monitor_failure();
@@ -286,7 +280,7 @@ TEST_F(init_monitor_factory_fails_tests, init_monitor_subscriber_creation_fails)
 TEST_F(init_monitor_factory_fails_tests, init_monitor_datareader_creation_fails)
 {
     // Expect failure on the datareader creation
-    EXPECT_CALL(subscriber_, create_datareader(_, _, _, _)).Times(3)
+    EXPECT_CALL(subscriber_, create_datareader(_, _, _, _)).Times(2)
             .WillRepeatedly(Return(nullptr));
 
     check_init_monitor_failure();
@@ -310,7 +304,7 @@ TEST_F(init_monitor_factory_fails_tests, init_monitor_register_type_fails)
 {
     // Expect failure on the type registration
     ON_CALL(domain_participant_, register_type(_, _))
-            .WillByDefault(Return(eprosima::fastrtps::types::ReturnCode_t::RETCODE_PRECONDITION_NOT_MET));
+            .WillByDefault(Return(eprosima::fastdds::dds::RETCODE_PRECONDITION_NOT_MET));
 
     check_init_monitor_failure();
 }
@@ -348,20 +342,11 @@ TEST_F(init_monitor_factory_fails_tests, init_monitor_topic_exists)
                 all_callback_mask_,
                 all_datakind_mask_));
 
-    EntityId monitor3;
-    EXPECT_NO_THROW(monitor3 = StatisticsBackend::init_monitor(
-                server_guid_prefix,
-                server_locators,
-                &domain_listener,
-                all_callback_mask_,
-                all_datakind_mask_));
-
     // IMPORTANT: It is required to stop monitors.
     // Otherwise, they will be stopped in Singleton destruction, what implies that are destructed after test
     // destruction, and thus the mock instances does not longer exist, so SEGFAULT served.
     StatisticsBackend::stop_monitor(monitor1);
     StatisticsBackend::stop_monitor(monitor2);
-    StatisticsBackend::stop_monitor(monitor3);
 }
 
 TEST_F(init_monitor_factory_fails_tests, init_monitor_topic_exists_with_another_type)

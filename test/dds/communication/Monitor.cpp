@@ -1,4 +1,4 @@
-// Copyright 2021 Proyectos y Sistemas de Mantenimiento SL (eProsima).
+// Copyright 2024 Proyectos y Sistemas de Mantenimiento SL (eProsima).
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,7 +22,6 @@
 #include <fastdds/dds/domain/DomainParticipantFactory.hpp>
 #include <fastdds/dds/topic/TopicDataType.hpp>
 #include <fastdds/statistics/topic_names.hpp>
-#include <fastrtps/xmlparser/XMLProfileManager.h>
 
 #include <fastdds_statistics_backend/exception/Exception.hpp>
 #include <fastdds_statistics_backend/listener/CallbackMask.hpp>
@@ -34,7 +33,7 @@
 #include <database/database_queue.hpp>
 #include <Monitor.hpp>
 #include <StatisticsBackendData.hpp>
-#include <topic_types/typesPubSubTypes.h>
+#include <topic_types/typesPubSubTypes.hpp>
 
 using namespace eprosima::statistics_backend;
 using namespace eprosima::fastdds::dds;
@@ -151,17 +150,20 @@ int main(
 {
     int arg_count = 1;
     uint32_t seed = 7800;
+    unsigned int num_statistics = 18;
     unsigned int num_participants = 2;
     unsigned int num_hosts = 1;
     unsigned int num_users = 1;
     unsigned int num_processes = 2;
     unsigned int num_readers = 1;
     // Each participant creates a meta traffic endpoint
-    unsigned int num_writers = num_participants + 1;
+    unsigned int num_writers = num_statistics * num_participants + 1 + 2;
     // Additionally, we need a meta traffic topic per domain
-    unsigned int num_topics = 2;
+    unsigned int num_topics = num_statistics + 2;
     unsigned int num_entities = num_participants + num_topics + num_readers + num_writers;
-    unsigned int num_locators = num_readers + num_writers + num_participants;
+    // Each participant has 2 locators by default, one for each builtin transport (UDP + SHM)
+    // Additionally, each participant has a different UDP locator for metatraffic
+    unsigned int num_locators = 3 * num_participants;
 
     // Process arguments
     while (arg_count < argc)
@@ -180,7 +182,7 @@ int main(
         ++arg_count;
     }
 
-    DomainId domain_id = seed % 230;
+    DomainId domain_id;
     MonitorListener listener;
     EntityId monitor_id;
 
@@ -213,6 +215,10 @@ int main(
     {
         // Init the monitor
         domain_id = seed % 230;
+        DataKindMask data_mask = DataKind::INVALID;
+        std::string app_id = "";
+        std::string app_metadata = "";
+
         monitor_id = StatisticsBackend::init_monitor(domain_id, &listener);
         if (!monitor_id.is_valid())
         {
@@ -265,7 +271,6 @@ int main(
                         return listener.num_entities_discovered_ >= num_entities;
                     });
         }
-
         // Check that the database contains all entities related to subscriber and publisher entities
         // and check that all entities are active
         try
@@ -310,9 +315,8 @@ int main(
             {
                 throw Error("Error: database contains unexpected DATAREADER");
             }
-            else if (StatisticsBackend::get_entities(EntityKind::LOCATOR).size() != num_locators ||
-                    StatisticsBackend::get_entities(EntityKind::LOCATOR,
-                    monitor_id).size() != num_locators)
+            // Some locators are beyond the monitor domain
+            else if (StatisticsBackend::get_entities(EntityKind::LOCATOR, monitor_id).size() != num_locators)
             {
                 throw Error("Error: database contains unexpected LOCATOR");
             }
@@ -443,9 +447,8 @@ int main(
             {
                 throw Error("Error: database contains unexpected DATAREADER");
             }
-            else if (StatisticsBackend::get_entities(EntityKind::LOCATOR).size() != num_locators ||
-                    StatisticsBackend::get_entities(EntityKind::LOCATOR,
-                    monitor_id).size() != num_locators)
+            // Some locators are beyond the monitor domain
+            else if (StatisticsBackend::get_entities(EntityKind::LOCATOR, monitor_id).size() != num_locators)
             {
                 throw Error("Error: database contains unexpected LOCATOR");
             }
@@ -578,9 +581,8 @@ int main(
             {
                 throw Error("Error: database contains unexpected DATAREADER");
             }
-            else if (StatisticsBackend::get_entities(EntityKind::LOCATOR).size() != num_locators ||
-                    StatisticsBackend::get_entities(EntityKind::LOCATOR,
-                    monitor_id).size() != num_locators)
+            // Some locators are beyond the monitor domain
+            else if (StatisticsBackend::get_entities(EntityKind::LOCATOR, monitor_id).size() != num_locators)
             {
                 throw Error("Error: database contains unexpected LOCATOR");
             }

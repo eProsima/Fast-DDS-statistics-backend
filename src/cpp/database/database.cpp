@@ -264,6 +264,7 @@ EntityId Database::insert_new_topic(
     std::shared_ptr<Domain> domain = std::const_pointer_cast<Domain>(
         std::static_pointer_cast<const Domain>(get_entity_nts(domain_id)));
 
+    // Create the topic to insert in the database
     auto topic = std::make_shared<Topic>(
         name,
         type_name,
@@ -279,13 +280,31 @@ EntityId Database::insert_new_topic(
     return entity_id;
 }
 
+bool Database::is_type_in_database(
+        const std::string& type_name)
+{
+    return (type_idls_.find(type_name) != type_idls_.end());
+}
+
+void Database::insert_new_type_idl(
+        const std::string& type_name,
+        const std::string& type_idl)
+{
+    std::lock_guard<std::shared_timed_mutex> guard(mutex_);
+    if (type_name.empty())
+    {
+        throw BadParameter("Type name cannot be empty");
+    }
+    type_idls_[type_name] = type_idl;
+}
+
 EntityId Database::insert_new_endpoint(
         const std::string& endpoint_guid,
         const std::string& name,
         const std::string& alias,
         const Qos& qos,
         const bool& is_virtual_metatraffic,
-        const fastrtps::rtps::RemoteLocatorList& locators,
+        const fastdds::rtps::RemoteLocatorList& locators,
         const EntityKind& kind,
         const EntityId& participant_id,
         const EntityId& topic_id,
@@ -339,7 +358,7 @@ EntityId Database::insert_new_endpoint(
     /* Start processing the locator info */
 
     // Routine to process one locator from the locator list of the endpoint
-    auto process_locators = [&](const eprosima::fastrtps::rtps::Locator_t& dds_locator)
+    auto process_locators = [&](const eprosima::fastdds::rtps::Locator_t& dds_locator)
             {
                 std::shared_ptr<Locator> locator;
 
@@ -656,7 +675,7 @@ void Database::insert_nts(
                 throw BadParameter("Topic data type cannot be empty");
             }
 
-            /* Check that domain exits */
+            /* Check that domain exists */
             bool domain_exists = false;
             for (const auto& domain_it : domains_)
             {
@@ -2394,6 +2413,24 @@ std::vector<std::pair<EntityId, EntityId>> Database::get_entities_by_name_nts(
     return entities;
 }
 
+std::string Database::get_type_idl(
+        const std::string& type_name) const
+{
+    std::shared_lock<std::shared_timed_mutex> lock(mutex_);
+    return get_type_idl_nts(type_name);
+}
+
+std::string Database::get_type_idl_nts(
+        const std::string& type_name) const
+{
+    auto it = type_idls_.find(type_name);
+    if (it != type_idls_.end())
+    {
+        return it->second;
+    }
+    throw BadParameter("Type " + type_name + " not found in the database");
+}
+
 void Database::erase(
         EntityId& domain_id)
 {
@@ -3271,13 +3308,13 @@ EntityKind Database::get_entity_kind_by_guid(
         const eprosima::fastdds::statistics::detail::GUID_s& guid_s) const
 {
 
-    eprosima::fastrtps::rtps::EntityId_t entity_id_t;
+    eprosima::fastdds::rtps::EntityId_t entity_id_t;
     for (size_t i = 0; i < entity_id_t.size; ++i)
     {
         entity_id_t.value[i] = guid_s.entityId().value()[i];
     }
 
-    if (entity_id_t == eprosima::fastrtps::rtps::c_EntityId_RTPSParticipant)
+    if (entity_id_t == eprosima::fastdds::rtps::c_EntityId_RTPSParticipant)
     {
         return EntityKind::PARTICIPANT;
     }
@@ -3663,7 +3700,7 @@ bool Database::regenerate_domain_graph_nts(
     }
     else
     {
-        logWarning(BACKEND_DATABASE,
+        EPROSIMA_LOG_WARNING(BACKEND_DATABASE,
                 "Error regenerating graph. No previous graph was found");
         return false;
     }
@@ -4915,7 +4952,6 @@ DatabaseDump Database::dump_entity_(
     entity_info[ALIAS_TAG] = entity->alias;
     entity_info[DATA_TYPE_TAG] = entity->data_type;
     entity_info[STATUS_TAG] = entity->status;
-
     entity_info[DOMAIN_ENTITY_TAG] = id_to_string(entity->domain->id);
 
     // metatraffic and active attributes are stored but ignored when loading
@@ -5596,6 +5632,54 @@ Info Database::get_info(
     }
 
     return info;
+}
+
+EntityId Database::get_endpoint_topic_id(
+        const EntityId& endpoint_id)
+{
+    std::shared_lock<std::shared_timed_mutex> lock(mutex_);
+    std::shared_ptr<const Entity> endpoint = get_entity_nts(endpoint_id);
+
+    // Check if the entity is a valid endpoint
+    if (endpoint->kind != EntityKind::DATAWRITER && endpoint->kind != EntityKind::DATAREADER)
+    {
+        throw BadParameter("Error: Entity is not a valid endpoint");
+    }
+
+    return std::dynamic_pointer_cast<const DDSEndpoint>(endpoint)->topic->id;
+}
+
+EntityId Database::get_domain_id(
+        const EntityId& entity_id)
+{
+    std::shared_lock<std::shared_timed_mutex> lock(mutex_);
+    std::shared_ptr<const Entity> entity = get_entity_nts(entity_id);
+
+    switch (entity->kind)
+    {
+        case EntityKind::DOMAIN:
+        {
+            return entity_id;
+        }
+        case EntityKind::PARTICIPANT:
+        {
+            return std::dynamic_pointer_cast<const DomainParticipant>(entity)->domain->id;
+        }
+        case EntityKind::TOPIC:
+        {
+            return std::dynamic_pointer_cast<const Topic>(entity)->domain->id;
+        }
+        case EntityKind::DATAWRITER:
+        case EntityKind::DATAREADER:
+        {
+            return std::dynamic_pointer_cast<const DDSEndpoint>(entity)->participant->domain->id;
+        }
+        default:
+        {
+            return EntityId::invalid();
+        }
+    }
+
 }
 
 void Database::check_entity_kinds(

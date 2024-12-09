@@ -19,13 +19,13 @@
 #ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_TEST_MESSAGE_SERIALIZER_HPP_
 #define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_TEST_MESSAGE_SERIALIZER_HPP_
 
-#include <fastdds_statistics_backend/topic_types/types.h>
-#include <fastdds_statistics_backend/topic_types/monitorservice_types.h>
+#include <fastdds_statistics_backend/topic_types/monitorservice_types.hpp>
+#include <fastdds_statistics_backend/topic_types/types.hpp>
 
 #include <nlohmann-json/json.hpp>
 
-#include <string>
 #include <fstream>
+#include <string>
 
 namespace eprosima {
 namespace statistics_backend {

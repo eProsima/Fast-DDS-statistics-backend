@@ -109,6 +109,7 @@ TEST(database, entitycountsample_operator_comparison)
     ASSERT_NE(sample_1, sample_2);
 }
 
+// updated to avoid unnecessary asserts in code, check #21681 Redmine task
 TEST(database, entitycountsample_operator_minus)
 {
     EntityCountSample sample_1;
@@ -125,11 +126,11 @@ TEST(database, entitycountsample_operator_minus)
     ASSERT_EQ(sample_3.count, 1u);
     ASSERT_EQ(sample_3.src_ts, sample_1.src_ts);
 
-#ifndef NDEBUG
-    // Assertion are active here
+    // If negative number, subtraction returns 0
     sample_2.count = 3;
-    ASSERT_DEATH(sample_1 - sample_2, "");
-#endif // ifndef NDEBUG
+    sample_3 = sample_1 - sample_2;
+    ASSERT_EQ(sample_3.count, 0u);
+    ASSERT_EQ(sample_3.src_ts, sample_1.src_ts);
 }
 
 TEST(database, bytecountsample_operator_comparison)

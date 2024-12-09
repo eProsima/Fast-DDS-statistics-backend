@@ -13,7 +13,7 @@
 // limitations under the License.
 
 /**
- * @file types.idl
+ * @file include/fastdds/statistics/types.idl
  */
 
 module eprosima {
@@ -23,40 +23,34 @@ module statistics {
     module detail
     {
 
-        @final
         struct EntityId_s
         {
             octet value[4];
         };
 
-        @final
         struct GuidPrefix_s
         {
             octet value[12];
         };
 
-        @final
         struct GUID_s
         {
             GuidPrefix_s guidPrefix;
             EntityId_s entityId;
         };
 
-        @final
         struct SequenceNumber_s
         {
             long high;
             unsigned long low;
         };
 
-        @final
         struct SampleIdentity_s
         {
             GUID_s writer_guid;
             SequenceNumber_s sequence_number;
         };
 
-        @final
         struct Locator_s
         {
             long kind;
@@ -66,7 +60,6 @@ module statistics {
 
     }; // namespace detail
 
-@final
 struct DiscoveryTime
 {
     @Key detail::GUID_s local_participant_guid;
@@ -77,21 +70,18 @@ struct DiscoveryTime
     string process;
 };
 
-@final
 struct EntityCount
 {
     @Key detail::GUID_s guid;
     unsigned long long count;
 };
 
-@final
 struct SampleIdentityCount
 {
     @Key detail::SampleIdentity_s sample_id;
     unsigned long long count;
 };
 
-@final
 struct Entity2LocatorTraffic
 {
     @Key detail::GUID_s src_guid;
@@ -101,7 +91,6 @@ struct Entity2LocatorTraffic
     short byte_magnitude_order;
 };
 
-@final
 struct WriterReaderData
 {
     @Key detail::GUID_s writer_guid;
@@ -109,7 +98,6 @@ struct WriterReaderData
     float data;
 };
 
-@final
 struct Locator2LocatorData
 {
     @Key detail::Locator_s src_locator;
@@ -117,14 +105,12 @@ struct Locator2LocatorData
     float data;
 };
 
-@final
 struct EntityData
 {
     @Key detail::GUID_s guid;
     float data;
 };
 
-@final
 struct PhysicalData
 {
     @Key detail::GUID_s participant_guid;
@@ -133,56 +119,53 @@ struct PhysicalData
     string process;
 };
 
-@final
-@bit_bound(32)
-bitmask EventKind
+module EventKind
 {
-    @position(0) HISTORY2HISTORY_LATENCY,
-    @position(1) NETWORK_LATENCY,
-    @position(2) PUBLICATION_THROUGHPUT,
-    @position(3) SUBSCRIPTION_THROUGHPUT,
-    @position(4) RTPS_SENT,
-    @position(5) RTPS_LOST,
-    @position(6) RESENT_DATAS,
-    @position(7) HEARTBEAT_COUNT,
-    @position(8) ACKNACK_COUNT,
-    @position(9) NACKFRAG_COUNT,
-    @position(10) GAP_COUNT,
-    @position(11) DATA_COUNT,
-    @position(12) PDP_PACKETS,
-    @position(13) EDP_PACKETS,
-    @position(14) DISCOVERED_ENTITY,
-    @position(15) SAMPLE_DATAS,
-    @position(16) PHYSICAL_DATA
+    const unsigned long HISTORY2HISTORY_LATENCY = 0x1;
+    const unsigned long NETWORK_LATENCY = 0x2;
+    const unsigned long PUBLICATION_THROUGHPUT = 0x4;
+    const unsigned long SUBSCRIPTION_THROUGHPUT = 0x8;
+    const unsigned long RTPS_SENT = 0x10;
+    const unsigned long RTPS_LOST = 0x20;
+    const unsigned long RESENT_DATAS = 0x40;
+    const unsigned long HEARTBEAT_COUNT = 0x80;
+    const unsigned long ACKNACK_COUNT = 0x100;
+    const unsigned long NACKFRAG_COUNT = 0x200;
+    const unsigned long GAP_COUNT = 0x400;
+    const unsigned long DATA_COUNT = 0x800;
+    const unsigned long PDP_PACKETS = 0x1000;
+    const unsigned long EDP_PACKETS = 0x2000;
+    const unsigned long DISCOVERED_ENTITY = 0x4000;
+    const unsigned long SAMPLE_DATAS = 0x8000;
+    const unsigned long PHYSICAL_DATA = 0x10000;
 };
 
-@final
-union Data switch(EventKind)
+union Data switch(unsigned long)
 {
-    case HISTORY2HISTORY_LATENCY:
+    case EventKind::HISTORY2HISTORY_LATENCY:
         WriterReaderData writer_reader_data;
-    case NETWORK_LATENCY:
+    case EventKind::NETWORK_LATENCY:
         Locator2LocatorData locator2locator_data;
-    case PUBLICATION_THROUGHPUT:
-    case SUBSCRIPTION_THROUGHPUT:
+    case EventKind::PUBLICATION_THROUGHPUT:
+    case EventKind::SUBSCRIPTION_THROUGHPUT:
         EntityData entity_data;
-    case RTPS_SENT:
-    case RTPS_LOST:
+    case EventKind::RTPS_SENT:
+    case EventKind::RTPS_LOST:
         Entity2LocatorTraffic entity2locator_traffic;
-    case RESENT_DATAS:
-    case HEARTBEAT_COUNT:
-    case ACKNACK_COUNT:
-    case NACKFRAG_COUNT:
-    case GAP_COUNT:
-    case DATA_COUNT:
-    case PDP_PACKETS:
-    case EDP_PACKETS:
+    case EventKind::RESENT_DATAS:
+    case EventKind::HEARTBEAT_COUNT:
+    case EventKind::ACKNACK_COUNT:
+    case EventKind::NACKFRAG_COUNT:
+    case EventKind::GAP_COUNT:
+    case EventKind::DATA_COUNT:
+    case EventKind::PDP_PACKETS:
+    case EventKind::EDP_PACKETS:
         EntityCount entity_count;
-    case DISCOVERED_ENTITY:
+    case EventKind::DISCOVERED_ENTITY:
         DiscoveryTime discovery_time;
-    case SAMPLE_DATAS:
+    case EventKind::SAMPLE_DATAS:
         SampleIdentityCount sample_identity_count;
-    case PHYSICAL_DATA:
+    case EventKind::PHYSICAL_DATA:
         PhysicalData physical_data;
 };
 

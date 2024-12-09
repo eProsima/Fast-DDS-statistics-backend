@@ -19,8 +19,6 @@
 #include <fastdds/dds/domain/DomainParticipantFactory.hpp>
 #include <fastdds/dds/domain/DomainParticipantListener.hpp>
 #include <fastdds/dds/subscriber/DataReader.hpp>
-#include <fastrtps/xmlparser/XMLProfileManager.h>
-
 #include <fastdds_statistics_backend/exception/Exception.hpp>
 #include <fastdds_statistics_backend/StatisticsBackend.hpp>
 #include <fastdds_statistics_backend/types/types.hpp>
@@ -28,11 +26,13 @@
 #include <database/database_queue.hpp>
 #include <database/database.hpp>
 #include <database/entities.hpp>
+#include <subscriber/StatisticsParticipantListener.hpp>
 #include <Monitor.hpp>
 #include <StatisticsBackendData.hpp>
 
 #include <iomanip>
 #include <sstream>
+#include <utility>
 
 using ::testing::_;
 using ::testing::Invoke;
@@ -420,17 +420,6 @@ TEST_P(calling_user_listeners_tests_physical_entities, entity_discovered)
                 EXPECT_EQ(2, status.current_count);
                 EXPECT_EQ(1, status.current_count_change);
             });
-
-#ifndef NDEBUG
-    // Expectation: The user listener will fail assert with update
-    ASSERT_DEATH(test_entity_discovery(PHYSICAL,
-            [&](
-                EntityId,
-                const DomainListener::Status&)
-            {
-            },
-            details::StatisticsBackendData::DiscoveryStatus::UPDATE), "");
-#endif // ifndef NDEBUG
 
     // Expectation: The user listener is called with removel
     test_entity_discovery(PHYSICAL,
@@ -1034,165 +1023,6 @@ public:
 
 };
 
-using  calling_user_listeners_DeathTest = calling_user_listeners_tests;
-TEST_F(calling_user_listeners_DeathTest, wrong_entity_kind)
-{
-    MockedPhysicalListener physical_listener;
-    MockedDomainListener domain_listener;
-
-    auto monitor_id = StatisticsBackend::init_monitor(0, &domain_listener, CallbackMask::all(),
-                    DataKindMask::all());
-    StatisticsBackend::set_physical_listener(
-        &physical_listener,
-        CallbackMask::all(),
-        DataKindMask::all());
-
-    // Expectation: The call asserts
-    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
-                EntityId(1),
-                EntityKind::DOMAIN,
-                details::StatisticsBackendData::DiscoveryStatus::DISCOVERY),
-            ".*");
-
-    // Expectation: The call asserts
-    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
-                EntityId(1),
-                EntityKind::PARTICIPANT,
-                details::StatisticsBackendData::DiscoveryStatus::DISCOVERY),
-            ".*");
-
-    // Expectation: The call asserts
-    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
-                EntityId(1),
-                EntityKind::TOPIC,
-                details::StatisticsBackendData::DiscoveryStatus::DISCOVERY),
-            ".*");
-
-    // Expectation: The call asserts
-    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
-                EntityId(1),
-                EntityKind::DATAREADER,
-                details::StatisticsBackendData::DiscoveryStatus::DISCOVERY),
-            ".*");
-
-    // Expectation: The call asserts
-    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
-                EntityId(1),
-                EntityKind::DATAWRITER,
-                details::StatisticsBackendData::DiscoveryStatus::DISCOVERY),
-            ".*");
-
-    // Expectation: The call asserts
-    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_physical_entity_discovery(
-                EntityId(1),
-                EntityKind::INVALID,
-                details::StatisticsBackendData::DiscoveryStatus::DISCOVERY),
-            ".*");
-
-    // Expectation: The call asserts
-    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
-                monitor_id,
-                EntityId(1),
-                EntityKind::HOST,
-                details::StatisticsBackendData::DiscoveryStatus::DISCOVERY),
-            ".*");
-    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
-                monitor_id,
-                EntityId(1),
-                EntityKind::HOST,
-                details::StatisticsBackendData::DiscoveryStatus::UPDATE),
-            ".*");
-    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
-                monitor_id,
-                EntityId(1),
-                EntityKind::HOST,
-                details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY),
-            ".*");
-
-    // Expectation: The call asserts
-    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
-                monitor_id,
-                EntityId(1),
-                EntityKind::USER,
-                details::StatisticsBackendData::DiscoveryStatus::DISCOVERY),
-            ".*");
-    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
-                monitor_id,
-                EntityId(1),
-                EntityKind::USER,
-                details::StatisticsBackendData::DiscoveryStatus::UPDATE),
-            ".*");
-    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
-                monitor_id,
-                EntityId(1),
-                EntityKind::USER,
-                details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY),
-            ".*");
-
-    // Expectation: The call asserts
-    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
-                monitor_id,
-                EntityId(1),
-                EntityKind::PROCESS,
-                details::StatisticsBackendData::DiscoveryStatus::DISCOVERY),
-            ".*");
-    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
-                monitor_id,
-                EntityId(1),
-                EntityKind::PROCESS,
-                details::StatisticsBackendData::DiscoveryStatus::UPDATE),
-            ".*");
-    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
-                monitor_id,
-                EntityId(1),
-                EntityKind::PROCESS,
-                details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY),
-            ".*");
-
-    // Expectation: The call asserts
-    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
-                monitor_id,
-                EntityId(1),
-                EntityKind::LOCATOR,
-                details::StatisticsBackendData::DiscoveryStatus::DISCOVERY),
-            ".*");
-    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
-                monitor_id,
-                EntityId(1),
-                EntityKind::LOCATOR,
-                details::StatisticsBackendData::DiscoveryStatus::UPDATE),
-            ".*");
-    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
-                monitor_id,
-                EntityId(1),
-                EntityKind::LOCATOR,
-                details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY),
-            ".*");
-
-    // Expectation: The call asserts
-    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
-                monitor_id,
-                EntityId(1),
-                EntityKind::INVALID,
-                details::StatisticsBackendData::DiscoveryStatus::DISCOVERY),
-            ".*");
-    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
-                monitor_id,
-                EntityId(1),
-                EntityKind::INVALID,
-                details::StatisticsBackendData::DiscoveryStatus::UPDATE),
-            ".*");
-    ASSERT_DEATH(details::StatisticsBackendData::get_instance()->on_domain_entity_discovery(
-                monitor_id,
-                EntityId(1),
-                EntityKind::INVALID,
-                details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY),
-            ".*");
-
-    // Stop the monitor to avoid interfering on next tests
-    StatisticsBackend::stop_monitor(monitor_id);
-}
-
 class calling_user_listeners_tests_datas : public ::testing::TestWithParam<std::tuple<DataKind>>
 {
 public:
@@ -1736,13 +1566,13 @@ public:
     eprosima::fastdds::dds::DataReaderListener* reader_listener_;
 
     eprosima::fastdds::dds::DomainParticipant* participant_;
-    eprosima::fastrtps::rtps::GUID_t participant_guid_;
+    eprosima::fastdds::rtps::GUID_t participant_guid_;
     std::string participant_guid_str_ = "01.0f.00.00.00.00.00.00.00.00.00.00|0.0.1.c1";
     std::string participant_name_ = "Participant";
 
-    eprosima::fastrtps::rtps::GUID_t datareader_guid_;
+    eprosima::fastdds::rtps::GUID_t datareader_guid_;
     std::string datareader_guid_str_ = "01.0f.00.00.00.00.00.00.00.00.00.00|0.0.0.1";
-    eprosima::fastrtps::rtps::GUID_t datawriter_guid_;
+    eprosima::fastdds::rtps::GUID_t datawriter_guid_;
     std::string datawriter_guid_str_ = "01.0f.00.00.00.00.00.00.00.00.00.00|0.0.0.2";
 
     std::string topic_name_ = "Topic";
@@ -1750,7 +1580,7 @@ public:
 
 };
 
-// Windows dll does not export ParticipantProxyData class members (private APIs)
+// Windows dll does not export ParticipantBuiltinTopicData class members (private APIs)
 #if !defined(_WIN32)
 /*
  * This test is a pseudo-blackbox that checks that user listeners are called
@@ -1826,23 +1656,23 @@ TEST_F(calling_user_listeners_tests_end_to_end, entity_discovery_end_to_end)
             .WillOnce(Invoke(&participant_locator_discovery_args, &PhysicalEntityDiscoveryArgs::on_discovery));
 
     // Simulate the discovery of a participant
-    eprosima::fastrtps::rtps::RTPSParticipantAllocationAttributes attributes;
-    eprosima::fastrtps::rtps::ParticipantProxyData participant_data(attributes);
-    participant_data.m_guid = participant_guid_;
-    participant_data.m_participantName = participant_name_;
+    eprosima::fastdds::rtps::ParticipantBuiltinTopicData participant_data;
+    participant_data.guid = participant_guid_;
+    participant_data.participant_name = participant_name_;
 
     // The participant locator
-    eprosima::fastrtps::rtps::Locator_t participant_locator(LOCATOR_KIND_UDPv4, 2049);
+    eprosima::fastdds::rtps::Locator_t participant_locator(LOCATOR_KIND_UDPv4, 2049);
     participant_locator.address[12] = 127;
     participant_locator.address[15] = 1;
     participant_data.default_locators.add_unicast_locator(participant_locator);
 
     // Finish building the discovered participant info
-    eprosima::fastrtps::rtps::ParticipantDiscoveryInfo participant_info(participant_data);
-    participant_info.status = eprosima::fastrtps::rtps::ParticipantDiscoveryInfo::DISCOVERED_PARTICIPANT;
+    eprosima::fastdds::rtps::ParticipantDiscoveryStatus status =
+            eprosima::fastdds::rtps::ParticipantDiscoveryStatus::DISCOVERED_PARTICIPANT;
 
     // Execution: Call the listener
-    participant_listener_->on_participant_discovery(participant_, std::move(participant_info));
+    bool should_be_ignored = false; // Set to false to avoid ignoring the participant
+    participant_listener_->on_participant_discovery(participant_, status, participant_data, should_be_ignored);
     details::StatisticsBackendData::get_instance()->entity_queue_->flush();
 
     // Check that the participant was created OK
@@ -1908,27 +1738,27 @@ TEST_F(calling_user_listeners_tests_end_to_end, entity_discovery_end_to_end)
             .WillOnce(Invoke(&writer_locator_discovery_args, &PhysicalEntityDiscoveryArgs::on_discovery));
 
     // Start building the discovered writer info
-    eprosima::fastrtps::rtps::WriterProxyData writer_data(1, 1);
+    eprosima::fastdds::rtps::PublicationBuiltinTopicData writer_info;
 
     // The discovered writer is in the participant
-    writer_data.guid(datawriter_guid_);
+    writer_info.guid = datawriter_guid_;
 
     // The discovered writer is in the topic
-    writer_data.topicName(topic_name_);
-    writer_data.typeName(topic_type_);
+    writer_info.topic_name = topic_name_;
+    writer_info.type_name = topic_type_;
 
     // The discovered writer contains the locator
-    eprosima::fastrtps::rtps::Locator_t writer_locator(LOCATOR_KIND_UDPv4, 1024);
+    eprosima::fastdds::rtps::Locator_t writer_locator(LOCATOR_KIND_UDPv4, 1024);
     writer_locator.address[12] = 127;
     writer_locator.address[15] = 1;
-    writer_data.add_unicast_locator(writer_locator);
+    writer_info.remote_locators.add_unicast_locator(writer_locator);
 
     // Finish building the discovered writer info
-    eprosima::fastrtps::rtps::WriterDiscoveryInfo writer_info(writer_data);
-    writer_info.status = eprosima::fastrtps::rtps::WriterDiscoveryInfo::DISCOVERED_WRITER;
+    eprosima::fastdds::rtps::WriterDiscoveryStatus writer_status =
+            eprosima::fastdds::rtps::WriterDiscoveryStatus::DISCOVERED_WRITER;
 
     // Execution: Call the listener
-    participant_listener_->on_publisher_discovery(participant_, std::move(writer_info));
+    participant_listener_->on_data_writer_discovery(participant_, writer_status, writer_info, should_be_ignored);
     details::StatisticsBackendData::get_instance()->entity_queue_->flush();
 
     // Check that the writer was created OK
@@ -1992,27 +1822,33 @@ TEST_F(calling_user_listeners_tests_end_to_end, entity_discovery_end_to_end)
             .WillOnce(Invoke(&reader_locator_discovery_args, &PhysicalEntityDiscoveryArgs::on_discovery));
 
     // Start building the discovered reader info
-    eprosima::fastrtps::rtps::ReaderProxyData reader_data(1, 1);
+    eprosima::fastdds::rtps::SubscriptionBuiltinTopicData reader_data;
+
+    // Set max number of unicast/multicast locators
+    reader_data.remote_locators.unicast =
+            eprosima::fastdds::ResourceLimitedContainerConfig::fixed_size_configuration(1);
+    reader_data.remote_locators.multicast = eprosima::fastdds::ResourceLimitedContainerConfig::fixed_size_configuration(
+        1);
 
     // The discovered reader is in the participant
-    reader_data.guid(datareader_guid_);
+    reader_data.guid = datareader_guid_;
 
     // The discovered reader is in the topic
-    reader_data.topicName(topic_name_);
-    reader_data.typeName(topic_type_);
+    reader_data.topic_name = topic_name_;
+    reader_data.type_name = topic_type_;
 
     // The discovered reader contains the locator
-    eprosima::fastrtps::rtps::Locator_t reader_locator(LOCATOR_KIND_UDPv4, 2048);
+    eprosima::fastdds::rtps::Locator_t reader_locator(LOCATOR_KIND_UDPv4, 2048);
     reader_locator.address[12] = 127;
     reader_locator.address[15] = 1;
-    reader_data.add_unicast_locator(reader_locator);
+    reader_data.remote_locators.add_unicast_locator(reader_locator);
 
     // Finish building the discovered reader info
-    eprosima::fastrtps::rtps::ReaderDiscoveryInfo reader_info(reader_data);
-    reader_info.status = eprosima::fastrtps::rtps::ReaderDiscoveryInfo::DISCOVERED_READER;
+    eprosima::fastdds::rtps::ReaderDiscoveryStatus reader_status =
+            eprosima::fastdds::rtps::ReaderDiscoveryStatus::DISCOVERED_READER;
 
     // Execution: Call the listener
-    participant_listener_->on_subscriber_discovery(participant_, std::move(reader_info));
+    participant_listener_->on_data_reader_discovery(participant_, reader_status, reader_data, should_be_ignored);
     details::StatisticsBackendData::get_instance()->entity_queue_->flush();
 
     // Check that the reader was created OK
@@ -2080,27 +1916,33 @@ TEST_F(calling_user_listeners_tests_end_to_end, entity_discovery_end_to_end)
             .WillOnce(Invoke(&datareader2_discovery_args, &DomainEntityDiscoveryArgs::on_discovery));
 
     // Start building the discovered reader info
-    eprosima::fastrtps::rtps::ReaderProxyData reader2_data(1, 1);
+    eprosima::fastdds::rtps::SubscriptionBuiltinTopicData reader2_data;
+
+    // Set max number of unicast/multicast locators
+    reader2_data.remote_locators.unicast =
+            eprosima::fastdds::ResourceLimitedContainerConfig::fixed_size_configuration(1);
+    reader2_data.remote_locators.multicast =
+            eprosima::fastdds::ResourceLimitedContainerConfig::fixed_size_configuration(1);
 
     // The discovered reader is in the participant
-    eprosima::fastrtps::rtps::GUID_t datareader2_guid_;
+    eprosima::fastdds::rtps::GUID_t datareader2_guid_;
     std::stringstream("01.0f.00.00.00.00.00.00.00.00.00.00|0.0.0.3") >> datareader2_guid_;
-    reader2_data.guid(datareader2_guid_);
+    reader2_data.guid = datareader2_guid_;
 
     // The discovered reader is in the topic
     std::string topic2_name = "Topic2";
-    reader2_data.topicName(topic2_name);
-    reader2_data.typeName(topic_type_);
+    reader2_data.topic_name = topic2_name;
+    reader2_data.type_name = topic_type_;
 
     // The discovered reader contains the locator
-    reader2_data.add_unicast_locator(writer_locator);
+    reader2_data.remote_locators.add_unicast_locator(writer_locator);
 
     // Finish building the discovered reader info
-    eprosima::fastrtps::rtps::ReaderDiscoveryInfo reader2_info(reader2_data);
-    reader2_info.status = eprosima::fastrtps::rtps::ReaderDiscoveryInfo::DISCOVERED_READER;
+    eprosima::fastdds::rtps::ReaderDiscoveryStatus reader2_status =
+            eprosima::fastdds::rtps::ReaderDiscoveryStatus::DISCOVERED_READER;
 
     // Execution: Call the listener
-    participant_listener_->on_subscriber_discovery(participant_, std::move(reader2_info));
+    participant_listener_->on_data_reader_discovery(participant_, reader2_status, reader2_data, should_be_ignored);
     details::StatisticsBackendData::get_instance()->entity_queue_->flush();
 
     // Check that the reader was created OK
@@ -2149,26 +1991,26 @@ TEST_F(calling_user_listeners_tests_end_to_end, entity_discovery_end_to_end)
             .WillOnce(Invoke(&datawriter2_discovery_args, &DomainEntityDiscoveryArgs::on_discovery));
 
     // Start building the discovered writer info
-    eprosima::fastrtps::rtps::WriterProxyData writer2_data(1, 1);
+    eprosima::fastdds::rtps::PublicationBuiltinTopicData writer2_info;
 
     // The discovered writer is in the participant
-    eprosima::fastrtps::rtps::GUID_t datawriter2_guid_;
+    eprosima::fastdds::rtps::GUID_t datawriter2_guid_;
     std::stringstream("01.0f.00.00.00.00.00.00.00.00.00.00|0.0.0.4") >> datawriter2_guid_;
-    writer2_data.guid(datawriter2_guid_);
+    writer2_info.guid = datawriter2_guid_;
 
     // The discovered writer contains the locator
-    writer2_data.add_unicast_locator(reader_locator);
+    writer2_info.remote_locators.add_unicast_locator(reader_locator);
 
     // The discovered writer is in the topic
-    writer2_data.topicName(topic2_name);
-    writer2_data.typeName(topic_type_);
+    writer2_info.topic_name = topic2_name;
+    writer2_info.type_name = topic_type_;
 
     // Finish building the discovered writer info
-    eprosima::fastrtps::rtps::WriterDiscoveryInfo writer2_info(writer2_data);
-    writer2_info.status = eprosima::fastrtps::rtps::WriterDiscoveryInfo::DISCOVERED_WRITER;
+    eprosima::fastdds::rtps::WriterDiscoveryStatus writer2_status =
+            eprosima::fastdds::rtps::WriterDiscoveryStatus::DISCOVERED_WRITER;
 
     // Execution: Call the listener
-    participant_listener_->on_publisher_discovery(participant_, std::move(writer2_info));
+    participant_listener_->on_data_writer_discovery(participant_, writer2_status, writer2_info, should_be_ignored);
     details::StatisticsBackendData::get_instance()->entity_queue_->flush();
 
     // Check that the writer was created OK
@@ -2214,11 +2056,13 @@ TEST_F(calling_user_listeners_tests_end_to_end, entity_discovery_end_to_end)
     EXPECT_CALL(domain_listener_, on_datawriter_discovery(monitor_id_, _, _)).Times(1)
             .WillOnce(Invoke(&datawriter_undiscovery_args, &DomainEntityDiscoveryArgs::on_discovery));
 
-    eprosima::fastrtps::rtps::WriterDiscoveryInfo writer_undiscovery_info (writer_data);
-    writer_undiscovery_info.status = eprosima::fastrtps::rtps::WriterDiscoveryInfo::REMOVED_WRITER;
+    eprosima::fastdds::rtps::PublicationBuiltinTopicData writer_undiscovery_info = writer_info;
+    eprosima::fastdds::rtps::WriterDiscoveryStatus writer_undiscovery_status =
+            eprosima::fastdds::rtps::WriterDiscoveryStatus::REMOVED_WRITER;
 
     // Execution: Call the listener
-    participant_listener_->on_publisher_discovery(participant_, std::move(writer_undiscovery_info));
+    participant_listener_->on_data_writer_discovery(participant_, writer_undiscovery_status, writer_undiscovery_info,
+            should_be_ignored);
     details::StatisticsBackendData::get_instance()->entity_queue_->flush();
 
     EXPECT_FALSE(writer->active);
@@ -2266,11 +2110,13 @@ TEST_F(calling_user_listeners_tests_end_to_end, entity_discovery_end_to_end)
     EXPECT_CALL(domain_listener_, on_topic_discovery(monitor_id_, _, _)).Times(1)
             .WillOnce(Invoke(&topic_undiscovery_args, &DomainEntityDiscoveryArgs::on_discovery));
 
-    eprosima::fastrtps::rtps::ReaderDiscoveryInfo reader_undiscovery_info(reader_data);
-    reader_undiscovery_info.status = eprosima::fastrtps::rtps::ReaderDiscoveryInfo::REMOVED_READER;
+    eprosima::fastdds::rtps::SubscriptionBuiltinTopicData reader_undiscovery_info = reader_data;
+    eprosima::fastdds::rtps::ReaderDiscoveryStatus reader_undiscovery_status =
+            eprosima::fastdds::rtps::ReaderDiscoveryStatus::REMOVED_READER;
 
     // Execution: Call the listener
-    participant_listener_->on_subscriber_discovery(participant_, std::move(reader_undiscovery_info));
+    participant_listener_->on_data_reader_discovery(participant_, reader_undiscovery_status, reader_undiscovery_info,
+            should_be_ignored);
     details::StatisticsBackendData::get_instance()->entity_queue_->flush();
 
     EXPECT_FALSE(writer->active);
@@ -2304,11 +2150,13 @@ TEST_F(calling_user_listeners_tests_end_to_end, entity_discovery_end_to_end)
     EXPECT_CALL(domain_listener_, on_datawriter_discovery(monitor_id_, _, _)).Times(1)
             .WillOnce(Invoke(&datawriter2_undiscovery_args, &DomainEntityDiscoveryArgs::on_discovery));
 
-    eprosima::fastrtps::rtps::WriterDiscoveryInfo writer2_undiscovery_info (writer2_data);
-    writer2_undiscovery_info.status = eprosima::fastrtps::rtps::WriterDiscoveryInfo::REMOVED_WRITER;
+    eprosima::fastdds::rtps::PublicationBuiltinTopicData writer2_undiscovery_info = writer2_info;
+    eprosima::fastdds::rtps::WriterDiscoveryStatus writer2_undiscovery_status =
+            eprosima::fastdds::rtps::WriterDiscoveryStatus::REMOVED_WRITER;
 
     // Execution: Call the listener
-    participant_listener_->on_publisher_discovery(participant_, std::move(writer2_undiscovery_info));
+    participant_listener_->on_data_writer_discovery(participant_, writer2_undiscovery_status, writer2_undiscovery_info,
+            should_be_ignored);
     details::StatisticsBackendData::get_instance()->entity_queue_->flush();
 
     EXPECT_FALSE(writer2->active);
@@ -2356,11 +2204,13 @@ TEST_F(calling_user_listeners_tests_end_to_end, entity_discovery_end_to_end)
     EXPECT_CALL(domain_listener_, on_topic_discovery(monitor_id_, _, _)).Times(1)
             .WillOnce(Invoke(&topic2_undiscovery_args, &DomainEntityDiscoveryArgs::on_discovery));
 
-    eprosima::fastrtps::rtps::ReaderDiscoveryInfo reader2_undiscovery_info(reader2_data);
-    reader2_undiscovery_info.status = eprosima::fastrtps::rtps::ReaderDiscoveryInfo::REMOVED_READER;
+    eprosima::fastdds::rtps::SubscriptionBuiltinTopicData reader2_undiscovery_info = reader2_data;
+    eprosima::fastdds::rtps::ReaderDiscoveryStatus reader2_undiscovery_info_status =
+            eprosima::fastdds::rtps::ReaderDiscoveryStatus::REMOVED_READER;
 
     // Execution: Call the listener
-    participant_listener_->on_subscriber_discovery(participant_, std::move(reader2_undiscovery_info));
+    participant_listener_->on_data_reader_discovery(participant_, reader2_undiscovery_info_status,
+            reader2_undiscovery_info, should_be_ignored);
     details::StatisticsBackendData::get_instance()->entity_queue_->flush();
 
     EXPECT_FALSE(writer2->active);
@@ -2424,11 +2274,10 @@ TEST_F(calling_user_listeners_tests_end_to_end, entity_discovery_end_to_end)
     EXPECT_CALL(domain_listener_, on_datawriter_discovery(monitor_id_, _, _)).Times(1)
             .WillOnce(Invoke(&metatraffic_endpoint_undiscovery_args, &DomainEntityDiscoveryArgs::on_discovery));
 
-    eprosima::fastrtps::rtps::ParticipantDiscoveryInfo participant_undiscovery_info(participant_data);
-    participant_undiscovery_info.status = eprosima::fastrtps::rtps::ParticipantDiscoveryInfo::REMOVED_PARTICIPANT;
+    status = eprosima::fastdds::rtps::ParticipantDiscoveryStatus::REMOVED_PARTICIPANT;
 
     // Execution: Call the listener
-    participant_listener_->on_participant_discovery(participant_, std::move(participant_undiscovery_info));
+    participant_listener_->on_participant_discovery(participant_, status, participant_data, should_be_ignored);
     details::StatisticsBackendData::get_instance()->entity_queue_->flush();
 
     EXPECT_FALSE(writer2->active);
@@ -2511,34 +2360,35 @@ TEST_F(calling_user_listeners_tests_end_to_end, participant_proxy_data_end_to_en
 
         std::string participant_guid_str = participant_guid_str_prefix + "|" + participant_guid_str_suffix;
 
-        eprosima::fastrtps::rtps::GUID_t participant_guid_;
+        eprosima::fastdds::rtps::GUID_t participant_guid_;
         std::stringstream(participant_guid_str) >> participant_guid_;
 
         // Simulate the discovery of a participant
-        eprosima::fastrtps::rtps::RTPSParticipantAllocationAttributes attributes;
-        eprosima::fastrtps::rtps::ParticipantProxyData participant_data(attributes);
-        participant_data.m_guid = participant_guid_;
-        participant_data.m_participantName = participant_name_;
+        eprosima::fastdds::rtps::RTPSParticipantAllocationAttributes attributes;
+        eprosima::fastdds::rtps::ParticipantBuiltinTopicData participant_data;
+        participant_data.guid = participant_guid_;
+        participant_data.participant_name = participant_name_;
 
-        participant_data.m_properties.push_back("fastdds.application.id", app_id_str[int(app_id)]);
-        participant_data.m_properties.push_back("fastdds.application.metadata", metadata_);
-        participant_data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_host, host_name);
-        participant_data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_user, user_name);
-        participant_data.m_properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_process,
+        participant_data.properties.push_back("fastdds.application.id", app_id_str[int(app_id)]);
+        participant_data.properties.push_back("fastdds.application.metadata", metadata_);
+        participant_data.properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_host, host_name);
+        participant_data.properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_user, user_name);
+        participant_data.properties.push_back(eprosima::fastdds::dds::parameter_policy_physical_data_process,
                 process_name);
 
         // The participant locator
-        eprosima::fastrtps::rtps::Locator_t participant_locator(LOCATOR_KIND_UDPv4, 2049);
+        eprosima::fastdds::rtps::Locator_t participant_locator(LOCATOR_KIND_UDPv4, 2049);
         participant_locator.address[12] = 127;
         participant_locator.address[15] = 1;
         participant_data.default_locators.add_unicast_locator(participant_locator);
 
         // Finish building the discovered participant info
-        eprosima::fastrtps::rtps::ParticipantDiscoveryInfo participant_info(participant_data);
-        participant_info.status = eprosima::fastrtps::rtps::ParticipantDiscoveryInfo::DISCOVERED_PARTICIPANT;
+        eprosima::fastdds::rtps::ParticipantDiscoveryStatus status =
+                eprosima::fastdds::rtps::ParticipantDiscoveryStatus::DISCOVERED_PARTICIPANT;
 
         // Execution: Call the listener
-        participant_listener_->on_participant_discovery(participant_, std::move(participant_info));
+        bool should_be_ignored = false; // Set to false to avoid ignoring the entity
+        participant_listener_->on_participant_discovery(participant_, status, participant_data, should_be_ignored);
         details::StatisticsBackendData::get_instance()->entity_queue_->flush();
 
         // Check that the participant was created OK

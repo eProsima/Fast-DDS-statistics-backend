@@ -17,8 +17,8 @@
  * @file utils.hpp
  */
 
-#ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_TYPES_UTILS_HPP_
-#define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_TYPES_UTILS_HPP_
+#ifndef FASTDDS_STATISTICS_BACKEND_TYPES__UTILS_HPP
+#define FASTDDS_STATISTICS_BACKEND_TYPES__UTILS_HPP
 
 #include <chrono>
 
@@ -54,4 +54,4 @@ inline Timestamp the_initial_time() noexcept
 } //namespace statistics_backend
 } //namespace eprosima
 
-#endif // _EPROSIMA_FASTDDS_STATISTICS_BACKEND_TYPES_UTILS_HPP_
+#endif // FASTDDS_STATISTICS_BACKEND_TYPES__UTILS_HPP

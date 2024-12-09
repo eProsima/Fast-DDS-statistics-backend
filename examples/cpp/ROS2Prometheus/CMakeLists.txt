@@ -21,7 +21,7 @@ endif()
 project(ROS2Prometheus)
 
 find_package(fastcdr REQUIRED)
-find_package(fastrtps REQUIRED)
+find_package(fastdds REQUIRED)
 find_package(fastdds_statistics_backend REQUIRED)
 find_package(prometheus-cpp CONFIG REQUIRED)
 
@@ -44,6 +44,6 @@ target_compile_definitions(ROS2Prometheus PRIVATE
     $<$<AND:$<NOT:$<BOOL:${WIN32}>>,$<STREQUAL:"${CMAKE_BUILD_TYPE}","Debug">>:__DEBUG>
     $<$<BOOL:${INTERNAL_DEBUG}>:__INTERNALDEBUG> # Internal debug activated.
 )
-target_link_libraries(ROS2Prometheus fastrtps fastcdr fastdds_statistics_backend prometheus-cpp::pull)
+target_link_libraries(ROS2Prometheus fastdds fastcdr fastdds_statistics_backend prometheus-cpp::pull)
 install(TARGETS ROS2Prometheus
     RUNTIME DESTINATION examples/cpp/ROS2Prometheus/${BIN_INSTALL_DIR})

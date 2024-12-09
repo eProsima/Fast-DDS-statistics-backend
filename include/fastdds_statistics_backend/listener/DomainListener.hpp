@@ -16,8 +16,8 @@
  * @file DomainListener.hpp
  */
 
-#ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_LISTENER_DOMAINLISTENER_HPP_
-#define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_LISTENER_DOMAINLISTENER_HPP_
+#ifndef FASTDDS_STATISTICS_BACKEND_LISTENER__DOMAINLISTENER_HPP
+#define FASTDDS_STATISTICS_BACKEND_LISTENER__DOMAINLISTENER_HPP
 
 #include <fastdds_statistics_backend/fastdds_statistics_backend_dll.h>
 #include <fastdds_statistics_backend/types/types.hpp>
@@ -75,9 +75,11 @@ public:
 
         void on_instance_undiscovered()
         {
-            assert (current_count > 0);
-            --current_count;
-            --current_count_change;
+            if (current_count > 0)
+            {
+                --current_count;
+                --current_count_change;
+            }
         }
 
         void on_status_read()
@@ -216,4 +218,4 @@ public:
 } // namespace statistics_backend
 } // namespace eprosima
 
-#endif // _EPROSIMA_FASTDDS_STATISTICS_BACKEND_LISTENER_DOMAINLISTENER_HPP_
+#endif // FASTDDS_STATISTICS_BACKEND_LISTENER__DOMAINLISTENER_HPP

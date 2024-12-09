@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_DLL_HPP_
-#define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_DLL_HPP_
+#ifndef FASTDDS_STATISTICS_BACKEND__FASTDDS_STATISTICS_BACKEND_DLL_H
+#define FASTDDS_STATISTICS_BACKEND__FASTDDS_STATISTICS_BACKEND_DLL_H
 
 #include "config.h"
 
@@ -73,4 +73,4 @@
 #include "eProsima_auto_link.h"
 #endif // auto-linking disabled
 
-#endif // _EPROSIMA_FASTDDS_STATISTICS_BACKEND_DLL_HPP_
+#endif // FASTDDS_STATISTICS_BACKEND__FASTDDS_STATISTICS_BACKEND_DLL_H

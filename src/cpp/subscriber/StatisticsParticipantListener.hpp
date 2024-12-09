@@ -17,17 +17,18 @@
  * @file StatisticsParticipantListener.hpp
  */
 
-#ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_SUBSCRIBER_STATISTICSPARTICIPANTLISTENER_HPP_
-#define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_SUBSCRIBER_STATISTICSPARTICIPANTLISTENER_HPP_
+#ifndef FASTDDS_STATISTICS_BACKEND_SRC_CPP_SUBSCRIBER__STATISTICS_PARTICIPANT_LISTENER_HPP
+#define FASTDDS_STATISTICS_BACKEND_SRC_CPP_SUBSCRIBER__STATISTICS_PARTICIPANT_LISTENER_HPP
 
 #include <fastdds/dds/domain/DomainParticipantListener.hpp>
 #include <fastdds/dds/core/status/StatusMask.hpp>
-#include <fastdds/rtps/common/Guid.h>
-#include <fastdds/rtps/common/Locator.h>
+#include <fastdds/rtps/common/Guid.hpp>
+#include <fastdds/rtps/common/Locator.hpp>
 
 #include <database/entities.hpp>
 
-#include <fastdds_statistics_backend/topic_types/monitorservice_types.h>
+#include <fastdds_statistics_backend/topic_types/monitorservice_types.hpp>
+
 #include <fastdds_statistics_backend/types/app_names.h>
 
 namespace eprosima {
@@ -68,9 +69,11 @@ public:
      * @param participant Pointer to the Participant which discovered the remote participant.
      * @param info Remote participant information. User can take ownership of the object.
      */
-    virtual void on_participant_discovery(
-            eprosima::fastdds::dds::DomainParticipant* participant,
-            fastrtps::rtps::ParticipantDiscoveryInfo&& info) override;
+    void on_participant_discovery(
+            fastdds::dds::DomainParticipant* participant,
+            fastdds::rtps::ParticipantDiscoveryStatus reason,
+            const fastdds::dds::ParticipantBuiltinTopicData& info,
+            bool& should_be_ignored) override;
 
     /*!
      * This method is called when a new Subscriber is discovered, or a previously discovered subscriber changes
@@ -78,19 +81,26 @@ public:
      * @param participant Pointer to the Participant which discovered the remote subscriber.
      * @param info Remote subscriber information. User can take ownership of the object.
      */
-    virtual void on_subscriber_discovery(
-            eprosima::fastdds::dds::DomainParticipant* participant,
-            fastrtps::rtps::ReaderDiscoveryInfo&& info) override;
+    void on_data_reader_discovery(
+            fastdds::dds::DomainParticipant* participant,
+            fastdds::rtps::ReaderDiscoveryStatus reason,
+            const fastdds::rtps::SubscriptionBuiltinTopicData& info,
+            bool& should_be_ignored) override;
 
     /*!
-     * This method is called when a new Publisher is discovered, or a previously discovered publisher changes
+     * This method is called when a new DataWriter is discovered, or a previously discovered DataWriter changes
      * its QOS or is removed.
-     * @param participant Pointer to the Participant which discovered the remote publisher.
-     * @param info Remote publisher information. User can take ownership of the object.
+     *
+     * @param [in]  participant        Pointer to the Participant which discovered the remote writer.
+     * @param [in]  reason             The reason motivating this method to be called.
+     * @param [in]  info               Remote writer information.
+     * @param [out] should_be_ignored  Flag to indicate the library to automatically ignore the discovered writer.
      */
-    virtual void on_publisher_discovery(
-            eprosima::fastdds::dds::DomainParticipant* participant,
-            fastrtps::rtps::WriterDiscoveryInfo&& info) override;
+    void on_data_writer_discovery(
+            fastdds::dds::DomainParticipant* participant,
+            fastdds::rtps::WriterDiscoveryStatus reason,
+            const fastdds::rtps::PublicationBuiltinTopicData& info,
+            bool& should_be_ignored) override;
 
 protected:
 
@@ -107,4 +117,4 @@ protected:
 } //namespace statistics_backend
 } //namespace eprosima
 
-#endif // _EPROSIMA_FASTDDS_STATISTICS_BACKEND_SUBSCRIBER_STATISTICSPARTICIPANTLISTENER_HPP_
+#endif // FASTDDS_STATISTICS_BACKEND_SRC_CPP_SUBSCRIBER__STATISTICS_PARTICIPANT_LISTENER_HPP

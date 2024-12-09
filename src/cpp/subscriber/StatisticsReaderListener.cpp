@@ -23,16 +23,14 @@
 #include <fastdds/dds/subscriber/SampleInfo.hpp>
 #include <fastdds/dds/topic/TopicDescription.hpp>
 #include <fastdds/statistics/topic_names.hpp>
-#include <fastrtps/types/TypesBase.h>
-
 #include <database/database_queue.hpp>
 
 namespace eprosima {
 namespace statistics_backend {
 namespace subscriber {
 
-using namespace eprosima::fastrtps::types;
 using namespace eprosima::fastdds::statistics;
+using namespace eprosima::fastdds::statistics::EventKind;
 using namespace eprosima::fastdds::dds;
 
 StatisticsReaderListener::StatisticsReaderListener(
@@ -52,7 +50,7 @@ bool StatisticsReaderListener::get_available_data(
         std::chrono::system_clock::time_point& timestamp)
 {
     SampleInfo info;
-    if (reader->take_next_sample(&inner_data, &info) == ReturnCode_t::RETCODE_OK)
+    if (reader->take_next_sample(&inner_data, &info) == RETCODE_OK)
     {
         if (!info.valid_data)
         {
@@ -68,7 +66,7 @@ bool StatisticsReaderListener::get_available_data(
 void StatisticsReaderListener::on_data_available(
         eprosima::fastdds::dds::DataReader* reader)
 {
-    static const std::map<std::string, EventKind> statistics_topics =
+    static const std::map<std::string, uint32_t> statistics_topics =
     {
         {HISTORY_LATENCY_TOPIC,         HISTORY2HISTORY_LATENCY},
         {NETWORK_LATENCY_TOPIC,         NETWORK_LATENCY},

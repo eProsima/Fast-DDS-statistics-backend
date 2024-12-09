@@ -26,8 +26,6 @@
 
 #include <fastdds/dds/core/status/StatusMask.hpp>
 #include <fastdds/dds/subscriber/qos/DataReaderQos.hpp>
-#include <fastrtps/types/TypesBase.h>
-
 namespace eprosima {
 namespace fastdds {
 namespace dds {

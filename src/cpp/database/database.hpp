@@ -17,8 +17,8 @@
  * @file database.hpp
  */
 
-#ifndef _EPROSIMA_FASTDDS_STATISTICS_BACKEND_DATABASE_DATABASE_HPP_
-#define _EPROSIMA_FASTDDS_STATISTICS_BACKEND_DATABASE_DATABASE_HPP_
+#ifndef FASTDDS_STATISTICS_BACKEND_SRC_CPP_DATABASE__DATABASE_HPP
+#define FASTDDS_STATISTICS_BACKEND_SRC_CPP_DATABASE__DATABASE_HPP
 
 #include <atomic>
 #include <memory>
@@ -31,7 +31,7 @@
 #include <fastdds_statistics_backend/types/EntityId.hpp>
 #include <fastdds_statistics_backend/exception/Exception.hpp>
 
-#include <fastdds/rtps/common/Locator.h>
+#include <fastdds/rtps/common/Locator.hpp>
 #include <fastdds/rtps/common/RemoteLocators.hpp>
 
 #include <database/entities.hpp>
@@ -157,6 +157,24 @@ public:
             const EntityId& domain_id);
 
     /**
+     * @brief Check if a Topic data type is already in the database
+     * @param type_name The type name of the Topic.
+     *
+     * @return True if the Topic data type is in the database.
+     */
+    bool is_type_in_database(
+            const std::string& type_name);
+
+    /**
+     * @brief Insert a new type IDL into the database.
+     * @param topic_type The type of the topic.
+     * @param topic_idl The IDL representation of the type
+     */
+    void insert_new_type_idl(
+            const std::string& topic_type,
+            const std::string& topic_idl);
+
+    /**
      * @brief Create new Endpoint and corresponding Locator, and insert them in database.
      * @param endpoint_guid The GUID of the Endpoint.
      * @param name The name of the Endpoint.
@@ -177,7 +195,7 @@ public:
             const std::string& alias,
             const Qos& qos,
             const bool& is_virtual_metatraffic,
-            const fastrtps::rtps::RemoteLocatorList& locators,
+            const fastdds::rtps::RemoteLocatorList& locators,
             const EntityKind& kind,
             const EntityId& participant_id,
             const EntityId& topic_id,
@@ -445,6 +463,16 @@ public:
             const std::string& name) const;
 
     /**
+     * @brief Get the type IDL of a given type name, if it exists.
+     *
+     * @param type_name The name of the data type for which to search.
+     * @throws eprosima::statistics_backend::BadParameter if \c type_name does not exist in the database.
+     * @return The IDL representation of the type in std::string format.
+     */
+    std::string get_type_idl(
+            const std::string& type_name) const;
+
+    /**
      * @brief Get the entity of a given EntityKind that matches with the requested GUID.
      *
      * @param entity_kind The EntityKind of the fetched entities.
@@ -664,6 +692,26 @@ public:
      * @return Info object describing the entity's meta information.
      */
     Info get_info(
+            const EntityId& entity_id);
+
+    /**
+     * @brief Returns the id of the topic associated to an endpoint.
+     *
+     * @param endpoint_id The ID of a given endpoint.
+     *
+     * @return EntityId of the topic on which the endpoint publishes/receives messages.
+     */
+    EntityId get_endpoint_topic_id(
+            const EntityId& endpoint_id);
+
+    /**
+     * @brief Returns the id of the domain associated to a given entity (Domain, Participant, topic and endpoint).
+     *
+     * @param entity_id The ID of an entity.
+     *
+     * @return EntityId of the domain which the entity belongs.
+     */
+    EntityId get_domain_id(
             const EntityId& entity_id);
 
     /**
@@ -1168,6 +1216,16 @@ protected:
             const std::string& name) const;
 
     /**
+     * @brief Get the type IDL of a given type name, if it exists. This method is not thread safe.
+     *
+     * @param type_name The name of the data type for which to search.
+     * @throws eprosima::statistics_backend::BadParameter if \c type_name does not exist in the database.
+     * @return The IDL representation of the type in std::string format.
+     */
+    std::string get_type_idl_nts(
+            const std::string& type_name) const;
+
+    /**
      * @brief Get the entity of a given EntityKind that matches with the requested GUID. This method is not thread safe.
      *
      * @param entity_kind The EntityKind of the fetched entities.
@@ -1446,6 +1504,14 @@ protected:
      */
     std::map<EntityId, std::map<EntityId, std::shared_ptr<Topic>>> topics_;
 
+    /**
+     * Collection of topic IDLs sorted by topic data types, with which they are biunivocally identified.
+     * This is used to store the IDLs of the discovered topics
+     *
+     * Each value in the collection is in turn a map of the actual Topic IDLs sorted by data type
+     */
+    std::map<std::string, std::string> type_idls_;
+
     //! Graph map describing per domain complete topology of the entities.
     std::map<EntityId, Graph> domain_view_graph;
 
@@ -1518,4 +1584,4 @@ void Database::get_status_data(
 } //namespace statistics_backend
 } //namespace eprosima
 
-#endif // _EPROSIMA_FASTDDS_STATISTICS_BACKEND_DATABASE_DATABASE_HPP_
+#endif // FASTDDS_STATISTICS_BACKEND_SRC_CPP_DATABASE__DATABASE_HPP

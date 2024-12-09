@@ -25,6 +25,7 @@
 #include <fastdds/dds/domain/DomainParticipantFactory.hpp>
 #include <fastdds/dds/domain/qos/DomainParticipantFactoryQos.hpp>
 #include <fastdds/dds/domain/DomainParticipantListener.hpp>
+#include <fastdds/dds/log/Log.hpp>
 #include <fastdds/dds/subscriber/DataReader.hpp>
 #include <fastdds/dds/subscriber/Subscriber.hpp>
 #include <fastdds/dds/topic/Topic.hpp>
@@ -122,7 +123,11 @@ void StatisticsBackendData::on_data_available(
         DataKind data_kind)
 {
     auto monitor = monitors_by_entity_.find(domain_id);
-    assert(monitor != monitors_by_entity_.end());
+    if (monitor == monitors_by_entity_.end())
+    {
+        logWarning(STATISTICS_BACKEND_DATA, "Monitor not found for domain " << domain_id);
+        return;
+    }
 
     if (should_call_domain_listener(*monitor->second, CallbackKind::ON_DATA_AVAILABLE, data_kind))
     {
@@ -140,7 +145,11 @@ void StatisticsBackendData::on_status_reported(
         StatusKind status_kind)
 {
     auto monitor = monitors_by_entity_.find(domain_id);
-    assert(monitor != monitors_by_entity_.end());
+    if (monitor == monitors_by_entity_.end())
+    {
+        logWarning(STATISTICS_BACKEND_DATA, "Monitor not found for domain " << domain_id);
+        return;
+    }
 
     if (should_call_domain_listener(*monitor->second, CallbackKind::ON_STATUS_REPORTED))
     {
@@ -228,7 +237,12 @@ void StatisticsBackendData::on_domain_entity_discovery(
         DiscoveryStatus discovery_status)
 {
     auto monitor = monitors_by_entity_.find(domain_id);
-    assert(monitor != monitors_by_entity_.end());
+    if (monitor == monitors_by_entity_.end())
+    {
+        logWarning(STATISTICS_BACKEND_DATA, "Monitor not found for domain " << domain_id);
+        return;
+    }
+
     switch (entity_kind)
     {
         case EntityKind::PARTICIPANT:
@@ -306,7 +320,7 @@ void StatisticsBackendData::on_domain_entity_discovery(
         }
         default:
         {
-            assert(false && "Invalid domain entity kind");
+            logWarning(STATISTICS_BACKEND, "Invalid domain entity kind");
         }
     }
 }
@@ -316,7 +330,11 @@ void StatisticsBackendData::on_physical_entity_discovery(
         EntityKind entity_kind,
         DiscoveryStatus discovery_status)
 {
-    assert(discovery_status != DiscoveryStatus::UPDATE);
+    if (discovery_status == DiscoveryStatus::UPDATE)
+    {
+        logWarning(STATISTICS_BACKEND, "UPDATE discovery status is not supported for physical entities");
+        return;
+    }
 
     switch (entity_kind)
     {
@@ -370,7 +388,7 @@ void StatisticsBackendData::on_physical_entity_discovery(
         }
         default:
         {
-            assert(false && "Invalid physical entity kind");
+            logWarning(STATISTICS_BACKEND, "Invalid physical entity kind");
         }
     }
 }

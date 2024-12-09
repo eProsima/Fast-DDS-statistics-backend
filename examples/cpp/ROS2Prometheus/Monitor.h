@@ -16,8 +16,8 @@
  * @file Monitor.h
  */
 
-#ifndef MONITOR_H_
-#define MONITOR_H_
+#ifndef FASTDDS_STATISTICS_BACKEND_EXAMPLES_CPP_ROS2PROMETHEUS__MONITOR_H
+#define FASTDDS_STATISTICS_BACKEND_EXAMPLES_CPP_ROS2PROMETHEUS__MONITOR_H
 
 #include <atomic>
 #include <condition_variable>
@@ -162,4 +162,4 @@ protected:
     prometheus::Gauge* publication_throughput_mean_;
 };
 
-#endif /* MONITOR_H_ */
+#endif /* FASTDDS_STATISTICS_BACKEND_EXAMPLES_CPP_ROS2PROMETHEUS__MONITOR_H */
