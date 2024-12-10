@@ -1812,7 +1812,7 @@ bool Database::insert_nts(
                     std::shared_ptr<DataWriter> datawriter = std::const_pointer_cast<DataWriter>(const_datawriter);
 
                     // Reject samples with old timestamps
-                    if (datawriter->monitor_service_data.proxy.empty() &&
+                    if (!datawriter->monitor_service_data.proxy.empty() &&
                             proxy.src_ts <= datawriter->monitor_service_data.proxy.back().src_ts)
                     {
                         break;
@@ -2126,6 +2126,15 @@ bool Database::insert_nts(
                     std::shared_ptr<const DataReader> const_datareader = std::dynamic_pointer_cast<const DataReader>(
                         entity);
                     std::shared_ptr<DataReader> datareader = std::const_pointer_cast<DataReader>(const_datareader);
+
+                    // Reject samples with old timestamps
+                    if (!datareader->monitor_service_data.extended_incompatible_qos.empty() &&
+                            extended_incompatible_qos.src_ts <=
+                            datareader->monitor_service_data.extended_incompatible_qos.back().src_ts)
+                    {
+                        break;
+                    }
+
                     datareader->monitor_service_data.extended_incompatible_qos.push_back(extended_incompatible_qos);
                     entity_updated = update_entity_status_nts<DataReader>(datareader);
                     break;
@@ -2135,6 +2144,15 @@ bool Database::insert_nts(
                     std::shared_ptr<const DataWriter> const_datawriter = std::dynamic_pointer_cast<const DataWriter>(
                         entity);
                     std::shared_ptr<DataWriter> datawriter = std::const_pointer_cast<DataWriter>(const_datawriter);
+
+                    // Reject samples with old timestamps
+                    if (!datawriter->monitor_service_data.extended_incompatible_qos.empty() &&
+                            extended_incompatible_qos.src_ts <=
+                            datawriter->monitor_service_data.extended_incompatible_qos.back().src_ts)
+                    {
+                        break;
+                    }
+
                     datawriter->monitor_service_data.extended_incompatible_qos.push_back(extended_incompatible_qos);
                     entity_updated = update_entity_status_nts<DataWriter>(datawriter);
                     break;

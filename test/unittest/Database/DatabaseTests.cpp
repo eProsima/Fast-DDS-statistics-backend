@@ -3108,7 +3108,7 @@ TEST_F(database_tests, insert_monitor_service_sample_extended_incompatible_qos)
     ExtendedIncompatibleQosSample sample_2;
     sample_2.kind = StatusKind::EXTENDED_INCOMPATIBLE_QOS;
     sample_2.status = StatusLevel::ERROR_STATUS;
-    sample_2.src_ts = std::chrono::system_clock::now();
+    sample_2.src_ts = std::chrono::system_clock::now() + std::chrono::seconds(1);
     status.current_incompatible_policies(std::vector<uint32_t>{1, 2});
     sample_2.extended_incompatible_qos_status = {status};
     ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_2));
@@ -3116,6 +3116,15 @@ TEST_F(database_tests, insert_monitor_service_sample_extended_incompatible_qos)
     ASSERT_EQ(writer->status, StatusLevel::ERROR_STATUS);
     ASSERT_EQ(reader->status, StatusLevel::OK_STATUS);
 
+    ASSERT_EQ(writer->monitor_service_data.extended_incompatible_qos.size(), 2u);
+    ASSERT_EQ(reader->monitor_service_data.extended_incompatible_qos.size(), 1u);
+    ASSERT_EQ(writer->monitor_service_data.extended_incompatible_qos[0],
+            static_cast<ExtendedIncompatibleQosSample>(sample));
+    ASSERT_EQ(writer->monitor_service_data.extended_incompatible_qos[1],
+            static_cast<ExtendedIncompatibleQosSample>(sample_2));
+
+    // Insert old sample - should not be inserted
+    ASSERT_NO_THROW(db.insert(domain_id, writer_id, sample_2));
     ASSERT_EQ(writer->monitor_service_data.extended_incompatible_qos.size(), 2u);
     ASSERT_EQ(reader->monitor_service_data.extended_incompatible_qos.size(), 1u);
     ASSERT_EQ(writer->monitor_service_data.extended_incompatible_qos[0],
