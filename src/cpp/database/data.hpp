@@ -384,6 +384,10 @@ struct DataWriterMonitorServiceData : public Data
      * Deadline Missed Data reported by topic: eprosima::fastdds::statistics::MONITOR_SERVICE_TOPIC
      */
     details::DataContainer<DeadlineMissedSample> deadline_missed;
+    /*
+     * Extended Incompatible QoS Data reported by topic: eprosima::fastdds::statistics::MONITOR_SERVICE_TOPIC
+     */
+    details::DataContainer<ExtendedIncompatibleQosSample> extended_incompatible_qos;
 };
 
 struct DataReaderMonitorServiceData : public Data
@@ -422,6 +426,10 @@ struct DataReaderMonitorServiceData : public Data
      * Sample Lost Data reported by topic: eprosima::fastdds::statistics::MONITOR_SERVICE_TOPIC
      */
     details::DataContainer<SampleLostSample> sample_lost;
+    /*
+     * Extended Incompatible QoS Data reported by topic: eprosima::fastdds::statistics::MONITOR_SERVICE_TOPIC
+     */
+    details::DataContainer<ExtendedIncompatibleQosSample> extended_incompatible_qos;
 };
 
 struct DomainParticipantMonitorServiceData : public Data
