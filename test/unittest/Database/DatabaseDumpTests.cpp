@@ -291,7 +291,8 @@ void initialize_database(
         Database& db,
         int n_entity,
         int n_data,
-        bool link_process_participant = true)
+        bool link_process_participant = true,
+        bool insert_old_data = false)
 {
     for (int i = 0; i < n_entity; ++i)
     {
@@ -301,6 +302,12 @@ void initialize_database(
             initialize_participant_data(db, i, j);
             initialize_datawriter_data(db, i, j);
             initialize_datareader_data(db, i, j);
+        }
+        if (n_data > 0 && insert_old_data)
+        {
+            initialize_participant_data(db, i, 0);
+            initialize_datawriter_data(db, i, 0);
+            initialize_datareader_data(db, i, 0);
         }
     }
 }
@@ -359,6 +366,17 @@ TEST(database, dump_complex_database)
 {
     Database db;
     initialize_database(db, 3, 3);
+    DatabaseDump dump;
+    load_file(COMPLEX_DUMP_FILE, dump);
+    ASSERT_EQ(db.dump_database(), dump);
+}
+
+// Test the dump of a database with three entities of each kind and three datas of each kind
+// that after inserting new data, receives old samples
+TEST(database, dump_complex_database_reject_old_data)
+{
+    Database db;
+    initialize_database(db, 3, 3, true, true);
     DatabaseDump dump;
     load_file(COMPLEX_DUMP_FILE, dump);
     ASSERT_EQ(db.dump_database(), dump);
