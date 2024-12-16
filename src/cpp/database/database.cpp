@@ -4359,7 +4359,10 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities_nts(
                     case EntityKind::USER:
                         for (const auto& user : host->users)
                         {
-                            entities.push_back(user.second);
+                            if (!user.second.expired())
+                            {
+                                entities.push_back(user.second);
+                            }
                         }
                         break;
                     case EntityKind::PROCESS:
@@ -4394,7 +4397,10 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities_nts(
                     case EntityKind::PROCESS:
                         for (const auto& process : user->processes)
                         {
-                            entities.push_back(process.second);
+                            if (!process.second.expired())
+                            {
+                                entities.push_back(process.second);
+                            }
                         }
                         break;
                     case EntityKind::DOMAIN:
@@ -4426,7 +4432,10 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities_nts(
                     }
                     break;
                     case EntityKind::USER:
-                        entities.push_back(process->user);
+                        if (!process->user.expired())
+                        {
+                            entities.push_back(process->user);
+                        }
                         break;
                     case EntityKind::PROCESS:
                         entities.push_back(process);
@@ -4434,7 +4443,10 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities_nts(
                     case EntityKind::PARTICIPANT:
                         for (const auto& participant : process->participants)
                         {
-                            entities.push_back(participant.second);
+                            if (!participant.second.expired())
+                            {
+                                entities.push_back(participant.second);
+                            }
                         }
                         break;
                     case EntityKind::DOMAIN:
@@ -4464,13 +4476,19 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities_nts(
                     case EntityKind::PARTICIPANT:
                         for (const auto& participant : domain->participants)
                         {
-                            entities.push_back(participant.second);
+                            if (!participant.second.expired())
+                            {
+                                entities.push_back(participant.second);
+                            }
                         }
                         break;
                     case EntityKind::TOPIC:
                         for (const auto& topic : domain->topics)
                         {
-                            entities.push_back(topic.second);
+                            if (!topic.second.expired())
+                            {
+                                entities.push_back(topic.second);
+                            }
                         }
                         break;
                     case EntityKind::HOST:
@@ -4515,7 +4533,10 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities_nts(
                         }
                         break;
                     case EntityKind::DOMAIN:
-                        entities.push_back(participant->domain);
+                        if (!participant->domain.expired())
+                        {
+                            entities.push_back(participant->domain);
+                        }
                         break;
                     case EntityKind::PARTICIPANT:
                         entities.push_back(participant);
@@ -4523,13 +4544,19 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities_nts(
                     case EntityKind::DATAWRITER:
                         for (const auto& writer : participant->data_writers)
                         {
-                            entities.push_back(writer.second);
+                            if (!writer.second.expired())
+                            {
+                                entities.push_back(writer.second);
+                            }
                         }
                         break;
                     case EntityKind::DATAREADER:
                         for (const auto& reader : participant->data_readers)
                         {
-                            entities.push_back(reader.second);
+                            if (!reader.second.expired())
+                            {
+                                entities.push_back(reader.second);
+                            }
                         }
                         break;
                     case EntityKind::TOPIC:
@@ -4556,7 +4583,10 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities_nts(
                 switch (entity_kind)
                 {
                     case EntityKind::DOMAIN:
-                        entities.push_back(topic->domain);
+                        if (!topic->domain.expired())
+                        {
+                            entities.push_back(topic->domain);
+                        }
                         break;
                     case EntityKind::TOPIC:
                         entities.push_back(topic);
@@ -4564,13 +4594,19 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities_nts(
                     case EntityKind::DATAWRITER:
                         for (const auto& writer : topic->data_writers)
                         {
-                            entities.push_back(writer.second);
+                            if (!writer.second.expired())
+                            {
+                                entities.push_back(writer.second);
+                            }
                         }
                         break;
                     case EntityKind::DATAREADER:
                         for (const auto& reader : topic->data_readers)
                         {
-                            entities.push_back(reader.second);
+                            if (!reader.second.expired())
+                            {
+                                entities.push_back(reader.second);
+                            }
                         }
                         break;
                     case EntityKind::HOST:
@@ -4600,10 +4636,16 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities_nts(
                 switch (entity_kind)
                 {
                     case EntityKind::TOPIC:
-                        entities.push_back(writer->topic);
+                        if (!writer->topic.expired())
+                        {
+                            entities.push_back(writer->topic);
+                        }
                         break;
                     case EntityKind::PARTICIPANT:
-                        entities.push_back(writer->participant);
+                        if (!writer->participant.expired())
+                        {
+                            entities.push_back(writer->participant);
+                        }
                         break;
                     case EntityKind::DATAWRITER:
                         entities.push_back(writer);
@@ -4611,7 +4653,10 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities_nts(
                     case EntityKind::LOCATOR:
                         for (const auto& locator : writer->locators)
                         {
-                            entities.push_back(locator.second);
+                            if (!locator.second.expired())
+                            {
+                                entities.push_back(locator.second);
+                            }
                         }
                         break;
                     case EntityKind::DATAREADER:
@@ -4640,10 +4685,16 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities_nts(
                 switch (entity_kind)
                 {
                     case EntityKind::TOPIC:
-                        entities.push_back(reader->topic);
+                        if (!reader->topic.expired())
+                        {
+                            entities.push_back(reader->topic);
+                        }
                         break;
                     case EntityKind::PARTICIPANT:
-                        entities.push_back(reader->participant);
+                        if (!reader->participant.expired())
+                        {
+                            entities.push_back(reader->participant);
+                        }
                         break;
                     case EntityKind::DATAREADER:
                         entities.push_back(reader);
@@ -4651,7 +4702,10 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities_nts(
                     case EntityKind::LOCATOR:
                         for (const auto& locator : reader->locators)
                         {
-                            entities.push_back(locator.second);
+                            if (!locator.second.expired())
+                            {
+                                entities.push_back(locator.second);
+                            }
                         }
                         break;
                     case EntityKind::DATAWRITER:
@@ -4682,13 +4736,19 @@ const std::vector<std::shared_ptr<const Entity>> Database::get_entities_nts(
                     case EntityKind::DATAREADER:
                         for (const auto& reader : locator->data_readers)
                         {
-                            entities.push_back(reader.second);
+                            if (!reader.second.expired())
+                            {
+                                entities.push_back(reader.second);
+                            }
                         }
                         break;
                     case EntityKind::DATAWRITER:
                         for (const auto& writer : locator->data_writers)
                         {
-                            entities.push_back(writer.second);
+                            if (!writer.second.expired())
+                            {
+                                entities.push_back(writer.second);
+                            }
                         }
                         break;
                     case EntityKind::LOCATOR:
