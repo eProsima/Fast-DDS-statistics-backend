@@ -1391,8 +1391,7 @@ TEST_F(database_queue_tests, push_datawriter)
             std::make_pair(EntityId(0), EntityId(2)))));
     EXPECT_CALL(database, is_topic_in_database(_, EntityId(2))).Times(AnyNumber())
             .WillRepeatedly(Return(true));
-    EXPECT_CALL(database, is_type_in_database(type_name)).Times(AnyNumber())
-            .WillRepeatedly(Return(true));
+    EXPECT_CALL(database, insert_new_type_idl(type_name, "")).Times(AnyNumber());
 
     // Datawriter undiscovery: FAILURE
     {
@@ -1687,7 +1686,6 @@ TEST_F(database_queue_tests, push_datawriter_topic_does_not_exist)
                 .WillOnce(Invoke(&insert_datawriter_args, &InsertEndpointArgs::insert));
 
         // Expectation: Add the type to the database
-        EXPECT_CALL(database, is_type_in_database(type_name)).Times(1).WillOnce(Return(false));
         EXPECT_CALL(database, insert_new_type_idl(type_name, "")).Times(1);
 
         // Expectation: Modify graph and notify user
@@ -1755,8 +1753,7 @@ TEST_F(database_queue_tests, push_datareader)
             std::make_pair(EntityId(0), EntityId(2)))));
     EXPECT_CALL(database, is_topic_in_database(_, EntityId(2))).Times(AnyNumber())
             .WillRepeatedly(Return(true));
-    EXPECT_CALL(database, is_type_in_database(type_name)).Times(AnyNumber())
-            .WillRepeatedly(Return(true));
+    EXPECT_CALL(database, insert_new_type_idl(type_name, "")).Times(AnyNumber());
 
     // Datareader undiscovery: FAILURE
     {
@@ -2050,7 +2047,6 @@ TEST_F(database_queue_tests, push_datareader_topic_does_not_exist)
                 .WillOnce(Invoke(&insert_datareader_args, &InsertEndpointArgs::insert));
 
         // Expectation: Add the type to the database
-        EXPECT_CALL(database, is_type_in_database(type_name)).Times(1).WillOnce(Return(false));
         EXPECT_CALL(database, insert_new_type_idl(type_name, "")).Times(1);
 
         // Expectation: Modify graph and notify user
