@@ -166,7 +166,7 @@ public:
             const std::string& type_name);
 
     /**
-     * @brief Insert a new type IDL into the database.
+     * @brief Insert a new type IDL into the database or update it.
      * @param topic_type The type of the topic.
      * @param topic_idl The IDL representation of the type
      */

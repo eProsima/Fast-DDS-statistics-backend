@@ -295,6 +295,11 @@ void Database::insert_new_type_idl(
     {
         throw BadParameter("Type name cannot be empty");
     }
+
+    if (is_type_in_database(type_name) && type_idl.empty())
+    {
+        return;
+    }
     type_idls_[type_name] = type_idl;
 }
 
