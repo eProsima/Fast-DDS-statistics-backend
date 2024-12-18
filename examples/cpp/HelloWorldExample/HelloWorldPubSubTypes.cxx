@@ -76,6 +76,7 @@ bool HelloWorldPubSubType::serialize(
         ser.serialize_encapsulation();
         // Serialize the object.
         ser << *p_type;
+        ser.set_dds_cdr_options({0,0});
     }
     catch (eprosima::fastcdr::exception::Exception& /*exception*/)
     {
@@ -128,8 +129,8 @@ uint32_t HelloWorldPubSubType::calculate_serialized_size(
             eprosima::fastcdr::CdrVersion::XCDRv1 :eprosima::fastcdr::CdrVersion::XCDRv2);
         size_t current_alignment {0};
         return static_cast<uint32_t>(calculator.calculate_serialized_size(
-                   *static_cast<const HelloWorld*>(data), current_alignment)) +
-               4u /*encapsulation*/;
+                    *static_cast<const HelloWorld*>(data), current_alignment)) +
+                4u /*encapsulation*/;
     }
     catch (eprosima::fastcdr::exception::Exception& /*exception*/)
     {
@@ -184,8 +185,7 @@ bool HelloWorldPubSubType::compute_key(
             HelloWorld_max_key_cdr_typesize);
 
     // Object that serializes the data.
-    eprosima::fastcdr::Cdr ser(fastbuffer, eprosima::fastcdr::Cdr::BIG_ENDIANNESS,
-            eprosima::fastcdr::CdrVersion::XCDRv2);
+    eprosima::fastcdr::Cdr ser(fastbuffer, eprosima::fastcdr::Cdr::BIG_ENDIANNESS, eprosima::fastcdr::CdrVersion::XCDRv2);
     ser.set_encoding_flag(eprosima::fastcdr::EncodingAlgorithmFlag::PLAIN_CDR2);
     eprosima::fastcdr::serialize_key(ser, *p_type);
     if (force_md5 || HelloWorld_max_key_cdr_typesize > 16)
@@ -212,6 +212,7 @@ void HelloWorldPubSubType::register_type_object_representation()
 {
     register_HelloWorld_type_identifier(type_identifiers_);
 }
+
 
 // Include auxiliary functions like for serializing/deserializing.
 #include "HelloWorldCdrAux.ipp"
