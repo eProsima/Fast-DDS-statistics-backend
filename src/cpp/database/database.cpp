@@ -4057,6 +4057,11 @@ Graph Database::get_entity_subgraph_nts(
                 entity_graph[APP_METADATA_TAG] =  participant->app_metadata;
                 entity_graph_updated = true;
             }
+            if (entity_graph[DDS_VENDOR_TAG] != dds_vendor_str[static_cast<int>(participant->dds_vendor)])
+            {
+                entity_graph[DDS_VENDOR_TAG] = dds_vendor_str[static_cast<int>(participant->dds_vendor)];
+                entity_graph_updated = true;
+            }
             break;
         }
         case (EntityKind::DATAWRITER):

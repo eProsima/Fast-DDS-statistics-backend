@@ -305,8 +305,17 @@ struct DomainParticipant : DDSEntity
                 participant_app_id, participant_app_metadata)
         , process(participant_process)
         , domain(participant_domain)
+        , dds_vendor(dds_vendor_by_guid(participant_guid))
     {
     }
+
+    /**
+     * @brief Check whether the vendor is known based on the GUID.
+     *
+     * @param guid The GUID to check.
+     * @return The vendor name if known, "Unknown" otherwise.
+     */
+    DdsVendor dds_vendor_by_guid(const std::string& guid);
 
     /**
      * Clear the maps and data
@@ -342,6 +351,9 @@ struct DomainParticipant : DDSEntity
 
     //! Actual monitor service data reported by Fast DDS Statistics Module regarding this DomainParticipant.
     DomainParticipantMonitorServiceData monitor_service_data;
+
+    //! The vendor of the DomainParticipant
+    DdsVendor dds_vendor;
 };
 
 

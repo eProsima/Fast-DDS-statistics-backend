@@ -196,6 +196,26 @@ enum class AppId
 };
 
 /**
+ * Indicates the Vendor of a participant in Statistics Backend structure
+ */
+enum class DdsVendor
+{
+    /// Unknown Vendor
+    UNKNOWN,
+
+    /// Fast DDS Vendor
+    FASTDDS,
+
+    /// Safe DDS Vendor
+    SAFEDDS,
+};
+
+/**
+ * Conversion from EntityKind to string
+ */
+constexpr const char* dds_vendor_str[] = {"UNKNOWN", "FASTDDS", "SAFEDDS"};
+
+/**
  * Indicates the Type of Data stored by the Backend
  *
  *     | Signature               | Entities source   | Entity target | No. entities |
