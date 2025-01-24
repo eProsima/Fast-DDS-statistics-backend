@@ -56,16 +56,16 @@ bool Entity::is_metatraffic_topic(
 
 DdsVendor DDSEntity::dds_vendor_by_guid(const std::string& guid)
 {
-    // Example GUID vendor prefixes
-    const std::map<std::string, DdsVendor> vendor_prefixes = {
+    // GUID vendor prefixes
+    const std::map<std::string, DdsVendor> dds_vendor_prefixes = {
         {"01.0f", DdsVendor::FASTDDS},
         {"01.15", DdsVendor::SAFEDDS}
     };
 
     std::string prefix = guid.substr(0, 5); // Assuming the prefix is the first 5 characters
 
-    auto it = vendor_prefixes.find(prefix);
-    if (it != vendor_prefixes.end())
+    auto it = dds_vendor_prefixes.find(prefix);
+    if (it != dds_vendor_prefixes.end())
     {
         return it->second;
     }
