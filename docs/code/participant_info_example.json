@@ -7,6 +7,7 @@
     "metatraffic": false,
     "status": "OK",
     "guid": "01.0f.22.cd.59.64.04.00.05.00.00.00|00.00.01.c1",
+    "dds_vendor": "FASTDDS",
     "qos": {
         "available_builtin_endpoints": 3135,
         "lease_duration":
