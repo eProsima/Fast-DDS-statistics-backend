@@ -54,6 +54,25 @@ bool Entity::is_metatraffic_topic(
     return is_metatraffic;
 }
 
+DdsVendor DDSEntity::dds_vendor_by_guid(
+        const std::string& guid)
+{
+    // GUID vendor prefixes
+    const std::map<std::string, DdsVendor> dds_vendor_prefixes = {
+        {"01.0f", DdsVendor::FASTDDS},
+        {"01.15", DdsVendor::SAFEDDS}
+    };
+
+    std::string prefix = guid.substr(0, 5); // Assuming the prefix is the first 5 characters
+
+    auto it = dds_vendor_prefixes.find(prefix);
+    if (it != dds_vendor_prefixes.end())
+    {
+        return it->second;
+    }
+    return DdsVendor::UNKNOWN;
+}
+
 DDSEndpoint::DDSEndpoint(
         EntityKind entity_kind, /* EntityKind::INVALID */
         std::string endpoint_name, /* "INVALID" */

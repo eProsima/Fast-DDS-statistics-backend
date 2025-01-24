@@ -241,8 +241,18 @@ struct DDSEntity : Entity
         , guid(dds_entity_guid)
         , app_id(dds_entity_app_id)
         , app_metadata(dds_entity_app_metadata)
+        , dds_vendor(dds_vendor_by_guid(dds_entity_guid))
     {
     }
+
+    /**
+     * @brief Check whether the vendor is known based on the GUID.
+     *
+     * @param guid The GUID to check.
+     * @return The vendor name if known, "Unknown" otherwise.
+     */
+    static DdsVendor dds_vendor_by_guid(
+            const std::string& guid);
 
     //! Quality of Service configuration of the entities in a tree structure.
     Qos qos;
@@ -253,6 +263,9 @@ struct DDSEntity : Entity
     //! DDS entity app properties.
     AppId app_id;
     std::string app_metadata;
+
+    //! The vendor of the DomainParticipant
+    DdsVendor dds_vendor;
 };
 
 /*

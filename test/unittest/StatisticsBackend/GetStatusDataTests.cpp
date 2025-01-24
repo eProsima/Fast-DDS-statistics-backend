@@ -72,7 +72,7 @@ public:
         connection_sample.mode(eprosima::fastdds::statistics::ConnectionMode::DATA_SHARING);
         eprosima::fastdds::statistics::detail::GUID_s guid_s;
         eprosima::fastdds::rtps::GUID_t guid_t;
-        std::stringstream guid_str("01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1");
+        std::stringstream guid_str("01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1");
         guid_str >> guid_t;
         memcpy(guid_s.guidPrefix().value().data(), guid_t.guidPrefix.value,
                 eprosima::fastdds::rtps::GuidPrefix_t::size);

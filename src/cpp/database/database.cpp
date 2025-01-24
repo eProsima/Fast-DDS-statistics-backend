@@ -4057,6 +4057,11 @@ Graph Database::get_entity_subgraph_nts(
                 entity_graph[APP_METADATA_TAG] =  participant->app_metadata;
                 entity_graph_updated = true;
             }
+            if (entity_graph[DDS_VENDOR_TAG] != dds_vendor_str[static_cast<int>(participant->dds_vendor)])
+            {
+                entity_graph[DDS_VENDOR_TAG] = dds_vendor_str[static_cast<int>(participant->dds_vendor)];
+                entity_graph_updated = true;
+            }
             break;
         }
         case (EntityKind::DATAWRITER):
@@ -5733,6 +5738,7 @@ Info Database::get_info(
             info[QOS_TAG] = participant->qos;
             info[APP_ID_TAG] = app_id_str[(int)participant->app_id];
             info[APP_METADATA_TAG] = participant->app_metadata;
+            info[DDS_VENDOR_TAG] = participant->dds_vendor;
 
             // Locators associated to endpoints
             std::set<std::string> locator_set;
@@ -5774,6 +5780,7 @@ Info Database::get_info(
             info[QOS_TAG] = dds_entity->qos;
             info[APP_ID_TAG] = app_id_str[(int)dds_entity->app_id];
             info[APP_METADATA_TAG] = dds_entity->app_metadata;
+            info[DDS_VENDOR_TAG] = dds_entity->dds_vendor;
             break;
         }
         default:

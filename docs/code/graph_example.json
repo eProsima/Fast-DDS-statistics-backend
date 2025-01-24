@@ -44,6 +44,7 @@
                                     "alias": "shapes_demo_participant_1_alias",
                                     "status": "OK",
                                     "app_id": "SHAPES_DEMO",
+                                    "dds_vendor": "FASTDDS",
                                     "endpoints":
                                     {
                                         "6":
@@ -75,6 +76,7 @@
                                     "alias": "shapes_demo_participant_2_alias",
                                     "status": "OK",
                                     "app_id": "SHAPES_DEMO",
+                                    "dds_vendor": "FASTDDS",
                                     "endpoints":
                                     {
                                         "9":

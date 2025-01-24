@@ -203,14 +203,14 @@ public:
         entities[8] = domain2;
 
         auto participant1 = std::make_shared<DomainParticipant>("participant1", "qos",
-                        "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1", nullptr,
+                        "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1", nullptr,
                         domain2);
         db.insert(participant1);
         db.link_participant_with_process(participant1->id, process2->id);
         entities[9] = participant1;
 
         auto participant2 = std::make_shared<DomainParticipant>("participant2", "qos",
-                        "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c2", nullptr,
+                        "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c2", nullptr,
                         domain2);
         db.insert(participant2);
         db.link_participant_with_process(participant2->id, process2->id);

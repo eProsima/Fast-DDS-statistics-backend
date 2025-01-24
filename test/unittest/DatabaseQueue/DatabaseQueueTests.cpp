@@ -592,7 +592,7 @@ TEST_F(database_queue_tests, push_participant)
 
     // Create the participant info
     std::string participant_name = "participant name";
-    std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1";
+    std::string participant_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1";
     Qos participant_qos;
     std::string address = "127.0.0.1";
 
@@ -886,7 +886,7 @@ TEST_F(database_queue_tests, push_participant_participant_exists)
 
     // Create the participant info
     std::string participant_name = "participant name";
-    std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1";
+    std::string participant_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1";
     Qos participant_qos;
     std::string address = "127.0.0.1";
 
@@ -962,7 +962,7 @@ TEST_F(database_queue_tests, push_participant_missing_physical_entity)
 
     // Create the participant info
     std::string participant_name = "participant name";
-    std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1";
+    std::string participant_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1";
     Qos participant_qos;
     std::string address = "127.0.0.1";
 
@@ -1041,7 +1041,7 @@ TEST_F(database_queue_tests, push_participant_process_insert_throws)
 
     // Create the participant info
     std::string participant_name = "participant name";
-    std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1";
+    std::string participant_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1";
     Qos participant_qos;
     std::string address = "127.0.0.1";
 
@@ -1121,7 +1121,7 @@ TEST_F(database_queue_tests, push_participant_user_insert_throws)
 
     // Create the participant info
     std::string participant_name = "participant name";
-    std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1";
+    std::string participant_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1";
     Qos participant_qos;
     std::string address = "127.0.0.1";
 
@@ -1200,7 +1200,7 @@ TEST_F(database_queue_tests, push_participant_host_insert_throws)
 
     // Create the participant info
     std::string participant_name = "participant name";
-    std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1";
+    std::string participant_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1";
     Qos participant_qos;
     std::string address = "127.0.0.1";
 
@@ -1280,7 +1280,7 @@ TEST_F(database_queue_tests, push_participant_data_wrong_processname_format)
 
     // Create the participant info
     std::string participant_name = "participant name";
-    std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1";
+    std::string participant_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1";
     Qos participant_qos;
     std::string address = "127.0.0.1";
 
@@ -1358,7 +1358,7 @@ TEST_F(database_queue_tests, push_datawriter)
     // Create the writer info
     std::string datawriter_name = "topic_name_0.0.0.1";  //< Name constructed from the topic and entity_id
     Qos datawriter_qos;
-    std::string datawriter_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
+    std::string datawriter_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
     std::string topic_name = "topic_name";
     std::string type_name = "type_name";
     std::string unicast_locator_str = "UDPv4:[127.0.0.1]:1024";
@@ -1379,7 +1379,7 @@ TEST_F(database_queue_tests, push_datawriter)
 
     // Precondition: The participant exists and has ID 1
     std::string participant_name = "participant";
-    std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1";
+    std::string participant_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1";
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
     // TODO: Remove when endpoint gets app data from discovery info
@@ -1595,7 +1595,7 @@ TEST_F(database_queue_tests, push_datawriter_topic_does_not_exist)
     // Create the writer info
     std::string datawriter_name = "topic_name_0.0.0.1";  //< Name constructed from the topic and entity_id
     Qos datawriter_qos;
-    std::string datawriter_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
+    std::string datawriter_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
     std::string topic_name = "topic_name";
     std::string type_name = "type_name";
     std::string unicast_locator_str = "UDPv4:[127.0.0.1]:1024";
@@ -1616,7 +1616,7 @@ TEST_F(database_queue_tests, push_datawriter_topic_does_not_exist)
 
     // Precondition: The participant exists and has ID 1
     std::string participant_name = "participant";
-    std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1";
+    std::string participant_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1";
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
     // TODO: Remove when endpoint gets app data from discovery info
@@ -1720,7 +1720,7 @@ TEST_F(database_queue_tests, push_datareader)
     // Create the reader info
     std::string datareader_name = "topic_name_0.0.0.2";  //< Name constructed from the topic and entity_id
     Qos datareader_qos;
-    std::string datareader_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
+    std::string datareader_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
     std::string topic_name = "topic_name";
     std::string type_name = "type_name";
     std::string unicast_locator_str = "UDPv4:[127.0.0.1]:1024";
@@ -1741,7 +1741,7 @@ TEST_F(database_queue_tests, push_datareader)
 
     // Precondition: The participant exists and has ID 1
     std::string participant_name = "participant";
-    std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1";
+    std::string participant_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1";
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
     // TODO: Remove when endpoint gets app data from discovery info
@@ -1957,7 +1957,7 @@ TEST_F(database_queue_tests, push_datareader_topic_does_not_exist)
     // Create the reader info
     std::string datareader_name = "topic_name_0.0.0.2";  //< Name constructed from the topic and entity_id
     Qos datareader_qos;
-    std::string datareader_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
+    std::string datareader_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
     std::string topic_name = "topic_name";
     std::string type_name = "type_name";
     std::string unicast_locator_str = "UDPv4:[127.0.0.1]:1024";
@@ -1978,7 +1978,7 @@ TEST_F(database_queue_tests, push_datareader_topic_does_not_exist)
 
     // Precondition: The participant exists and has ID 1
     std::string participant_name = "participant";
-    std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1";
+    std::string participant_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1";
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
             .WillRepeatedly(Return(std::make_pair(EntityId(0), EntityId(1))));
     // TODO: Remove when endpoint gets app data from discovery info
@@ -2078,11 +2078,11 @@ TEST_F(database_queue_tests, push_history_latency)
 {
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
-    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 12> prefix = {1, 15, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> reader_id = {0, 0, 0, 1};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
-    std::string reader_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
-    std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
+    std::string reader_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
+    std::string writer_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
     // Build the reader GUID
     DatabaseDataQueueWrapper::StatisticsGuidPrefix reader_prefix;
@@ -2150,11 +2150,11 @@ TEST_F(database_queue_tests, push_history_latency_no_reader)
 {
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
-    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 12> prefix = {1, 15, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> reader_id = {0, 0, 0, 1};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
-    std::string reader_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
-    std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
+    std::string reader_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
+    std::string writer_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
     // Build the reader GUID
     DatabaseDataQueueWrapper::StatisticsGuidPrefix reader_prefix;
@@ -2207,11 +2207,11 @@ TEST_F(database_queue_tests, push_history_latency_no_writer)
 {
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
-    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 12> prefix = {1, 15, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> reader_id = {0, 0, 0, 1};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
-    std::string reader_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
-    std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
+    std::string reader_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
+    std::string writer_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
     // Build the reader GUID
     DatabaseDataQueueWrapper::StatisticsGuidPrefix reader_prefix;
@@ -2264,14 +2264,14 @@ TEST_F(database_queue_tests, push_network_latency)
 {
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
-    std::array<uint8_t, 16> src_locator_address = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
+    std::array<uint8_t, 16> src_locator_address = {1, 15, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
     eprosima::fastdds::rtps::Locator_t src_locator_t;
     uint16_t src_locator_t_physical_port = 0;
     uint16_t src_locator_t_logical_port = 0;
     IPLocator::setPhysicalPort(src_locator_t, src_locator_t_physical_port);
     IPLocator::setLogicalPort(src_locator_t, src_locator_t_logical_port);
     uint32_t src_locator_port = src_locator_t.port;
-    std::string src_locator_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|d.e.f.10";
+    std::string src_locator_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|d.e.f.10";
 
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
     eprosima::fastdds::rtps::Locator_t dst_locator_t;
@@ -2342,14 +2342,14 @@ TEST_F(database_queue_tests, push_network_latency_no_participant)
 {
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
-    std::array<uint8_t, 16> src_locator_address = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
+    std::array<uint8_t, 16> src_locator_address = {1, 15, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
     eprosima::fastdds::rtps::Locator_t src_locator_t;
     uint16_t src_locator_t_physical_port = 0;
     uint16_t src_locator_t_logical_port = 0;
     IPLocator::setPhysicalPort(src_locator_t, src_locator_t_physical_port);
     IPLocator::setLogicalPort(src_locator_t, src_locator_t_logical_port);
     uint32_t src_locator_port = src_locator_t.port;
-    std::string src_locator_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|d.e.f.10";
+    std::string src_locator_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|d.e.f.10";
 
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
     eprosima::fastdds::rtps::Locator_t dst_locator_t;
@@ -2406,14 +2406,14 @@ TEST_F(database_queue_tests, push_network_latency_wrong_participant_format)
 {
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
-    std::array<uint8_t, 16> src_locator_address = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
+    std::array<uint8_t, 16> src_locator_address = {1, 15, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
     eprosima::fastdds::rtps::Locator_t src_locator_t;
     uint16_t src_locator_t_physical_port = 1;
     uint16_t src_locator_t_logical_port = 0;
     IPLocator::setPhysicalPort(src_locator_t, src_locator_t_physical_port);
     IPLocator::setLogicalPort(src_locator_t, src_locator_t_logical_port);
     uint32_t src_locator_port = src_locator_t.port;
-    std::string src_locator_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|d.e.f.10";
+    std::string src_locator_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|d.e.f.10";
 
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
     eprosima::fastdds::rtps::Locator_t dst_locator_t;
@@ -2469,14 +2469,14 @@ TEST_F(database_queue_tests, push_network_latency_no_destination_locator)
 {
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
-    std::array<uint8_t, 16> src_locator_address = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
+    std::array<uint8_t, 16> src_locator_address = {1, 15, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
     eprosima::fastdds::rtps::Locator_t src_locator_t;
     uint16_t src_locator_t_physical_port = 0;
     uint16_t src_locator_t_logical_port = 0;
     IPLocator::setPhysicalPort(src_locator_t, src_locator_t_physical_port);
     IPLocator::setLogicalPort(src_locator_t, src_locator_t_logical_port);
     uint32_t src_locator_port = src_locator_t.port;
-    std::string src_locator_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|d.e.f.10";
+    std::string src_locator_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|d.e.f.10";
 
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
     eprosima::fastdds::rtps::Locator_t dst_locator_t;
@@ -2563,9 +2563,9 @@ TEST_F(database_queue_tests, push_publication_throughput)
 {
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
-    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 12> prefix = {1, 15, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
-    std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
+    std::string writer_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
     // Build the writer GUID
     DatabaseDataQueueWrapper::StatisticsGuidPrefix writer_prefix;
@@ -2618,9 +2618,9 @@ TEST_F(database_queue_tests, push_publication_throughput_no_writer)
 {
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
-    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 12> prefix = {1, 15, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
-    std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
+    std::string writer_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
     // Build the writer GUID
     DatabaseDataQueueWrapper::StatisticsGuidPrefix writer_prefix;
@@ -2659,9 +2659,9 @@ TEST_F(database_queue_tests, push_subscription_throughput)
 {
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
-    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 12> prefix = {1, 15, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> reader_id = {0, 0, 0, 1};
-    std::string reader_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
+    std::string reader_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
 
     // Build the reader GUID
     DatabaseDataQueueWrapper::StatisticsGuidPrefix reader_prefix;
@@ -2714,9 +2714,9 @@ TEST_F(database_queue_tests, push_subscription_throughput_no_reader)
 {
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
-    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 12> prefix = {1, 15, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> reader_id = {0, 0, 0, 1};
-    std::string reader_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
+    std::string reader_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
 
     // Build the reader GUID
     DatabaseDataQueueWrapper::StatisticsGuidPrefix reader_prefix;
@@ -2755,10 +2755,10 @@ TEST_F(database_queue_tests, push_rtps_sent)
 {
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
-    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 12> prefix = {1, 15, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
-    std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
+    std::string writer_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
     eprosima::fastdds::rtps::Locator_t dst_locator_t;
     uint16_t dst_locator_t_physical_port = 2048;
@@ -2852,10 +2852,10 @@ TEST_F(database_queue_tests, push_rtps_sent_no_writer)
 {
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
-    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 12> prefix = {1, 15, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
-    std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
+    std::string writer_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
     eprosima::fastdds::rtps::Locator_t dst_locator_t;
     uint16_t dst_locator_t_physical_port = 2048;
@@ -2917,10 +2917,10 @@ TEST_F(database_queue_tests, push_rtps_sent_no_locator)
 {
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
-    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 12> prefix = {1, 15, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
-    std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
+    std::string writer_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
     eprosima::fastdds::rtps::Locator_t dst_locator_t;
     uint16_t dst_locator_t_physical_port = 2048;
@@ -3029,10 +3029,10 @@ TEST_F(database_queue_tests, push_rtps_lost)
 {
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
-    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 12> prefix = {1, 15, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
-    std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
+    std::string writer_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
     eprosima::fastdds::rtps::Locator_t dst_locator_t;
     uint16_t dst_locator_t_physical_port = 2048;
@@ -3126,10 +3126,10 @@ TEST_F(database_queue_tests, push_rtps_lost_no_writer)
 {
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
-    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 12> prefix = {1, 15, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
-    std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
+    std::string writer_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
     eprosima::fastdds::rtps::Locator_t dst_locator_t;
     uint16_t dst_locator_t_physical_port = 2048;
@@ -3191,10 +3191,10 @@ TEST_F(database_queue_tests, push_rtps_lost_no_locator)
 {
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
-    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 12> prefix = {1, 15, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
-    std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
+    std::string writer_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
     eprosima::fastdds::rtps::Locator_t dst_locator_t;
     uint16_t dst_locator_t_physical_port = 2048;
@@ -3302,10 +3302,10 @@ TEST_F(database_queue_tests, push_rtps_lost_no_locator)
 //TODO(jepemi) Test currently not executed as it is not supported by the monitor yet. It passes.
 TEST_F(database_queue_tests, push_rtps_bytes_no_writer)
 {
-    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 12> prefix = {1, 15, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
-    std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
+    std::string writer_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
     eprosima::fastdds::rtps::Locator_t dst_locator_t;
     uint16_t dst_locator_t_physical_port = 2048;
@@ -3361,10 +3361,10 @@ TEST_F(database_queue_tests, push_rtps_bytes_no_writer)
 //TODO(jepemi) Test currently not executed as it is not supported by the monitor yet. It fails.
 TEST_F(database_queue_tests, push_rtps_bytes_no_locator)
 {
-    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 12> prefix = {1, 15, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
-    std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
+    std::string writer_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
     eprosima::fastdds::rtps::Locator_t dst_locator_t;
     uint16_t dst_locator_t_physical_port = 2048;
@@ -3420,9 +3420,9 @@ TEST_F(database_queue_tests, push_resent_datas)
 {
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
-    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 12> prefix = {1, 15, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
-    std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
+    std::string writer_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
     // Build the writer GUID
     DatabaseDataQueueWrapper::StatisticsGuidPrefix writer_prefix;
@@ -3475,9 +3475,9 @@ TEST_F(database_queue_tests, push_resent_datas_no_writer)
 {
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
-    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 12> prefix = {1, 15, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
-    std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
+    std::string writer_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
     // Build the writer GUID
     DatabaseDataQueueWrapper::StatisticsGuidPrefix writer_prefix;
@@ -3516,9 +3516,9 @@ TEST_F(database_queue_tests, push_heartbeat_count)
 {
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
-    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 12> prefix = {1, 15, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
-    std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
+    std::string writer_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
     // Build the writer GUID
     DatabaseDataQueueWrapper::StatisticsGuidPrefix writer_prefix;
@@ -3571,9 +3571,9 @@ TEST_F(database_queue_tests, push_heartbeat_count_no_writer)
 {
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
-    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 12> prefix = {1, 15, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
-    std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
+    std::string writer_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
     // Build the writer GUID
     DatabaseDataQueueWrapper::StatisticsGuidPrefix writer_prefix;
@@ -3612,9 +3612,9 @@ TEST_F(database_queue_tests, push_acknack_count)
 {
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
-    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 12> prefix = {1, 15, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> reader_id = {0, 0, 0, 1};
-    std::string reader_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
+    std::string reader_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
 
     // Build the reader GUID
     DatabaseDataQueueWrapper::StatisticsGuidPrefix reader_prefix;
@@ -3667,9 +3667,9 @@ TEST_F(database_queue_tests, push_acknack_count_no_reader)
 {
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
-    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 12> prefix = {1, 15, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> reader_id = {0, 0, 0, 1};
-    std::string reader_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
+    std::string reader_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
 
     // Build the reader GUID
     DatabaseDataQueueWrapper::StatisticsGuidPrefix reader_prefix;
@@ -3708,9 +3708,9 @@ TEST_F(database_queue_tests, push_nackfrag_count)
 {
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
-    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 12> prefix = {1, 15, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> reader_id = {0, 0, 0, 1};
-    std::string reader_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
+    std::string reader_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
 
     // Build the reader GUID
     DatabaseDataQueueWrapper::StatisticsGuidPrefix reader_prefix;
@@ -3763,9 +3763,9 @@ TEST_F(database_queue_tests, push_nackfrag_count_no_reader)
 {
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
-    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 12> prefix = {1, 15, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> reader_id = {0, 0, 0, 1};
-    std::string reader_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
+    std::string reader_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
 
     // Build the reader GUID
     DatabaseDataQueueWrapper::StatisticsGuidPrefix reader_prefix;
@@ -3804,9 +3804,9 @@ TEST_F(database_queue_tests, push_gap_count)
 {
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
-    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 12> prefix = {1, 15, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
-    std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
+    std::string writer_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
     // Build the writer GUID
     DatabaseDataQueueWrapper::StatisticsGuidPrefix writer_prefix;
@@ -3859,9 +3859,9 @@ TEST_F(database_queue_tests, push_gap_count_no_writer)
 {
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
-    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 12> prefix = {1, 15, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
-    std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
+    std::string writer_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
     // Build the writer GUID
     DatabaseDataQueueWrapper::StatisticsGuidPrefix writer_prefix;
@@ -3900,9 +3900,9 @@ TEST_F(database_queue_tests, push_data_count)
 {
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
-    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 12> prefix = {1, 15, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
-    std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
+    std::string writer_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
     // Build the writer GUID
     DatabaseDataQueueWrapper::StatisticsGuidPrefix writer_prefix;
@@ -3955,9 +3955,9 @@ TEST_F(database_queue_tests, push_data_count_no_writer)
 {
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
-    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 12> prefix = {1, 15, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
-    std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
+    std::string writer_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
     // Build the writer GUID
     DatabaseDataQueueWrapper::StatisticsGuidPrefix writer_prefix;
@@ -3996,9 +3996,9 @@ TEST_F(database_queue_tests, push_pdp_count)
 {
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
-    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 12> prefix = {1, 15, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> participant_id = {0, 0, 0, 0};
-    std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
+    std::string participant_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
 
     // Build the participant GUID
     DatabaseDataQueueWrapper::StatisticsGuidPrefix participant_prefix;
@@ -4051,9 +4051,9 @@ TEST_F(database_queue_tests, push_pdp_count_no_participant)
 {
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
-    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 12> prefix = {1, 15, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> participant_id = {0, 0, 0, 0};
-    std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
+    std::string participant_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
 
     // Build the participant GUID
     DatabaseDataQueueWrapper::StatisticsGuidPrefix participant_prefix;
@@ -4092,9 +4092,9 @@ TEST_F(database_queue_tests, push_edp_count)
 {
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
-    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 12> prefix = {1, 15, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> participant_id = {0, 0, 0, 0};
-    std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
+    std::string participant_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
 
     // Build the participant GUID
     DatabaseDataQueueWrapper::StatisticsGuidPrefix participant_prefix;
@@ -4147,9 +4147,9 @@ TEST_F(database_queue_tests, push_edp_count_no_participant)
 {
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
-    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 12> prefix = {1, 15, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> participant_id = {0, 0, 0, 0};
-    std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
+    std::string participant_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
 
     // Build the participant GUID
     DatabaseDataQueueWrapper::StatisticsGuidPrefix participant_prefix;
@@ -4188,14 +4188,14 @@ TEST_F(database_queue_tests, push_discovery_times)
 {
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
-    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 12> prefix = {1, 15, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> participant_id = {0, 0, 0, 0};
     std::array<uint8_t, 4> entity_id = {0, 0, 0, 1};
     // discovery time must be rounded to tenths of nanosecond to avoid truncation by
     // windows system_clock
     uint64_t discovery_time = 1000;
-    std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
-    std::string remote_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
+    std::string participant_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
+    std::string remote_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
     std::chrono::system_clock::time_point discovery_timestamp =
             eprosima::statistics_backend::nanoseconds_to_systemclock(discovery_time);
 
@@ -4263,11 +4263,11 @@ TEST_F(database_queue_tests, push_discovery_times)
 
 TEST_F(database_queue_tests, push_discovery_times_no_participant)
 {
-    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 12> prefix = {1, 15, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> participant_id = {0, 0, 0, 0};
     std::array<uint8_t, 4> entity_id = {0, 0, 0, 1};
-    std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
-    std::string remote_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
+    std::string participant_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
+    std::string remote_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
 
     long long discovery_time = 1024;
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
@@ -4323,12 +4323,12 @@ TEST_F(database_queue_tests, push_discovery_times_no_entity)
 {
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
-    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 12> prefix = {1, 15, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> participant_id = {0, 0, 0, 0};
     std::array<uint8_t, 4> entity_id = {0, 0, 0, 1};
     uint64_t discovery_time = 1024;
-    std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
-    std::string remote_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
+    std::string participant_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
+    std::string remote_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
 
     // Build the participant GUID
     DatabaseDataQueueWrapper::StatisticsGuidPrefix participant_prefix;
@@ -4381,11 +4381,11 @@ TEST_F(database_queue_tests, push_sample_datas)
 {
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
-    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 12> prefix = {1, 15, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
     int32_t sn_high = 2048;
     uint32_t sn_low = 4096;
-    std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
+    std::string writer_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
     eprosima::fastdds::
             rtps::SequenceNumber_t sn (sn_high, sn_low);
 
@@ -4448,11 +4448,11 @@ TEST_F(database_queue_tests, push_sample_datas_no_writer)
 {
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
-    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 12> prefix = {1, 15, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
     int32_t sn_high = 2048;
     uint32_t sn_low = 4096;
-    std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
+    std::string writer_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
     eprosima::fastdds::rtps::SequenceNumber_t sn (sn_high, sn_low);
 
     // Build the writer GUID
@@ -4501,9 +4501,9 @@ TEST_F(database_queue_tests, push_monitor_proxy)
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
     // Build the participant GUID
-    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 12> prefix = {1, 15, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> participant_id = {0, 0, 0, 0};
-    std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
+    std::string participant_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
     DatabaseDataQueueWrapper::StatisticsGuidPrefix participant_prefix;
     participant_prefix.value(prefix);
     DatabaseDataQueueWrapper::StatisticsEntityId participant_entity_id;
@@ -4564,9 +4564,9 @@ TEST_F(database_queue_tests, push_monitor_proxy_no_entity)
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
     // Build the participant GUID
-    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 12> prefix = {1, 15, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> participant_id = {0, 0, 0, 0};
-    std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
+    std::string participant_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
     DatabaseDataQueueWrapper::StatisticsGuidPrefix participant_prefix;
     participant_prefix.value(prefix);
     DatabaseDataQueueWrapper::StatisticsEntityId participant_entity_id;
@@ -4608,9 +4608,9 @@ TEST_F(database_queue_tests, push_monitor_connection_list)
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
     // Build the participant GUID
-    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 12> prefix = {1, 15, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> participant_id = {0, 0, 0, 0};
-    std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
+    std::string participant_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
     DatabaseDataQueueWrapper::StatisticsGuidPrefix participant_prefix;
     participant_prefix.value(prefix);
     DatabaseDataQueueWrapper::StatisticsEntityId participant_entity_id;
@@ -4624,7 +4624,7 @@ TEST_F(database_queue_tests, push_monitor_connection_list)
     Connection connection;
     connection.mode(eprosima::fastdds::statistics::ConnectionMode::DATA_SHARING);
     std::array<uint8_t, 4> other_entity_id = {0, 0, 0, 1};
-    std::string entity_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
+    std::string entity_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
     DatabaseDataQueueWrapper::StatisticsEntityId entity_id;
     entity_id.value(other_entity_id);
     DatabaseDataQueueWrapper::StatisticsGuid entity_guid;
@@ -4687,9 +4687,9 @@ TEST_F(database_queue_tests, push_monitor_connection_list_no_entity)
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
     // Build the participant GUID
-    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 12> prefix = {1, 15, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> participant_id = {0, 0, 0, 0};
-    std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
+    std::string participant_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
     DatabaseDataQueueWrapper::StatisticsGuidPrefix participant_prefix;
     participant_prefix.value(prefix);
     DatabaseDataQueueWrapper::StatisticsEntityId participant_entity_id;
@@ -4703,7 +4703,7 @@ TEST_F(database_queue_tests, push_monitor_connection_list_no_entity)
     Connection connection;
     connection.mode(eprosima::fastdds::statistics::ConnectionMode::DATA_SHARING);
     std::array<uint8_t, 4> other_entity_id = {0, 0, 0, 1};
-    std::string entity_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
+    std::string entity_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
     DatabaseDataQueueWrapper::StatisticsEntityId entity_id;
     entity_id.value(other_entity_id);
     DatabaseDataQueueWrapper::StatisticsGuid entity_guid;
@@ -4751,11 +4751,11 @@ TEST_F(database_queue_tests, push_monitor_incompatible_qos)
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
     // Build the writer GUID
-    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 12> prefix = {1, 15, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
     int32_t sn_high = 2048;
     uint32_t sn_low = 4096;
-    std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
+    std::string writer_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
     eprosima::fastdds::rtps::SequenceNumber_t sn (sn_high, sn_low);
     DatabaseDataQueueWrapper::StatisticsGuidPrefix writer_prefix;
     writer_prefix.value(prefix);
@@ -4825,11 +4825,11 @@ TEST_F(database_queue_tests, push_monitor_incompatible_qos_no_entity)
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
     // Build the writer GUID
-    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 12> prefix = {1, 15, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
     int32_t sn_high = 2048;
     uint32_t sn_low = 4096;
-    std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
+    std::string writer_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
     eprosima::fastdds::rtps::SequenceNumber_t sn (sn_high, sn_low);
     DatabaseDataQueueWrapper::StatisticsGuidPrefix writer_prefix;
     writer_prefix.value(prefix);
@@ -4883,11 +4883,11 @@ TEST_F(database_queue_tests, push_monitor_inconsistent_topic)
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
     // Build the writer GUID
-    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 12> prefix = {1, 15, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
     int32_t sn_high = 2048;
     uint32_t sn_low = 4096;
-    std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
+    std::string writer_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
     eprosima::fastdds::rtps::SequenceNumber_t sn (sn_high, sn_low);
     DatabaseDataQueueWrapper::StatisticsGuidPrefix writer_prefix;
     writer_prefix.value(prefix);
@@ -4950,11 +4950,11 @@ TEST_F(database_queue_tests, push_monitor_inconsistent_topic_no_entity)
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
     // Build the writer GUID
-    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 12> prefix = {1, 15, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
     int32_t sn_high = 2048;
     uint32_t sn_low = 4096;
-    std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
+    std::string writer_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
     eprosima::fastdds::rtps::SequenceNumber_t sn (sn_high, sn_low);
     DatabaseDataQueueWrapper::StatisticsGuidPrefix writer_prefix;
     writer_prefix.value(prefix);
@@ -5001,11 +5001,11 @@ TEST_F(database_queue_tests, push_monitor_liveliness_lost)
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
     // Build the writer GUID
-    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 12> prefix = {1, 15, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
     int32_t sn_high = 2048;
     uint32_t sn_low = 4096;
-    std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
+    std::string writer_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
     eprosima::fastdds::rtps::SequenceNumber_t sn (sn_high, sn_low);
     DatabaseDataQueueWrapper::StatisticsGuidPrefix writer_prefix;
     writer_prefix.value(prefix);
@@ -5068,11 +5068,11 @@ TEST_F(database_queue_tests, push_monitor_liveliness_lost_no_entity)
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
     // Build the writer GUID
-    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 12> prefix = {1, 15, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
     int32_t sn_high = 2048;
     uint32_t sn_low = 4096;
-    std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
+    std::string writer_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
     eprosima::fastdds::rtps::SequenceNumber_t sn (sn_high, sn_low);
     DatabaseDataQueueWrapper::StatisticsGuidPrefix writer_prefix;
     writer_prefix.value(prefix);
@@ -5119,9 +5119,9 @@ TEST_F(database_queue_tests, push_monitor_liveliness_changed)
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
     // Build the reader GUID
-    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 12> prefix = {1, 15, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> reader_id = {0, 0, 0, 1};
-    std::string reader_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
+    std::string reader_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
     DatabaseDataQueueWrapper::StatisticsGuidPrefix reader_prefix;
     reader_prefix.value(prefix);
     DatabaseDataQueueWrapper::StatisticsEntityId reader_entity_id;
@@ -5185,9 +5185,9 @@ TEST_F(database_queue_tests, push_monitor_liveliness_changed_no_entity)
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
     // Build the reader GUID
-    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 12> prefix = {1, 15, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> reader_id = {0, 0, 0, 1};
-    std::string reader_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
+    std::string reader_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
     DatabaseDataQueueWrapper::StatisticsGuidPrefix reader_prefix;
     reader_prefix.value(prefix);
     DatabaseDataQueueWrapper::StatisticsEntityId reader_entity_id;
@@ -5236,9 +5236,9 @@ TEST_F(database_queue_tests, push_monitor_deadline_missed)
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
     // Build the reader GUID
-    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 12> prefix = {1, 15, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> reader_id = {0, 0, 0, 1};
-    std::string reader_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
+    std::string reader_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
     DatabaseDataQueueWrapper::StatisticsGuidPrefix reader_prefix;
     reader_prefix.value(prefix);
     DatabaseDataQueueWrapper::StatisticsEntityId reader_entity_id;
@@ -5301,9 +5301,9 @@ TEST_F(database_queue_tests, push_monitor_deadline_missed_no_entity)
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
     // Build the reader GUID
-    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 12> prefix = {1, 15, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> reader_id = {0, 0, 0, 1};
-    std::string reader_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
+    std::string reader_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
     DatabaseDataQueueWrapper::StatisticsGuidPrefix reader_prefix;
     reader_prefix.value(prefix);
     DatabaseDataQueueWrapper::StatisticsEntityId reader_entity_id;
@@ -5350,9 +5350,9 @@ TEST_F(database_queue_tests, push_monitor_sample_lost)
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
     // Build the reader GUID
-    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 12> prefix = {1, 15, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> reader_id = {0, 0, 0, 1};
-    std::string reader_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
+    std::string reader_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
     DatabaseDataQueueWrapper::StatisticsGuidPrefix reader_prefix;
     reader_prefix.value(prefix);
     DatabaseDataQueueWrapper::StatisticsEntityId reader_entity_id;
@@ -5412,9 +5412,9 @@ TEST_F(database_queue_tests, push_monitor_sample_lost_no_entity)
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
     // Build the reader GUID
-    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 12> prefix = {1, 15, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> reader_id = {0, 0, 0, 1};
-    std::string reader_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
+    std::string reader_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
     DatabaseDataQueueWrapper::StatisticsGuidPrefix reader_prefix;
     reader_prefix.value(prefix);
     DatabaseDataQueueWrapper::StatisticsEntityId reader_entity_id;
@@ -5459,9 +5459,9 @@ TEST_F(database_queue_tests, push_monitor_extended_incompatible_qos)
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
     // Build the writer GUID
-    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 12> prefix = {1, 15, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
-    std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
+    std::string writer_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
     DatabaseDataQueueWrapper::StatisticsGuidPrefix writer_prefix;
     writer_prefix.value(prefix);
     DatabaseDataQueueWrapper::StatisticsEntityId writer_entity_id;
@@ -5472,7 +5472,7 @@ TEST_F(database_queue_tests, push_monitor_extended_incompatible_qos)
 
     // Build incompatible qos status
     eprosima::fastdds::statistics::ExtendedIncompatibleQoSStatus_s status;
-    std::stringstream remote_entity_guid_str("01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1");
+    std::stringstream remote_entity_guid_str("01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1");
     eprosima::fastdds::statistics::detail::GUID_s remote_entity_guid_s;
     eprosima::fastdds::rtps::GUID_t remote_entity_guid_t;
 
@@ -5536,9 +5536,9 @@ TEST_F(database_queue_tests, push_monitor_extended_incompatible_qos_no_entity)
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
     // Build the writer GUID
-    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 12> prefix = {1, 15, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
-    std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
+    std::string writer_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
     DatabaseDataQueueWrapper::StatisticsGuidPrefix writer_prefix;
     writer_prefix.value(prefix);
     DatabaseDataQueueWrapper::StatisticsEntityId writer_entity_id;
@@ -5549,7 +5549,7 @@ TEST_F(database_queue_tests, push_monitor_extended_incompatible_qos_no_entity)
 
     // Build incompatible qos status
     eprosima::fastdds::statistics::ExtendedIncompatibleQoSStatus_s status;
-    std::stringstream remote_entity_guid_str("01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1");
+    std::stringstream remote_entity_guid_str("01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1");
     eprosima::fastdds::statistics::detail::GUID_s remote_entity_guid_s;
     eprosima::fastdds::rtps::GUID_t remote_entity_guid_t;
 
@@ -5595,9 +5595,9 @@ TEST_F(database_queue_tests, push_monitor_statuses_size)
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
 
     // Build the reader GUID
-    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 12> prefix = {1, 15, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> reader_id = {0, 0, 0, 1};
-    std::string reader_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
+    std::string reader_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
     DatabaseDataQueueWrapper::StatisticsGuidPrefix reader_prefix;
     reader_prefix.value(prefix);
     DatabaseDataQueueWrapper::StatisticsEntityId reader_entity_id;

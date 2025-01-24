@@ -690,7 +690,7 @@ TEST_F(database_status_tests, participant)
 
     // The new entity will be active
     auto participant1 = std::make_shared<DomainParticipant>("participant1", "qos",
-                    "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1", nullptr,
+                    "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1", nullptr,
                     domain);
     db.insert(participant1);
     ASSERT_TRUE(participant1->active);
@@ -844,7 +844,7 @@ TEST_F(database_status_tests, link_active_participant_with_inactive_process)
 
     // The new entity will be active
     auto participant1 = std::make_shared<DomainParticipant>("participant1", "qos",
-                    "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1", nullptr,
+                    "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1", nullptr,
                     domain);
     db.insert(participant1);
 
@@ -878,7 +878,7 @@ TEST_F(database_status_tests, link_inactive_participant_with_active_process)
 {
     // The new entity will be inactive
     auto participant1 = std::make_shared<DomainParticipant>("participant1", "qos",
-                    "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1", nullptr,
+                    "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1", nullptr,
                     domain);
     db.insert(participant1);
     db.change_entity_status(participant1->id, false);
@@ -926,7 +926,7 @@ TEST_F(database_status_tests, link_inactive_participant_with_inactive_process)
 
     // The new entity will be inactive
     auto participant1 = std::make_shared<DomainParticipant>("participant1", "qos",
-                    "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1", nullptr,
+                    "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1", nullptr,
                     domain);
     db.insert(participant1);
     db.change_entity_status(participant1->id, false);

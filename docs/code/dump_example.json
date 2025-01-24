@@ -61,6 +61,7 @@
         {
             "name": "participant_0",
             "guid": "01.0f.00.00.00.00.00.00.00.00.00.00|00.00.00.00",
+            "dds_vendor": "FASTDDS",
             "qos": {"qos": "empty"},
             "app_id": "SHAPES_DEMO",
             "process": "3",

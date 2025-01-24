@@ -142,6 +142,8 @@ TEST_F(statistics_backend_tests, get_info)
                 info.erase(APP_ID_TAG);
                 EXPECT_EQ(participant->app_metadata, info[APP_METADATA_TAG]);
                 info.erase(APP_METADATA_TAG);
+                EXPECT_EQ(participant->dds_vendor, info[DDS_VENDOR_TAG]);
+                info.erase(DDS_VENDOR_TAG);
 
                 // Obtain the locators list associated to the participant's endpoints
                 std::vector<std::string> locators;
@@ -193,6 +195,8 @@ TEST_F(statistics_backend_tests, get_info)
                 info.erase(APP_ID_TAG);
                 EXPECT_EQ(dds_entity->app_metadata, info[APP_METADATA_TAG]);
                 info.erase(APP_METADATA_TAG);
+                EXPECT_EQ(dds_entity->dds_vendor, info[DDS_VENDOR_TAG]);
+                info.erase(DDS_VENDOR_TAG);
                 break;
             }
             default:
