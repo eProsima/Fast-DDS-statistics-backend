@@ -47,7 +47,7 @@ public:
         domain_name = "test_domain";
 
         participant_name = "test_participant";
-        participant_guid = "01.02.03.04.05.06.07.08.09.10.11.12";
+        participant_guid = "01.0f.03.04.05.06.07.08.09.10.11.12";
 
         topic_name = "test_topic";
         topic_alias = topic_name;
@@ -55,11 +55,11 @@ public:
 
         writer_name = "test_writer";
         writer_alias = writer_name;
-        writer_guid = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.3";
+        writer_guid = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.3";
 
         reader_name = "test_reader";
         reader_alias = reader_name;
-        reader_guid = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.4";
+        reader_guid = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.4";
 
         unicast_locator_str = "UDPv4:[127.0.0.1]:1024";
         multicast_locator_str = "UDPv4:[239.1.1.1]:1024";
@@ -123,6 +123,7 @@ TEST_F(database_process_entities_tests, insert_new_participant)
     ASSERT_EQ(AppId::UNKNOWN, participants[domain_id][participant_id]->app_id);
     ASSERT_EQ("", participants[domain_id][participant_id]->app_metadata);
     ASSERT_EQ(domain->participants[participant_id].get(), participants[domain_id][participant_id].get());
+    ASSERT_EQ(DdsVendor::FASTDDS, participants[domain_id][participant_id]->dds_vendor);
 }
 
 TEST_F(database_process_entities_tests, insert_new_participant_already_exists)

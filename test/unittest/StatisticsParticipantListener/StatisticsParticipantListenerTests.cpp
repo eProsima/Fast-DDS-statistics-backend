@@ -388,7 +388,7 @@ public:
 
         // Participant entity
         participant_name_ = "participant_ name";
-        participant_prefix_str_ = "01.02.03.04.05.06.07.08.09.0a.0b.0c";
+        participant_prefix_str_ = "01.0f.03.04.05.06.07.08.09.0a.0b.0c";
         std::stringstream(participant_prefix_str_) >> guid_prefix_;
         participant_guid_str_ = participant_prefix_str_ + "|0.0.1.c1";
         std::stringstream(participant_guid_str_) >> participant_guid_;
@@ -624,7 +624,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_not_fir
     // Participant_2 entity
     std::string participant_2_name = "participant_ name";
     Qos participant_2_qos;
-    std::string participant_2_prefix_str = "01.02.03.04.05.06.07.08.09.0a.0b.1c";
+    std::string participant_2_prefix_str = "01.0f.03.04.05.06.07.08.09.0a.0b.1c";
     eprosima::fastdds::rtps::GuidPrefix_t guid_2_prefix;
     std::stringstream(participant_2_prefix_str) >> guid_2_prefix;
     std::string participant_2_guid_str = participant_2_prefix_str + "|0.0.1.c1";

@@ -79,7 +79,7 @@ public:
         participant_1 = std::make_shared<database::DomainParticipant>(
             "participant_1",
             entity_qos,
-            "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1",
+            "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1",
             std::shared_ptr<database::Process>(),
             domain,
             StatusLevel::OK_STATUS,
@@ -89,7 +89,7 @@ public:
         datawriter_1 = std::make_shared<database::DataWriter>(
             "publisher",
             entity_qos,
-            "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c2",
+            "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c2",
             participant_1,
             topic,
             StatusLevel::OK_STATUS,
@@ -101,7 +101,7 @@ public:
         participant_2 = std::make_shared<database::DomainParticipant>(
             "participant_2",
             entity_qos,
-            "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c3",
+            "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c3",
             std::shared_ptr<database::Process>(),
             domain,
             StatusLevel::OK_STATUS,
@@ -111,7 +111,7 @@ public:
         datareader_2 = std::make_shared<database::DataReader>(
             "subscriber",
             entity_qos,
-            "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c4",
+            "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c4",
             participant_2,
             topic,
             StatusLevel::OK_STATUS,
@@ -161,7 +161,8 @@ public:
 
 };
 
-// Complete test with two participants (datawriter and datareader), testing add to graph and delete from graph funcionalities
+// Complete test with two participants (datawriter and datareader),
+// testing add to graph and delete from graph funcionalities
 TEST_F(database_domain_view_graph_tests, complete_with_two_participants)
 {
     nlohmann::json json_graph;

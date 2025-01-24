@@ -315,11 +315,11 @@ TEST_F(statistics_reader_listener_tests, not_valid_data)
 
 TEST_F(statistics_reader_listener_tests, new_history_latency_received)
 {
-    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 12> prefix = {1, 15, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> reader_id = {0, 0, 0, 1};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
-    std::string reader_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
-    std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
+    std::string reader_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
+    std::string writer_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
     // Build the reader GUID
     DatabaseDataQueue<StatisticsData>::StatisticsGuidPrefix reader_prefix;
@@ -388,14 +388,14 @@ TEST_F(statistics_reader_listener_tests, new_history_latency_received)
 
 TEST_F(statistics_reader_listener_tests, new_network_latency_received)
 {
-    std::array<uint8_t, 16> src_locator_address = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
+    std::array<uint8_t, 16> src_locator_address = {1, 15, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
     eprosima::fastdds::rtps::Locator_t src_locator_t;
     uint16_t src_locator_t_physical_port = 0;
     uint16_t src_locator_t_logical_port = 0;
     eprosima::fastdds::rtps::IPLocator::setPhysicalPort(src_locator_t, src_locator_t_physical_port);
     eprosima::fastdds::rtps::IPLocator::setLogicalPort(src_locator_t, src_locator_t_logical_port);
     uint32_t src_locator_port = src_locator_t.port;
-    std::string src_locator_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|d.e.f.10";
+    std::string src_locator_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|d.e.f.10";
 
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
     eprosima::fastdds::rtps::Locator_t dst_locator_t;
@@ -468,9 +468,9 @@ TEST_F(statistics_reader_listener_tests, new_network_latency_received)
 
 TEST_F(statistics_reader_listener_tests, new_publication_throughput_received)
 {
-    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 12> prefix = {1, 15, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
-    std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
+    std::string writer_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
     // Build the writer GUID
     DatabaseDataQueue<StatisticsData>::StatisticsGuidPrefix writer_prefix;
@@ -524,9 +524,9 @@ TEST_F(statistics_reader_listener_tests, new_publication_throughput_received)
 
 TEST_F(statistics_reader_listener_tests, new_subscription_throughput_received)
 {
-    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 12> prefix = {1, 15, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> reader_id = {0, 0, 0, 1};
-    std::string reader_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
+    std::string reader_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
 
     // Build the reader GUID
     DatabaseDataQueue<StatisticsData>::StatisticsGuidPrefix reader_prefix;
@@ -580,9 +580,9 @@ TEST_F(statistics_reader_listener_tests, new_subscription_throughput_received)
 
 TEST_F(statistics_reader_listener_tests, new_rtps_sent_received)
 {
-    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 12> prefix = {1, 15, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
-    std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
+    std::string writer_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
     eprosima::fastdds::rtps::Locator_t dst_locator_t;
@@ -675,9 +675,9 @@ TEST_F(statistics_reader_listener_tests, new_rtps_sent_received)
 
 TEST_F(statistics_reader_listener_tests, new_rtps_lost_received)
 {
-    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 12> prefix = {1, 15, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
-    std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
+    std::string writer_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
     std::array<uint8_t, 16> dst_locator_address = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
     eprosima::fastdds::rtps::Locator_t dst_locator_t;
@@ -770,9 +770,9 @@ TEST_F(statistics_reader_listener_tests, new_rtps_lost_received)
 
 TEST_F(statistics_reader_listener_tests, new_resent_datas_received)
 {
-    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 12> prefix = {1, 15, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
-    std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
+    std::string writer_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
     // Build the writer GUID
     DatabaseDataQueue<StatisticsData>::StatisticsGuidPrefix writer_prefix;
@@ -826,9 +826,9 @@ TEST_F(statistics_reader_listener_tests, new_resent_datas_received)
 
 TEST_F(statistics_reader_listener_tests, new_heartbeat_count_received)
 {
-    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 12> prefix = {1, 15, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
-    std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
+    std::string writer_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
     // Build the writer GUID
     DatabaseDataQueue<StatisticsData>::StatisticsGuidPrefix writer_prefix;
@@ -882,9 +882,9 @@ TEST_F(statistics_reader_listener_tests, new_heartbeat_count_received)
 
 TEST_F(statistics_reader_listener_tests, new_acknack_count_received)
 {
-    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 12> prefix = {1, 15, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> reader_id = {0, 0, 0, 1};
-    std::string reader_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
+    std::string reader_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
 
     // Build the reader GUID
     DatabaseDataQueue<StatisticsData>::StatisticsGuidPrefix reader_prefix;
@@ -938,9 +938,9 @@ TEST_F(statistics_reader_listener_tests, new_acknack_count_received)
 
 TEST_F(statistics_reader_listener_tests, new_nackfrag_count_received)
 {
-    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 12> prefix = {1, 15, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> reader_id = {0, 0, 0, 1};
-    std::string reader_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
+    std::string reader_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
 
     // Build the reader GUID
     DatabaseDataQueue<StatisticsData>::StatisticsGuidPrefix reader_prefix;
@@ -994,9 +994,9 @@ TEST_F(statistics_reader_listener_tests, new_nackfrag_count_received)
 
 TEST_F(statistics_reader_listener_tests, new_gap_count_received)
 {
-    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 12> prefix = {1, 15, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
-    std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
+    std::string writer_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
     // Build the writer GUID
     DatabaseDataQueue<StatisticsData>::StatisticsGuidPrefix writer_prefix;
@@ -1050,9 +1050,9 @@ TEST_F(statistics_reader_listener_tests, new_gap_count_received)
 
 TEST_F(statistics_reader_listener_tests, new_data_count_received)
 {
-    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 12> prefix = {1, 15, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
-    std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
+    std::string writer_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
 
     // Build the writer GUID
     DatabaseDataQueue<StatisticsData>::StatisticsGuidPrefix writer_prefix;
@@ -1106,9 +1106,9 @@ TEST_F(statistics_reader_listener_tests, new_data_count_received)
 
 TEST_F(statistics_reader_listener_tests, new_pdp_count_received)
 {
-    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 12> prefix = {1, 15, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> participant_id = {0, 0, 0, 0};
-    std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
+    std::string participant_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
 
     // Build the participant GUID
     DatabaseDataQueue<StatisticsData>::StatisticsGuidPrefix participant_prefix;
@@ -1162,9 +1162,9 @@ TEST_F(statistics_reader_listener_tests, new_pdp_count_received)
 
 TEST_F(statistics_reader_listener_tests, new_edp_count_received)
 {
-    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 12> prefix = {1, 15, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> participant_id = {0, 0, 0, 0};
-    std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
+    std::string participant_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
 
     // Build the participant GUID
     DatabaseDataQueue<StatisticsData>::StatisticsGuidPrefix participant_prefix;
@@ -1218,12 +1218,12 @@ TEST_F(statistics_reader_listener_tests, new_edp_count_received)
 
 TEST_F(statistics_reader_listener_tests, new_discovery_times_received)
 {
-    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 12> prefix = {1, 15, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> participant_id = {0, 0, 0, 0};
     std::array<uint8_t, 4> entity_id = {0, 0, 0, 1};
     uint64_t discovery_time = 1024;
-    std::string participant_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
-    std::string remote_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
+    std::string participant_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
+    std::string remote_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.1";
     std::chrono::system_clock::time_point discovery_timestamp
         = eprosima::statistics_backend::nanoseconds_to_systemclock(discovery_time);
 
@@ -1294,11 +1294,11 @@ TEST_F(statistics_reader_listener_tests, new_discovery_times_received)
 
 TEST_F(statistics_reader_listener_tests, new_sample_datas_received)
 {
-    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 12> prefix = {1, 15, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
     int32_t sn_high = 2048;
     uint32_t sn_low = 4096;
-    std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
+    std::string writer_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
     eprosima::fastdds::rtps::SequenceNumber_t sn (sn_high, sn_low);
 
     // Build the writer GUID
@@ -1362,11 +1362,11 @@ TEST_F(statistics_reader_listener_tests, new_sample_datas_received)
 TEST_F(statistics_reader_listener_tests, new_monitor_service_sample_received)
 {
     // Build the writer GUID
-    std::array<uint8_t, 12> prefix = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 12> prefix = {1, 15, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
     int32_t sn_high = 2048;
     uint32_t sn_low = 4096;
-    std::string writer_guid_str = "01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
+    std::string writer_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.2";
     eprosima::fastdds::rtps::SequenceNumber_t sn (sn_high, sn_low);
 
     // Build the writer GUID

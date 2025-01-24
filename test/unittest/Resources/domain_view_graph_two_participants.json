@@ -45,6 +45,7 @@
                                     "status": "OK",
                                     "app_id": "UNKNOWN_APP",
                                     "app_metadata": "",
+                                    "dds_vendor": "FASTDDS",
                                     "endpoints":
                                     {
                                         "7":
@@ -78,6 +79,7 @@
                                     "status": "OK",
                                     "app_id": "UNKNOWN_APP",
                                     "app_metadata": "",
+                                    "dds_vendor": "FASTDDS",
                                     "endpoints":
                                     {
                                         "11":

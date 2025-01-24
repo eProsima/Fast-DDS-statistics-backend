@@ -54,7 +54,7 @@ bool Entity::is_metatraffic_topic(
     return is_metatraffic;
 }
 
-DdsVendor DomainParticipant::dds_vendor_by_guid(const std::string& guid)
+DdsVendor DDSEntity::dds_vendor_by_guid(const std::string& guid)
 {
     // Example GUID vendor prefixes
     const std::map<std::string, DdsVendor> vendor_prefixes = {

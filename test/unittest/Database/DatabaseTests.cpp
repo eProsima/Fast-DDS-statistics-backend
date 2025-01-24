@@ -600,7 +600,7 @@ public:
     std::shared_ptr<Domain> domain;
     EntityId domain_id;
     std::string participant_name = "test_participant";
-    std::string participant_guid = "01.02.03.04.05.06.07.08.09.10.11.12";
+    std::string participant_guid = "01.0f.03.04.05.06.07.08.09.10.11.12";
     std::shared_ptr<DomainParticipant> participant;
     EntityId participant_id;
     std::string topic_name = "test_topic";
@@ -610,13 +610,13 @@ public:
     std::string writer_locator_name = "test_writer_locator";
     std::shared_ptr<Locator> writer_locator;
     std::string writer_name = "test_writer";
-    std::string writer_guid = "01.02.03.04.05.06.07.08.09.10.11.12|0.0.0.1";
+    std::string writer_guid = "01.0f.03.04.05.06.07.08.09.10.11.12|0.0.0.1";
     std::shared_ptr<DataWriter> writer;
     EntityId writer_id;
     std::string reader_locator_name = "test_reader_locator";
     std::shared_ptr<Locator> reader_locator;
     std::string reader_name = "test_reader";
-    std::string reader_guid = "01.02.03.04.05.06.07.08.09.10.11.12|0.0.0.2";
+    std::string reader_guid = "01.0f.03.04.05.06.07.08.09.10.11.12|0.0.0.2";
     std::shared_ptr<DataReader> reader;
     EntityId reader_id;
 
@@ -2658,7 +2658,7 @@ TEST_F(database_tests, insert_monitor_service_sample_connection_list)
     eprosima::fastdds::statistics::detail::GUID_s guid_s;
     eprosima::fastdds::
             rtps::GUID_t guid_t;
-    std::stringstream guid_str("01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1");
+    std::stringstream guid_str("01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1");
     guid_str >> guid_t;
     memcpy(guid_s.guidPrefix().value().data(), guid_t.guidPrefix.value, eprosima::fastdds::
                     rtps::GuidPrefix_t::size);
@@ -2688,7 +2688,7 @@ TEST_F(database_tests, insert_monitor_service_sample_connection_list)
     eprosima::fastdds::statistics::detail::GUID_s guid_s_2;
     eprosima::fastdds::
             rtps::GUID_t guid_t_2;
-    std::stringstream guid_str_2("01.02.03.04.05.06.07.08.09.0a.0b.1c|0.0.1.c1");
+    std::stringstream guid_str_2("01.0f.03.04.05.06.07.08.09.0a.0b.1c|0.0.1.c1");
     guid_str_2 >> guid_t_2;
     memcpy(guid_s_2.guidPrefix().value().data(), guid_t_2.guidPrefix.value,
             eprosima::fastdds::
@@ -2734,7 +2734,7 @@ TEST_F(database_tests, insert_monitor_service_sample_connection_list_wrong_entit
     eprosima::fastdds::statistics::detail::GUID_s guid_s;
     eprosima::fastdds::
             rtps::GUID_t guid_t;
-    std::stringstream guid_str("01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1");
+    std::stringstream guid_str("01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1");
     guid_str >> guid_t;
     memcpy(guid_s.guidPrefix().value().data(), guid_t.guidPrefix.value, eprosima::fastdds::
                     rtps::GuidPrefix_t::size);
@@ -3083,7 +3083,7 @@ TEST_F(database_tests, insert_monitor_service_sample_extended_incompatible_qos)
 {
     ExtendedIncompatibleQosSample sample;
     eprosima::fastdds::statistics::ExtendedIncompatibleQoSStatus_s status;
-    std::stringstream remote_entity_guid_str("01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1");
+    std::stringstream remote_entity_guid_str("01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1");
     eprosima::fastdds::statistics::detail::GUID_s remote_entity_guid_s;
     eprosima::fastdds::rtps::GUID_t remote_entity_guid_t;
 
@@ -3137,7 +3137,7 @@ TEST_F(database_tests, insert_monitor_service_sample_extended_incompatible_qos_w
 {
     ExtendedIncompatibleQosSample sample;
     eprosima::fastdds::statistics::ExtendedIncompatibleQoSStatus_s status;
-    std::stringstream remote_entity_guid_str("01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1");
+    std::stringstream remote_entity_guid_str("01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1");
     eprosima::fastdds::statistics::detail::GUID_s remote_entity_guid_s;
     eprosima::fastdds::rtps::GUID_t remote_entity_guid_t;
 
@@ -3554,10 +3554,10 @@ TEST_F(database_tests, get_entity_kind_by_guid)
     eprosima::fastdds::rtps::GUID_t reader_guid_t;
     eprosima::fastdds::rtps::GUID_t writer_guid_t;
     eprosima::fastdds::rtps::GUID_t other_guid_t;
-    std::stringstream participant_guid_str("01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1");
-    std::stringstream reader_guid_str("01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.4");
-    std::stringstream writer_guid_str("01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.3");
-    std::stringstream other_guid_str("01.02.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.1");
+    std::stringstream participant_guid_str("01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.c1");
+    std::stringstream reader_guid_str("01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.4");
+    std::stringstream writer_guid_str("01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.3");
+    std::stringstream other_guid_str("01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.1.1");
 
     participant_guid_str >> participant_guid_t;
     memcpy(
