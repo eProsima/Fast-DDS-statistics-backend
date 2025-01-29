@@ -625,7 +625,7 @@ public:
             fastdds::statistics::detail::GUID_s data);
 
     /**
-     * @brief Serialize entity guid to string format.
+     * @brief Serialize entity guid from string.
      * @param guid_str Entity guid.
      */
     FASTDDS_STATISTICS_BACKEND_DllAPI
