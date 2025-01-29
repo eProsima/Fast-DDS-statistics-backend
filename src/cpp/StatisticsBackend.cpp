@@ -508,6 +508,15 @@ std::vector<EntityId> StatisticsBackend::get_entities(
     return StatisticsBackendData::get_instance()->database_->get_entity_ids(entity_type, entity_id);
 }
 
+EntityId StatisticsBackend::get_entity_by_guid(
+        const std::string& guid)
+{
+    return StatisticsBackendData::get_instance()->database_->get_entity_by_guid(
+        StatisticsBackendData::get_instance()->database_->get_entity_kind_by_guid(
+            StatisticsBackend::serialize_guid(guid)),
+        guid).second;
+}
+
 bool StatisticsBackend::is_active(
         EntityId entity_id)
 {
@@ -992,6 +1001,38 @@ std::string StatisticsBackend::deserialize_guid(
     std::stringstream ss;
     ss << guid;
     return ss.str();
+}
+
+fastdds::statistics::detail::GUID_s StatisticsBackend::serialize_guid(
+        const std::string& guid_str)
+{
+    fastdds::statistics::detail::GUID_s guid_s;
+    std::istringstream iss(guid_str);
+    std::string byte_str;
+
+    // Parse the guidPrefix part
+    uint8_t guid_prefix_size = static_cast<uint8_t>(fastdds::rtps::GuidPrefix_t::size);
+    for (uint8_t i = 0; i < guid_prefix_size; ++i)
+    {
+        if (i == (guid_prefix_size - 1))
+        {
+            std::getline(iss, byte_str, '|');
+        }
+        else
+        {
+            std::getline(iss, byte_str, '.');
+        }
+        guid_s.guidPrefix().value()[i] = static_cast<uint8_t>(std::stoul(byte_str, nullptr, 16));
+    }
+
+    // Parse the entityId part
+    for (uint8_t i = 0; i < static_cast<uint8_t>(fastdds::rtps::EntityId_t::size); ++i)
+    {
+        std::getline(iss, byte_str, '.');
+        guid_s.entityId().value()[i] = static_cast<uint8_t>(std::stoul(byte_str, nullptr, 16));
+    }
+
+    return guid_s;
 }
 
 } // namespace statistics_backend
