@@ -204,6 +204,17 @@ public:
             EntityId entity_id = EntityId::all());
 
     /**
+     * @brief Get the EntityId for a given GUID in string format.
+     *
+     * @param guid The GUID in string format.
+     * @return The EntityId corresponding to the given GUID.
+     * @throws eprosima::statistics_backend::BadParameter if the GUID is not found.
+     */
+    FASTDDS_STATISTICS_BACKEND_DllAPI
+    static EntityId get_entity_by_guid(
+            const std::string& guid);
+
+    /**
      * @brief Returns whether the entity is active.
      *
      * For monitors, active means that no call to stop_monitor() has been performed since the last
@@ -612,6 +623,14 @@ public:
     FASTDDS_STATISTICS_BACKEND_DllAPI
     static std::string deserialize_guid(
             fastdds::statistics::detail::GUID_s data);
+
+    /**
+     * @brief Serialize entity guid from string.
+     * @param guid_str Entity guid.
+     */
+    FASTDDS_STATISTICS_BACKEND_DllAPI
+    static fastdds::statistics::detail::GUID_s serialize_guid(
+            const std::string& guid_str);
 };
 
 } // namespace statistics_backend
