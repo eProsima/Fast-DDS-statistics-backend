@@ -164,7 +164,7 @@ jobs:
           ctest_args: --label-exclude "xfail|xasan"
           workspace_dependencies: install
           cmake_build_type: Debug
-          test_report_artifact: test_report_asan${{ inputs.dependencies_artifact_postfix }}_${{ inputs.custom_version_build }}
+          test_report_artifact: test_report_tsan${{ inputs.dependencies_artifact_postfix }}_${{ inputs.custom_version_build }}
 
       - name: Test Report
         uses: eProsima/eProsima-CI/external/test-reporter@v0
