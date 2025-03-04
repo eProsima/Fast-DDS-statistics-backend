@@ -166,9 +166,10 @@ public:
             const std::string& type_name);
 
     /**
-     * @brief Insert a new type IDL into the database or update it.
+     * @brief Insert a new type IDL into the database or update it, and perform ROS 2 demangling if needed.
+     * If demangled, insert the demangled type IDL and separately, the original one as *topic_name*_backup_.
      * @param topic_type The type of the topic.
-     * @param topic_idl The IDL representation of the type
+     * @param topic_idl The IDL representation of the type.
      */
     void insert_new_type_idl(
             const std::string& topic_type,
