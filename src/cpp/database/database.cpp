@@ -290,17 +290,116 @@ void Database::insert_new_type_idl(
         const std::string& type_name,
         const std::string& type_idl)
 {
-    std::lock_guard<std::shared_timed_mutex> guard(mutex_);
+    // Check that type name is not empty
     if (type_name.empty())
     {
-        throw BadParameter("Type name cannot be empty");
+        EPROSIMA_LOG_ERROR(BACKEND_DATABASE, "Type name cannot be empty");
+        return;
     }
+
+    // Check that type name is not already registered and we're trying to delete the type IDL
+    std::unique_lock<std::shared_timed_mutex> lock(mutex_);
 
     if (is_type_in_database(type_name) && type_idl.empty())
     {
         return;
     }
-    type_idls_[type_name] = type_idl;
+
+    lock.unlock();
+
+    const std::string backup_naming = "_backup_";
+
+    //Check that the type name does not have the reserved naming convention
+
+    if(type_name.substr(type_name.size() - backup_naming.size()) == backup_naming)
+    {
+        EPROSIMA_LOG_ERROR(BACKEND_DATABASE, "Type name cannot contain the reserved end naming convention " + backup_naming);
+        return;
+    }
+    else
+    {
+        if(type_idl.find("module dds_\n")!=std::string::npos || type_idl.find("::dds_::")!=std::string::npos)
+        {
+            //Register the original type as the backup
+            lock.lock();
+            type_idls_[type_name + backup_naming] = type_idl;
+            lock.unlock();
+
+            //Perform the demangling operations
+
+            std::string type_idl_demangled = type_idl;
+
+            //Step 1: delete the module dds_ 
+
+            while(type_idl_demangled.find("module dds_\n")!=std::string::npos)
+            {
+                //First: delete the module dds_ identification, and the open brace
+                size_t pos_start = type_idl_demangled.find("module dds_\n");
+                size_t pos_open_brace = type_idl_demangled.find("{", pos_module);
+                type_idl_demangled.erase(pos_start, pos_open_brace - pos_start + 1);
+
+                //Second: find next line, and delete dangling whitespace
+                size_t pos_line = type_idl_demangled.find_first_not_of(' ', pos_start);
+                type_idl_demangled.erase(pos_start, pos_line);
+
+                //Third: unindent all the content
+                pos_start = type_idl_demangled.find('   ', pos_start);
+                while(type_idl_demangled[type_idl_demangled.find_first_not_of('   ', pos_start)] != "}")
+                {
+                    type_idl_demangled.erase(pos_start, 3);
+                    size_t pos_new_line = type_idl_demangled.find_first_not_of(' ', pos_start);
+                    pos_start = type_idl_demangled.find('   ', pos_new_line);
+                }
+
+                //Fourth: delete the closing brace and whitespace
+                size_t pos_end = type_idl_demangled.find("};", pos_start);
+                type_idl_demangled.erase(pos_start, pos_end - pos_start + 2);
+            }
+
+            //Step 2: delete the ::dds_:: namespace 
+
+            while(type_idl_demangled.find("::dds_::")!=std::string::npos)
+            {
+                size_t pos = type_idl_demangled.find("::dds_::");
+                type_idl_demangled.erase(pos, 6);
+            }
+
+            //Step 3: delete the underscores
+
+            while(type_idl_demangled.find("__")!=std::string::npos)
+            {
+                size_t pos = type_idl_demangled.find("__");
+                type_idl_demangled.erase(pos, 2);
+            }
+
+            while(type_idl_demangled.find("_ ")!=std::string::npos)
+            {
+                size_t pos = type_idl_demangled.find("_ ");
+                type_idl_demangled.erase(pos, 1);
+            }
+
+            while(type_idl_demangled.find("_\n")!=std::string::npos)
+            {
+                size_t pos = type_idl_demangled.find("_\n");
+                type_idl_demangled.erase(pos, 1);
+            }
+
+            while(type_idl_demangled.find("_>")!=std::string::npos)
+            {
+                size_t pos = type_idl_demangled.find("_>");
+                type_idl_demangled.erase(pos, 1);
+            }
+
+            //Register the now demangled idl
+            lock.lock();
+            type_idls_[type_name] = type_idl_demangled;
+        }
+        else
+        {
+            lock.lock();
+            type_idls_[type_name] = type_idl;
+        }
+    }
 }
 
 EntityId Database::insert_new_endpoint(
