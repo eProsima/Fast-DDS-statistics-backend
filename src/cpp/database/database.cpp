@@ -335,20 +335,20 @@ void Database::insert_new_type_idl(
             {
                 //First: delete the module dds_ identification, and the open brace
                 size_t pos_start = type_idl_demangled.find("module dds_\n");
-                size_t pos_open_brace = type_idl_demangled.find("{", pos_module);
+                size_t pos_open_brace = type_idl_demangled.find("{", pos_start);
                 type_idl_demangled.erase(pos_start, pos_open_brace - pos_start + 1);
 
                 //Second: find next line, and delete dangling whitespace
-                size_t pos_line = type_idl_demangled.find_first_not_of(' ', pos_start);
+                size_t pos_line = type_idl_demangled.find_first_not_of(" ", pos_start);
                 type_idl_demangled.erase(pos_start, pos_line);
 
                 //Third: unindent all the content
-                pos_start = type_idl_demangled.find('   ', pos_start);
-                while(type_idl_demangled[type_idl_demangled.find_first_not_of('   ', pos_start)] != "}")
+                pos_start = type_idl_demangled.find("   ", pos_start);
+                while(type_idl_demangled[type_idl_demangled.find_first_not_of("   ", pos_start)] != '}')
                 {
                     type_idl_demangled.erase(pos_start, 3);
                     size_t pos_new_line = type_idl_demangled.find_first_not_of(' ', pos_start);
-                    pos_start = type_idl_demangled.find('   ', pos_new_line);
+                    pos_start = type_idl_demangled.find("   ", pos_new_line);
                 }
 
                 //Fourth: delete the closing brace and whitespace
