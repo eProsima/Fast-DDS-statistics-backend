@@ -311,14 +311,15 @@ void Database::insert_new_type_idl(
 
     //Check that the type name does not have the reserved naming convention
 
-    if(type_name.substr(type_name.size() - backup_naming.size()) == backup_naming)
+    if (type_name.substr(type_name.size() - backup_naming.size()) == backup_naming)
     {
-        EPROSIMA_LOG_ERROR(BACKEND_DATABASE, "Type name cannot contain the reserved end naming convention " + backup_naming);
+        EPROSIMA_LOG_ERROR(BACKEND_DATABASE,
+                "Type name cannot contain the reserved end naming convention " + backup_naming);
         return;
     }
     else
     {
-        if(type_idl.find("module dds_\n")!=std::string::npos || type_idl.find("::dds_::")!=std::string::npos)
+        if (type_idl.find("module dds_\n") != std::string::npos || type_idl.find("::dds_::") != std::string::npos)
         {
             //Register the original type as the backup
             lock.lock();
@@ -331,7 +332,7 @@ void Database::insert_new_type_idl(
 
             //Step 1: delete the module dds_ 
 
-            while(type_idl_demangled.find("module dds_\n")!=std::string::npos)
+            while (type_idl_demangled.find("module dds_\n") != std::string::npos)
             {
                 //First: delete the module dds_ identification, and the open brace
                 size_t pos_start = type_idl_demangled.find("module dds_\n");
@@ -344,7 +345,7 @@ void Database::insert_new_type_idl(
 
                 //Third: unindent all the content
                 pos_start = type_idl_demangled.find("   ", pos_start);
-                while(type_idl_demangled[type_idl_demangled.find_first_not_of("   ", pos_start)] != '}')
+                while (type_idl_demangled[type_idl_demangled.find_first_not_of("   ", pos_start)] != '}')
                 {
                     type_idl_demangled.erase(pos_start, 3);
                     size_t pos_new_line = type_idl_demangled.find_first_not_of(' ', pos_start);
@@ -358,7 +359,7 @@ void Database::insert_new_type_idl(
 
             //Step 2: delete the ::dds_:: namespace 
 
-            while(type_idl_demangled.find("::dds_::")!=std::string::npos)
+            while (type_idl_demangled.find("::dds_::") != std::string::npos)
             {
                 size_t pos = type_idl_demangled.find("::dds_::");
                 type_idl_demangled.erase(pos, 6);
@@ -366,25 +367,25 @@ void Database::insert_new_type_idl(
 
             //Step 3: delete the underscores
 
-            while(type_idl_demangled.find("__")!=std::string::npos)
+            while (type_idl_demangled.find("__") != std::string::npos)
             {
                 size_t pos = type_idl_demangled.find("__");
                 type_idl_demangled.erase(pos, 2);
             }
 
-            while(type_idl_demangled.find("_ ")!=std::string::npos)
+            while (type_idl_demangled.find("_ ") != std::string::npos)
             {
                 size_t pos = type_idl_demangled.find("_ ");
                 type_idl_demangled.erase(pos, 1);
             }
 
-            while(type_idl_demangled.find("_\n")!=std::string::npos)
+            while (type_idl_demangled.find("_\n") != std::string::npos)
             {
                 size_t pos = type_idl_demangled.find("_\n");
                 type_idl_demangled.erase(pos, 1);
             }
 
-            while(type_idl_demangled.find("_>")!=std::string::npos)
+            while (type_idl_demangled.find("_>") != std::string::npos)
             {
                 size_t pos = type_idl_demangled.find("_>");
                 type_idl_demangled.erase(pos, 1);
