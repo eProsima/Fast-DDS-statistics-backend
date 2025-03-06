@@ -321,13 +321,9 @@ void Database::insert_new_type_idl(
     {
         if (type_idl.find("module dds_\n") != std::string::npos || type_idl.find("::dds_::") != std::string::npos)
         {
-            //Register the original type as the backup
-            lock.lock();
-            type_idls_[type_name + backup_naming] = type_idl;
-            lock.unlock();
-
             //Perform the demangling operations
 
+            std::string type_name_demangled = type_name;
             std::string type_idl_demangled = type_idl;
 
             //Step 1: delete the module dds_
@@ -359,6 +355,12 @@ void Database::insert_new_type_idl(
 
             //Step 2: delete the ::dds_:: namespace
 
+            while (type_name_demangled.find("::dds_::") != std::string::npos)
+            {
+                size_t pos = type_name_demangled.find("::dds_::");
+                type_name_demangled.erase(pos, 6);
+            }
+
             while (type_idl_demangled.find("::dds_::") != std::string::npos)
             {
                 size_t pos = type_idl_demangled.find("::dds_::");
@@ -366,6 +368,11 @@ void Database::insert_new_type_idl(
             }
 
             //Step 3: delete the underscores
+
+            while (type_name_demangled.back() == '_')
+            {
+                type_name_demangled.pop_back();
+            }
 
             while (type_idl_demangled.find("__") != std::string::npos)
             {
@@ -391,9 +398,11 @@ void Database::insert_new_type_idl(
                 type_idl_demangled.erase(pos, 1);
             }
 
-            //Register the now demangled idl
+            //Register the now demangled idl, the original as backup, and their relation
             lock.lock();
             type_idls_[type_name] = type_idl_demangled;
+            type_idls_[type_name + backup_naming] = type_idl;
+            type_ros2_modified_[type_name] = type_name_demangled;
         }
         else
         {

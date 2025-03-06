@@ -1513,6 +1513,12 @@ protected:
      */
     std::map<std::string, std::string> type_idls_;
 
+    /**
+     * Collection of type names relating the original name and the ROS 2 demangled name.
+     * Only those types that have been modified are stored.
+     */
+    std::map<std::string, std::string> type_ros2_modified_;
+
     //! Graph map describing per domain complete topology of the entities.
     std::map<EntityId, Graph> domain_view_graph;
 
