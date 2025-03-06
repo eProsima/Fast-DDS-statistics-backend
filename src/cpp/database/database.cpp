@@ -330,7 +330,7 @@ void Database::insert_new_type_idl(
 
             std::string type_idl_demangled = type_idl;
 
-            //Step 1: delete the module dds_ 
+            //Step 1: delete the module dds_
 
             while (type_idl_demangled.find("module dds_\n") != std::string::npos)
             {
@@ -357,7 +357,7 @@ void Database::insert_new_type_idl(
                 type_idl_demangled.erase(pos_start, pos_end - pos_start + 2);
             }
 
-            //Step 2: delete the ::dds_:: namespace 
+            //Step 2: delete the ::dds_:: namespace
 
             while (type_idl_demangled.find("::dds_::") != std::string::npos)
             {
