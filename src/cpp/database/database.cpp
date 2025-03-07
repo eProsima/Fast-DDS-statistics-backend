@@ -343,7 +343,7 @@ void Database::insert_new_type_idl(
                 pos_start = type_idl_demangled.find("   ", pos_start);
                 while (type_idl_demangled[type_idl_demangled.find_first_not_of("   ", pos_start)] != '}')
                 {
-                    type_idl_demangled.erase(pos_start, 3);
+                    type_idl_demangled.erase(pos_start, 4);
                     size_t pos_new_line = type_idl_demangled.find_first_not_of(' ', pos_start);
                     pos_start = type_idl_demangled.find("   ", pos_new_line);
                 }
