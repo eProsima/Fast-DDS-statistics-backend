@@ -333,11 +333,11 @@ void Database::insert_new_type_idl(
                 //First: delete the module dds_ identification, and the open brace
                 size_t pos_start = type_idl_demangled.find("module dds_\n");
                 size_t pos_open_brace = type_idl_demangled.find("{", pos_start);
-                type_idl_demangled.erase(pos_start, pos_open_brace - pos_start + 1);
+                type_idl_demangled.erase(pos_start, pos_open_brace - pos_start + 2);
 
                 //Second: find next line, and delete dangling whitespace
                 size_t pos_line = type_idl_demangled.find_first_not_of(" ", pos_start);
-                type_idl_demangled.erase(pos_start, pos_line);
+                type_idl_demangled.erase(pos_start, pos_line - pos_start);
 
                 //Third: unindent all the content
                 pos_start = type_idl_demangled.find("   ", pos_start);
@@ -350,7 +350,7 @@ void Database::insert_new_type_idl(
 
                 //Fourth: delete the closing brace and whitespace
                 size_t pos_end = type_idl_demangled.find("};", pos_start);
-                type_idl_demangled.erase(pos_start, pos_end - pos_start + 2);
+                type_idl_demangled.erase(pos_start - 1, pos_end - pos_start + 3);
             }
 
             //Step 2: delete the ::dds_:: namespace
