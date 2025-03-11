@@ -1518,10 +1518,10 @@ protected:
      * Only those types that have been modified are stored.
      */
     std::map<std::string, std::string> type_ros2_modified_name_;
-    
+
     /**
      * Collection of type idls relating the original idl and the original name.
-     * Note that demangling is done by default, so the demangled IDL is stored in the main map. 
+     * Note that demangling is done by default, so the demangled IDL is stored in the main map.
      * Only those types that have been modified are stored.
      */
     std::map<std::string, std::string> type_ros2_unmodified_idl_;
