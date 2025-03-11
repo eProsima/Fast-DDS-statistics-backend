@@ -307,108 +307,95 @@ void Database::insert_new_type_idl(
 
     lock.unlock();
 
-    const std::string backup_naming = "_backup_";
-
-    //Check that the type name does not have the reserved naming convention
-
-    if (type_name.substr(type_name.size() - backup_naming.size()) == backup_naming)
+    if (type_idl.find("module dds_\n") != std::string::npos || type_idl.find("::dds_::") != std::string::npos)
     {
-        EPROSIMA_LOG_ERROR(BACKEND_DATABASE,
-                "Type name cannot contain the reserved end naming convention " + backup_naming);
-        return;
+        //Perform the demangling operations
+
+        std::string type_name_demangled = type_name;
+        std::string type_idl_demangled = type_idl;
+
+        //Step 1: delete the module dds_
+
+        while (type_idl_demangled.find("module dds_\n") != std::string::npos)
+        {
+            //First: delete the module dds_ identification, and the open brace
+            size_t pos_start = type_idl_demangled.find("module dds_\n");
+            size_t pos_open_brace = type_idl_demangled.find("{", pos_start);
+            type_idl_demangled.erase(pos_start, pos_open_brace - pos_start + 2);
+
+            //Second: find next line, and delete dangling whitespace
+            size_t pos_line = type_idl_demangled.find_first_not_of(" ", pos_start);
+            type_idl_demangled.erase(pos_start, pos_line - pos_start);
+
+            //Third: unindent all the content
+            pos_start = type_idl_demangled.find("   ", pos_start);
+            while (type_idl_demangled[type_idl_demangled.find_first_not_of("   ", pos_start)] != '}')
+            {
+                type_idl_demangled.erase(pos_start, 4);
+                size_t pos_new_line = type_idl_demangled.find_first_not_of(' ', pos_start);
+                pos_start = type_idl_demangled.find("   ", pos_new_line);
+            }
+
+            //Fourth: delete the closing brace and whitespace
+            size_t pos_end = type_idl_demangled.find("};", pos_start);
+            type_idl_demangled.erase(pos_start - 1, pos_end - pos_start + 3);
+        }
+
+        //Step 2: delete the ::dds_:: namespace
+
+        while (type_name_demangled.find("::dds_::") != std::string::npos)
+        {
+            size_t pos = type_name_demangled.find("::dds_::");
+            type_name_demangled.erase(pos, 6);
+        }
+
+        while (type_idl_demangled.find("::dds_::") != std::string::npos)
+        {
+            size_t pos = type_idl_demangled.find("::dds_::");
+            type_idl_demangled.erase(pos, 6);
+        }
+
+        //Step 3: delete the underscores
+
+        while (type_name_demangled.back() == '_')
+        {
+            type_name_demangled.pop_back();
+        }
+
+        while (type_idl_demangled.find("__") != std::string::npos)
+        {
+            size_t pos = type_idl_demangled.find("__");
+            type_idl_demangled.erase(pos, 2);
+        }
+
+        while (type_idl_demangled.find("_ ") != std::string::npos)
+        {
+            size_t pos = type_idl_demangled.find("_ ");
+            type_idl_demangled.erase(pos, 1);
+        }
+
+        while (type_idl_demangled.find("_\n") != std::string::npos)
+        {
+            size_t pos = type_idl_demangled.find("_\n");
+            type_idl_demangled.erase(pos, 1);
+        }
+
+        while (type_idl_demangled.find("_>") != std::string::npos)
+        {
+            size_t pos = type_idl_demangled.find("_>");
+            type_idl_demangled.erase(pos, 1);
+        }
+
+        //Register the now demangled idl, the original as backup, and their relation
+        lock.lock();
+        type_idls_[type_name] = type_idl_demangled;
+        type_ros2_unmodified_idl_[type_name] = type_idl;
+        type_ros2_modified_name_[type_name] = type_name_demangled;
     }
     else
     {
-        if (type_idl.find("module dds_\n") != std::string::npos || type_idl.find("::dds_::") != std::string::npos)
-        {
-            //Perform the demangling operations
-
-            std::string type_name_demangled = type_name;
-            std::string type_idl_demangled = type_idl;
-
-            //Step 1: delete the module dds_
-
-            while (type_idl_demangled.find("module dds_\n") != std::string::npos)
-            {
-                //First: delete the module dds_ identification, and the open brace
-                size_t pos_start = type_idl_demangled.find("module dds_\n");
-                size_t pos_open_brace = type_idl_demangled.find("{", pos_start);
-                type_idl_demangled.erase(pos_start, pos_open_brace - pos_start + 2);
-
-                //Second: find next line, and delete dangling whitespace
-                size_t pos_line = type_idl_demangled.find_first_not_of(" ", pos_start);
-                type_idl_demangled.erase(pos_start, pos_line - pos_start);
-
-                //Third: unindent all the content
-                pos_start = type_idl_demangled.find("   ", pos_start);
-                while (type_idl_demangled[type_idl_demangled.find_first_not_of("   ", pos_start)] != '}')
-                {
-                    type_idl_demangled.erase(pos_start, 4);
-                    size_t pos_new_line = type_idl_demangled.find_first_not_of(' ', pos_start);
-                    pos_start = type_idl_demangled.find("   ", pos_new_line);
-                }
-
-                //Fourth: delete the closing brace and whitespace
-                size_t pos_end = type_idl_demangled.find("};", pos_start);
-                type_idl_demangled.erase(pos_start - 1, pos_end - pos_start + 3);
-            }
-
-            //Step 2: delete the ::dds_:: namespace
-
-            while (type_name_demangled.find("::dds_::") != std::string::npos)
-            {
-                size_t pos = type_name_demangled.find("::dds_::");
-                type_name_demangled.erase(pos, 6);
-            }
-
-            while (type_idl_demangled.find("::dds_::") != std::string::npos)
-            {
-                size_t pos = type_idl_demangled.find("::dds_::");
-                type_idl_demangled.erase(pos, 6);
-            }
-
-            //Step 3: delete the underscores
-
-            while (type_name_demangled.back() == '_')
-            {
-                type_name_demangled.pop_back();
-            }
-
-            while (type_idl_demangled.find("__") != std::string::npos)
-            {
-                size_t pos = type_idl_demangled.find("__");
-                type_idl_demangled.erase(pos, 2);
-            }
-
-            while (type_idl_demangled.find("_ ") != std::string::npos)
-            {
-                size_t pos = type_idl_demangled.find("_ ");
-                type_idl_demangled.erase(pos, 1);
-            }
-
-            while (type_idl_demangled.find("_\n") != std::string::npos)
-            {
-                size_t pos = type_idl_demangled.find("_\n");
-                type_idl_demangled.erase(pos, 1);
-            }
-
-            while (type_idl_demangled.find("_>") != std::string::npos)
-            {
-                size_t pos = type_idl_demangled.find("_>");
-                type_idl_demangled.erase(pos, 1);
-            }
-
-            //Register the now demangled idl, the original as backup, and their relation
-            lock.lock();
-            type_idls_[type_name] = type_idl_demangled;
-            type_idls_[type_name + backup_naming] = type_idl;
-            type_ros2_modified_[type_name] = type_name_demangled;
-        }
-        else
-        {
-            lock.lock();
-            type_idls_[type_name] = type_idl;
-        }
+        lock.lock();
+        type_idls_[type_name] = type_idl;
     }
 }
 
