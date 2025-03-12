@@ -283,7 +283,7 @@ public:
     FASTDDS_STATISTICS_BACKEND_DllAPI
     static std::string get_type_idl(
             EntityId entity_id);
-            
+
     /**
      * @brief Get the demangled type name in string format for a given topic entity, if it exists, for display purposes.
      *
