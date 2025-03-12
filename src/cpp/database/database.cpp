@@ -308,8 +308,8 @@ void Database::insert_new_type_idl(
     lock.unlock();
 
     if (type_idl.find("module dds_\n") != std::string::npos
-    || type_idl.find("::dds_::") != std::string::npos
-    || type_name.find("dds_") != std::string::npos)
+            || type_idl.find("::dds_::") != std::string::npos
+            || type_name.find("dds_") != std::string::npos)
     {
         //Perform the demangling operations
 
@@ -2585,14 +2585,14 @@ std::string Database::get_type_idl_nts(
 }
 
 std::string Database::get_ros2_type_name(
-    const std::string& type_name) const
+        const std::string& type_name) const
 {
-std::shared_lock<std::shared_timed_mutex> lock(mutex_);
-return get_ros2_type_name_nts(type_name);
+    std::shared_lock<std::shared_timed_mutex> lock(mutex_);
+    return get_ros2_type_name_nts(type_name);
 }
 
 std::string Database::get_ros2_type_name_nts(
-    const std::string& type_name) const
+        const std::string& type_name) const
 {
     auto it = type_ros2_modified_name_.find(type_name);
     if (it != type_ros2_modified_name_.end())
@@ -2612,14 +2612,14 @@ std::string Database::get_ros2_type_name_nts(
 }
 
 std::string Database::get_ros2_type_idl(
-    const std::string& type_name) const
+        const std::string& type_name) const
 {
-std::shared_lock<std::shared_timed_mutex> lock(mutex_);
-return get_ros2_type_idl_nts(type_name);
+    std::shared_lock<std::shared_timed_mutex> lock(mutex_);
+    return get_ros2_type_idl_nts(type_name);
 }
 
 std::string Database::get_ros2_type_idl_nts(
-    const std::string& type_name) const
+        const std::string& type_name) const
 {
     auto it = type_ros2_unmodified_idl_.find(type_name);
     if (it != type_ros2_unmodified_idl_.end())
