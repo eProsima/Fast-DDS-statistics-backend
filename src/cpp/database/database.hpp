@@ -474,6 +474,26 @@ public:
             const std::string& type_name) const;
 
     /**
+     * @brief Get the demangled type name of a given type, if it exists, for display purposes.
+     *
+     * @param type_name The name of the data type for which to search.
+     * @throws eprosima::statistics_backend::BadParameter if \c type_name does not exist in the database.
+     * @return The name type in std::string format.
+     */
+    std::string get_ros2_type_name(
+        const std::string& type_name) const;
+
+    /**
+     * @brief Get the original ROS 2 type IDL of a given type name, if it exists.
+     *
+     * @param type_name The name of the data type for which to search.
+     * @throws eprosima::statistics_backend::BadParameter if \c type_name does not exist in the database.
+     * @return The original ROS 2 IDL representation of the type in std::string format.
+     */
+    std::string get_ros2_type_idl(
+        const std::string& type_name) const;
+
+    /**
      * @brief Get the entity of a given EntityKind that matches with the requested GUID.
      *
      * @param entity_kind The EntityKind of the fetched entities.
@@ -1225,6 +1245,26 @@ protected:
      */
     std::string get_type_idl_nts(
             const std::string& type_name) const;
+
+    /**
+     * @brief Get the demangled type name of a given type, if it exists, for display purposes. This method is not thread safe.
+     *
+     * @param type_name The name of the data type for which to search.
+     * @throws eprosima::statistics_backend::BadParameter if \c type_name does not exist in the database.
+     * @return The name type in std::string format.
+     */
+    std::string get_ros2_type_name_nts(
+        const std::string& type_name) const;
+
+    /**
+     * @brief Get the original ROS 2 type IDL of a given type name, if it exists.  This method is not thread safe.
+     *
+     * @param type_name The name of the data type for which to search.
+     * @throws eprosima::statistics_backend::BadParameter if \c type_name does not exist in the database.
+     * @return The original ROS 2 IDL representation of the type in std::string format.
+     */
+    std::string get_ros2_type_idl_nts(
+        const std::string& type_name) const;
 
     /**
      * @brief Get the entity of a given EntityKind that matches with the requested GUID. This method is not thread safe.
