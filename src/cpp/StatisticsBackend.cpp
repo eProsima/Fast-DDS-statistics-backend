@@ -560,7 +560,7 @@ std::string StatisticsBackend::get_type_idl(
 }
 
 std::string StatisticsBackend::get_ros2_type_name(
-    EntityId entity_id)
+        EntityId entity_id)
 {
     // Check if the entity is a topic
     if (EntityKind::TOPIC != get_type(entity_id))
@@ -572,7 +572,7 @@ std::string StatisticsBackend::get_ros2_type_name(
 }
 
 std::string StatisticsBackend::get_ros2_type_idl(
-    EntityId entity_id)
+        EntityId entity_id)
 {
     // Check if the entity is a topic
     if (EntityKind::TOPIC != get_type(entity_id))
