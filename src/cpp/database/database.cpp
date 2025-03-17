@@ -283,6 +283,7 @@ EntityId Database::insert_new_topic(
 bool Database::is_type_in_database(
         const std::string& type_name)
 {
+    std::lock_guard<std::shared_timed_mutex> guard(mutex_);
     return (type_idls_.find(type_name) != type_idls_.end());
 }
 
@@ -298,14 +299,10 @@ void Database::insert_new_type_idl(
     }
 
     // Check that type name is not already registered and we're trying to delete the type IDL
-    std::unique_lock<std::shared_timed_mutex> lock(mutex_);
-
     if (is_type_in_database(type_name) && type_idl.empty())
     {
         return;
     }
-
-    lock.unlock();
 
     if (type_idl.find("module dds_\n") != std::string::npos
             || type_idl.find("::dds_::") != std::string::npos
@@ -389,14 +386,14 @@ void Database::insert_new_type_idl(
         }
 
         //Register the now demangled idl, the original as backup, and their relation
-        lock.lock();
+        std::lock_guard<std::shared_timed_mutex> guard(mutex_);
         type_idls_[type_name] = type_idl_demangled;
         type_ros2_unmodified_idl_[type_name] = type_idl;
         type_ros2_modified_name_[type_name] = type_name_demangled;
     }
     else
     {
-        lock.lock();
+        std::lock_guard<std::shared_timed_mutex> guard(mutex_);
         type_idls_[type_name] = type_idl;
     }
 }
