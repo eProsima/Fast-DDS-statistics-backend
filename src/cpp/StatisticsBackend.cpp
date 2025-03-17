@@ -559,6 +559,30 @@ std::string StatisticsBackend::get_type_idl(
     return StatisticsBackendData::get_instance()->database_->get_type_idl(topic_info[DATA_TYPE_TAG]);
 }
 
+std::string StatisticsBackend::get_ros2_type_name(
+        EntityId entity_id)
+{
+    // Check if the entity is a topic
+    if (EntityKind::TOPIC != get_type(entity_id))
+    {
+        throw BadParameter("EntityId received does not match with a valid topic entity");
+    }
+    Info topic_info = StatisticsBackend::get_info(entity_id);
+    return StatisticsBackendData::get_instance()->database_->get_ros2_type_name(topic_info[DATA_TYPE_TAG]);
+}
+
+std::string StatisticsBackend::get_ros2_type_idl(
+        EntityId entity_id)
+{
+    // Check if the entity is a topic
+    if (EntityKind::TOPIC != get_type(entity_id))
+    {
+        throw BadParameter("EntityId received does not match with a valid topic entity");
+    }
+    Info topic_info = StatisticsBackend::get_info(entity_id);
+    return StatisticsBackendData::get_instance()->database_->get_ros2_type_idl(topic_info[DATA_TYPE_TAG]);
+}
+
 EntityId StatisticsBackend::get_endpoint_topic_id(
         EntityId endpoint_id)
 {

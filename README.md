@@ -55,7 +55,7 @@ Find more about us at [eProsima’s webpage](https://eprosima.com/).
 
 ## Documentation
 
-You can access the documentation online, which is hosted on [Read the Docs](https://eprosima-dds-router.readthedocs.io).
+You can access the documentation online, which is hosted on [Read the Docs](https://fast-dds-statistics-backend.readthedocs.io).
 
 * [Introduction](https://fast-dds-statistics-backend.readthedocs.io/en/latest/)
 * [Installation Manual](https://fast-dds-statistics-backend.readthedocs.io/en/latest/rst/installation/linux_installation.html)

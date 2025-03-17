@@ -275,13 +275,33 @@ public:
             EntityId entity_id);
 
     /**
-     * @brief Get the IDL representation of a data type in string format for a given topic entity
+     * @brief Get the IDL representation of a data type in string format for a given topic entity.
      *
      * @param entity_id The entity for which the data type IDL is retrieved.
      * @return String object describing the entity's data type IDL.
      */
     FASTDDS_STATISTICS_BACKEND_DllAPI
     static std::string get_type_idl(
+            EntityId entity_id);
+
+    /**
+     * @brief Get the demangled type name in string format for a given topic entity, if it exists, for display purposes.
+     *
+     * @param entity_id The entity for which the data type IDL is retrieved.
+     * @return String object describing the entity's data type IDL.
+     */
+    FASTDDS_STATISTICS_BACKEND_DllAPI
+    static std::string get_ros2_type_name(
+            EntityId entity_id);
+
+    /**
+     * @brief Get the ROS 2 IDL representation of a data type in string format for a given topic entity, if it exists.
+     *
+     * @param entity_id The entity for which the data type IDL is retrieved.
+     * @return String object describing the entity's data type IDL.
+     */
+    FASTDDS_STATISTICS_BACKEND_DllAPI
+    static std::string get_ros2_type_idl(
             EntityId entity_id);
 
     /**

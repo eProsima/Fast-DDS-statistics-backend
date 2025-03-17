@@ -283,6 +283,7 @@ EntityId Database::insert_new_topic(
 bool Database::is_type_in_database(
         const std::string& type_name)
 {
+    std::lock_guard<std::shared_timed_mutex> guard(mutex_);
     return (type_idls_.find(type_name) != type_idls_.end());
 }
 
@@ -290,17 +291,111 @@ void Database::insert_new_type_idl(
         const std::string& type_name,
         const std::string& type_idl)
 {
-    std::lock_guard<std::shared_timed_mutex> guard(mutex_);
+    // Check that type name is not empty
     if (type_name.empty())
     {
-        throw BadParameter("Type name cannot be empty");
+        EPROSIMA_LOG_ERROR(BACKEND_DATABASE, "Type name cannot be empty");
+        return;
     }
 
+    // Check that type name is not already registered and we're trying to delete the type IDL
     if (is_type_in_database(type_name) && type_idl.empty())
     {
         return;
     }
-    type_idls_[type_name] = type_idl;
+
+    if (type_idl.find("module dds_\n") != std::string::npos
+            || type_idl.find("::dds_::") != std::string::npos
+            || type_name.find("dds_") != std::string::npos)
+    {
+        //Perform the demangling operations
+
+        std::string type_name_demangled = type_name;
+        std::string type_idl_demangled = type_idl;
+
+        //Step 1: delete the module dds_
+
+        while (type_idl_demangled.find("module dds_\n") != std::string::npos)
+        {
+            //First: delete the module dds_ identification, and the open brace
+            size_t pos_start = type_idl_demangled.find("module dds_\n");
+            size_t pos_open_brace = type_idl_demangled.find("{", pos_start);
+            type_idl_demangled.erase(pos_start, pos_open_brace - pos_start + 2);
+
+            //Second: find next line, and delete dangling whitespace
+            size_t pos_line = type_idl_demangled.find_first_not_of(" ", pos_start);
+            type_idl_demangled.erase(pos_start, pos_line - pos_start);
+
+            //Third: unindent all the content
+            pos_start = type_idl_demangled.find("   ", pos_start);
+            while (type_idl_demangled[type_idl_demangled.find_first_not_of("   ", pos_start)] != '}')
+            {
+                type_idl_demangled.erase(pos_start, 4);
+                size_t pos_new_line = type_idl_demangled.find_first_not_of(' ', pos_start);
+                pos_start = type_idl_demangled.find("   ", pos_new_line);
+            }
+
+            //Fourth: delete the closing brace and whitespace
+            size_t pos_end = type_idl_demangled.find("};", pos_start);
+            type_idl_demangled.erase(pos_start - 1, pos_end - pos_start + 3);
+        }
+
+        //Step 2: delete the ::dds_:: namespace
+
+        while (type_name_demangled.find("::dds_::") != std::string::npos)
+        {
+            size_t pos = type_name_demangled.find("::dds_::");
+            type_name_demangled.erase(pos, 6);
+        }
+
+        while (type_idl_demangled.find("::dds_::") != std::string::npos)
+        {
+            size_t pos = type_idl_demangled.find("::dds_::");
+            type_idl_demangled.erase(pos, 6);
+        }
+
+        //Step 3: delete the underscores
+
+        while (type_name_demangled.back() == '_')
+        {
+            type_name_demangled.pop_back();
+        }
+
+        while (type_idl_demangled.find("__") != std::string::npos)
+        {
+            size_t pos = type_idl_demangled.find("__");
+            type_idl_demangled.erase(pos, 2);
+        }
+
+        while (type_idl_demangled.find("_ ") != std::string::npos)
+        {
+            size_t pos = type_idl_demangled.find("_ ");
+            type_idl_demangled.erase(pos, 1);
+        }
+
+        while (type_idl_demangled.find("_\n") != std::string::npos)
+        {
+            size_t pos = type_idl_demangled.find("_\n");
+            type_idl_demangled.erase(pos, 1);
+        }
+
+        while (type_idl_demangled.find("_>") != std::string::npos)
+        {
+            size_t pos = type_idl_demangled.find("_>");
+            type_idl_demangled.erase(pos, 1);
+        }
+
+        //Register the now demangled idl, the original as backup, and their relation
+        std::lock_guard<std::shared_timed_mutex> guard(mutex_);
+        type_idls_[type_name] = type_idl_demangled;
+        type_ros2_unmodified_idl_[type_name] = type_idl;
+        type_ros2_modified_name_[type_name] = type_name_demangled;
+    }
+    else
+    {
+        std::lock_guard<std::shared_timed_mutex> guard(mutex_);
+        type_idls_[type_name] = type_idl;
+    }
 }
 
 EntityId Database::insert_new_endpoint(
@@ -2484,6 +2579,55 @@ std::string Database::get_type_idl_nts(
         return it->second;
     }
     throw BadParameter("Type " + type_name + " not found in the database");
+}
+
+std::string Database::get_ros2_type_name(
+        const std::string& type_name) const
+{
+    std::shared_lock<std::shared_timed_mutex> lock(mutex_);
+    return get_ros2_type_name_nts(type_name);
+}
+
+std::string Database::get_ros2_type_name_nts(
+        const std::string& type_name) const
+{
+    auto it = type_ros2_modified_name_.find(type_name);
+    if (it != type_ros2_modified_name_.end())
+    {
+        // The type was demangled
+        return it->second;
+    }
+    else
+    {
+        auto it_non_ros2 = type_idls_.find(type_name);
+        if (it_non_ros2 != type_idls_.end())
+        {
+            return type_name;
+        }
+        throw BadParameter("Type " + type_name + " not found in the database");
+    }
+}
+
+std::string Database::get_ros2_type_idl(
+        const std::string& type_name) const
+{
+    std::shared_lock<std::shared_timed_mutex> lock(mutex_);
+    return get_ros2_type_idl_nts(type_name);
+}
+
+std::string Database::get_ros2_type_idl_nts(
+        const std::string& type_name) const
+{
+    auto it = type_ros2_unmodified_idl_.find(type_name);
+    if (it != type_ros2_unmodified_idl_.end())
+    {
+        // The type was demangled
+        return it->second;
+    }
+    else
+    {
+        return get_type_idl_nts(type_name);
+    }
 }
 
 void Database::erase(
