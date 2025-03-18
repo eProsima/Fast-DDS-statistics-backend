@@ -5080,27 +5080,29 @@ TEST_F(database_tests, get_entity_by_guid_other_kind)
 {
     EXPECT_THROW(db.get_entity_by_guid(static_cast<EntityKind>(127), "any_guid"), BadParameter);
 }
+    
+std::string readFileToString(
+        const std::string& filename) 
+{
+    std::ifstream file(filename);
+    std::ostringstream ss;
+    ss << file.rdbuf();
+    return ss.str();
+}
 
 TEST_F(database_tests, check_ros2_demangler)
 {
-    std::string readFileToString(const std::string& filename) {
-        std::ifstream file(filename);
-        std::ostringstream ss;
-        ss << file.rdbuf();
-        return ss.str();
-    }
+    std::string ros2_mangled_name = "module1::module2::dds_::String_";
+    std::string ros2_demangled_name_goal = "module1::module2::String";
 
-    string ros2_mangled_name = "module1::module2::dds_::String_";
-    string ros2_demangled_name_goal = "module1::module2::String";
+    std::string ros2_mangled_idl = readFileToString("../Resources/ros2_trial_idl_mangled.idl");
+    std::string ros2_demangled_idl_goal = readFileToString("../Resources/ros2_trial_idl_demangled.idl");
 
-    string ros2_mangled_idl = readFileToString("../Resources/ros2_trial_idl_mangled.idl");
-    string ros2_demangled_idl_goal = readFileToString("../Resources/ros2_trial_idl_demangled.idl");
-    
     db.insert_new_type_idl(ros2_mangled_name, ros2_mangled_idl);
 
-    string ros2_demangled_name = db.get_ros2_type_name(ros2_mangled_name);
+    std::string ros2_demangled_name = db.get_ros2_type_name(ros2_mangled_name);
 
-    string ros2_demangled_idl = db.get_ros2_type_idl(ros2_mangled_name);
+    std::string ros2_demangled_idl = db.get_ros2_type_idl(ros2_mangled_name);
 
     // Check the results
 
