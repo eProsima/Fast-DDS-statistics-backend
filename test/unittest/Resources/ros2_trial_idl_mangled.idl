@@ -1,0 +1,31 @@
+module module3
+{
+    module module4
+    {
+        module dds_
+        {
+            @extensibility(FINAL)
+            struct my_data__
+            {
+                string my_datas;
+            };
+        };
+    };
+};
+
+module module1
+{
+    module module2
+    {
+        module dds_
+        {
+            @extensibility(FINAL)
+            struct String_
+            {
+                string data;
+                sequence<module3::module4::dds_::my_data__> my_data_seq;
+                module3::module4::dds_::my_data__ my_data_noseq;
+            };
+        };
+    };
+};
