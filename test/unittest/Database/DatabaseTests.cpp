@@ -5080,9 +5080,9 @@ TEST_F(database_tests, get_entity_by_guid_other_kind)
 {
     EXPECT_THROW(db.get_entity_by_guid(static_cast<EntityKind>(127), "any_guid"), BadParameter);
 }
-    
+
 std::string readFileToString(
-        const std::string& filename) 
+        const std::string& filename)
 {
     std::ifstream file(filename);
     std::ostringstream ss;
