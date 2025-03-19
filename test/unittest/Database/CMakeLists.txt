@@ -389,6 +389,8 @@ set(DATABASE_TEST_LIST
     get_entity_by_guid_locator
     get_entity_by_guid_invalid
     get_entity_by_guid_other_kind
+    # ros2_demangling
+    check_ros2_demangler
     )
 
 foreach(test_name ${DATABASE_TEST_LIST})

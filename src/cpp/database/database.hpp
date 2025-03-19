@@ -166,9 +166,10 @@ public:
             const std::string& type_name);
 
     /**
-     * @brief Insert a new type IDL into the database or update it.
+     * @brief Insert a new type IDL into the database or update it, and perform ROS 2 demangling if needed.
+     * If demangled, insert the demangled type IDL and separately, the original one in a different map.
      * @param topic_type The type of the topic.
-     * @param topic_idl The IDL representation of the type
+     * @param topic_idl The IDL representation of the type.
      */
     void insert_new_type_idl(
             const std::string& topic_type,
@@ -470,6 +471,26 @@ public:
      * @return The IDL representation of the type in std::string format.
      */
     std::string get_type_idl(
+            const std::string& type_name) const;
+
+    /**
+     * @brief Get the demangled type name of a given type, if it exists, for display purposes.
+     *
+     * @param type_name The name of the data type for which to search.
+     * @throws eprosima::statistics_backend::BadParameter if \c type_name does not exist in the database.
+     * @return The name type in std::string format.
+     */
+    std::string get_ros2_type_name(
+            const std::string& type_name) const;
+
+    /**
+     * @brief Get the original ROS 2 type IDL of a given type name, if it exists.
+     *
+     * @param type_name The name of the data type for which to search.
+     * @throws eprosima::statistics_backend::BadParameter if \c type_name does not exist in the database.
+     * @return The original ROS 2 IDL representation of the type in std::string format.
+     */
+    std::string get_ros2_type_idl(
             const std::string& type_name) const;
 
     /**
@@ -1226,6 +1247,26 @@ protected:
             const std::string& type_name) const;
 
     /**
+     * @brief Get the demangled type name of a given type, if it exists, for display purposes. This method is not thread safe.
+     *
+     * @param type_name The name of the data type for which to search.
+     * @throws eprosima::statistics_backend::BadParameter if \c type_name does not exist in the database.
+     * @return The name type in std::string format.
+     */
+    std::string get_ros2_type_name_nts(
+            const std::string& type_name) const;
+
+    /**
+     * @brief Get the original ROS 2 type IDL of a given type name, if it exists.  This method is not thread safe.
+     *
+     * @param type_name The name of the data type for which to search.
+     * @throws eprosima::statistics_backend::BadParameter if \c type_name does not exist in the database.
+     * @return The original ROS 2 IDL representation of the type in std::string format.
+     */
+    std::string get_ros2_type_idl_nts(
+            const std::string& type_name) const;
+
+    /**
      * @brief Get the entity of a given EntityKind that matches with the requested GUID. This method is not thread safe.
      *
      * @param entity_kind The EntityKind of the fetched entities.
@@ -1511,6 +1552,19 @@ protected:
      * Each value in the collection is in turn a map of the actual Topic IDLs sorted by data type
      */
     std::map<std::string, std::string> type_idls_;
+
+    /**
+     * Collection of type names relating the original name and the ROS 2 demangled name.
+     * Only those types that have been modified are stored.
+     */
+    std::map<std::string, std::string> type_ros2_modified_name_;
+
+    /**
+     * Collection of type idls relating the original idl and the original name.
+     * Note that demangling is done by default, so the demangled IDL is stored in the main map.
+     * Only those types that have been modified are stored.
+     */
+    std::map<std::string, std::string> type_ros2_unmodified_idl_;
 
     //! Graph map describing per domain complete topology of the entities.
     std::map<EntityId, Graph> domain_view_graph;

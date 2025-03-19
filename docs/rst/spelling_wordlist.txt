@@ -10,6 +10,7 @@ Colcon
 datareader
 datasharing
 datawriter
+demangled
 Deserialize
 destructor
 eprosima
