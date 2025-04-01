@@ -368,7 +368,8 @@ EntityId StatisticsBackend::init_monitor(
         CallbackMask callback_mask,
         DataKindMask data_mask,
         std::string app_id,
-        std::string app_metadata)
+        std::string app_metadata,
+        std::string easy_mode_ip /* = "" */)
 {
     /* Deactivate statistics in case they were set */
 #ifdef _WIN32
@@ -397,6 +398,12 @@ EntityId StatisticsBackend::init_monitor(
         "fastdds.application.metadata",
         app_metadata,
         "true");
+
+    ReturnCode_t retcode = participant_qos.wire_protocol().easy_mode(easy_mode_ip);
+    if (RETCODE_OK != retcode)
+    {
+        throw Error("Error setting easy mode IP: " + std::to_string(retcode));
+    }
 
     return create_and_register_monitor(domain_name.str(), domain_listener, callback_mask, data_mask, participant_qos,
                    domain_id);

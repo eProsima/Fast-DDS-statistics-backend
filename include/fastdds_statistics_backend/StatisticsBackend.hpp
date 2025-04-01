@@ -73,6 +73,7 @@ public:
      * @param data_mask Mask of the data types that will be monitored.
      * @param app_id App id of the monitor participant.
      * @param app_metadata Metadata of the monitor participant.
+     * @param easy_mode_ip IP address of the remote discovery server used in ROS2 Easy Mode.
      * @return The ID of the created statistics Domain.
      * @throws eprosima::statistics_backend::BadParameter if a monitor is already created for the given domain.
      * @throws eprosima::statistics_backend::Error if the creation of the monitor fails.
@@ -84,7 +85,8 @@ public:
             CallbackMask callback_mask = CallbackMask::all(),
             DataKindMask data_mask = DataKindMask::none(),
             std::string app_id = app_id_str[(int)AppId::UNKNOWN],
-            std::string app_metadata = "");
+            std::string app_metadata = "",
+            std::string easy_mode_ip = "");
 
     /**
      * @brief Starts monitoring the network corresponding to a server.

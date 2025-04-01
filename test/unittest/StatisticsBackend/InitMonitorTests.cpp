@@ -739,6 +739,40 @@ TEST_F(init_monitor_tests, init_monitor_check_participant_transport)
     StatisticsBackend::stop_monitor(monitor_id);
 }
 
+TEST_F(init_monitor_tests, init_monitor_easy_mode)
+{
+    DomainId domain_id = 0;
+    DomainListener domain_listener;
+    std::string app_id = app_id_str[(int)AppId::FASTDDS_MONITOR];
+    std::string app_metadata = "metadata";
+    std::string easy_mode_ip = "127.0.0.1";
+
+    EntityId monitor_id = StatisticsBackend::init_monitor(
+        domain_id,
+        &domain_listener,
+        all_callback_mask_,
+        all_datakind_mask_,
+        app_id,
+        app_metadata,
+        easy_mode_ip);
+
+    EXPECT_TRUE(monitor_id.is_valid());
+
+    auto domain_monitors = test::get_monitors_from_database();
+
+    /* Check that a monitor is created */
+    EXPECT_EQ(domain_monitors.size(), 1u);
+
+    eprosima::fastdds::dds::DomainParticipant* participant = domain_monitors[monitor_id]->participant;
+    eprosima::fastdds::dds::DomainParticipantQos participant_qos = participant->get_qos();
+
+    // Check that the easy mode IP is set correctly
+    ASSERT_EQ(easy_mode_ip, participant_qos.wire_protocol().easy_mode());
+
+    /* Stop the monitor to avoid interfering on the next test */
+    StatisticsBackend::stop_monitor(monitor_id);
+}
+
 int main(
         int argc,
         char** argv)

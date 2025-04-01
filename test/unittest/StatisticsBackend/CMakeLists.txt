@@ -326,6 +326,7 @@ set(INIT_MONITOR_TEST_LIST
     stop_monitor
     init_monitor_check_participant_name
     init_monitor_check_participant_transport
+    init_monitor_easy_mode
     )
 
 foreach(test_name ${INIT_MONITOR_TEST_LIST})
