@@ -4,6 +4,7 @@ Version 2.2.0
 #############
 
 This release includes the following **features**:
+
 * Add EntityId getters and delete Endpoint kind prefixes.
 * Add support for Extended Incompatible QoS.
 * Calculate the DDS vendor and add it to the participant info.
@@ -12,12 +13,14 @@ This release includes the following **features**:
 * Support ROS2 Easy Mode.
 
 This release includes the following **improvements and bugfixes**:
+
 * Delete backend debug traces in release mode.
 * Reject old samples.
 * Add expiration check-in in `fragile_ptr`.
 * Update IDL when a new type is received.
 
 This release includes the following **updates**:
+
 * Update README and GitHub actions.
 
 This release includes the following **dependencies update**:
