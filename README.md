@@ -28,7 +28,7 @@
     <a href="https://fast-dds-statistics-backend.readthedocs.io/en/latest/"><img alt="Documentation Status" src="https://readthedocs.org/projects/fast-dds-statistics-backend/badge/?version=latest"></a>
     <a href="https://github.com/eProsima/Fast-DDS-statistics-backend/actions/workflows/nightly-windows-ci.yml"><img alt="Windows CI" src="https://img.shields.io/github/actions/workflow/status/eProsima/Fast-DDS-statistics-backend/nightly-windows-ci.yml?label=Windows%20CI"></a>
     <a href="https://github.com/eProsima/Fast-DDS-statistics-backend/actions/workflows/nightly-ubuntu-ci.yml"><img alt="Ubuntu CI" src="https://img.shields.io/github/actions/workflow/status/eProsima/Fast-DDS-statistics-backend/nightly-ubuntu-ci.yml?label=Ubuntu%20CI"></a>
-    <a href="https://codecov.io/gh/eProsima/Fast-DDS-statistics-backend"><img alt="Ubuntu CI" src="https://codecov.io/gh/eProsima/Fast-DDS-statistics-backend/branch/main/graph/badge.svg?token=6NA5PVA9QL"></a>
+    <a href="https://codecov.io/gh/eProsima/Fast-DDS-statistics-backend"><img alt="Ubuntu CI" src="https://codecov.io/gh/eProsima/Fast-DDS-statistics-backend/branch/v2.2.0/graph/badge.svg?token=6NA5PVA9QL"></a>
 
 </div>
 
