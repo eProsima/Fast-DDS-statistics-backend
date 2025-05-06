@@ -91,7 +91,7 @@ struct Entity
      * @return The normalized string name.
      */
     static std::string normalize_entity_name(
-        const std::string& entity_name);
+            const std::string& entity_name);
 
     //! The unique identification of the entity
     EntityId id;

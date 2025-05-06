@@ -55,7 +55,7 @@ bool Entity::is_metatraffic_topic(
 }
 
 std::string Entity::normalize_entity_name(
-    const std::string& entity_name)
+        const std::string& entity_name)
 {
     std::string normalized_name;
 

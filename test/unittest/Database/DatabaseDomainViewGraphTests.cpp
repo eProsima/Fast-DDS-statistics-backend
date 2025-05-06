@@ -586,7 +586,7 @@ TEST_F(database_domain_view_graph_tests, graph_with_strange_user_host_characters
     const char raw_bytes [] = {static_cast<char>(0xC0), static_cast<char>(0xC1), static_cast<char>(0x41),
                                static_cast<char>(0x42), static_cast<char>(0x43), static_cast<char>(0x44),
                                static_cast<char>(0x45)
-        };
+    };
     auto weird_host = std::make_shared<database::Host>(raw_bytes);
     auto weird_user = std::make_shared<database::User>(raw_bytes, weird_host);
 
