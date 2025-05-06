@@ -20,6 +20,7 @@
 #ifndef FASTDDS_STATISTICS_BACKEND_SRC_CPP_DATABASE__ENTITIES_HPP
 #define FASTDDS_STATISTICS_BACKEND_SRC_CPP_DATABASE__ENTITIES_HPP
 
+#include <regex>
 #include <string>
 
 #include <fastdds_statistics_backend/types/types.hpp>
@@ -57,8 +58,8 @@ struct Entity
             bool entity_active = true,
             StatusLevel entity_status = StatusLevel::OK_STATUS) noexcept
         : kind(entity_kind)
-        , name(entity_name)
-        , alias(entity_name)
+        , name(normalize_entity_name(entity_name))
+        , alias(normalize_entity_name(entity_name))
         , metatraffic(entity_metatraffic)
         , active(entity_active)
         , status(entity_status)
@@ -82,6 +83,15 @@ struct Entity
      */
     static bool is_metatraffic_topic(
             std::string topic_name);
+
+    /**
+     * @brief Normalize the entity name to an ascii-valid name.
+     *
+     * @param entity_name Name of the name to convert.
+     * @return The normalized string name.
+     */
+    static std::string normalize_entity_name(
+        const std::string& entity_name);
 
     //! The unique identification of the entity
     EntityId id;
