@@ -594,11 +594,11 @@ TEST_F(database_domain_view_graph_tests, graph_with_strange_user_host_characters
     host_id = database.insert(weird_host);
     user_id = database.insert(weird_user);
 
-    // Insert participant_1 from process_1
+    // Insert participant_1 from weird_process
     auto weird_process = std::make_shared<database::Process>("1234", "1234", weird_user);
-    auto process_id_1 = database.insert(weird_process);
+    auto weird_process_id = database.insert(weird_process);
     participant_id_1 = database.insert(participant_1);
-    database.link_participant_with_process(participant_id_1, process_id_1);
+    database.link_participant_with_process(participant_id_1, weird_process_id);
 
     // Add participant to graph
     database.update_participant_in_graph(domain_id, host_id, user_id, process_id_1, participant_id_1);
