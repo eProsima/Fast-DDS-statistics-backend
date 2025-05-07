@@ -36,6 +36,7 @@ bool Entity::is_metatraffic_topic(
         "set_parameters_atomically",
         "describe_parameters",
         "list_parameters",
+        "get_type_description",
         "_fastdds_statistics_",
         "_fastdds_monitor_service_"};
 
