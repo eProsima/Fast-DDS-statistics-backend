@@ -55,6 +55,20 @@ bool Entity::is_metatraffic_topic(
     return is_metatraffic;
 }
 
+std::string Entity::normalize_entity_name(
+        const std::string& entity_name)
+{
+    std::string normalized_name;
+
+    // Filter out invalid characters
+    // Leave all ascii printable characters
+
+    std::regex regular_expression("[^ -~]");
+    normalized_name = std::regex_replace(entity_name, regular_expression, "");
+
+    return normalized_name;
+}
+
 DdsVendor DDSEntity::dds_vendor_by_guid(
         const std::string& guid)
 {

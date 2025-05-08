@@ -577,6 +577,39 @@ TEST_F(database_domain_view_graph_tests, regenerate_graph_functionality)
     ASSERT_EQ(json_graph, database.get_domain_view_graph(0));
 }
 
+// Test that the graph can be dumped even if the user and host have non-ascii characters
+TEST_F(database_domain_view_graph_tests, graph_with_strange_user_host_characters_correctly_dumps)
+{
+    Graph json_graph;
+
+    // Override user and host
+    const char raw_bytes [] = {static_cast<char>(0xC0), static_cast<char>(0xC1), static_cast<char>(0x41),
+                               static_cast<char>(0x42), static_cast<char>(0x43), static_cast<char>(0x44),
+                               static_cast<char>(0x45)
+    };
+    auto weird_host = std::make_shared<database::Host>(raw_bytes);
+    auto weird_user = std::make_shared<database::User>(raw_bytes, weird_host);
+
+    // Insert host and user
+    host_id = database.insert(weird_host);
+    user_id = database.insert(weird_user);
+
+    // Insert participant_1 from weird_process
+    auto weird_process = std::make_shared<database::Process>("1234", "1234", weird_user);
+    auto weird_process_id = database.insert(weird_process);
+    participant_id_1 = database.insert(participant_1);
+    database.link_participant_with_process(participant_id_1, weird_process_id);
+
+    // Add participant to graph
+    database.update_participant_in_graph(domain_id, host_id, user_id, process_id_1, participant_id_1);
+
+    // Retrieve graph
+    json_graph = database.get_domain_view_graph(0);
+
+    // Check dumping the json does not throw nlohmann::type_error exception
+    ASSERT_NO_THROW(json_graph.dump());
+}
+
 int main(
         int argc,
         char** argv)
