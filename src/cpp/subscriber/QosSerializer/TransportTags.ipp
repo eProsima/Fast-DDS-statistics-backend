@@ -1,4 +1,4 @@
-// Copyright 2021 Proyectos y Sistemas de Mantenimiento SL (eProsima).
+// Copyright 2025 Proyectos y Sistemas de Mantenimiento SL (eProsima).
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,14 +13,8 @@
 // limitations under the License.
 
 /**
- * @file PublishModeTags.ipp
+ * @file TransportTags.ipp
  */
 
-static constexpr const char* publish_mode_tag = "publish_mode";
-
-// Publish mode kind
-static constexpr const char* publish_mode_sync_tag = "SYNCHRONOUS_PUBLISH_MODE";
-static constexpr const char* publish_mode_async_tag = "ASYNCHRONOUS_PUBLISH_MODE";
-
-// Flow controller
-static constexpr const char* flow_controller_tag = "flow_controller";
+// Transport priority
+static constexpr const char* transport_priority_tag = "transport_priority";
