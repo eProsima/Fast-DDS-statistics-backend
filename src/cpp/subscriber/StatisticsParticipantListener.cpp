@@ -67,7 +67,7 @@ StatisticsParticipantListener::StatisticsParticipantListener(
         database::Database* database,
         database::DatabaseEntityQueue* entity_queue,
         database::DatabaseDataQueue<eprosima::fastdds::statistics::Data>* data_queue,
-        database::DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>* monitor_service_data_queue)
+        database::DatabaseDataQueue<database::ExtendedMonitorServiceStatusData>* monitor_service_data_queue)
 noexcept
     : DomainParticipantListener()
     , domain_id_(domain_id)

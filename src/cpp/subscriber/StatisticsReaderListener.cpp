@@ -35,7 +35,7 @@ using namespace eprosima::fastdds::dds;
 
 StatisticsReaderListener::StatisticsReaderListener(
         database::DatabaseDataQueue<eprosima::fastdds::statistics::Data>* data_queue,
-        database::DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>* monitor_service_data_queue)
+        database::DatabaseDataQueue<database::ExtendedMonitorServiceStatusData>* monitor_service_data_queue)
 noexcept
     : DataReaderListener()
     , data_queue_(data_queue)
@@ -106,9 +106,10 @@ void StatisticsReaderListener::on_data_available(
             return;
         }
 
-        std::shared_ptr<MonitorServiceStatusData> monitor_service_status_data =
-                std::make_shared<MonitorServiceStatusData>(inner_data);
+        std::shared_ptr<database::ExtendedMonitorServiceStatusData> monitor_service_status_data =
+                std::make_shared<database::ExtendedMonitorServiceStatusData>();
 
+        monitor_service_status_data->data = inner_data;
         monitor_service_status_data_queue_->push(timestamp, monitor_service_status_data);
     }
     else

@@ -49,7 +49,7 @@ StatisticsBackendData::StatisticsBackendData()
     , entity_queue_(new database::DatabaseEntityQueue(database_.get()))
     , data_queue_(new database::DatabaseDataQueue<eprosima::fastdds::statistics::Data>(database_.get()))
     ,
-    monitor_service_status_data_queue_(new database::DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>(
+    monitor_service_status_data_queue_(new database::DatabaseDataQueue<database::ExtendedMonitorServiceStatusData>(
                 database_.get()))
     , physical_listener_(nullptr)
     , lock_(mutex_, std::defer_lock)

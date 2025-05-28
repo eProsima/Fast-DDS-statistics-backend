@@ -36,6 +36,7 @@ namespace database {
 template <typename T>
 class DatabaseDataQueue;
 class DatabaseEntityQueue;
+struct ExtendedMonitorServiceStatusData;
 
 } // namespace database
 
@@ -60,7 +61,7 @@ public:
      */
     StatisticsReaderListener(
             database::DatabaseDataQueue<eprosima::fastdds::statistics::Data>* data_queue,
-            database::DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>* monitor_service_status_data_queue_)
+            database::DatabaseDataQueue<database::ExtendedMonitorServiceStatusData>* monitor_service_status_data_queue_)
     noexcept;
 
     /**
@@ -80,7 +81,7 @@ protected:
 
     //! Reference to the database queues
     database::DatabaseDataQueue<eprosima::fastdds::statistics::Data>* data_queue_;
-    database::DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>*
+    database::DatabaseDataQueue<database::ExtendedMonitorServiceStatusData>*
             monitor_service_status_data_queue_;
 
 };

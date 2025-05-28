@@ -36,6 +36,7 @@ namespace statistics_backend {
 namespace database {
 
 class Database;
+struct ExtendedMonitorServiceStatusData;
 template <typename T>
 class DatabaseDataQueue;
 class DatabaseEntityQueue;
@@ -60,7 +61,7 @@ public:
             database::Database* database,
             database::DatabaseEntityQueue* entity_queue,
             database::DatabaseDataQueue<eprosima::fastdds::statistics::Data>* data_queue,
-            database::DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>* monitor_service_data_queue)
+            database::DatabaseDataQueue<database::ExtendedMonitorServiceStatusData>* monitor_service_data_queue)
     noexcept;
 
     /*!
@@ -108,7 +109,7 @@ protected:
     database::Database* database_;                                                                                      ///< Reference to the statistics database. Injected on construction
     database::DatabaseEntityQueue* entity_queue_;                                                                       ///< Reference to the statistics entity queue. Injected on construction
     database::DatabaseDataQueue<eprosima::fastdds::statistics::Data>* data_queue_;                                      ///< Reference to the statistics data queue. Injected on construction
-    database::DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>*
+    database::DatabaseDataQueue<database::ExtendedMonitorServiceStatusData>*
             monitor_service_status_data_queue_;                                                                                      ///< Reference to the monitor service status data queue. Injected on construction
 };
 
