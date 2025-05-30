@@ -23,6 +23,10 @@
 #include <string>
 #include <vector>
 
+#include <fastdds/rtps/builtin/data/ParticipantBuiltinTopicData.hpp>
+#include <fastdds/rtps/builtin/data/PublicationBuiltinTopicData.hpp>
+#include <fastdds/rtps/builtin/data/SubscriptionBuiltinTopicData.hpp>
+
 #include <fastdds_statistics_backend/exception/Exception.hpp>
 #include <fastdds_statistics_backend/types/types.hpp>
 #include <fastdds_statistics_backend/types/JSONTags.h>
@@ -3540,7 +3544,7 @@ std::pair<EntityId, EntityId> Database::get_entity_by_guid_nts(
 }
 
 EntityKind Database::get_entity_kind_by_guid(
-        const eprosima::fastdds::statistics::detail::GUID_s& guid_s) const
+        const eprosima::fastdds::statistics::detail::GUID_s& guid_s)
 {
 
     eprosima::fastdds::rtps::EntityId_t entity_id_t;
@@ -4338,6 +4342,32 @@ bool Database::entity_status_logic_nts(
         return false;
     }
 }
+
+// bool update_entity_qos_nts(
+//         std::shared_ptr<DataReader>& entity)
+// {
+//     // Check if updating QoS is needed
+//     if (entity->optional_qos_received)
+//     {
+//         return false;
+//     }
+
+//     fastdds::rtps::SubscriptionBuiltinTopicData subscription_data;
+
+//     // Check for proxy data samples received
+//     if (!entity->monitor_service_data.proxy.empty())
+//     {
+//         // Deserialize QoS info
+//         if (fastdds::dds::RETCODE_OK != entity->participant->fill_discovery_data_from_cdr_message(
+//                     subscription_data, entity->monitor_service_data.proxy.back().data))
+//         {
+//             EPROSIMA_LOG_ERROR(BACKEND_DATABASE, "Error deserializing proxy data for DataReader "
+//                     << entity->id.value() << " in DomainParticipant " << entity->participant->id.value());
+//             return false;
+//         }
+//     }
+
+// }
 
 void Database::set_alias(
         const EntityId& entity_id,

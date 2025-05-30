@@ -515,8 +515,8 @@ public:
      * @throws eprosima::statistics_backend::BadParameter if there is no entity with the given parameters.
      * @return The EntityKind of the matching entity.
      */
-    EntityKind get_entity_kind_by_guid(
-            const eprosima::fastdds::statistics::detail::GUID_s& guid) const;
+    static EntityKind get_entity_kind_by_guid(
+            const eprosima::fastdds::statistics::detail::GUID_s& guid);
 
     /**
      * @brief Get EntityKind given an EntityId.
@@ -1310,6 +1310,34 @@ protected:
             StatusLevel& entity_status);
 
     /**
+     * @brief Check if the entity QoS should be updated depending on its monitor service status data.
+     *        It is used to add the optional QoS policies that are received from the monitor service.
+     *
+     * @param entity The Entity that might be updated.
+     * @throws eprosima::statistics_backend::BadParameter if there is no specialization template for the requested EntityKind.
+     * @return True if entity QoS has been updated, false if not.
+     */
+    template <typename T>
+    bool update_entity_qos_nts(
+            std::shared_ptr<T>& entity)
+    {
+        static_cast<void>(entity);
+        throw BadParameter("Unsupported EntityKind");
+    }
+
+    /**
+     * @brief Update entity QoS according to the received QoS.
+     *
+     * @param received_qos The QoS received from the monitor service.
+     * @param entity_qos Reference to the QoS of the entity.
+     *
+     * @return True if the QoS has been updated, false if the QoS information was already inserted.
+     */
+    bool entity_qos_logic_nts(
+            const database::Qos& received_qos,
+            database::Qos& entity_qos);
+
+    /**
      * Get an entity given its EntityId. This method is not thread safe.
      *
      * @param entity_id constant reference to the EntityId of the retrieved entity.
@@ -1599,6 +1627,18 @@ bool Database::update_entity_status_nts(
 
 template <>
 bool Database::update_entity_status_nts(
+        std::shared_ptr<DataWriter>& entity);
+
+template <>
+bool Database::update_entity_qos_nts(
+        std::shared_ptr<DomainParticipant>& entity);
+
+template <>
+bool Database::update_entity_qos_nts(
+        std::shared_ptr<DataReader>& entity);
+
+template <>
+bool Database::update_entity_qos_nts(
         std::shared_ptr<DataWriter>& entity);
 
 template <>

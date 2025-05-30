@@ -19,11 +19,21 @@
 
 #include "StatisticsReaderListener.hpp"
 
+#include <fastdds/dds/builtin/topic/PublicationBuiltinTopicData.hpp>
+#include <fastdds/dds/builtin/topic/SubscriptionBuiltinTopicData.hpp>
 #include <fastdds/dds/subscriber/DataReader.hpp>
 #include <fastdds/dds/subscriber/SampleInfo.hpp>
+#include <fastdds/dds/subscriber/Subscriber.hpp>
 #include <fastdds/dds/topic/TopicDescription.hpp>
+#include <fastdds/rtps/builtin/data/ParticipantBuiltinTopicData.hpp>
+#include <fastdds/statistics/dds/domain/DomainParticipant.hpp>
 #include <fastdds/statistics/topic_names.hpp>
+
+#include <fastdds_statistics_backend/types/types.hpp>
+#include <fastdds_statistics_backend/topic_types/monitorservice_types.hpp>
 #include <database/database_queue.hpp>
+#include <database/database.hpp>
+#include "QosSerializer.hpp"
 
 namespace eprosima {
 namespace statistics_backend {
@@ -32,6 +42,7 @@ namespace subscriber {
 using namespace eprosima::fastdds::statistics;
 using namespace eprosima::fastdds::statistics::EventKind;
 using namespace eprosima::fastdds::dds;
+using namespace eprosima::fastdds::rtps;
 
 StatisticsReaderListener::StatisticsReaderListener(
         database::DatabaseDataQueue<eprosima::fastdds::statistics::Data>* data_queue,
@@ -62,6 +73,82 @@ bool StatisticsReaderListener::get_available_data(
     }
     return false;
 }
+
+bool StatisticsReaderListener::get_optional_qos_from_proxy_sample(
+        eprosima::fastdds::statistics::dds::DomainParticipant* participant,
+        const eprosima::fastdds::statistics::MonitorServiceStatusData& data,
+        database::Qos& qos)
+{
+    if (!participant)
+    {
+        EPROSIMA_LOG_ERROR(STATISTICSREADERLISTENER,
+                "Participant is null, cannot extract QoS from proxy sample.");
+        return false;
+    }
+
+    if (eprosima::fastdds::statistics::StatusKind::PROXY != data.status_kind())
+    {
+        EPROSIMA_LOG_ERROR(STATISTICSREADERLISTENER,
+                "Data is not a proxy sample, cannot extract QoS.");
+        return false;
+    }
+
+    switch (database::Database::get_entity_kind_by_guid(data.local_entity()))
+    {
+        case EntityKind::PARTICIPANT:
+        {
+            ParticipantBuiltinTopicData participant_data;
+
+            if (RETCODE_OK !=
+                    participant->fill_discovery_data_from_cdr_message(participant_data, data))
+            {
+                EPROSIMA_LOG_ERROR(STATISTICSREADERLISTENER,
+                        "Failed to get participant data for proxy sample.");
+                return false;
+            }
+
+            qos = optional_qos_to_backend_qos(participant_data);
+            return true;
+        }
+        case EntityKind::DATAWRITER:
+        {
+            PublicationBuiltinTopicData publication_data;
+
+            if (RETCODE_OK !=
+                    participant->fill_discovery_data_from_cdr_message(publication_data, data))
+            {
+                EPROSIMA_LOG_ERROR(STATISTICSREADERLISTENER,
+                        "Failed to get publication data for proxy sample.");
+                return false;
+            }
+
+            qos = optional_qos_to_backend_qos(publication_data);
+            return true;
+        }
+        case EntityKind::DATAREADER:
+        {
+            SubscriptionBuiltinTopicData subscription_data;
+
+            if (RETCODE_OK !=
+                    participant->fill_discovery_data_from_cdr_message(subscription_data, data))
+            {
+                EPROSIMA_LOG_ERROR(STATISTICSREADERLISTENER,
+                        "Failed to get subscription data for proxy sample.");
+                return false;
+            }
+
+            qos = optional_qos_to_backend_qos(subscription_data);
+            return true;
+        }
+        default:
+            EPROSIMA_LOG_ERROR(STATISTICSREADERLISTENER,
+                    "Trying to extract optional QoS from an invalid entity kind");
+            return false;
+    }
+
+    return true;
+}
+
 
 void StatisticsReaderListener::on_data_available(
         eprosima::fastdds::dds::DataReader* reader)
@@ -110,6 +197,27 @@ void StatisticsReaderListener::on_data_available(
                 std::make_shared<database::ExtendedMonitorServiceStatusData>();
 
         monitor_service_status_data->data = inner_data;
+
+        // Deserialize optional QoS information for proxy samples
+        if (fastdds::statistics::StatusKind::PROXY == inner_data.status_kind())
+        {
+            database::Qos qos;
+            auto participant = eprosima::fastdds::statistics::dds::DomainParticipant::narrow(
+                    reader->get_subscriber()->get_participant());
+
+            if (!get_optional_qos_from_proxy_sample(
+                    const_cast<eprosima::fastdds::statistics::dds::DomainParticipant*>(participant),
+                    inner_data,
+                    qos))
+            {
+                EPROSIMA_LOG_ERROR(STATISTICSREADERLISTENER,
+                        "Failed to get optional QoS from proxy sample.");
+                return;
+            }
+
+            monitor_service_status_data->optional_qos = qos;
+        }
+
         monitor_service_status_data_queue_->push(timestamp, monitor_service_status_data);
     }
     else

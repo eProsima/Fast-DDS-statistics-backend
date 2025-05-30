@@ -17,6 +17,7 @@
  */
 
 // History related tags
+static constexpr const char* history_tag = "history";
 static constexpr const char* history_depth_tag = "history_depth";
 static constexpr const char* history_kind_tag = "history_kind";
 static constexpr const char* history_keep_last_tag = "KEEP_LAST_HISTORY_QOS";
@@ -28,6 +29,7 @@ static constexpr const char* max_samples_tag = "max_samples";
 static constexpr const char* max_samples_per_instance_tag = "max_samples_per_instance";
 static constexpr const char* allocated_samples_tag = "allocated_samples";
 static constexpr const char* extra_samples_tag = "extra_samples";
+static constexpr const char* resource_limits_tag = "resource_limits";
 
 // Writer Resource Limits QoS related tags
 static constexpr const char* writer_resource_limits_tag = "writer_resource_limits";

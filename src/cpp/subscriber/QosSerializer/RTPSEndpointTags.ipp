@@ -16,7 +16,7 @@
  * @file RTPSEndpointTags.ipp
  */
 
-static constexpr const char* rtps_endpoint_tag = "endpoint";
+static constexpr const char* rtps_endpoint_tag = "endpoint_qos";
 
 // History memory policy
 static constexpr const char* history_memory_policy_tag = "history_memory_policy";
