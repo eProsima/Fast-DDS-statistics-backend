@@ -1474,6 +1474,7 @@ void DatabaseDataQueue<ExtendedMonitorServiceStatusData>::process_sample()
                         item.second->data.value().entity_proxy());
 
                 updated_entity = database_->insert(domain, entity, sample);
+                database_->update_entity_qos(entity, item.second->optional_qos);
                 details::StatisticsBackendData::get_instance()->on_status_reported(domain, entity, StatusKind::PROXY);
             }
             catch (const eprosima::statistics_backend::Exception& e)

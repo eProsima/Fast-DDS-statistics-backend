@@ -550,6 +550,24 @@ public:
             const bool& entity_error,
             const bool& entity_warning,
             StatusLevel& entity_status);
+    
+    /**
+     * @brief Update the current QoS of a existing entity according to the received QoS.
+     *
+     * @note When entity QoS is updated, current and received QoS are merged:
+     *       new keys are added to the entity QoS JSON, and existing values are preserved
+     *       unless explicitly overwritten.
+     * @param entity The ID of the entity to be updated.
+     * @param received_qos The new QoS information used to update the entity.
+     * @throws eprosima::statistics_backend::BadParameter in the following cases:
+     *            * If an entity with the given ID does not exist in the database.
+     *            * If the entity exists in the database, but it is not a valid DDS Endpoint (i.e: It does not store QoS policies).
+     * @return True if entity QoS has been updated,
+     *         false if not (i.e: if optional QoS information was already received).
+     */
+    bool update_entity_qos(
+            const EntityId& entity,
+            const Qos& received_qos);
 
     /**
      * @brief Get the specified domain view graph from database.
@@ -1310,32 +1328,22 @@ protected:
             StatusLevel& entity_status);
 
     /**
-     * @brief Check if the entity QoS should be updated depending on its monitor service status data.
-     *        It is used to add the optional QoS policies that are received from the monitor service.
+     * @brief Update the current QoS of a existing entity according to the received QoS.
      *
-     * @param entity The Entity that might be updated.
-     * @throws eprosima::statistics_backend::BadParameter if there is no specialization template for the requested EntityKind.
-     * @return True if entity QoS has been updated, false if not.
+     * @note When entity QoS is updated, current and received QoS are merged:
+     *       new keys are added to the entity QoS JSON, and existing values are preserved
+     *       unless explicitly overwritten.
+     * @param entity The ID of the entity to be updated.
+     * @param received_qos The new QoS information used to update the entity.
+     * @throws eprosima::statistics_backend::BadParameter in the following cases:
+     *            * If an entity with the given ID does not exist in the database.
+     *            * If the entity exists in the database, but it is not a valid DDS Endpoint (i.e: It does not store QoS policies).
+     * @return True if entity QoS has been updated,
+     *         false if not (i.e: if optional QoS information was already received).
      */
-    template <typename T>
     bool update_entity_qos_nts(
-            std::shared_ptr<T>& entity)
-    {
-        static_cast<void>(entity);
-        throw BadParameter("Unsupported EntityKind");
-    }
-
-    /**
-     * @brief Update entity QoS according to the received QoS.
-     *
-     * @param received_qos The QoS received from the monitor service.
-     * @param entity_qos Reference to the QoS of the entity.
-     *
-     * @return True if the QoS has been updated, false if the QoS information was already inserted.
-     */
-    bool entity_qos_logic_nts(
-            const database::Qos& received_qos,
-            database::Qos& entity_qos);
+        const EntityId& entity,
+        const Qos& received_qos);
 
     /**
      * Get an entity given its EntityId. This method is not thread safe.
@@ -1627,18 +1635,6 @@ bool Database::update_entity_status_nts(
 
 template <>
 bool Database::update_entity_status_nts(
-        std::shared_ptr<DataWriter>& entity);
-
-template <>
-bool Database::update_entity_qos_nts(
-        std::shared_ptr<DomainParticipant>& entity);
-
-template <>
-bool Database::update_entity_qos_nts(
-        std::shared_ptr<DataReader>& entity);
-
-template <>
-bool Database::update_entity_qos_nts(
         std::shared_ptr<DataWriter>& entity);
 
 template <>

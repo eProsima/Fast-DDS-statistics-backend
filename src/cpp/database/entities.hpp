@@ -279,7 +279,7 @@ struct DDSEntity : Entity
     DdsVendor dds_vendor;
 
     //! Flag to check if optional QoS information has been already received.
-    bool optional_qos_received = false;
+    bool optional_qos_received;
 };
 
 /*

@@ -4299,6 +4299,37 @@ bool Database::update_entity_status_nts(
     return entity_status_logic_nts(entity_error, entity_warning, entity->status);
 }
 
+bool Database::update_entity_qos(
+        const EntityId& entity,
+        const Qos& received_qos)
+{
+    std::lock_guard<std::shared_timed_mutex> guard(mutex_);
+    return update_entity_qos_nts(entity, received_qos);
+}
+
+bool Database::update_entity_qos_nts(
+        const EntityId& entity,
+        const Qos& received_qos)
+{
+    std::shared_ptr<const DDSEntity> db_entity_const = std::dynamic_pointer_cast<const DDSEntity>(get_entity_nts(entity));
+    if (!db_entity_const)
+    {
+        throw BadParameter("Entity with id " + std::to_string(entity.value()) + " is not a DDS Entity");
+    }
+    // Check if the entity has already received the optional QoS information
+    if (db_entity_const->optional_qos_received)
+    {
+        return false;
+    }
+
+    std::shared_ptr<DDSEntity> db_entity = std::const_pointer_cast<DDSEntity>(db_entity_const);
+
+    db_entity->qos.merge_patch(received_qos);
+    db_entity->optional_qos_received = true;
+
+    return true;
+}
+
 bool Database::entity_status_logic(
         const bool& entity_error,
         const bool& entity_warning,
@@ -4342,32 +4373,6 @@ bool Database::entity_status_logic_nts(
         return false;
     }
 }
-
-// bool update_entity_qos_nts(
-//         std::shared_ptr<DataReader>& entity)
-// {
-//     // Check if updating QoS is needed
-//     if (entity->optional_qos_received)
-//     {
-//         return false;
-//     }
-
-//     fastdds::rtps::SubscriptionBuiltinTopicData subscription_data;
-
-//     // Check for proxy data samples received
-//     if (!entity->monitor_service_data.proxy.empty())
-//     {
-//         // Deserialize QoS info
-//         if (fastdds::dds::RETCODE_OK != entity->participant->fill_discovery_data_from_cdr_message(
-//                     subscription_data, entity->monitor_service_data.proxy.back().data))
-//         {
-//             EPROSIMA_LOG_ERROR(BACKEND_DATABASE, "Error deserializing proxy data for DataReader "
-//                     << entity->id.value() << " in DomainParticipant " << entity->participant->id.value());
-//             return false;
-//         }
-//     }
-
-// }
 
 void Database::set_alias(
         const EntityId& entity_id,
