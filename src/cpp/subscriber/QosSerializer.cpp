@@ -768,7 +768,6 @@ void serialize<fastdds::rtps::DiscoverySettings> (
     serialize(qos.leaseDuration_announcementperiod, announcement_period_tag, discovery_settings);
     serialize(qos.initial_announcements, initial_announcements_tag, discovery_settings);
     serialize(qos.m_simpleEDP, simple_edp_attributes_tag, discovery_settings);
-    // TODO (Carlosespicur): Add here the PDP info?
     serialize(qos.discoveryServer_client_syncperiod, discovery_server_client_syncperiod_tag, discovery_settings);
     serialize(qos.m_DiscoveryServers, discovery_servers_tag, discovery_settings);
     serialize(qos.ignoreParticipantFlags, participant_filtering_tag, discovery_settings);

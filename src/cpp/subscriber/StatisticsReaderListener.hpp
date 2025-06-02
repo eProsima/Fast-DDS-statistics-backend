@@ -80,7 +80,7 @@ protected:
             std::chrono::system_clock::time_point& timestamp);
 
     /**
-     * @brief Extracts the optional QoS information (in database format) from a MonitorService proxy sample.ACKNACK_COUNT
+     * @brief Extracts the optional QoS information (in database format) from a MonitorService proxy sample.
      *
      * @param participant Reference to the DomainParticipant used to deserialize the proxy data.
      * @param data The monitor service status data containing the proxy sample.
