@@ -46,11 +46,13 @@ using namespace eprosima::fastdds::rtps;
 
 StatisticsReaderListener::StatisticsReaderListener(
         database::DatabaseDataQueue<eprosima::fastdds::statistics::Data>* data_queue,
-        database::DatabaseDataQueue<database::ExtendedMonitorServiceStatusData>* monitor_service_data_queue)
+        database::DatabaseDataQueue<database::ExtendedMonitorServiceStatusData>* monitor_service_data_queue,
+        const database::Database* db)
 noexcept
     : DataReaderListener()
     , data_queue_(data_queue)
     , monitor_service_status_data_queue_(monitor_service_data_queue)
+    , db_(db)
 {
 }
 
@@ -93,7 +95,7 @@ bool StatisticsReaderListener::get_optional_qos_from_proxy_sample(
         return false;
     }
 
-    switch (database::Database::get_entity_kind_by_guid(data.local_entity()))
+    switch (db_->get_entity_kind_by_guid(data.local_entity()))
     {
         case EntityKind::PARTICIPANT:
         {

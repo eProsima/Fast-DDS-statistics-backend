@@ -281,7 +281,7 @@ public:
     DatabaseDataQueue<eprosima::fastdds::statistics::Data> data_queue;
 
     // Data queue, attached to the mocked database
-    DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData> monitor_service_data_queue;
+    DatabaseDataQueue<ExtendedMonitorServiceStatusData> monitor_service_data_queue;
 
     // Mocked statistics participant_, that is supposed to receive the callbacks
     eprosima::fastdds::dds::DomainParticipant statistics_participant;

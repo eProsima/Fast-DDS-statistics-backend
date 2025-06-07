@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <fastdds/dds/domain/DomainParticipantFactory.hpp>
 #include <fastdds/dds/subscriber/DataReader.hpp>
 #include <fastdds/dds/subscriber/SampleInfo.hpp>
 #include <fastdds/statistics/topic_names.hpp>
@@ -102,7 +103,7 @@ public:
 
     Database database_;
     DatabaseDataQueue<eprosima::fastdds::statistics::Data> data_queue_;
-    DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData> monitor_service_data_queue_;
+    DatabaseDataQueue<ExtendedMonitorServiceStatusData> monitor_service_data_queue_;
     eprosima::statistics_backend::DataKindMask data_mask_;
     StatisticsReaderListener reader_listener_;
     eprosima::fastdds::dds::DataReader datareader_;
@@ -112,7 +113,7 @@ public:
         , data_queue_(&database_)
         , monitor_service_data_queue_(&database_)
         , data_mask_(eprosima::statistics_backend::DataKindMask::all())
-        , reader_listener_(&data_queue_, &monitor_service_data_queue_)
+        , reader_listener_(&data_queue_, &monitor_service_data_queue_, &database_)
     {
     }
 
@@ -1361,6 +1362,8 @@ TEST_F(statistics_reader_listener_tests, new_sample_datas_received)
 
 TEST_F(statistics_reader_listener_tests, new_monitor_service_sample_received)
 {
+    auto participant = eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->create_participant(0, eprosima::fastdds::dds::PARTICIPANT_QOS_DEFAULT);
+
     // Build the writer GUID
     std::array<uint8_t, 12> prefix = {1, 15, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> writer_id = {0, 0, 0, 2};
@@ -1414,6 +1417,8 @@ TEST_F(statistics_reader_listener_tests, new_monitor_service_sample_received)
     EXPECT_CALL(database_,
             insert(_, _, testing::Matcher<const eprosima::statistics_backend::MonitorServiceSample&>(_))).Times(1)
             .WillRepeatedly(Invoke(&args, &InsertMonitorServiceDataArgs::insert));
+
+    EXPECT_CALL(*datareader_.get_subscriber(), get_participant()).Times(1).WillOnce(Return(participant));
 
     EXPECT_CALL(*eprosima::statistics_backend::details::StatisticsBackendData::get_instance(),
             on_status_reported(EntityId(0), EntityId(1), eprosima::statistics_backend::StatusKind::PROXY)).Times(1);

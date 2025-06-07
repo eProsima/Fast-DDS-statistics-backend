@@ -49,6 +49,7 @@ static constexpr const char* participant_filtering_no_filter_tag = "NO_FILTER";
 static constexpr const char* participant_filtering_filter_different_host_tag = "FILTER_DIFFERENT_HOST";
 static constexpr const char* participant_filtering_filter_different_process_tag = "FILTER_DIFFERENT_PROCESS";
 static constexpr const char* participant_filtering_filter_same_process_tag = "FILTER_SAME_PROCESS";
+static constexpr const char* static_edp_xml_config_tag = "static_edp_xml_config";
 static constexpr const char* use_writer_liveliness_protocol_tag = "use_writer_liveliness_protocol";
 static constexpr const char* network_configuration_tag = "network_configuration";
 static constexpr const char* initial_peers_tag = "initial_peers";

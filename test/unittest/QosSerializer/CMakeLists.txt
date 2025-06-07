@@ -64,9 +64,37 @@ if(GTEST_FOUND)
         ownership_strength_qos_policy
         publish_mode_qos_policy
         parameter_property_list_qos_policy
+        history_qos_policy
+        resource_limits_qos_policy
+        reader_data_lifecycle_qos_policy
+        reader_times
+        rtps_reliable_reader_qos_policy
+        locator_list
+        external_locators
+        memory_management_policy
+        rtps_endpoint_qos_policy
+        resource_limited_container_config
+        reader_resource_limits_qos_policy
+        transport_priority_qos_policy
+        writer_data_lifecycle_qos_policy
+        writer_times
+        rtps_reliable_writer_qos_policy
+        writer_resource_limits_qos_policy
+        guid_prefix_t
+        discovery_protocol
+        initial_announcement_config
+        simple_edp_attributes
+        participant_filtering_flags
+        discovery_settings
+        builtin_attributes
+        port_parameters
+        wire_protocol_config_qos_policy
         writer_info_serializer
         reader_info_serializer
         participant_info_serializer
+        reader_optional_qos_serializer
+        writer_optional_qos_serializer
+        participant_optional_qos_serializer
         )
 
     foreach(test_name ${QOSSERIALIZER_TEST_LIST})

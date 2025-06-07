@@ -515,8 +515,8 @@ public:
      * @throws eprosima::statistics_backend::BadParameter if there is no entity with the given parameters.
      * @return The EntityKind of the matching entity.
      */
-    static EntityKind get_entity_kind_by_guid(
-            const eprosima::fastdds::statistics::detail::GUID_s& guid);
+    EntityKind get_entity_kind_by_guid(
+            const eprosima::fastdds::statistics::detail::GUID_s& guid) const;
 
     /**
      * @brief Get EntityKind given an EntityId.

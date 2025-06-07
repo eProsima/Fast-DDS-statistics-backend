@@ -3544,7 +3544,7 @@ std::pair<EntityId, EntityId> Database::get_entity_by_guid_nts(
 }
 
 EntityKind Database::get_entity_kind_by_guid(
-        const eprosima::fastdds::statistics::detail::GUID_s& guid_s)
+        const eprosima::fastdds::statistics::detail::GUID_s& guid_s) const
 {
 
     eprosima::fastdds::rtps::EntityId_t entity_id_t;

@@ -25,6 +25,7 @@
 #include <gmock/gmock.h>
 
 #include <fastdds/dds/core/status/StatusMask.hpp>
+#include <fastdds/dds/domain/DomainParticipant.hpp>
 #include <fastdds/dds/subscriber/qos/DataReaderQos.hpp>
 namespace eprosima {
 namespace fastdds {
@@ -59,6 +60,10 @@ public:
     MOCK_CONST_METHOD0(
         get_default_datareader_qos,
         DataReaderQos & ());
+
+    MOCK_CONST_METHOD0(
+        get_participant,
+        DomainParticipant * ());
 };
 
 

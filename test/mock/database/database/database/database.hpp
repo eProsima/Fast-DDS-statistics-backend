@@ -217,6 +217,10 @@ public:
                 const EntityId& entity_id,
                 const EntityKind& entity_kind));
 
+    MOCK_METHOD2(update_entity_qos, bool(
+                const EntityId& entity,
+                const Qos& received_qos));
+
     int64_t next_id_{0};
 };
 

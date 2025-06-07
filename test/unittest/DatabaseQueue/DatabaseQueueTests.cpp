@@ -149,14 +149,14 @@ public:
 };
 
 // Wrapper class to expose the internal attributes of the queue
-class DatabaseMonitorDataQueueWrapper : public DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>
+class DatabaseMonitorDataQueueWrapper : public DatabaseDataQueue<ExtendedMonitorServiceStatusData>
 {
 
 public:
 
     DatabaseMonitorDataQueueWrapper(
             Database* database)
-        : DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>(database)
+        : DatabaseDataQueue<ExtendedMonitorServiceStatusData>(database)
     {
     }
 
@@ -4513,14 +4513,14 @@ TEST_F(database_queue_tests, push_monitor_proxy)
     participant_guid.entityId(participant_entity_id);
 
     // Build the Monitor Service data
-    std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
+    std::shared_ptr<ExtendedMonitorServiceStatusData> data = std::make_shared<ExtendedMonitorServiceStatusData>();
     eprosima::fastdds::statistics::StatusKind::StatusKind kind = eprosima::fastdds::statistics::StatusKind::PROXY;
     MonitorServiceData value;
     std::vector<uint8_t> entity_proxy = {1, 2, 3, 4, 5};
     value.entity_proxy(entity_proxy);
-    data->local_entity(participant_guid);
-    data->status_kind(kind);
-    data->value(value);
+    data->data.local_entity(participant_guid);
+    data->data.status_kind(kind);
+    data->data.value(value);
 
     // Precondition: The writer exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
@@ -4545,6 +4545,8 @@ TEST_F(database_queue_tests, push_monitor_proxy)
     EXPECT_CALL(database, insert(_, _, testing::Matcher<const MonitorServiceSample&>(_))).Times(1)
             .WillRepeatedly(Invoke(&args, &InsertMonitorServiceDataArgs::insert));
 
+    EXPECT_CALL(database, update_entity_qos(_, data->optional_qos)).Times(1)
+            .WillOnce(Return(true));
     // Expectation: The user is notified
     EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
             on_status_reported(EntityId(0), EntityId(1), eprosima::statistics_backend::StatusKind::PROXY)).Times(1);
@@ -4576,14 +4578,14 @@ TEST_F(database_queue_tests, push_monitor_proxy_no_entity)
     participant_guid.entityId(participant_entity_id);
 
     // Build the Monitor Service data
-    std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
+    std::shared_ptr<ExtendedMonitorServiceStatusData> data = std::make_shared<ExtendedMonitorServiceStatusData>();
     eprosima::fastdds::statistics::StatusKind::StatusKind kind = eprosima::fastdds::statistics::StatusKind::PROXY;
     MonitorServiceData value;
     std::vector<uint8_t> entity_proxy = {1, 2, 3, 4, 5};
     value.entity_proxy(entity_proxy);
-    data->local_entity(participant_guid);
-    data->status_kind(kind);
-    data->value(value);
+    data->data.local_entity(participant_guid);
+    data->data.status_kind(kind);
+    data->data.value(value);
 
     // Precondition: The writer does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
@@ -4640,14 +4642,14 @@ TEST_F(database_queue_tests, push_monitor_connection_list)
     connection_list = {connection, connection};
 
     // Build the Monitor Service data
-    std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
+    std::shared_ptr<ExtendedMonitorServiceStatusData> data = std::make_shared<ExtendedMonitorServiceStatusData>();
     eprosima::fastdds::statistics::StatusKind::StatusKind kind =
             eprosima::fastdds::statistics::StatusKind::CONNECTION_LIST;
     MonitorServiceData value;
     value.connection_list(connection_list);
-    data->local_entity(participant_guid);
-    data->status_kind(kind);
-    data->value(value);
+    data->data.local_entity(participant_guid);
+    data->data.status_kind(kind);
+    data->data.value(value);
 
     // Precondition: The writer exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
@@ -4719,14 +4721,14 @@ TEST_F(database_queue_tests, push_monitor_connection_list_no_entity)
     connection_list = {connection, connection};
 
     // Build the Monitor Service data
-    std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
+    std::shared_ptr<ExtendedMonitorServiceStatusData> data = std::make_shared<ExtendedMonitorServiceStatusData>();
     eprosima::fastdds::statistics::StatusKind::StatusKind kind =
             eprosima::fastdds::statistics::StatusKind::CONNECTION_LIST;
     MonitorServiceData value;
     value.connection_list(connection_list);
-    data->local_entity(participant_guid);
-    data->status_kind(kind);
-    data->value(value);
+    data->data.local_entity(participant_guid);
+    data->data.status_kind(kind);
+    data->data.value(value);
 
     // Precondition: The writer does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
@@ -4777,14 +4779,14 @@ TEST_F(database_queue_tests, push_monitor_incompatible_qos)
     incompatible_qos_status.policies(qos_policy_count_seq);
 
     // Build the Monitor Service data
-    std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
+    std::shared_ptr<ExtendedMonitorServiceStatusData> data = std::make_shared<ExtendedMonitorServiceStatusData>();
     eprosima::fastdds::statistics::StatusKind::StatusKind kind =
             eprosima::fastdds::statistics::StatusKind::INCOMPATIBLE_QOS;
     MonitorServiceData value;
     value.incompatible_qos_status(incompatible_qos_status);
-    data->local_entity(writer_guid);
-    data->status_kind(kind);
-    data->value(value);
+    data->data.local_entity(writer_guid);
+    data->data.status_kind(kind);
+    data->data.value(value);
 
     // Precondition: The writer exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(1)
@@ -4851,14 +4853,14 @@ TEST_F(database_queue_tests, push_monitor_incompatible_qos_no_entity)
     incompatible_qos_status.policies(qos_policy_count_seq);
 
     // Build the Monitor Service data
-    std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
+    std::shared_ptr<ExtendedMonitorServiceStatusData> data = std::make_shared<ExtendedMonitorServiceStatusData>();
     eprosima::fastdds::statistics::StatusKind::StatusKind kind =
             eprosima::fastdds::statistics::StatusKind::INCOMPATIBLE_QOS;
     MonitorServiceData value;
     value.incompatible_qos_status(incompatible_qos_status);
-    data->local_entity(writer_guid);
-    data->status_kind(kind);
-    data->value(value);
+    data->data.local_entity(writer_guid);
+    data->data.status_kind(kind);
+    data->data.value(value);
 
     // Precondition: The writer does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
@@ -4902,14 +4904,14 @@ TEST_F(database_queue_tests, push_monitor_inconsistent_topic)
     inconsistent_topic_status.total_count(0);
 
     // Build the Monitor Service data
-    std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
+    std::shared_ptr<ExtendedMonitorServiceStatusData> data = std::make_shared<ExtendedMonitorServiceStatusData>();
     eprosima::fastdds::statistics::StatusKind::StatusKind kind =
             eprosima::fastdds::statistics::StatusKind::INCONSISTENT_TOPIC;
     MonitorServiceData value;
     value.inconsistent_topic_status(inconsistent_topic_status);
-    data->local_entity(writer_guid);
-    data->status_kind(kind);
-    data->value(value);
+    data->data.local_entity(writer_guid);
+    data->data.status_kind(kind);
+    data->data.value(value);
 
     // Precondition: The writer exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(1)
@@ -4969,14 +4971,14 @@ TEST_F(database_queue_tests, push_monitor_inconsistent_topic_no_entity)
     inconsistent_topic_status.total_count(1);
 
     // Build the Monitor Service data
-    std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
+    std::shared_ptr<ExtendedMonitorServiceStatusData> data = std::make_shared<ExtendedMonitorServiceStatusData>();
     eprosima::fastdds::statistics::StatusKind::StatusKind kind =
             eprosima::fastdds::statistics::StatusKind::INCONSISTENT_TOPIC;
     MonitorServiceData value;
     value.inconsistent_topic_status(inconsistent_topic_status);
-    data->local_entity(writer_guid);
-    data->status_kind(kind);
-    data->value(value);
+    data->data.local_entity(writer_guid);
+    data->data.status_kind(kind);
+    data->data.value(value);
 
     // Precondition: The writer does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
@@ -5020,14 +5022,14 @@ TEST_F(database_queue_tests, push_monitor_liveliness_lost)
     liveliness_lost_status.total_count(0);
 
     // Build the Monitor Service data
-    std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
+    std::shared_ptr<ExtendedMonitorServiceStatusData> data = std::make_shared<ExtendedMonitorServiceStatusData>();
     eprosima::fastdds::statistics::StatusKind::StatusKind kind =
             eprosima::fastdds::statistics::StatusKind::LIVELINESS_LOST;
     MonitorServiceData value;
     value.liveliness_lost_status(liveliness_lost_status);
-    data->local_entity(writer_guid);
-    data->status_kind(kind);
-    data->value(value);
+    data->data.local_entity(writer_guid);
+    data->data.status_kind(kind);
+    data->data.value(value);
 
     // Precondition: The writer exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(1)
@@ -5087,14 +5089,14 @@ TEST_F(database_queue_tests, push_monitor_liveliness_lost_no_entity)
     liveliness_lost_status.total_count(1);
 
     // Build the Monitor Service data
-    std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
+    std::shared_ptr<ExtendedMonitorServiceStatusData> data = std::make_shared<ExtendedMonitorServiceStatusData>();
     eprosima::fastdds::statistics::StatusKind::StatusKind kind =
             eprosima::fastdds::statistics::StatusKind::LIVELINESS_LOST;
     MonitorServiceData value;
     value.liveliness_lost_status(liveliness_lost_status);
-    data->local_entity(writer_guid);
-    data->status_kind(kind);
-    data->value(value);
+    data->data.local_entity(writer_guid);
+    data->data.status_kind(kind);
+    data->data.value(value);
 
     // Precondition: The writer does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
@@ -5137,14 +5139,14 @@ TEST_F(database_queue_tests, push_monitor_liveliness_changed)
     liveliness_changed_status.last_publication_handle({0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15});
 
     // Build the Monitor Service data
-    std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
+    std::shared_ptr<ExtendedMonitorServiceStatusData> data = std::make_shared<ExtendedMonitorServiceStatusData>();
     eprosima::fastdds::statistics::StatusKind::StatusKind kind =
             eprosima::fastdds::statistics::StatusKind::LIVELINESS_CHANGED;
     MonitorServiceData value;
     value.liveliness_changed_status(liveliness_changed_status);
-    data->local_entity(reader_guid);
-    data->status_kind(kind);
-    data->value(value);
+    data->data.local_entity(reader_guid);
+    data->data.status_kind(kind);
+    data->data.value(value);
 
     // Precondition: The reader exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(1)
@@ -5203,14 +5205,14 @@ TEST_F(database_queue_tests, push_monitor_liveliness_changed_no_entity)
     liveliness_changed_status.last_publication_handle({0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15});
 
     // Build the Monitor Service data
-    std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
+    std::shared_ptr<ExtendedMonitorServiceStatusData> data = std::make_shared<ExtendedMonitorServiceStatusData>();
     eprosima::fastdds::statistics::StatusKind::StatusKind kind =
             eprosima::fastdds::statistics::StatusKind::LIVELINESS_CHANGED;
     MonitorServiceData value;
     value.liveliness_changed_status(liveliness_changed_status);
-    data->local_entity(reader_guid);
-    data->status_kind(kind);
-    data->value(value);
+    data->data.local_entity(reader_guid);
+    data->data.status_kind(kind);
+    data->data.value(value);
 
     // Precondition: The reader does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(AnyNumber())
@@ -5253,14 +5255,14 @@ TEST_F(database_queue_tests, push_monitor_deadline_missed)
     deadline_missed_status.last_instance_handle({0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15});
 
     // Build the Monitor Service data
-    std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
+    std::shared_ptr<ExtendedMonitorServiceStatusData> data = std::make_shared<ExtendedMonitorServiceStatusData>();
     eprosima::fastdds::statistics::StatusKind::StatusKind kind =
             eprosima::fastdds::statistics::StatusKind::DEADLINE_MISSED;
     MonitorServiceData value;
     value.deadline_missed_status(deadline_missed_status);
-    data->local_entity(reader_guid);
-    data->status_kind(kind);
-    data->value(value);
+    data->data.local_entity(reader_guid);
+    data->data.status_kind(kind);
+    data->data.value(value);
 
     // Precondition: The reader exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(1)
@@ -5318,14 +5320,14 @@ TEST_F(database_queue_tests, push_monitor_deadline_missed_no_entity)
     deadline_missed_status.last_instance_handle({0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15});
 
     // Build the Monitor Service data
-    std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
+    std::shared_ptr<ExtendedMonitorServiceStatusData> data = std::make_shared<ExtendedMonitorServiceStatusData>();
     eprosima::fastdds::statistics::StatusKind::StatusKind kind =
             eprosima::fastdds::statistics::StatusKind::DEADLINE_MISSED;
     MonitorServiceData value;
     value.deadline_missed_status(deadline_missed_status);
-    data->local_entity(reader_guid);
-    data->status_kind(kind);
-    data->value(value);
+    data->data.local_entity(reader_guid);
+    data->data.status_kind(kind);
+    data->data.value(value);
 
     // Precondition: The reader does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(AnyNumber())
@@ -5366,13 +5368,13 @@ TEST_F(database_queue_tests, push_monitor_sample_lost)
     sample_lost_status.total_count(0);
 
     // Build the Monitor Service data
-    std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
+    std::shared_ptr<ExtendedMonitorServiceStatusData> data = std::make_shared<ExtendedMonitorServiceStatusData>();
     eprosima::fastdds::statistics::StatusKind::StatusKind kind = eprosima::fastdds::statistics::StatusKind::SAMPLE_LOST;
     MonitorServiceData value;
     value.sample_lost_status(sample_lost_status);
-    data->local_entity(reader_guid);
-    data->status_kind(kind);
-    data->value(value);
+    data->data.local_entity(reader_guid);
+    data->data.status_kind(kind);
+    data->data.value(value);
 
     // Precondition: The reader exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(1)
@@ -5428,13 +5430,13 @@ TEST_F(database_queue_tests, push_monitor_sample_lost_no_entity)
     sample_lost_status.total_count(1);
 
     // Build the Monitor Service data
-    std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
+    std::shared_ptr<ExtendedMonitorServiceStatusData> data = std::make_shared<ExtendedMonitorServiceStatusData>();
     eprosima::fastdds::statistics::StatusKind::StatusKind kind = eprosima::fastdds::statistics::StatusKind::SAMPLE_LOST;
     MonitorServiceData value;
     value.sample_lost_status(sample_lost_status);
-    data->local_entity(reader_guid);
-    data->status_kind(kind);
-    data->value(value);
+    data->data.local_entity(reader_guid);
+    data->data.status_kind(kind);
+    data->data.value(value);
 
     // Precondition: The reader does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, reader_guid_str)).Times(AnyNumber())
@@ -5488,14 +5490,14 @@ TEST_F(database_queue_tests, push_monitor_extended_incompatible_qos)
     eprosima::fastdds::statistics::ExtendedIncompatibleQoSStatusSeq_s status_seq({status});
 
     // Build the Monitor Service data
-    std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
+    std::shared_ptr<ExtendedMonitorServiceStatusData> data = std::make_shared<ExtendedMonitorServiceStatusData>();
     eprosima::fastdds::statistics::StatusKind::StatusKind kind =
             eprosima::fastdds::statistics::StatusKind::EXTENDED_INCOMPATIBLE_QOS;
     MonitorServiceData value;
     value.extended_incompatible_qos_status({status});
-    data->local_entity(writer_guid);
-    data->status_kind(kind);
-    data->value(value);
+    data->data.local_entity(writer_guid);
+    data->data.status_kind(kind);
+    data->data.value(value);
 
     // Precondition: The writer exists and has ID 1
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(1)
@@ -5563,14 +5565,14 @@ TEST_F(database_queue_tests, push_monitor_extended_incompatible_qos_no_entity)
     status.current_incompatible_policies(std::vector<uint32_t>{1, 2, 3});
 
     // Build the Monitor Service data
-    std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
+    std::shared_ptr<ExtendedMonitorServiceStatusData> data = std::make_shared<ExtendedMonitorServiceStatusData>();
     eprosima::fastdds::statistics::StatusKind::StatusKind kind =
             eprosima::fastdds::statistics::StatusKind::EXTENDED_INCOMPATIBLE_QOS;
     MonitorServiceData value;
     value.extended_incompatible_qos_status({status});
-    data->local_entity(writer_guid);
-    data->status_kind(kind);
-    data->value(value);
+    data->data.local_entity(writer_guid);
+    data->data.status_kind(kind);
+    data->data.value(value);
 
     // Precondition: The writer does not exist
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, writer_guid_str)).Times(AnyNumber())
@@ -5607,15 +5609,15 @@ TEST_F(database_queue_tests, push_monitor_statuses_size)
     reader_guid.entityId(reader_entity_id);
 
     // Build the Monitor Service data
-    std::shared_ptr<MonitorServiceStatusData> data = std::make_shared<MonitorServiceStatusData>();
+    std::shared_ptr<ExtendedMonitorServiceStatusData> data = std::make_shared<ExtendedMonitorServiceStatusData>();
     eprosima::fastdds::statistics::StatusKind::StatusKind kind =
             eprosima::fastdds::statistics::StatusKind::STATUSES_SIZE;
     MonitorServiceData value;
     uint8_t octet = 1;
     value.statuses_size(octet);
-    data->local_entity(reader_guid);
-    data->status_kind(kind);
-    data->value(value);
+    data->data.local_entity(reader_guid);
+    data->data.status_kind(kind);
+    data->data.value(value);
 
     // Expectation: The insert method is never called, data dropped
     EXPECT_CALL(database, insert(_, _, testing::Matcher<const MonitorServiceSample&>(_))).Times(0);

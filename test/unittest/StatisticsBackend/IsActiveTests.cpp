@@ -61,7 +61,7 @@ public:
 
         entity_queue = new DatabaseEntityQueue(db);
         data_queue = new DatabaseDataQueue<eprosima::fastdds::statistics::Data>(db);
-        monitor_service_data_queue = new DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>(db);
+        monitor_service_data_queue = new DatabaseDataQueue<ExtendedMonitorServiceStatusData>(db);
         participant_listener = new StatisticsParticipantListener(domain->id, db, entity_queue, data_queue,
                         monitor_service_data_queue);
 
@@ -138,7 +138,7 @@ public:
     // Statistics Data queue, attached to the database
     DatabaseDataQueue<eprosima::fastdds::statistics::Data>* data_queue = nullptr;
     // Monitor Service Data queue, attached to the database
-    DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>* monitor_service_data_queue = nullptr;
+    DatabaseDataQueue<ExtendedMonitorServiceStatusData>* monitor_service_data_queue = nullptr;
     // Statistics participant_, that is supposed to receive the callbacks
     eprosima::fastdds::dds::DomainParticipant statistics_participant;
     // Listener under tests. Will receive a pointer to statistics_participant

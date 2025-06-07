@@ -16,6 +16,8 @@
  * @file QosSerializer.cpp
  */
 
+#include <string>
+
 #include "QosSerializer.hpp"
 #include "QosSerializerTags.hpp"
 
@@ -771,6 +773,7 @@ void serialize<fastdds::rtps::DiscoverySettings> (
     serialize(qos.discoveryServer_client_syncperiod, discovery_server_client_syncperiod_tag, discovery_settings);
     serialize(qos.m_DiscoveryServers, discovery_servers_tag, discovery_settings);
     serialize(qos.ignoreParticipantFlags, participant_filtering_tag, discovery_settings);
+    discovery_settings[static_edp_xml_config_tag] = std::string(qos.static_edp_xml_config());
     serialized[fieldname] = discovery_settings;
 }
 
