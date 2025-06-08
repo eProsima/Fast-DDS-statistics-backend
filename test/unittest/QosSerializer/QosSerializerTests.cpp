@@ -943,7 +943,7 @@ TEST(qos_serializer_tests, transport_priority_qos_policy)
     qos.value = 5;
 
     eprosima::statistics_backend::subscriber::serialize(qos, field, serialized);
-    expected[field.c_str()][value_tag] = 5;
+    expected[field.c_str()] = 5;
 
     EXPECT_EQ(expected, serialized);
 }
@@ -1697,6 +1697,9 @@ TEST(qos_serializer_tests, writer_info_serializer)
     eprosima::statistics_backend::subscriber::serialize(info.data_sharing, data_sharing_tag,
             serialized_data_sharing);
     expected[data_sharing_tag] = serialized_data_sharing[data_sharing_tag];
+    Qos serialized_history;
+    eprosima::statistics_backend::subscriber::serialize(HistoryQosPolicy(), history_tag, serialized_history);
+    expected[history_tag] = serialized_history[history_tag];
 
     EXPECT_EQ(expected, serialized);
 }
@@ -1781,6 +1784,9 @@ TEST(qos_serializer_tests, reader_info_serializer)
     eprosima::statistics_backend::subscriber::serialize(info.type_consistency, type_consistency_tag,
             serialized_type_consistency);
     expected[type_consistency_tag] = serialized_type_consistency[type_consistency_tag];
+    Qos serialized_history;
+    eprosima::statistics_backend::subscriber::serialize(HistoryQosPolicy(), history_tag, serialized_history);
+    expected[history_tag] = serialized_history[history_tag];
 
     EXPECT_EQ(expected, serialized);
 }
@@ -1826,7 +1832,6 @@ TEST(qos_serializer_tests, reader_optional_qos_serializer)
     // have been tested in other test
 
     /* 1. If no optional QoS information is provided, check that default values are serialized for each policy */
-    ASSERT_FALSE(info.history.has_value());
     ASSERT_FALSE(info.resource_limits.has_value());
     ASSERT_FALSE(info.reader_data_lifecycle.has_value());
     ASSERT_FALSE(info.rtps_reliable_reader.has_value());
@@ -1834,10 +1839,6 @@ TEST(qos_serializer_tests, reader_optional_qos_serializer)
     ASSERT_FALSE(info.reader_resource_limits.has_value());
 
     serialized = eprosima::statistics_backend::subscriber::optional_qos_to_backend_qos(info);
-    Qos serialized_history;
-    eprosima::statistics_backend::subscriber::serialize(eprosima::fastdds::dds::HistoryQosPolicy(),
-            history_tag, serialized_history);
-    expected[history_tag] = serialized_history[history_tag];
     Qos serialized_resource_limits;
     eprosima::statistics_backend::subscriber::serialize(eprosima::fastdds::dds::ResourceLimitsQosPolicy(),
             resource_limits_tag, serialized_resource_limits);
@@ -1864,11 +1865,6 @@ TEST(qos_serializer_tests, reader_optional_qos_serializer)
     serialized.clear();
 
     // 2. Set custom values for each optional QoS policy and check that they are serialized correctly
-    info.history = eprosima::fastdds::dds::HistoryQosPolicy();
-    info.history.value().kind = eprosima::fastdds::dds::HistoryQosPolicyKind::KEEP_ALL_HISTORY_QOS;
-    serialized_history.clear();
-    eprosima::statistics_backend::subscriber::serialize(info.history.value(), history_tag, serialized_history);
-    expected[history_tag] = serialized_history[history_tag];
     info.resource_limits = eprosima::fastdds::dds::ResourceLimitsQosPolicy();
     info.resource_limits.value().max_samples = 100;
     serialized_resource_limits.clear();
@@ -1915,7 +1911,6 @@ TEST(qos_serializer_tests, writer_optional_qos_serializer)
     // have been tested in other test
 
     /* 1. If no optional QoS information is provided, check that default values are serialized for each policy */
-    ASSERT_FALSE(info.history.has_value());
     ASSERT_FALSE(info.resource_limits.has_value());
     ASSERT_FALSE(info.transport_priority.has_value());
     ASSERT_FALSE(info.writer_data_lifecycle.has_value());
@@ -1925,10 +1920,6 @@ TEST(qos_serializer_tests, writer_optional_qos_serializer)
     ASSERT_FALSE(info.writer_resource_limits.has_value());
 
     serialized = eprosima::statistics_backend::subscriber::optional_qos_to_backend_qos(info);
-    Qos serialized_history;
-    eprosima::statistics_backend::subscriber::serialize(eprosima::fastdds::dds::HistoryQosPolicy(),
-            history_tag, serialized_history);
-    expected[history_tag] = serialized_history[history_tag];
     Qos serialized_resource_limits;
     eprosima::statistics_backend::subscriber::serialize(eprosima::fastdds::dds::ResourceLimitsQosPolicy(),
             resource_limits_tag, serialized_resource_limits);
@@ -1963,11 +1954,6 @@ TEST(qos_serializer_tests, writer_optional_qos_serializer)
     serialized.clear();
 
     // 2. Set custom values for each optional QoS policy and check that they are serialized correctly
-    info.history = eprosima::fastdds::dds::HistoryQosPolicy();
-    info.history.value().kind = eprosima::fastdds::dds::HistoryQosPolicyKind::KEEP_ALL_HISTORY_QOS;
-    serialized_history.clear();
-    eprosima::statistics_backend::subscriber::serialize(info.history.value(), history_tag, serialized_history);
-    expected[history_tag] = serialized_history[history_tag];
     info.resource_limits = eprosima::fastdds::dds::ResourceLimitsQosPolicy();
     info.resource_limits.value().max_samples = 100;
     serialized_resource_limits.clear();
