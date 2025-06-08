@@ -3597,6 +3597,69 @@ TEST_F(database_tests, get_entity_kind_by_guid)
     EXPECT_THROW(db.get_entity_kind_by_guid(other_guid_s), BadParameter);
 }
 
+TEST_F(database_tests, update_entity_qos)
+{
+    Qos entity_optional_qos = {
+        {"foo_key", "foo_value"}
+    };
+
+    /* Case 1: Get a valid DDS entity and update its QoS */
+    // DataWriter entity
+    auto local_writer = std::dynamic_pointer_cast<const DDSEntity>(db.get_entity(writer_id));
+    EXPECT_FALSE(local_writer->optional_qos_received);
+    EXPECT_TRUE(db.update_entity_qos(writer_id, entity_optional_qos));
+    EXPECT_TRUE(local_writer->optional_qos_received);
+    EXPECT_TRUE(local_writer->qos.contains("foo_key"));
+    EXPECT_EQ(local_writer->qos["foo_key"], "foo_value");
+    // DataReader entity
+    auto local_reader = std::dynamic_pointer_cast<const DDSEntity>(db.get_entity(reader_id));
+    EXPECT_FALSE(local_reader->optional_qos_received);
+    EXPECT_TRUE(db.update_entity_qos(reader_id, entity_optional_qos));
+    EXPECT_TRUE(local_reader->optional_qos_received);
+    EXPECT_TRUE(local_reader->qos.contains("foo_key"));
+    EXPECT_EQ(local_reader->qos["foo_key"], "foo_value");
+    // DomainParticipant entity
+    auto local_participant = std::dynamic_pointer_cast<const DDSEntity>(db.get_entity(participant_id));
+    EXPECT_FALSE(local_participant->optional_qos_received);
+    EXPECT_TRUE(db.update_entity_qos(participant_id, entity_optional_qos));
+    EXPECT_TRUE(local_participant->optional_qos_received);
+    EXPECT_TRUE(local_participant->qos.contains("foo_key"));
+    EXPECT_EQ(local_participant->qos["foo_key"], "foo_value");
+
+    /* Case 2: Try to update QoS using a non registered ID */
+    EntityId non_registered_id = db.generate_entity_id();
+    EXPECT_THROW(db.update_entity_qos(non_registered_id, entity_optional_qos), BadParameter);
+
+    /* Case 3: Try to update QoS using a registered ID, but corresponding to an entity different from DomainParticipant or DDS Endpoints */
+    EXPECT_THROW(db.update_entity_qos(host_id, entity_optional_qos), BadParameter);
+    EXPECT_THROW(db.update_entity_qos(user_id, entity_optional_qos), BadParameter);
+    EXPECT_THROW(db.update_entity_qos(process_id, entity_optional_qos), BadParameter);
+    EXPECT_THROW(db.update_entity_qos(domain_id, entity_optional_qos), BadParameter);
+    EXPECT_THROW(db.update_entity_qos(topic_id, entity_optional_qos), BadParameter);
+
+    /* Case 4: Verify that updating QoS on an entity that already has QoS updates has no effect */
+    Qos entity_optional_qos_2 = {
+        {"bar_key", "bar_value"}
+    };
+    EXPECT_FALSE(db.update_entity_qos(writer_id, entity_optional_qos));
+    EXPECT_FALSE(local_writer->qos.contains("bar_key"));
+    EXPECT_FALSE(db.update_entity_qos(reader_id, entity_optional_qos));
+    EXPECT_FALSE(local_reader->qos.contains("bar_key"));
+    EXPECT_FALSE(db.update_entity_qos(participant_id, entity_optional_qos));
+    EXPECT_FALSE(local_participant->qos.contains("bar_key"));
+
+    // Reset configuration to avoid side effects in other tests
+    auto local_writer_no_const = std::const_pointer_cast<DDSEntity>(local_writer);
+    auto local_reader_no_const = std::const_pointer_cast<DDSEntity>(local_reader);
+    auto local_participant_no_const = std::const_pointer_cast<DDSEntity>(local_participant);
+    local_writer_no_const->optional_qos_received = false;
+    local_writer_no_const->qos.erase("foo_key");
+    local_reader_no_const->optional_qos_received = false;
+    local_reader_no_const->qos.erase("foo_key");
+    local_participant_no_const->optional_qos_received = false;
+    local_participant_no_const->qos.erase("foo_key");
+}
+
 TEST_F(database_tests, select_single_entity_invalid_needs_two_entities)
 {
     Timestamp t_from = std::chrono::system_clock::now();
