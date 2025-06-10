@@ -78,6 +78,14 @@ public:
     {
     }
 
+    ~DataReader()
+    {
+        if (subscriber_)
+        {
+            delete subscriber_;
+        }
+    }
+
     ReturnCode_t take_next_sample(
             void* data,
             SampleInfo* info)
