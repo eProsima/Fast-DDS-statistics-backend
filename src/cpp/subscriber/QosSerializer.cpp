@@ -458,7 +458,7 @@ void serialize<fastdds::dds::HistoryQosPolicy> (
         database::Qos& serialized)
 {
     database::Qos history;
-    switch(qos.kind)
+    switch (qos.kind)
     {
         case fastdds::dds::KEEP_LAST_HISTORY_QOS:
             history[kind_tag] = history_keep_last_tag;
@@ -959,15 +959,19 @@ database::Qos optional_qos_to_backend_qos(
     database::Qos reader_qos;
 
     fastdds::dds::ResourceLimitsQosPolicy resource_limits =
-            reader_data.resource_limits.has_value() ? reader_data.resource_limits.value() : fastdds::dds::ResourceLimitsQosPolicy();
+            reader_data.resource_limits.has_value() ? reader_data.resource_limits.value() : fastdds::dds::
+                    ResourceLimitsQosPolicy();
     fastdds::dds::ReaderDataLifecycleQosPolicy reader_data_lifecycle =
-            reader_data.reader_data_lifecycle.has_value() ? reader_data.reader_data_lifecycle.value() : fastdds::dds::ReaderDataLifecycleQosPolicy();
+            reader_data.reader_data_lifecycle.has_value() ? reader_data.reader_data_lifecycle.value() : fastdds::dds::
+                    ReaderDataLifecycleQosPolicy();
     fastdds::dds::RTPSReliableReaderQos rtps_reliable_reader =
-            reader_data.rtps_reliable_reader.has_value() ? reader_data.rtps_reliable_reader.value() : fastdds::dds::RTPSReliableReaderQos();
+            reader_data.rtps_reliable_reader.has_value() ? reader_data.rtps_reliable_reader.value() : fastdds::dds::
+                    RTPSReliableReaderQos();
     fastdds::dds::RTPSEndpointQos rtps_endpoint =
             reader_data.endpoint.has_value() ? reader_data.endpoint.value() : fastdds::dds::RTPSEndpointQos();
     fastdds::dds::ReaderResourceLimitsQos reader_resource_limits =
-            reader_data.reader_resource_limits.has_value() ? reader_data.reader_resource_limits.value() : fastdds::dds::ReaderResourceLimitsQos();
+            reader_data.reader_resource_limits.has_value() ? reader_data.reader_resource_limits.value() : fastdds::dds::
+                    ReaderResourceLimitsQos();
 
     serialize(resource_limits, resource_limits_tag, reader_qos);
     serialize(reader_data_lifecycle, reader_data_lifecycle_tag, reader_qos);
@@ -984,19 +988,24 @@ database::Qos optional_qos_to_backend_qos(
     database::Qos writer_qos;
 
     fastdds::dds::ResourceLimitsQosPolicy resource_limits =
-            writer_data.resource_limits.has_value() ? writer_data.resource_limits.value() : fastdds::dds::ResourceLimitsQosPolicy();
+            writer_data.resource_limits.has_value() ? writer_data.resource_limits.value() : fastdds::dds::
+                    ResourceLimitsQosPolicy();
     fastdds::dds::TransportPriorityQosPolicy transport_priority =
-            writer_data.transport_priority.has_value() ? writer_data.transport_priority.value() : fastdds::dds::TransportPriorityQosPolicy();
+            writer_data.transport_priority.has_value() ? writer_data.transport_priority.value() : fastdds::dds::
+                    TransportPriorityQosPolicy();
     fastdds::dds::WriterDataLifecycleQosPolicy writer_data_lifecycle =
-            writer_data.writer_data_lifecycle.has_value() ? writer_data.writer_data_lifecycle.value() : fastdds::dds::WriterDataLifecycleQosPolicy();
+            writer_data.writer_data_lifecycle.has_value() ? writer_data.writer_data_lifecycle.value() : fastdds::dds::
+                    WriterDataLifecycleQosPolicy();
     fastdds::dds::PublishModeQosPolicy publish_mode =
             writer_data.publish_mode.has_value() ? writer_data.publish_mode.value() : fastdds::dds::PublishModeQosPolicy();
     fastdds::dds::RTPSReliableWriterQos rtps_reliable_writer =
-            writer_data.rtps_reliable_writer.has_value() ? writer_data.rtps_reliable_writer.value() : fastdds::dds::RTPSReliableWriterQos();
+            writer_data.rtps_reliable_writer.has_value() ? writer_data.rtps_reliable_writer.value() : fastdds::dds::
+                    RTPSReliableWriterQos();
     fastdds::dds::RTPSEndpointQos rtps_endpoint =
             writer_data.endpoint.has_value() ? writer_data.endpoint.value() : fastdds::dds::RTPSEndpointQos();
     fastdds::dds::WriterResourceLimitsQos writer_resource_limits =
-            writer_data.writer_resource_limits.has_value() ? writer_data.writer_resource_limits.value() : fastdds::dds::WriterResourceLimitsQos();
+            writer_data.writer_resource_limits.has_value() ? writer_data.writer_resource_limits.value() : fastdds::dds::
+                    WriterResourceLimitsQos();
 
     serialize(resource_limits, resource_limits_tag, writer_qos);
     serialize(transport_priority, transport_priority_tag, writer_qos);
@@ -1015,7 +1024,8 @@ database::Qos optional_qos_to_backend_qos(
     database::Qos participant_qos;
 
     fastdds::dds::WireProtocolConfigQos wire_protocol_config =
-            participant_data.wire_protocol.has_value() ? participant_data.wire_protocol.value() : fastdds::dds::WireProtocolConfigQos();
+            participant_data.wire_protocol.has_value() ? participant_data.wire_protocol.value() : fastdds::dds::
+                    WireProtocolConfigQos();
 
     serialize(wire_protocol_config, wire_protocol_config_tag, participant_qos);
 

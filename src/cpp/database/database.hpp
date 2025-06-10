@@ -550,7 +550,7 @@ public:
             const bool& entity_error,
             const bool& entity_warning,
             StatusLevel& entity_status);
-    
+
     /**
      * @brief Update the current QoS of a existing entity according to the received QoS.
      *
@@ -1343,8 +1343,8 @@ protected:
      *         false if not (i.e: if optional QoS information was already received).
      */
     bool update_entity_qos_nts(
-        const EntityId& entity,
-        const Qos& received_qos);
+            const EntityId& entity,
+            const Qos& received_qos);
 
     /**
      * Get an entity given its EntityId. This method is not thread safe.

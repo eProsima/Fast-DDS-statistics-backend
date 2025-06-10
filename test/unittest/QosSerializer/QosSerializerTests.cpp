@@ -864,12 +864,12 @@ TEST(qos_serializer_tests, rtps_endpoint_qos_policy)
         {
             {external_locators_externality_index_tag, 2},
             {locators_tag,
-                {{
-                    {external_locators_cost_tag, 0},
-                    {locators_with_mask_tag,
-                        {"UDPv4:[127.0.0.1/16]:1234"}
-                    }
-                }}
+             {{
+                 {external_locators_cost_tag, 0},
+                 {locators_with_mask_tag,
+                  {"UDPv4:[127.0.0.1/16]:1234"}
+                 }
+             }}
             }
         }
     };
@@ -1016,18 +1016,18 @@ TEST(qos_serializer_tests, rtps_reliable_writer_qos_policy)
     eprosima::statistics_backend::subscriber::serialize(qos, field, serialized);
     expected[field.c_str()] = {
         {writer_times_tag,
-            {
-                {initial_heartbeat_delay_tag, duration_object},
-                {heartbeat_period_tag, duration_object},
-                {nack_response_delay_tag, duration_object},
-                {nack_supression_duration_tag, duration_object}
-            }
+         {
+             {initial_heartbeat_delay_tag, duration_object},
+             {heartbeat_period_tag, duration_object},
+             {nack_response_delay_tag, duration_object},
+             {nack_supression_duration_tag, duration_object}
+         }
         },
         {disable_positive_acks_tag,
-            {
-                {enabled_tag, true_tag},
-                {duration_tag, duration_object}
-            }
+         {
+             {enabled_tag, true_tag},
+             {duration_tag, duration_object}
+         }
         },
         {disable_heartbeat_piggyback_tag, true_tag}
     };
@@ -1224,7 +1224,9 @@ TEST(qos_serializer_tests, discovery_settings)
         {simple_edp_use_pub_writer_sub_reader_tag, false_tag},
         {simple_edp_use_pub_reader_sub_writer_tag, false_tag},
 #if HAVE_SECURITY
-        {simple_edp_enable_builtin_secure_pub_writer_sub_reader_tag, false_tag},
+        {
+            simple_edp_enable_builtin_secure_pub_writer_sub_reader_tag, false_tag
+        },
         {simple_edp_enable_builtin_secure_sub_writer_pub_reader_tag, false_tag}
 #endif // if HAVE_SECURITY
     };
@@ -1292,12 +1294,12 @@ TEST(qos_serializer_tests, builtin_attributes)
         {
             {external_locators_externality_index_tag, 2},
             {locators_tag,
-                {{
-                    {external_locators_cost_tag, 0},
-                    {locators_with_mask_tag,
-                        {"UDPv4:[127.0.0.1/16]:1234"}
-                    }
-                }}
+             {{
+                 {external_locators_cost_tag, 0},
+                 {locators_with_mask_tag,
+                  {"UDPv4:[127.0.0.1/16]:1234"}
+                 }
+             }}
             }
         }
     };
@@ -1326,7 +1328,9 @@ TEST(qos_serializer_tests, builtin_attributes)
         {simple_edp_use_pub_writer_sub_reader_tag, false_tag},
         {simple_edp_use_pub_reader_sub_writer_tag, false_tag},
 #if HAVE_SECURITY
-        {simple_edp_enable_builtin_secure_pub_writer_sub_reader_tag, false_tag},
+        {
+            simple_edp_enable_builtin_secure_pub_writer_sub_reader_tag, false_tag
+        },
         {simple_edp_enable_builtin_secure_sub_writer_pub_reader_tag, false_tag}
 #endif // if HAVE_SECURITY
     };
@@ -1346,7 +1350,8 @@ TEST(qos_serializer_tests, builtin_attributes)
 #endif // if HAVE_SECURITY
     attr.discovery_config.discoveryServer_client_syncperiod = Duration_t(10, 10);
     attr.discovery_config.m_DiscoveryServers = unicast_locators;
-    attr.discovery_config.ignoreParticipantFlags = eprosima::fastdds::rtps::ParticipantFilteringFlags::FILTER_DIFFERENT_HOST;
+    attr.discovery_config.ignoreParticipantFlags =
+            eprosima::fastdds::rtps::ParticipantFilteringFlags::FILTER_DIFFERENT_HOST;
     attr.discovery_config.static_edp_xml_config("xml_config");
 
     expected[field.c_str()][discovery_config_tag] = {
@@ -1470,12 +1475,12 @@ TEST(qos_serializer_tests, wire_protocol_config_qos_policy)
         {
             {external_locators_externality_index_tag, 2},
             {locators_tag,
-                {{
-                    {external_locators_cost_tag, 0},
-                    {locators_with_mask_tag,
-                        {"UDPv4:[127.0.0.1/16]:1234"}
-                    }
-                }}
+             {{
+                 {external_locators_cost_tag, 0},
+                 {locators_with_mask_tag,
+                  {"UDPv4:[127.0.0.1/16]:1234"}
+                 }
+             }}
             }
         }
     };
@@ -1511,53 +1516,55 @@ TEST(qos_serializer_tests, wire_protocol_config_qos_policy)
     /* BuiltinAttributes (default configuration) */
     expected[field.c_str()][builtin_attributes_tag] = {
         {discovery_config_tag,
-            {
-                {discovery_protocol_tag, discovery_protocol_simple_tag},
-                {use_simple_edp_tag, true_tag},
-                {use_static_edp_tag, false_tag},
-                {lease_duration_tag,
-                    {
-                        {duration_seconds_tag, 20},
-                        {duration_nanoseconds_tag, 0}
-                    }
-                },
-                {announcement_period_tag,
-                    {
-                        {duration_seconds_tag, 3},
-                        {duration_nanoseconds_tag, 0}
-                    }
-                },
-                {initial_announcements_tag,
-                    {
-                        {initial_announcements_count_tag, 5},
-                        {initial_announcements_period_tag,
-                            {
-                                {duration_seconds_tag, 0},
-                                {duration_nanoseconds_tag, 100000000}
-                            }
-                        }
-                    }
-                },
-                {simple_edp_attributes_tag,
-                    {
-                        {simple_edp_use_pub_writer_sub_reader_tag, true_tag},
-                        {simple_edp_use_pub_reader_sub_writer_tag, true_tag},
+         {
+             {discovery_protocol_tag, discovery_protocol_simple_tag},
+             {use_simple_edp_tag, true_tag},
+             {use_static_edp_tag, false_tag},
+             {lease_duration_tag,
+              {
+                  {duration_seconds_tag, 20},
+                  {duration_nanoseconds_tag, 0}
+              }
+             },
+             {announcement_period_tag,
+              {
+                  {duration_seconds_tag, 3},
+                  {duration_nanoseconds_tag, 0}
+              }
+             },
+             {initial_announcements_tag,
+              {
+                  {initial_announcements_count_tag, 5},
+                  {initial_announcements_period_tag,
+                   {
+                       {duration_seconds_tag, 0},
+                       {duration_nanoseconds_tag, 100000000}
+                   }
+                  }
+              }
+             },
+             {simple_edp_attributes_tag,
+              {
+                  {simple_edp_use_pub_writer_sub_reader_tag, true_tag},
+                  {simple_edp_use_pub_reader_sub_writer_tag, true_tag},
                     #if HAVE_SECURITY
-                        {simple_edp_enable_builtin_secure_pub_writer_sub_reader_tag, true_tag},
-                        {simple_edp_enable_builtin_secure_sub_writer_pub_reader_tag, true_tag}
+                  {
+                      simple_edp_enable_builtin_secure_pub_writer_sub_reader_tag, true_tag
+                  },
+                  {simple_edp_enable_builtin_secure_sub_writer_pub_reader_tag, true_tag}
                     #endif // if HAVE_SECURITY
-                    }
-                },
-                {discovery_server_client_syncperiod_tag,
-                    {
-                        {duration_seconds_tag, 0},
-                        {duration_nanoseconds_tag, 450 * 1000000}
-                    }
-                },
-                {discovery_servers_tag, empty_array},
-                {participant_filtering_tag, participant_filtering_no_filter_tag},
-                {static_edp_xml_config_tag, ""}
-            }
+              }
+             },
+             {discovery_server_client_syncperiod_tag,
+              {
+                  {duration_seconds_tag, 0},
+                  {duration_nanoseconds_tag, 450 * 1000000}
+              }
+             },
+             {discovery_servers_tag, empty_array},
+             {participant_filtering_tag, participant_filtering_no_filter_tag},
+             {static_edp_xml_config_tag, ""}
+         }
         },
         {use_writer_liveliness_protocol_tag, true_tag},
         {network_configuration_tag, 0},
@@ -1573,15 +1580,15 @@ TEST(qos_serializer_tests, wire_protocol_config_qos_policy)
         {avoid_builtin_multicast_tag, true_tag},
         {flow_controller_tag, ""}
     };
-    
+
     /* default_unicast_locator_list */
     qos.default_unicast_locator_list = unicast_locators;
     expected[field.c_str()][default_unicast_locator_list_tag] = unicast_locators_object;
-    
+
     /* default_multicast_locator_list */
     qos.default_multicast_locator_list = multicast_locators;
     expected[field.c_str()][default_multicast_locator_list_tag] = multicast_locators_object;
-    
+
     /* default_external_unicast_locators */
     qos.default_external_unicast_locators = external_locators;
     expected[field.c_str()][default_external_unicast_locators_tag] = external_locators_object;
@@ -1882,7 +1889,7 @@ TEST(qos_serializer_tests, reader_optional_qos_serializer)
     info.rtps_reliable_reader.value().times.initial_acknack_delay = eprosima::fastdds::dds::Duration_t(0, 0);
     serialized_rtps_reliable_reader.clear();
     eprosima::statistics_backend::subscriber::serialize(
-            info.rtps_reliable_reader.value(), rtps_reliable_reader_tag, serialized_rtps_reliable_reader);
+        info.rtps_reliable_reader.value(), rtps_reliable_reader_tag, serialized_rtps_reliable_reader);
     expected[rtps_reliable_reader_tag] = serialized_rtps_reliable_reader[rtps_reliable_reader_tag];
     info.endpoint = eprosima::fastdds::dds::RTPSEndpointQos();
     info.endpoint.value().entity_id = 10;
@@ -1894,7 +1901,7 @@ TEST(qos_serializer_tests, reader_optional_qos_serializer)
     info.reader_resource_limits.value().max_samples_per_read = 1234;
     serialized_reader_resource_limits.clear();
     eprosima::statistics_backend::subscriber::serialize(
-            info.reader_resource_limits.value(), reader_resource_limits_tag, serialized_reader_resource_limits);
+        info.reader_resource_limits.value(), reader_resource_limits_tag, serialized_reader_resource_limits);
     expected[reader_resource_limits_tag] = serialized_reader_resource_limits[reader_resource_limits_tag];
 
     serialized = eprosima::statistics_backend::subscriber::optional_qos_to_backend_qos(info);
@@ -1982,7 +1989,7 @@ TEST(qos_serializer_tests, writer_optional_qos_serializer)
     info.rtps_reliable_writer.value().disable_heartbeat_piggyback = true;
     serialized_rtps_reliable_writer.clear();
     eprosima::statistics_backend::subscriber::serialize(
-            info.rtps_reliable_writer.value(), rtps_reliable_writer_tag, serialized_rtps_reliable_writer);
+        info.rtps_reliable_writer.value(), rtps_reliable_writer_tag, serialized_rtps_reliable_writer);
     expected[rtps_reliable_writer_tag] = serialized_rtps_reliable_writer[rtps_reliable_writer_tag];
     info.endpoint = eprosima::fastdds::dds::RTPSEndpointQos();
     info.endpoint.value().entity_id = 10;
@@ -1995,7 +2002,7 @@ TEST(qos_serializer_tests, writer_optional_qos_serializer)
             eprosima::fastdds::ResourceLimitedContainerConfig(0, 1, 2);
     serialized_writer_resource_limits.clear();
     eprosima::statistics_backend::subscriber::serialize(
-            info.writer_resource_limits.value(), writer_resource_limits_tag, serialized_writer_resource_limits);
+        info.writer_resource_limits.value(), writer_resource_limits_tag, serialized_writer_resource_limits);
     expected[writer_resource_limits_tag] = serialized_writer_resource_limits[writer_resource_limits_tag];
 
     serialized = eprosima::statistics_backend::subscriber::optional_qos_to_backend_qos(info);
@@ -2028,7 +2035,8 @@ TEST(qos_serializer_tests, participant_optional_qos_serializer)
     info.wire_protocol = eprosima::fastdds::dds::WireProtocolConfigQos();
     info.wire_protocol.value().participant_id = 10;
     serialized_wire_protocol.clear();
-    eprosima::statistics_backend::subscriber::serialize(info.wire_protocol.value(), wire_protocol_config_tag, serialized_wire_protocol);
+    eprosima::statistics_backend::subscriber::serialize(
+        info.wire_protocol.value(), wire_protocol_config_tag, serialized_wire_protocol);
     expected[wire_protocol_config_tag] = serialized_wire_protocol[wire_protocol_config_tag];
 
     serialized = eprosima::statistics_backend::subscriber::optional_qos_to_backend_qos(info);

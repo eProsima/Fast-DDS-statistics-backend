@@ -4311,7 +4311,8 @@ bool Database::update_entity_qos_nts(
         const EntityId& entity,
         const Qos& received_qos)
 {
-    std::shared_ptr<const DDSEntity> db_entity_const = std::dynamic_pointer_cast<const DDSEntity>(get_entity_nts(entity));
+    std::shared_ptr<const DDSEntity> db_entity_const =
+            std::dynamic_pointer_cast<const DDSEntity>(get_entity_nts(entity));
     if (!db_entity_const)
     {
         throw BadParameter("Entity with id " + std::to_string(entity.value()) + " is not a DDS Entity");

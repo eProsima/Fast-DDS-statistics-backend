@@ -151,7 +151,6 @@ bool StatisticsReaderListener::get_optional_qos_from_proxy_sample(
     return true;
 }
 
-
 void StatisticsReaderListener::on_data_available(
         eprosima::fastdds::dds::DataReader* reader)
 {
@@ -205,12 +204,12 @@ void StatisticsReaderListener::on_data_available(
         {
             database::Qos qos;
             auto participant = eprosima::fastdds::statistics::dds::DomainParticipant::narrow(
-                    reader->get_subscriber()->get_participant());
+                reader->get_subscriber()->get_participant());
 
             if (!get_optional_qos_from_proxy_sample(
-                    const_cast<eprosima::fastdds::statistics::dds::DomainParticipant*>(participant),
-                    inner_data,
-                    qos))
+                        const_cast<eprosima::fastdds::statistics::dds::DomainParticipant*>(participant),
+                        inner_data,
+                        qos))
             {
                 EPROSIMA_LOG_ERROR(STATISTICSREADERLISTENER,
                         "Failed to get optional QoS from proxy sample.");
