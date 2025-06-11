@@ -62,7 +62,7 @@ public:
      */
     StatisticsReaderListener(
             database::DatabaseDataQueue<eprosima::fastdds::statistics::Data>* data_queue,
-            database::DatabaseDataQueue<database::ExtendedMonitorServiceStatusData>* monitor_service_status_data_queue_,
+            database::DatabaseDataQueue<database::ExtendedMonitorServiceStatusData>* monitor_service_status_data_queue,
             const database::Database* db)
     noexcept;
 

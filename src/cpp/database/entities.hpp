@@ -93,6 +93,16 @@ struct Entity
     static std::string normalize_entity_name(
             const std::string& entity_name);
 
+    /**
+     * @brief Check whether the entity is a DDS entity, i.e: derived from the DDSEntity base class.
+     */
+    bool is_dds_entity() const
+    {
+        return kind == EntityKind::DATAWRITER ||
+               kind == EntityKind::DATAREADER ||
+               kind == EntityKind::PARTICIPANT;
+    }
+
     //! The unique identification of the entity
     EntityId id;
 

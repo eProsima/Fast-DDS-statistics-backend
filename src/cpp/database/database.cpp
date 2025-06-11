@@ -4311,19 +4311,20 @@ bool Database::update_entity_qos_nts(
         const EntityId& entity,
         const Qos& received_qos)
 {
-    std::shared_ptr<const DDSEntity> db_entity_const =
-            std::dynamic_pointer_cast<const DDSEntity>(get_entity_nts(entity));
-    if (!db_entity_const)
+    std::shared_ptr<const Entity> db_entity_const = get_entity_nts(entity);
+    if (!db_entity_const->is_dds_entity())
     {
         throw BadParameter("Entity with id " + std::to_string(entity.value()) + " is not a DDS Entity");
     }
+
+    std::shared_ptr<DDSEntity> db_entity =
+            std::const_pointer_cast<DDSEntity>(std::static_pointer_cast<const DDSEntity>(db_entity_const));
+
     // Check if the entity has already received the optional QoS information
-    if (db_entity_const->optional_qos_received)
+    if (db_entity->optional_qos_received)
     {
         return false;
     }
-
-    std::shared_ptr<DDSEntity> db_entity = std::const_pointer_cast<DDSEntity>(db_entity_const);
 
     db_entity->qos.merge_patch(received_qos);
     db_entity->optional_qos_received = true;
