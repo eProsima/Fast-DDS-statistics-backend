@@ -4320,16 +4320,10 @@ bool Database::update_entity_qos_nts(
     std::shared_ptr<DDSEntity> db_entity =
             std::const_pointer_cast<DDSEntity>(std::static_pointer_cast<const DDSEntity>(db_entity_const));
 
-    // Check if the entity has already received the optional QoS information
-    if (db_entity->optional_qos_received)
-    {
-        return false;
-    }
-
+    Qos old_qos = db_entity->qos;
     db_entity->qos.merge_patch(received_qos);
-    db_entity->optional_qos_received = true;
 
-    return true;
+    return (db_entity->qos != old_qos);
 }
 
 bool Database::entity_status_logic(

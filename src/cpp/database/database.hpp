@@ -556,15 +556,14 @@ public:
      *
      * @note When entity QoS is updated, current and received QoS are merged:
      *       new keys are added to the entity QoS JSON, and existing values are preserved
-     *       unless explicitly overwritten. Aditionally, the optional_qos_received flag is set to true,
-     *       indicating that optional QoS information has been received.
+     *       unless explicitly overwritten.
      * @param entity The ID of the entity to be updated.
      * @param received_qos The new QoS information used to update the entity.
      * @throws eprosima::statistics_backend::BadParameter in the following cases:
      *            * If an entity with the given ID does not exist in the database.
      *            * If the entity exists in the database, but it is not a valid DDS Entity (i.e: It does not store QoS policies).
      * @return True if entity QoS has been updated,
-     *         false if not (i.e: if optional QoS information was already received).
+     *         false if there is no changes.
      */
     bool update_entity_qos(
             const EntityId& entity,

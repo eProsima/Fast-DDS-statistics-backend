@@ -262,7 +262,6 @@ struct DDSEntity : Entity
         , app_id(dds_entity_app_id)
         , app_metadata(dds_entity_app_metadata)
         , dds_vendor(dds_vendor_by_guid(dds_entity_guid))
-        , optional_qos_received(false)
     {
     }
 
@@ -287,9 +286,6 @@ struct DDSEntity : Entity
 
     //! The vendor of the DomainParticipant
     DdsVendor dds_vendor;
-
-    //! Flag to check if optional QoS information has been already received.
-    bool optional_qos_received;
 };
 
 /*

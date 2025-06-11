@@ -3606,23 +3606,17 @@ TEST_F(database_tests, update_entity_qos)
     /* Case 1: Get a valid DDS entity and update its QoS */
     // DataWriter entity
     auto local_writer = std::dynamic_pointer_cast<const DDSEntity>(db.get_entity(writer_id));
-    EXPECT_FALSE(local_writer->optional_qos_received);
     EXPECT_TRUE(db.update_entity_qos(writer_id, entity_optional_qos));
-    EXPECT_TRUE(local_writer->optional_qos_received);
     EXPECT_TRUE(local_writer->qos.contains("foo_key"));
     EXPECT_EQ(local_writer->qos["foo_key"], "foo_value");
     // DataReader entity
     auto local_reader = std::dynamic_pointer_cast<const DDSEntity>(db.get_entity(reader_id));
-    EXPECT_FALSE(local_reader->optional_qos_received);
     EXPECT_TRUE(db.update_entity_qos(reader_id, entity_optional_qos));
-    EXPECT_TRUE(local_reader->optional_qos_received);
     EXPECT_TRUE(local_reader->qos.contains("foo_key"));
     EXPECT_EQ(local_reader->qos["foo_key"], "foo_value");
     // DomainParticipant entity
     auto local_participant = std::dynamic_pointer_cast<const DDSEntity>(db.get_entity(participant_id));
-    EXPECT_FALSE(local_participant->optional_qos_received);
     EXPECT_TRUE(db.update_entity_qos(participant_id, entity_optional_qos));
-    EXPECT_TRUE(local_participant->optional_qos_received);
     EXPECT_TRUE(local_participant->qos.contains("foo_key"));
     EXPECT_EQ(local_participant->qos["foo_key"], "foo_value");
 
@@ -3637,27 +3631,64 @@ TEST_F(database_tests, update_entity_qos)
     EXPECT_THROW(db.update_entity_qos(domain_id, entity_optional_qos), BadParameter);
     EXPECT_THROW(db.update_entity_qos(topic_id, entity_optional_qos), BadParameter);
 
-    /* Case 4: Verify that updating QoS on an entity that already has QoS updates has no effect */
-    Qos entity_optional_qos_2 = {
+    /* Case 4: Updating QoS on an entity that already contains a different QoS information */
+    // Adding new key
+    entity_optional_qos = {
+        {"bar_key", "bar_value"}
+    };
+    EXPECT_TRUE(db.update_entity_qos(writer_id, entity_optional_qos));
+    EXPECT_TRUE(local_writer->qos.contains("foo_key"));
+    EXPECT_EQ(local_writer->qos["foo_key"], "foo_value");
+    EXPECT_TRUE(local_writer->qos.contains("bar_key"));
+    EXPECT_EQ(local_writer->qos["bar_key"], "bar_value");
+    EXPECT_TRUE(db.update_entity_qos(reader_id, entity_optional_qos));
+    EXPECT_TRUE(local_reader->qos.contains("foo_key"));
+    EXPECT_EQ(local_reader->qos["foo_key"], "foo_value");
+    EXPECT_TRUE(local_reader->qos.contains("bar_key"));
+    EXPECT_EQ(local_reader->qos["bar_key"], "bar_value");
+    EXPECT_TRUE(db.update_entity_qos(participant_id, entity_optional_qos));
+    EXPECT_TRUE(local_participant->qos.contains("foo_key"));
+    EXPECT_EQ(local_participant->qos["foo_key"], "foo_value");
+    EXPECT_TRUE(local_participant->qos.contains("bar_key"));
+    EXPECT_EQ(local_participant->qos["bar_key"], "bar_value");
+
+    // Overriding existing key
+    entity_optional_qos = {
+        {"foo_key", "new_foo_value"}
+    };
+    EXPECT_TRUE(db.update_entity_qos(writer_id, entity_optional_qos));
+    EXPECT_TRUE(local_writer->qos.contains("bar_key"));
+    EXPECT_EQ(local_writer->qos["bar_key"], "bar_value");
+    EXPECT_TRUE(local_writer->qos.contains("foo_key"));
+    EXPECT_EQ(local_writer->qos["foo_key"], "new_foo_value");
+    EXPECT_TRUE(db.update_entity_qos(reader_id, entity_optional_qos));
+    EXPECT_TRUE(local_reader->qos.contains("bar_key"));
+    EXPECT_EQ(local_reader->qos["bar_key"], "bar_value");
+    EXPECT_TRUE(local_reader->qos.contains("foo_key"));
+    EXPECT_EQ(local_reader->qos["foo_key"], "new_foo_value");
+    EXPECT_TRUE(db.update_entity_qos(participant_id, entity_optional_qos));
+    EXPECT_TRUE(local_participant->qos.contains("bar_key"));
+    EXPECT_EQ(local_participant->qos["bar_key"], "bar_value");
+    EXPECT_TRUE(local_participant->qos.contains("foo_key"));
+    EXPECT_EQ(local_participant->qos["foo_key"], "new_foo_value");
+
+    /* Case 5: Updating QoS on an entity that already contains the new information */
+    entity_optional_qos = {
+        {"foo_key", "new_foo_value"},
         {"bar_key", "bar_value"}
     };
     EXPECT_FALSE(db.update_entity_qos(writer_id, entity_optional_qos));
-    EXPECT_FALSE(local_writer->qos.contains("bar_key"));
-    EXPECT_FALSE(db.update_entity_qos(reader_id, entity_optional_qos));
-    EXPECT_FALSE(local_reader->qos.contains("bar_key"));
-    EXPECT_FALSE(db.update_entity_qos(participant_id, entity_optional_qos));
-    EXPECT_FALSE(local_participant->qos.contains("bar_key"));
 
     // Reset configuration to avoid side effects in other tests
     auto local_writer_no_const = std::const_pointer_cast<DDSEntity>(local_writer);
     auto local_reader_no_const = std::const_pointer_cast<DDSEntity>(local_reader);
     auto local_participant_no_const = std::const_pointer_cast<DDSEntity>(local_participant);
-    local_writer_no_const->optional_qos_received = false;
     local_writer_no_const->qos.erase("foo_key");
-    local_reader_no_const->optional_qos_received = false;
+    local_writer_no_const->qos.erase("bar_key");
     local_reader_no_const->qos.erase("foo_key");
-    local_participant_no_const->optional_qos_received = false;
+    local_reader_no_const->qos.erase("bar_key");
     local_participant_no_const->qos.erase("foo_key");
+    local_participant_no_const->qos.erase("bar_key");
 }
 
 TEST_F(database_tests, select_single_entity_invalid_needs_two_entities)
