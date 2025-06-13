@@ -78,14 +78,6 @@ public:
     {
     }
 
-    ~DataReader()
-    {
-        if (subscriber_)
-        {
-            delete subscriber_;
-        }
-    }
-
     ReturnCode_t take_next_sample(
             void* data,
             SampleInfo* info)
@@ -193,7 +185,7 @@ public:
 
     const Subscriber* get_subscriber() const
     {
-        return subscriber_;
+        return subscriber_.get();
     }
 
 protected:
@@ -202,8 +194,7 @@ protected:
     std::queue<StatisticsSample> history_;
     std::queue<MonitorSample> monitor_history_;
     TopicDescription topic_description_;
-    Subscriber* subscriber_;
-
+    std::unique_ptr<Subscriber> subscriber_;
 };
 
 } /* namespace dds */
