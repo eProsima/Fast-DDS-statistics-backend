@@ -145,10 +145,10 @@ bool StatisticsReaderListener::get_optional_qos_from_proxy_sample(
         default:
             EPROSIMA_LOG_ERROR(STATISTICSREADERLISTENER,
                     "Trying to extract optional QoS from an invalid entity kind");
-            return false;
+            break;
     }
 
-    return true;
+    return false;
 }
 
 void StatisticsReaderListener::on_data_available(
