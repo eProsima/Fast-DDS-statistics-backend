@@ -21,10 +21,11 @@
 
 #include <string>
 
+#include <fastdds/dds/core/Time_t.hpp>
 #include <fastdds/rtps/builtin/data/ParticipantBuiltinTopicData.hpp>
 #include <fastdds/rtps/builtin/data/PublicationBuiltinTopicData.hpp>
 #include <fastdds/rtps/builtin/data/SubscriptionBuiltinTopicData.hpp>
-#include <fastdds/dds/core/Time_t.hpp>
+#include <fastdds/utils/collections/ResourceLimitedContainerConfig.hpp>
 
 #include <database/entities.hpp>
 
@@ -164,6 +165,162 @@ void serialize<fastdds::dds::DataSharingQosPolicy> (
         const std::string& fieldname,
         database::Qos& serialized);
 
+template <>
+void serialize<fastdds::dds::HistoryQosPolicy> (
+        const fastdds::dds::HistoryQosPolicy& qos,
+        const std::string& fieldname,
+        database::Qos& serialized);
+
+template <>
+void serialize<fastdds::dds::ResourceLimitsQosPolicy> (
+        const fastdds::dds::ResourceLimitsQosPolicy& qos,
+        const std::string& fieldname,
+        database::Qos& serialized);
+
+template <>
+void serialize<fastdds::dds::ReaderDataLifecycleQosPolicy> (
+        const fastdds::dds::ReaderDataLifecycleQosPolicy& qos,
+        const std::string& fieldname,
+        database::Qos& serialized);
+
+template <>
+void serialize<fastdds::dds::RTPSReliableReaderQos> (
+        const fastdds::dds::RTPSReliableReaderQos& qos,
+        const std::string& fieldname,
+        database::Qos& serialized);
+
+template <>
+void serialize<fastdds::dds::RTPSEndpointQos> (
+        const fastdds::dds::RTPSEndpointQos& qos,
+        const std::string& fieldname,
+        database::Qos& serialized);
+
+template <>
+void serialize<fastdds::dds::ReaderResourceLimitsQos> (
+        const fastdds::dds::ReaderResourceLimitsQos& qos,
+        const std::string& fieldname,
+        database::Qos& serialized);
+
+template <>
+void serialize<fastdds::rtps::ReaderTimes> (
+        const fastdds::rtps::ReaderTimes& qos,
+        const std::string& fieldname,
+        database::Qos& serialized);
+
+template <>
+void serialize<fastdds::rtps::LocatorList> (
+        const fastdds::rtps::LocatorList& qos,
+        const std::string& fieldname,
+        database::Qos& serialized);
+
+template <>
+void serialize<fastdds::rtps::ExternalLocators> (
+        const fastdds::rtps::ExternalLocators& qos,
+        const std::string& fieldname,
+        database::Qos& serialized);
+
+template <>
+void serialize<fastdds::rtps::MemoryManagementPolicy_t> (
+        const fastdds::rtps::MemoryManagementPolicy_t& qos,
+        const std::string& fieldname,
+        database::Qos& serialized);
+
+template <>
+void serialize<fastdds::ResourceLimitedContainerConfig> (
+        const fastdds::ResourceLimitedContainerConfig& qos,
+        const std::string& fieldname,
+        database::Qos& serialized);
+
+template <>
+void serialize<fastdds::dds::TransportPriorityQosPolicy> (
+        const fastdds::dds::TransportPriorityQosPolicy& qos,
+        const std::string& fieldname,
+        database::Qos& serialized);
+
+template <>
+void serialize<fastdds::dds::WriterDataLifecycleQosPolicy> (
+        const fastdds::dds::WriterDataLifecycleQosPolicy& qos,
+        const std::string& fieldname,
+        database::Qos& serialized);
+
+template <>
+void serialize<fastdds::dds::PublishModeQosPolicy> (
+        const fastdds::dds::PublishModeQosPolicy& qos,
+        const std::string& fieldname,
+        database::Qos& serialized);
+
+template <>
+void serialize<fastdds::dds::RTPSReliableWriterQos> (
+        const fastdds::dds::RTPSReliableWriterQos& qos,
+        const std::string& fieldname,
+        database::Qos& serialized);
+
+template <>
+void serialize<fastdds::dds::WriterResourceLimitsQos> (
+        const fastdds::dds::WriterResourceLimitsQos& qos,
+        const std::string& fieldname,
+        database::Qos& serialized);
+
+template <>
+void serialize<fastdds::rtps::WriterTimes> (
+        const fastdds::rtps::WriterTimes& qos,
+        const std::string& fieldname,
+        database::Qos& serialized);
+
+template <>
+void serialize<fastdds::dds::WireProtocolConfigQos> (
+        const fastdds::dds::WireProtocolConfigQos& qos,
+        const std::string& fieldname,
+        database::Qos& serialized);
+
+template <>
+void serialize<fastdds::rtps::GuidPrefix_t> (
+        const fastdds::rtps::GuidPrefix_t& qos,
+        const std::string& fieldname,
+        database::Qos& serialized);
+
+template <>
+void serialize<fastdds::rtps::BuiltinAttributes> (
+        const fastdds::rtps::BuiltinAttributes& qos,
+        const std::string& fieldname,
+        database::Qos& serialized);
+
+template <>
+void serialize<fastdds::rtps::DiscoverySettings> (
+        const fastdds::rtps::DiscoverySettings& qos,
+        const std::string& fieldname,
+        database::Qos& serialized);
+
+template <>
+void serialize<fastdds::rtps::DiscoveryProtocol> (
+        const fastdds::rtps::DiscoveryProtocol& qos,
+        const std::string& fieldname,
+        database::Qos& serialized);
+
+template <>
+void serialize<fastdds::rtps::InitialAnnouncementConfig> (
+        const fastdds::rtps::InitialAnnouncementConfig& qos,
+        const std::string& fieldname,
+        database::Qos& serialized);
+
+template <>
+void serialize<fastdds::rtps::SimpleEDPAttributes> (
+        const fastdds::rtps::SimpleEDPAttributes& qos,
+        const std::string& fieldname,
+        database::Qos& serialized);
+
+template <>
+void serialize<fastdds::rtps::ParticipantFilteringFlags> (
+        const fastdds::rtps::ParticipantFilteringFlags& qos,
+        const std::string& fieldname,
+        database::Qos& serialized);
+
+template <>
+void serialize<fastdds::rtps::PortParameters> (
+        const fastdds::rtps::PortParameters& qos,
+        const std::string& fieldname,
+        database::Qos& serialized);
+
 database::Qos reader_proxy_data_to_backend_qos(
         const fastdds::rtps::SubscriptionBuiltinTopicData& reader_data);
 
@@ -173,6 +330,14 @@ database::Qos writer_proxy_data_to_backend_qos(
 database::Qos participant_proxy_data_to_backend_qos(
         const fastdds::rtps::ParticipantBuiltinTopicData& participant_data);
 
+database::Qos optional_qos_to_backend_qos(
+        const fastdds::rtps::SubscriptionBuiltinTopicData& reader_data);
+
+database::Qos optional_qos_to_backend_qos(
+        const fastdds::rtps::PublicationBuiltinTopicData& writer_data);
+
+database::Qos optional_qos_to_backend_qos(
+        const fastdds::rtps::ParticipantBuiltinTopicData& participant_data);
 
 } // namespace subscriber
 } // namespace statistics_backend

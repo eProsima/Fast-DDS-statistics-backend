@@ -23,6 +23,10 @@
 #include <string>
 #include <vector>
 
+#include <fastdds/rtps/builtin/data/ParticipantBuiltinTopicData.hpp>
+#include <fastdds/rtps/builtin/data/PublicationBuiltinTopicData.hpp>
+#include <fastdds/rtps/builtin/data/SubscriptionBuiltinTopicData.hpp>
+
 #include <fastdds_statistics_backend/exception/Exception.hpp>
 #include <fastdds_statistics_backend/types/types.hpp>
 #include <fastdds_statistics_backend/types/JSONTags.h>
@@ -4293,6 +4297,33 @@ bool Database::update_entity_status_nts(
 
     // Set entity status
     return entity_status_logic_nts(entity_error, entity_warning, entity->status);
+}
+
+bool Database::update_entity_qos(
+        const EntityId& entity,
+        const Qos& received_qos)
+{
+    std::lock_guard<std::shared_timed_mutex> guard(mutex_);
+    return update_entity_qos_nts(entity, received_qos);
+}
+
+bool Database::update_entity_qos_nts(
+        const EntityId& entity,
+        const Qos& received_qos)
+{
+    std::shared_ptr<const Entity> db_entity_const = get_entity_nts(entity);
+    if (!db_entity_const->is_dds_entity())
+    {
+        throw BadParameter("Entity with id " + std::to_string(entity.value()) + " is not a DDS Entity");
+    }
+
+    std::shared_ptr<DDSEntity> db_entity =
+            std::const_pointer_cast<DDSEntity>(std::static_pointer_cast<const DDSEntity>(db_entity_const));
+
+    Qos old_qos = db_entity->qos;
+    db_entity->qos.merge_patch(received_qos);
+
+    return (db_entity->qos != old_qos);
 }
 
 bool Database::entity_status_logic(

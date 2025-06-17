@@ -40,18 +40,44 @@ static constexpr const char* user_data_tag = "user_data";
 static constexpr const char* partition_tag = "partition";
 static constexpr const char* properties_tag = "properties";
 static constexpr const char* vendor_id_tag = "vendor_id";
+static constexpr const char* user_defined_id_tag = "user_defined_id";
+static constexpr const char* entity_id_tag = "entity_id";
+static constexpr const char* participant_id_tag = "participant_id";
+
 static constexpr const char* available_builtin_endpoints_tag = "available_builtin_endpoints";
 
+// Locators tags
+static constexpr const char* locators_tag = "locators";
+static constexpr const char* locators_with_mask_tag = "locators_with_mask";
+static constexpr const char* unicast_locator_list_tag = "unicast_locators";
+static constexpr const char* metatraffic_unicast_locator_list_tag = "metatraffic_unicast_locators";
+static constexpr const char* default_unicast_locator_list_tag = "default_unicast_locators";
+static constexpr const char* multicast_locator_list_tag = "multicast_locators";
+static constexpr const char* metatraffic_multicast_locator_list_tag = "metatraffic_multicast_locators";
+static constexpr const char* default_multicast_locator_list_tag = "default_multicast_locators";
+static constexpr const char* remote_locators_tag = "remote_locators";
+static constexpr const char* external_unicast_locators_tag = "external_unicast_locators";
+static constexpr const char* metatraffic_external_unicast_locators_tag = "metatraffic_external_unicast_locators";
+static constexpr const char* default_external_unicast_locators_tag = "default_external_unicast_locators";
+static constexpr const char* external_locators_externality_index_tag = "externality_index";
+static constexpr const char* external_locators_cost_tag = "cost";
+static constexpr const char* ignore_non_matching_locators_tag = "ignore_non_matching_locators";
+
+// QoS-specific tags
 #include "QosSerializer/DataSharingTags.ipp"
 #include "QosSerializer/DestinationOrderTags.ipp"
 #include "QosSerializer/DurabilityTags.ipp"
 #include "QosSerializer/DurationTags.ipp"
+#include "QosSerializer/LifecycleTags.ipp"
 #include "QosSerializer/LivelinessTags.ipp"
 #include "QosSerializer/OwnershipTags.ipp"
 #include "QosSerializer/PresentationTags.ipp"
 #include "QosSerializer/PublishModeTags.ipp"
 #include "QosSerializer/ReliabilityTags.ipp"
 #include "QosSerializer/ResourceTags.ipp"
+#include "QosSerializer/RTPSEndpointTags.ipp"
+#include "QosSerializer/TransportTags.ipp"
+#include "QosSerializer/WireProtocolConfigTags.ipp"
 #include "QosSerializer/XTypesTags.ipp"
 
 } // namespace subscriber

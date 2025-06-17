@@ -22,6 +22,7 @@
 
 #include <queue>
 
+#include <fastdds/dds/subscriber/Subscriber.hpp>
 #include <fastdds/dds/subscriber/SampleInfo.hpp>
 #include <fastdds/rtps/common/Guid.hpp>
 #include <fastdds_statistics_backend/topic_types/types.hpp>
@@ -72,7 +73,10 @@ public:
         std::string topic_name_;
     };
 
-    DataReader() = default;
+    DataReader()
+        : subscriber_(new Subscriber())
+    {
+    }
 
     ReturnCode_t take_next_sample(
             void* data,
@@ -179,13 +183,18 @@ public:
         return &topic_description_;
     }
 
+    const Subscriber* get_subscriber() const
+    {
+        return subscriber_.get();
+    }
+
 protected:
 
     fastdds::rtps::GUID_t guid_;
     std::queue<StatisticsSample> history_;
     std::queue<MonitorSample> monitor_history_;
     TopicDescription topic_description_;
-
+    std::unique_ptr<Subscriber> subscriber_;
 };
 
 } /* namespace dds */

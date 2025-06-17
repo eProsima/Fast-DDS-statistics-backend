@@ -350,6 +350,8 @@ set(DATABASE_TEST_LIST
     # get_entity_kind
     get_entity_kind
     get_entity_kind_by_guid
+    # Update entity QoS
+    update_entity_qos
     # select
     select_single_entity_invalid_needs_two_entities
     select_double_entity_invalid_needs_one_entity

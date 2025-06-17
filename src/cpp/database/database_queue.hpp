@@ -39,6 +39,7 @@
 #include <exception/Exception.hpp>
 #include <StatisticsBackend.hpp>
 #include <StatisticsBackendData.hpp>
+#include <topic_types/monitorservice_types.hpp>
 
 
 namespace eprosima {
@@ -402,6 +403,15 @@ protected:
 
 };
 
+struct ExtendedMonitorServiceStatusData
+{
+    // Deserialized data received through MonitorService topic
+    eprosima::fastdds::statistics::MonitorServiceStatusData data;
+
+    // Deserialized entity optional QoS information received through Monitor Service's proxy samples
+    database::Qos optional_qos;
+};
+
 class DatabaseEntityQueue : public DatabaseQueue<EntityDiscoveryInfo>
 {
 
@@ -731,7 +741,7 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample_type
 
 template<>
 template<typename Q, typename R>
-void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>::process_sample_type(
+void DatabaseDataQueue<ExtendedMonitorServiceStatusData>::process_sample_type(
         EntityId& domain,
         EntityId& entity,
         EntityKind entity_kind,
@@ -740,7 +750,7 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>:
 
 template<>
 template<typename Q, typename R>
-void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>::process_sample_type(
+void DatabaseDataQueue<ExtendedMonitorServiceStatusData>::process_sample_type(
         EntityId& domain,
         EntityId& entity,
         const StatisticsGuid& local_entity_guid,
@@ -749,7 +759,7 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>:
 
 template<>
 template<>
-void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>::process_sample_type(
+void DatabaseDataQueue<ExtendedMonitorServiceStatusData>::process_sample_type(
         EntityId& domain,
         EntityId& entity,
         const StatisticsGuid& local_entity_guid,
@@ -758,7 +768,7 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>:
 
 template<>
 template<>
-void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>::process_sample_type(
+void DatabaseDataQueue<ExtendedMonitorServiceStatusData>::process_sample_type(
         EntityId& domain,
         EntityId& entity,
         const StatisticsGuid& local_entity_guid,
@@ -767,7 +777,7 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>:
 
 template<>
 template<>
-void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>::process_sample_type(
+void DatabaseDataQueue<ExtendedMonitorServiceStatusData>::process_sample_type(
         EntityId& domain,
         EntityId& entity,
         const StatisticsGuid& local_entity_guid,
@@ -776,7 +786,7 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>:
 
 template<>
 template<>
-void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>::process_sample_type(
+void DatabaseDataQueue<ExtendedMonitorServiceStatusData>::process_sample_type(
         EntityId& domain,
         EntityId& entity,
         const StatisticsGuid& local_entity_guid,
@@ -785,7 +795,7 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>:
 
 template<>
 template<>
-void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>::process_sample_type(
+void DatabaseDataQueue<ExtendedMonitorServiceStatusData>::process_sample_type(
         EntityId& domain,
         EntityId& entity,
         const StatisticsGuid& local_entity_guid,
@@ -794,7 +804,7 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>:
 
 template<>
 template<>
-void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>::process_sample_type(
+void DatabaseDataQueue<ExtendedMonitorServiceStatusData>::process_sample_type(
         EntityId& domain,
         EntityId& entity,
         const StatisticsGuid& local_entity_guid,
@@ -803,7 +813,7 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>:
 
 template<>
 template<>
-void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>::process_sample_type(
+void DatabaseDataQueue<ExtendedMonitorServiceStatusData>::process_sample_type(
         EntityId& domain,
         EntityId& entity,
         const StatisticsGuid& local_entity_guid,
@@ -812,7 +822,7 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>:
 
 template<>
 template<>
-void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>::process_sample_type(
+void DatabaseDataQueue<ExtendedMonitorServiceStatusData>::process_sample_type(
         EntityId& domain,
         EntityId& entity,
         const StatisticsGuid& local_entity_guid,
@@ -821,7 +831,7 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>:
 
 template<>
 template<>
-void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>::process_sample_type(
+void DatabaseDataQueue<ExtendedMonitorServiceStatusData>::process_sample_type(
         EntityId& domain,
         EntityId& entity,
         const StatisticsGuid& local_entity_guid,

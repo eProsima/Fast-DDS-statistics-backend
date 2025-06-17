@@ -18,6 +18,7 @@
  */
 
 #include "database_queue.hpp"
+#include "../subscriber/QosSerializer.hpp"
 
 #include <fastdds/dds/log/Log.hpp>
 
@@ -688,7 +689,7 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample_type
 
 template<>
 template<typename Q, typename R>
-void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>::process_sample_type(
+void DatabaseDataQueue<ExtendedMonitorServiceStatusData>::process_sample_type(
         EntityId& domain,
         EntityId& entity,
         EntityKind entity_kind,
@@ -707,7 +708,7 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>:
 
 template<>
 template<typename Q, typename R>
-void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>::process_sample_type(
+void DatabaseDataQueue<ExtendedMonitorServiceStatusData>::process_sample_type(
         EntityId& domain,
         EntityId& entity,
         const StatisticsGuid& local_entity_guid,
@@ -720,12 +721,12 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>:
     static_cast<void>(sample);
     static_cast<void>(item);
 
-    throw BadParameter("Unsupported Sample type and MonitorServiceStatusData type combination");
+    throw BadParameter("Unsupported Sample type and ExtendedMonitorServiceStatusData type combination");
 }
 
 template<>
 template<>
-void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>::process_sample_type(
+void DatabaseDataQueue<ExtendedMonitorServiceStatusData>::process_sample_type(
         EntityId& domain,
         EntityId& entity,
         const StatisticsGuid& local_entity_guid,
@@ -754,7 +755,7 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>:
 
 template<>
 template<>
-void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>::process_sample_type(
+void DatabaseDataQueue<ExtendedMonitorServiceStatusData>::process_sample_type(
         EntityId& domain,
         EntityId& entity,
         const StatisticsGuid& local_entity_guid,
@@ -783,7 +784,7 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>:
 
 template<>
 template<>
-void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>::process_sample_type(
+void DatabaseDataQueue<ExtendedMonitorServiceStatusData>::process_sample_type(
         EntityId& domain,
         EntityId& entity,
         const StatisticsGuid& local_entity_guid,
@@ -820,7 +821,7 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>:
 
 template<>
 template<>
-void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>::process_sample_type(
+void DatabaseDataQueue<ExtendedMonitorServiceStatusData>::process_sample_type(
         EntityId& domain,
         EntityId& entity,
         const StatisticsGuid& local_entity_guid,
@@ -853,7 +854,7 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>:
 
 template<>
 template<>
-void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>::process_sample_type(
+void DatabaseDataQueue<ExtendedMonitorServiceStatusData>::process_sample_type(
         EntityId& domain,
         EntityId& entity,
         const StatisticsGuid& local_entity_guid,
@@ -890,7 +891,7 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>:
 
 template<>
 template<>
-void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>::process_sample_type(
+void DatabaseDataQueue<ExtendedMonitorServiceStatusData>::process_sample_type(
         EntityId& domain,
         EntityId& entity,
         const StatisticsGuid& local_entity_guid,
@@ -919,7 +920,7 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>:
 
 template<>
 template<>
-void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>::process_sample_type(
+void DatabaseDataQueue<ExtendedMonitorServiceStatusData>::process_sample_type(
         EntityId& domain,
         EntityId& entity,
         const StatisticsGuid& local_entity_guid,
@@ -957,7 +958,7 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>:
 
 template<>
 template<>
-void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>::process_sample_type(
+void DatabaseDataQueue<ExtendedMonitorServiceStatusData>::process_sample_type(
         EntityId& domain,
         EntityId& entity,
         const StatisticsGuid& local_entity_guid,
@@ -995,7 +996,7 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>:
 
 template<>
 template<>
-void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>::process_sample_type(
+void DatabaseDataQueue<ExtendedMonitorServiceStatusData>::process_sample_type(
         EntityId& domain,
         EntityId& entity,
         const StatisticsGuid& local_entity_guid,
@@ -1454,13 +1455,13 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample()
 }
 
 template<>
-void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>::process_sample()
+void DatabaseDataQueue<ExtendedMonitorServiceStatusData>::process_sample()
 {
     EntityId domain;
     EntityId entity;
     bool updated_entity = false;
 
-    switch (front().second->status_kind())
+    switch (front().second->data.status_kind())
     {
         case fastdds::statistics::StatusKind::PROXY:
         {
@@ -1469,10 +1470,11 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>:
             sample.src_ts = item.first;
             try
             {
-                process_sample_type(domain, entity, item.second->local_entity(), sample,
-                        item.second->value().entity_proxy());
+                process_sample_type(domain, entity, item.second->data.local_entity(), sample,
+                        item.second->data.value().entity_proxy());
 
                 updated_entity = database_->insert(domain, entity, sample);
+                database_->update_entity_qos(entity, item.second->optional_qos);
                 details::StatisticsBackendData::get_instance()->on_status_reported(domain, entity, StatusKind::PROXY);
             }
             catch (const eprosima::statistics_backend::Exception& e)
@@ -1491,8 +1493,8 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>:
             sample.src_ts = item.first;
             try
             {
-                process_sample_type(domain, entity, item.second->local_entity(), sample,
-                        item.second->value().connection_list());
+                process_sample_type(domain, entity, item.second->data.local_entity(), sample,
+                        item.second->data.value().connection_list());
 
                 updated_entity = database_->insert(domain, entity, sample);
                 details::StatisticsBackendData::get_instance()->on_status_reported(domain, entity,
@@ -1514,8 +1516,8 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>:
             sample.src_ts = item.first;
             try
             {
-                process_sample_type(domain, entity, item.second->local_entity(), sample,
-                        item.second->value().incompatible_qos_status());
+                process_sample_type(domain, entity, item.second->data.local_entity(), sample,
+                        item.second->data.value().incompatible_qos_status());
 
                 updated_entity = database_->insert(domain, entity, sample);
                 details::StatisticsBackendData::get_instance()->on_status_reported(domain, entity,
@@ -1537,8 +1539,8 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>:
             sample.src_ts = item.first;
             try
             {
-                process_sample_type(domain, entity, item.second->local_entity(), sample,
-                        item.second->value().inconsistent_topic_status());
+                process_sample_type(domain, entity, item.second->data.local_entity(), sample,
+                        item.second->data.value().inconsistent_topic_status());
 
                 updated_entity = database_->insert(domain, entity, sample);
                 details::StatisticsBackendData::get_instance()->on_status_reported(domain, entity,
@@ -1560,8 +1562,8 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>:
             sample.src_ts = item.first;
             try
             {
-                process_sample_type(domain, entity, item.second->local_entity(), sample,
-                        item.second->value().liveliness_lost_status());
+                process_sample_type(domain, entity, item.second->data.local_entity(), sample,
+                        item.second->data.value().liveliness_lost_status());
 
                 updated_entity = database_->insert(domain, entity, sample);
                 details::StatisticsBackendData::get_instance()->on_status_reported(domain, entity,
@@ -1583,8 +1585,8 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>:
             sample.src_ts = item.first;
             try
             {
-                process_sample_type(domain, entity, item.second->local_entity(), sample,
-                        item.second->value().liveliness_changed_status());
+                process_sample_type(domain, entity, item.second->data.local_entity(), sample,
+                        item.second->data.value().liveliness_changed_status());
 
                 updated_entity = database_->insert(domain, entity, sample);
                 details::StatisticsBackendData::get_instance()->on_status_reported(domain, entity,
@@ -1606,8 +1608,8 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>:
             sample.src_ts = item.first;
             try
             {
-                process_sample_type(domain, entity, item.second->local_entity(), sample,
-                        item.second->value().deadline_missed_status());
+                process_sample_type(domain, entity, item.second->data.local_entity(), sample,
+                        item.second->data.value().deadline_missed_status());
 
                 updated_entity = database_->insert(domain, entity, sample);
                 details::StatisticsBackendData::get_instance()->on_status_reported(domain, entity,
@@ -1629,8 +1631,8 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>:
             sample.src_ts = item.first;
             try
             {
-                process_sample_type(domain, entity, item.second->local_entity(), sample,
-                        item.second->value().sample_lost_status());
+                process_sample_type(domain, entity, item.second->data.local_entity(), sample,
+                        item.second->data.value().sample_lost_status());
 
                 updated_entity = database_->insert(domain, entity, sample);
                 details::StatisticsBackendData::get_instance()->on_status_reported(domain, entity,
@@ -1651,8 +1653,8 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::MonitorServiceStatusData>:
             sample.src_ts = item.first;
             try
             {
-                process_sample_type(domain, entity, item.second->local_entity(), sample,
-                        item.second->value().extended_incompatible_qos_status());
+                process_sample_type(domain, entity, item.second->data.local_entity(), sample,
+                        item.second->data.value().extended_incompatible_qos_status());
 
                 updated_entity = database_->insert(domain, entity, sample);
                 details::StatisticsBackendData::get_instance()->on_status_reported(domain, entity,

@@ -232,7 +232,8 @@ EntityId create_and_register_monitor(
 
     monitor->reader_listener = new subscriber::StatisticsReaderListener(
         backend_data->data_queue_,
-        backend_data->monitor_service_status_data_queue_);
+        backend_data->monitor_service_status_data_queue_,
+        backend_data->database_.get());
     auto se_reader_listener_ = EPROSIMA_BACKEND_MAKE_SCOPE_EXIT(delete monitor->reader_listener);
 
     /* Create DomainParticipant */
