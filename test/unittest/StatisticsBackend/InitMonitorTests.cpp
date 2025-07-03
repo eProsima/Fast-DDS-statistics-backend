@@ -168,6 +168,7 @@ public:
             DomainId domain_id,
             DomainListener* domain_listener,
             const std::string& server_locators,
+            const std::string& participant_profile_name,
             const CallbackMask& callback_mask,
             const DataKindMask& datakind_mask,
             std::string app_id = "",
@@ -180,6 +181,7 @@ public:
             datakind_mask,
             app_id,
             app_metadata);
+
         EntityId monitor_id_1 = StatisticsBackend::init_monitor(
             server_locators,
             domain_listener,
@@ -188,14 +190,23 @@ public:
             app_id,
             app_metadata);
 
+        EntityId monitor_id_2 = StatisticsBackend::init_monitor_with_profile(
+            participant_profile_name,
+            domain_listener,
+            callback_mask,
+            datakind_mask,
+            app_id,
+            app_metadata);
+
         EXPECT_TRUE(monitor_id.is_valid());
         EXPECT_TRUE(monitor_id_1.is_valid());
+        EXPECT_TRUE(monitor_id_2.is_valid());
 
         std::map<EntityId, eprosima::statistics_backend::details::Monitor*> domain_monitors =
                 test::get_monitors_from_database();
 
         /* Check that two monitors are created */
-        EXPECT_EQ(domain_monitors.size(), 2u);
+        EXPECT_EQ(domain_monitors.size(), 3u);
 
         return domain_monitors;
     }
@@ -297,8 +308,10 @@ TEST_F(init_monitor_tests, init_monitor_domain_id_all_callback_all_data)
     DomainId domain_id = 0;
     DomainListener domain_listener;
     std::string server_locators = "UDPv4:[127.0.0.1]:11811";
+    std::string participant_profile_name = "participant_domain_3";
+    eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->load_XML_profiles_file("test_load_profile.xml");
 
-    auto domain_monitors = init_monitors(domain_id, &domain_listener, server_locators,
+    auto domain_monitors = init_monitors(domain_id, &domain_listener, server_locators, participant_profile_name,
                     all_callback_mask_, all_datakind_mask_);
 
     std::vector<EntityId> monitor_ids;
@@ -337,10 +350,12 @@ TEST_F(init_monitor_tests, init_monitor_domain_id_all_callback_all_data_known_ap
     DomainId domain_id = 0;
     DomainListener domain_listener;
     std::string server_locators = "UDPv4:[127.0.0.1]:11811";
+    std::string participant_profile_name = "participant_domain_3";
+    eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->load_XML_profiles_file("test_load_profile.xml");
 
     std::string app_id = app_id_str[(int)AppId::FASTDDS_MONITOR];
     std::string app_metadata = "metadata";
-    auto domain_monitors = init_monitors(domain_id, &domain_listener, server_locators,
+    auto domain_monitors = init_monitors(domain_id, &domain_listener, server_locators, participant_profile_name,
                     all_callback_mask_, all_datakind_mask_, app_id, app_metadata);
 
     std::vector<EntityId> monitor_ids;
@@ -379,8 +394,10 @@ TEST_F(init_monitor_tests, init_monitor_domain_id_no_callback_all_data)
     DomainId domain_id = 0;
     DomainListener domain_listener;
     std::string server_locators = "UDPv4:[localhost]:11811";
+    std::string participant_profile_name = "participant_domain_3";
+    eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->load_XML_profiles_file("test_load_profile.xml");
 
-    auto domain_monitors = init_monitors(domain_id, &domain_listener, server_locators,
+    auto domain_monitors = init_monitors(domain_id, &domain_listener, server_locators, participant_profile_name,
                     CallbackMask::none(), all_datakind_mask_);
 
     std::vector<EntityId> monitor_ids;
@@ -419,8 +436,10 @@ TEST_F(init_monitor_tests, init_monitor_domain_id_all_callback_no_data)
     DomainId domain_id = 0;
     DomainListener domain_listener;
     std::string server_locators = "UDPv4:[127.0.0.1]:11811";
+    std::string participant_profile_name = "participant_domain_3";
+    eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->load_XML_profiles_file("test_load_profile.xml");
 
-    auto domain_monitors = init_monitors(domain_id, &domain_listener, server_locators,
+    auto domain_monitors = init_monitors(domain_id, &domain_listener, server_locators, participant_profile_name,
                     all_callback_mask_, DataKindMask::none());
 
     std::vector<EntityId> monitor_ids;
@@ -458,8 +477,10 @@ TEST_F(init_monitor_tests, init_monitor_domain_id_null_listener_all_data)
 {
     DomainId domain_id = 0;
     std::string server_locators = "UDPv4:[localhost]:11811";
+    std::string participant_profile_name = "participant_domain_3";
+    eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->load_XML_profiles_file("test_load_profile.xml");
 
-    auto domain_monitors = init_monitors(domain_id, nullptr, server_locators,
+    auto domain_monitors = init_monitors(domain_id, nullptr, server_locators, participant_profile_name,
                     all_callback_mask_, all_datakind_mask_);
 
     std::vector<EntityId> monitor_ids;
@@ -551,8 +572,10 @@ TEST_F(init_monitor_tests, init_monitor_twice)
     DomainId domain_id = 0;
     DomainListener domain_listener;
     std::string server_locators = "UDPv4:[127.0.0.1]:11811";
+    std::string participant_profile_name = "participant_domain_3";
+    eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->load_XML_profiles_file("test_load_profile.xml");
 
-    init_monitors(domain_id, &domain_listener, server_locators,
+    init_monitors(domain_id, &domain_listener, server_locators, participant_profile_name,
             all_callback_mask_, all_datakind_mask_);
 
     EXPECT_THROW(StatisticsBackend::init_monitor(
@@ -565,11 +588,16 @@ TEST_F(init_monitor_tests, init_monitor_twice)
                 nullptr,
                 CallbackMask::none(),
                 DataKindMask::none()), BadParameter);
+    EXPECT_THROW(StatisticsBackend::init_monitor(
+                participant_profile_name,
+                nullptr,
+                CallbackMask::none(),
+                DataKindMask::none()), BadParameter);
 
     auto domain_monitors = test::get_monitors_from_database();
 
     /* Check that two monitors are created */
-    EXPECT_EQ(domain_monitors.size(), 2u);
+    EXPECT_EQ(domain_monitors.size(), 3u);
 
     std::vector<EntityId> monitor_ids;
     for (const auto& monitor : domain_monitors)

@@ -19,9 +19,11 @@ check_gmock()
 # Auxiliary files
 ##################################################################
 
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/profile.xml
-    ${CMAKE_CURRENT_BINARY_DIR}/profile.xml
-    COPYONLY)
+foreach(profile_file IN ITEMS profile.xml test_load_profile.xml)
+    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/${profile_file}
+        ${CMAKE_CURRENT_BINARY_DIR}/${profile_file}
+        COPYONLY)
+endforeach()
 
 # statistics_backend_tests
 ##################################################################
