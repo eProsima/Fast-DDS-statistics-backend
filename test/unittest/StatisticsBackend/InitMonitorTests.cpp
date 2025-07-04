@@ -161,7 +161,7 @@ public:
             delete it.second;
         }
 
-        details::StatisticsBackendData::reset_instance();
+        StatisticsBackend::reset();
     }
 
     std::map<EntityId, eprosima::statistics_backend::details::Monitor*> init_monitors(
