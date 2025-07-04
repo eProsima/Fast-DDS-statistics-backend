@@ -71,6 +71,13 @@ public:
         return eprosima::fastdds::dds::RETCODE_OK;
     }
 
+    ReturnCode_t get_complete_type_object(
+            const TypeIdentifierPair&,
+            CompleteTypeObject&) override
+    {
+        return eprosima::fastdds::dds::RETCODE_OK;
+    }
+
     ReturnCode_t get_type_objects(
             const std::string&,
             TypeObjectPair&) override
