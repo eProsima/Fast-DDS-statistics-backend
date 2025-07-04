@@ -1123,7 +1123,6 @@ std::vector<std::string> StatisticsBackend::load_xml_profiles_file(
     if (doc.LoadFile(xml_file.c_str()) != tinyxml2::XML_SUCCESS)
     {
         throw BadParameter("Failed to load XML profile file " + xml_file);
-        return std::vector<std::string>();
     }
 
     tinyxml2::XMLElement* root = doc.RootElement();
@@ -1142,7 +1141,6 @@ std::vector<std::string> StatisticsBackend::load_xml_profiles_file(
     if (!profiles)
     {
         throw BadParameter("No profiles element found in file " + xml_file);
-        return std::vector<std::string>();
     }
 
     std::vector<std::string> participant_profiles;
