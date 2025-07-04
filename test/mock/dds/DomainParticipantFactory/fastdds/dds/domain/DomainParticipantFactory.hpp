@@ -26,9 +26,11 @@
 
 #include <fastdds/dds/core/status/StatusMask.hpp>
 #include <fastdds/dds/domain/DomainParticipant.hpp>
+#include <fastdds/dds/domain/qos/DomainParticipantExtendedQos.hpp>
 #include <fastdds/dds/domain/qos/DomainParticipantFactoryQos.hpp>
 #include <fastdds/dds/domain/qos/DomainParticipantQos.hpp>
 #include "TypeObjectRegistry.hpp"
+
 namespace eprosima {
 namespace fastdds {
 namespace dds {
@@ -75,6 +77,21 @@ public:
     ReturnCode_t load_profiles()
     {
         load_profiles_count++;
+        return RETCODE_OK;
+    }
+
+    ReturnCode_t get_participant_extended_qos_from_profile(
+            const std::string&,
+            DomainParticipantExtendedQos&) const
+    {
+        get_participant_extended_qos_from_profile_count++;
+        return RETCODE_OK;
+    }
+
+    ReturnCode_t load_XML_profiles_file(
+            const std::string&)
+    {
+        load_XML_profiles_file_count++;
         return RETCODE_OK;
     }
 
@@ -128,6 +145,8 @@ public:
     DomainParticipant* domain_participant = nullptr;
 
     mutable unsigned int load_profiles_count = 0;
+    mutable unsigned int get_participant_extended_qos_from_profile_count = 0;
+    mutable unsigned int load_XML_profiles_file_count = 0;
     mutable unsigned int create_participant_count = 0;
     mutable unsigned int delete_participant_count = 0;
     mutable unsigned int get_default_participant_qos_count = 0;
