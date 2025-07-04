@@ -309,7 +309,6 @@ TEST_F(init_monitor_tests, init_monitor_domain_id_all_callback_all_data)
     DomainListener domain_listener;
     std::string server_locators = "UDPv4:[127.0.0.1]:11811";
     std::string participant_profile_name = "participant_domain_3";
-    eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->load_XML_profiles_file("test_load_profile.xml");
 
     auto domain_monitors = init_monitors(domain_id, &domain_listener, server_locators, participant_profile_name,
                     all_callback_mask_, all_datakind_mask_);
@@ -351,7 +350,6 @@ TEST_F(init_monitor_tests, init_monitor_domain_id_all_callback_all_data_known_ap
     DomainListener domain_listener;
     std::string server_locators = "UDPv4:[127.0.0.1]:11811";
     std::string participant_profile_name = "participant_domain_3";
-    eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->load_XML_profiles_file("test_load_profile.xml");
 
     std::string app_id = app_id_str[(int)AppId::FASTDDS_MONITOR];
     std::string app_metadata = "metadata";
@@ -395,7 +393,6 @@ TEST_F(init_monitor_tests, init_monitor_domain_id_no_callback_all_data)
     DomainListener domain_listener;
     std::string server_locators = "UDPv4:[localhost]:11811";
     std::string participant_profile_name = "participant_domain_3";
-    eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->load_XML_profiles_file("test_load_profile.xml");
 
     auto domain_monitors = init_monitors(domain_id, &domain_listener, server_locators, participant_profile_name,
                     CallbackMask::none(), all_datakind_mask_);
@@ -437,7 +434,6 @@ TEST_F(init_monitor_tests, init_monitor_domain_id_all_callback_no_data)
     DomainListener domain_listener;
     std::string server_locators = "UDPv4:[127.0.0.1]:11811";
     std::string participant_profile_name = "participant_domain_3";
-    eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->load_XML_profiles_file("test_load_profile.xml");
 
     auto domain_monitors = init_monitors(domain_id, &domain_listener, server_locators, participant_profile_name,
                     all_callback_mask_, DataKindMask::none());
@@ -478,7 +474,6 @@ TEST_F(init_monitor_tests, init_monitor_domain_id_null_listener_all_data)
     DomainId domain_id = 0;
     std::string server_locators = "UDPv4:[localhost]:11811";
     std::string participant_profile_name = "participant_domain_3";
-    eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->load_XML_profiles_file("test_load_profile.xml");
 
     auto domain_monitors = init_monitors(domain_id, nullptr, server_locators, participant_profile_name,
                     all_callback_mask_, all_datakind_mask_);
@@ -573,7 +568,6 @@ TEST_F(init_monitor_tests, init_monitor_twice)
     DomainListener domain_listener;
     std::string server_locators = "UDPv4:[127.0.0.1]:11811";
     std::string participant_profile_name = "participant_domain_3";
-    eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->load_XML_profiles_file("test_load_profile.xml");
 
     init_monitors(domain_id, &domain_listener, server_locators, participant_profile_name,
             all_callback_mask_, all_datakind_mask_);
@@ -799,6 +793,18 @@ TEST_F(init_monitor_tests, init_monitor_easy_mode)
 
     /* Stop the monitor to avoid interfering on the next test */
     StatisticsBackend::stop_monitor(monitor_id);
+}
+
+TEST_F(init_monitor_tests, profile_does_not_exist)
+{
+    DomainListener domain_listener;
+    std::string profile_name = "non_existent_profile";
+
+    EXPECT_THROW(StatisticsBackend::init_monitor_with_profile(
+            profile_name,
+            &domain_listener,
+            all_callback_mask_,
+            all_datakind_mask_), Error);
 }
 
 int main(
