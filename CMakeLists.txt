@@ -48,6 +48,7 @@ set(FASTDDS_MIN_VERSION "3.0.0")
 
 find_package(fastcdr REQUIRED)
 find_package(fastdds ${FASTDDS_MIN_VERSION} REQUIRED)
+find_package(TinyXML2 REQUIRED)
 
 ###############################################################################
 # Test system configuration

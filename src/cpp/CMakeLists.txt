@@ -85,6 +85,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 target_link_libraries(${PROJECT_NAME}
         fastcdr
         fastdds
+        ${TINYXML2_LIBRARY}
         )
 
 if(MSVC OR MSVC_IDE)
