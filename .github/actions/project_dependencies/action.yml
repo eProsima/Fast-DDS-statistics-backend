@@ -50,19 +50,6 @@ runs:
       with:
         cmake_build_type: ${{ inputs.cmake_build_type }}
 
-    - name: Install TinyXML2
-      shell: pwsh
-      if: ${{ inputs.os == 'windows-2022' }}
-      run: |
-        "::group::Install TinyXML2"
-
-        Invoke-WebRequest -Uri "https://github.com/ros2/choco-packages/releases/download/2020-02-24/tinyxml2.6.0.0.nupkg" -OutFile "tinyxml2.6.0.0.nupkg"
-        choco install tinyxml2 -s . -y
-
-        echo "C:\ProgramData\chocolatey\lib\tinyxml2;C:\ProgramData\chocolatey\lib\tinyxml2\lib;$env:PATH" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-
-        "::endgroup::"
-
     # Fast DDS artifact
     - name: Download dependencies artifact
       uses: eProsima/eProsima-CI/multiplatform/download_dependency@v0
