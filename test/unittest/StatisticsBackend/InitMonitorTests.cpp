@@ -149,7 +149,7 @@ public:
         }
 
         // Set the profile to ignore discovery data from other processes
-        eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->load_XML_profiles_file("profile.xml");
+        eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->load_XML_profiles_file("profiles/profile.xml");
         eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->load_profiles();
     }
 
@@ -205,7 +205,7 @@ public:
         std::map<EntityId, eprosima::statistics_backend::details::Monitor*> domain_monitors =
                 test::get_monitors_from_database();
 
-        /* Check that two monitors are created */
+        /* Check that three monitors are created */
         EXPECT_EQ(domain_monitors.size(), 3u);
 
         return domain_monitors;
@@ -590,7 +590,7 @@ TEST_F(init_monitor_tests, init_monitor_twice)
 
     auto domain_monitors = test::get_monitors_from_database();
 
-    /* Check that two monitors are created */
+    /* Check that three monitors are created */
     EXPECT_EQ(domain_monitors.size(), 3u);
 
     std::vector<EntityId> monitor_ids;

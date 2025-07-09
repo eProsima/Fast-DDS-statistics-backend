@@ -512,7 +512,7 @@ TEST_F(statistics_backend_tests, set_alias)
 TEST_F(statistics_backend_tests, set_listener_non_existent_monitor)
 {
     // Set the profile to ignore discovery data from other processes
-    eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->load_XML_profiles_file("profile.xml");
+    eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->load_XML_profiles_file("profiles/profile.xml");
     eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->load_profiles();
 
     // Try to set the listener for some monitor when there is none

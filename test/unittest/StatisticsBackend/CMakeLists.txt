@@ -19,11 +19,8 @@ check_gmock()
 # Auxiliary files
 ##################################################################
 
-foreach(profile_file IN ITEMS profile.xml profile_standalone.xml)
-    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/${profile_file}
-        ${CMAKE_CURRENT_BINARY_DIR}/${profile_file}
-        COPYONLY)
-endforeach()
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/profiles
+    DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 # statistics_backend_tests
 ##################################################################
@@ -311,10 +308,11 @@ target_include_directories(init_monitor_tests PRIVATE
     ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}
     ${PROJECT_BINARY_DIR}/include
     ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME}
-    ${PROJECT_SOURCE_DIR}/src/cpp)
+    ${PROJECT_SOURCE_DIR}/src/cpp
+    ${TINYXML2_INCLUDE_DIR})
 
 target_link_libraries(init_monitor_tests PUBLIC
-    ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastdds fastcdr)
+    ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastdds fastcdr ${TINYXML2_LIBRARY})
 
 get_win32_path_dependencies(init_monitor_tests TEST_FRIENDLY_PATH)
 
@@ -470,6 +468,10 @@ get_win32_path_dependencies(load_xml_profiles_file_tests TEST_FRIENDLY_PATH)
 
 set(INIT_MONITOR_TEST_LIST
     load_xml_profile_no_file
+    load_xml_profile_empty_file
+    load_xml_profile_no_participant_profile
+    load_xml_profile_no_profile
+    load_xml_profiles_multiple_profiles
     load_xml_profiles_returns_expected_profiles
     load_xml_profiles_returns_expected_profiles_standalone
     )

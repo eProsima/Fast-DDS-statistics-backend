@@ -66,11 +66,40 @@ TEST_F(load_xml_profiles_file_tests, load_xml_profile_no_file)
     EXPECT_THROW(StatisticsBackend::load_xml_profiles_file(
             "no_file.xml"), BadParameter);
 }
+TEST_F(load_xml_profiles_file_tests, load_xml_profile_empty_file)
+{
+    // Assume "empty.xml" exists and is empty
+    EXPECT_THROW(StatisticsBackend::load_xml_profiles_file(
+            "profiles/empty.xml"), BadParameter);
+}
+
+TEST_F(load_xml_profiles_file_tests, load_xml_profile_no_participant_profile)
+{
+    // Assume "no_participant_profile.xml" exists and contains no profiles
+    EXPECT_THROW(StatisticsBackend::load_xml_profiles_file(
+            "profiles/no_participant_profile.xml"), BadParameter);
+}
+
+TEST_F(load_xml_profiles_file_tests, load_xml_profile_no_profile)
+{
+    // Assume "no_profile.xml" exists and contains no default profile
+    EXPECT_THROW(StatisticsBackend::load_xml_profiles_file(
+            "profiles/no_profile.xml"), BadParameter);
+}
+
+TEST_F(load_xml_profiles_file_tests, load_xml_profiles_multiple_profiles)
+{
+    // Assume "profile.xml" exists and contains two profiles: "backend_participant" and "participant_domain_3"
+    std::vector<std::string> profiles = StatisticsBackend::load_xml_profiles_file("profiles/multiple_profiles.xml");
+
+    ASSERT_EQ(profiles.size(), 2u);
+    EXPECT_THAT(profiles, ::testing::ElementsAre("backend_participant", "participant_domain_3"));
+}
 
 TEST_F(load_xml_profiles_file_tests, load_xml_profiles_returns_expected_profiles)
 {
     // Assume "profile.xml" exists and contains two profiles: "backend_participant" and "participant_domain_3"
-    std::vector<std::string> profiles = StatisticsBackend::load_xml_profiles_file("profile.xml");
+    std::vector<std::string> profiles = StatisticsBackend::load_xml_profiles_file("profiles/profile.xml");
 
     ASSERT_EQ(profiles.size(), 2u);
     EXPECT_THAT(profiles, ::testing::ElementsAre("backend_participant", "participant_domain_3"));
@@ -79,7 +108,7 @@ TEST_F(load_xml_profiles_file_tests, load_xml_profiles_returns_expected_profiles
 TEST_F(load_xml_profiles_file_tests, load_xml_profiles_returns_expected_profiles_standalone)
 {
     // Assume "profile.xml" exists and contains two profiles: "backend_participant" and "participant_domain_3"
-    std::vector<std::string> profiles = StatisticsBackend::load_xml_profiles_file("profile_standalone.xml");
+    std::vector<std::string> profiles = StatisticsBackend::load_xml_profiles_file("profiles/profile_standalone.xml");
 
     ASSERT_EQ(profiles.size(), 2u);
     EXPECT_THAT(profiles, ::testing::ElementsAre("backend_participant", "participant_domain_3"));
