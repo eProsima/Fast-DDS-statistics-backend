@@ -18,8 +18,10 @@ if(TinyXML2_FOUND)
 else()
     find_path(TINYXML2_INCLUDE_DIR NAMES tinyxml2.h)
 
+    find_library(TINYXML2_LIBRARY tinyxml2)
+
     include(FindPackageHandleStandardArgs)
 
-    # find_package_handle_standard_args(TinyXML2 DEFAULT_MSG TINYXML2_LIBRARY TINYXML2_INCLUDE_DIR)
-    # mark_as_advanced(TINYXML2_INCLUDE_DIR TINYXML2_LIBRARY)
+    find_package_handle_standard_args(TinyXML2 DEFAULT_MSG TINYXML2_LIBRARY TINYXML2_INCLUDE_DIR)
+    mark_as_advanced(TINYXML2_INCLUDE_DIR TINYXML2_LIBRARY)
 endif()
