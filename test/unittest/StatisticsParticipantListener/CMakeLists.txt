@@ -48,10 +48,11 @@ if(GTEST_FOUND AND GMOCK_FOUND)
         ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}
         ${PROJECT_BINARY_DIR}/include
         ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME}
-        ${PROJECT_SOURCE_DIR}/src/cpp)
+        ${PROJECT_SOURCE_DIR}/src/cpp
+        ${TINYXML2_INCLUDE_DIR})
 
     target_link_libraries(statistics_participant_listener_tests PUBLIC
-        ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastdds fastcdr)
+        ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastdds fastcdr ${TINYXML2_LIBRARY})
 
     get_win32_path_dependencies(statistics_participant_listener_tests TEST_FRIENDLY_PATH)
 

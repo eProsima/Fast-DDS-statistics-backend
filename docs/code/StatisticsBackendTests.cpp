@@ -71,6 +71,13 @@ void init_monitor_examples()
         static_cast<void>(disc_server_monitor_id);
     }
     {
+        //CONF-INIT-MONITOR-XML-PROFILE-EXAMPLE
+        // Init a monitor in DDS domain 0 using an XML profile named "monitor_profile" from the file "my_profiles.xml".
+        StatisticsBackend::load_xml_profiles_file("my_profiles.xml");
+        StatisticsBackend::init_monitor_with_profile("monitor_profile");
+        //!--
+    }
+    {
         //CONF-INIT-MONITOR-MASKS-EXAMPLE
         // Only get notifications when new data is available or when a new host is discovered
         CallbackMask callback_mask = CallbackKind::ON_DATA_AVAILABLE | CallbackKind::ON_HOST_DISCOVERY;

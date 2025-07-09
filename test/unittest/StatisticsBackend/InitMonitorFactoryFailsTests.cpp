@@ -206,9 +206,10 @@ public:
 
     void check_init_monitor_failure()
     {
-        DomainId domain_id = 0;
+        DomainId domain_id = 2;
         DomainListener domain_listener;
         std::string server_locators = "UDPv4:[127.0.0.1]:11811";
+        std::string profile_name = "participant_profile_name";
 
         EXPECT_THROW(StatisticsBackend::init_monitor(
                     domain_id,
@@ -217,6 +218,11 @@ public:
                     all_datakind_mask_), Error);
         EXPECT_THROW(StatisticsBackend::init_monitor(
                     server_locators,
+                    &domain_listener,
+                    all_callback_mask_,
+                    all_datakind_mask_), Error);
+        EXPECT_THROW(StatisticsBackend::init_monitor_with_profile(
+                    profile_name,
                     &domain_listener,
                     all_callback_mask_,
                     all_datakind_mask_), Error);
@@ -265,13 +271,13 @@ TEST_F(init_monitor_factory_fails_tests, init_monitor_participant_creation_fails
     check_init_monitor_failure();
 
     // 3 calls expected to create_participant
-    ASSERT_EQ(domain_participant_factory_->create_participant_count, 2u);
+    ASSERT_EQ(domain_participant_factory_->create_participant_count, 3u);
 }
 
 TEST_F(init_monitor_factory_fails_tests, init_monitor_subscriber_creation_fails)
 {
     // Expect failure on the subscriber creation
-    EXPECT_CALL(domain_participant_, create_subscriber(_, _, _)).Times(2)
+    EXPECT_CALL(domain_participant_, create_subscriber(_, _, _)).Times(3)
             .WillRepeatedly(Return(nullptr));
 
     check_init_monitor_failure();
@@ -280,7 +286,7 @@ TEST_F(init_monitor_factory_fails_tests, init_monitor_subscriber_creation_fails)
 TEST_F(init_monitor_factory_fails_tests, init_monitor_datareader_creation_fails)
 {
     // Expect failure on the datareader creation
-    EXPECT_CALL(subscriber_, create_datareader(_, _, _, _)).Times(2)
+    EXPECT_CALL(subscriber_, create_datareader(_, _, _, _)).Times(3)
             .WillRepeatedly(Return(nullptr));
 
     check_init_monitor_failure();

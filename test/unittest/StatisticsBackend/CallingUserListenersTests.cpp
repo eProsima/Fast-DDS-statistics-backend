@@ -211,7 +211,7 @@ public:
 
     {
         // Set the profile to ignore discovery data from other processes
-        eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->load_XML_profiles_file("profile.xml");
+        eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->load_XML_profiles_file("profiles/profile.xml");
         eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->load_profiles();
     }
 
@@ -509,7 +509,7 @@ public:
         , callback_kind_(std::get<1>(GetParam()))
     {
         // Set the profile to ignore discovery data from other processes
-        eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->load_XML_profiles_file("profile.xml");
+        eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->load_XML_profiles_file("profiles/profile.xml");
         eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->load_profiles();
 
         monitor_id_ = StatisticsBackend::init_monitor(0, nullptr, CallbackMask::none(), DataKindMask::none());
@@ -1031,7 +1031,7 @@ public:
         : data_kind_(std::get<0>(GetParam()))
     {
         // Set the profile to ignore discovery data from other processes
-        eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->load_XML_profiles_file("profile.xml");
+        eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->load_XML_profiles_file("profiles/profile.xml");
         eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->load_profiles();
 
         monitor_id_ = StatisticsBackend::init_monitor(0, nullptr, CallbackMask::none(), DataKindMask::none());
@@ -1309,7 +1309,7 @@ public:
         : status_kind_(std::get<0>(GetParam()))
     {
         // Set the profile to ignore discovery data from other processes
-        eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->load_XML_profiles_file("profile.xml");
+        eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->load_XML_profiles_file("profiles/profile.xml");
         eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->load_profiles();
 
         monitor_id_ = StatisticsBackend::init_monitor(0, nullptr, CallbackMask::none(), DataKindMask::none());
@@ -1525,7 +1525,7 @@ public:
     calling_user_listeners_tests_end_to_end()
     {
         // Set the profile to ignore discovery data from other processes
-        eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->load_XML_profiles_file("profile.xml");
+        eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->load_XML_profiles_file("profiles/profile.xml");
         eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->load_profiles();
 
         monitor_id_ = StatisticsBackend::init_monitor(0, &domain_listener_, CallbackMask::all(), DataKindMask::all());

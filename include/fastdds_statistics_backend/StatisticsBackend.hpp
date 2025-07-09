@@ -119,6 +119,30 @@ public:
             std::string app_id = app_id_str[(int)AppId::UNKNOWN],
             std::string app_metadata = "");
 
+
+    /**
+     * @brief Initializes a monitor using a specified profile.
+     *
+     * Creates a new statistics DomainParticipant for monitoring using the given profile name.
+     * Allows specifying a domain listener, callback mask, data mask, app id, and app metadata.
+     *
+     * @param profile_name The name of the profile to use for initialization.
+     * @param domain_listener Listener with the callback to use to inform of events.
+     * @param callback_mask Mask of the callbacks. Only the events that have the mask bit set will be informed.
+     * @param data_mask Mask of the data types that will be monitored.
+     * @param app_id App id of the monitor participant.
+     * @param app_metadata Metadata of the monitor participant.
+     * @return The ID of the created statistics Domain.
+     */
+    FASTDDS_STATISTICS_BACKEND_DllAPI
+    static EntityId init_monitor_with_profile(
+            const std::string& profile_name,
+            DomainListener* domain_listener = nullptr,
+            CallbackMask callback_mask = CallbackMask::all(),
+            DataKindMask data_mask = DataKindMask::none(),
+            std::string app_id = app_id_str[(int)AppId::UNKNOWN],
+            std::string app_metadata = "");
+
     /**
      * @brief Restarts a given monitor.
      *
@@ -653,6 +677,23 @@ public:
     FASTDDS_STATISTICS_BACKEND_DllAPI
     static fastdds::statistics::detail::GUID_s serialize_guid(
             const std::string& guid_str);
+
+    /**
+     * @brief Loads the specified XML file containing Fast DDS profiles for the Statistics Backend.
+     *
+     * This method allows the backend to use custom participant, publisher, or subscriber profiles
+     * defined in the provided XML file. The function parses the XML and registers the profiles
+     * for use in monitor initialization and configuration.
+     *
+     * @param xml_file Path to the XML file to load.
+     * @return A vector of strings containing the names of the profiles successfully loaded from the XML file.
+     * @throws eprosima::statistics_backend::BadParameter if the file cannot be loaded or parsed.
+     *
+     * @note The loaded profiles can be referenced by name in other backend API calls, such as monitor initialization.
+     */
+    FASTDDS_STATISTICS_BACKEND_DllAPI
+    static std::vector<std::string> load_xml_profiles_file(
+            const std::string& xml_file);
 };
 
 } // namespace statistics_backend

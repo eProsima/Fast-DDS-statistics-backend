@@ -19,6 +19,7 @@
 
   <depend>fastcdr</depend>
   <depend>fastdds</depend>
+  <depend>tinyxml2</depend>
 
   <buildtool_depend>cmake</buildtool_depend>
 

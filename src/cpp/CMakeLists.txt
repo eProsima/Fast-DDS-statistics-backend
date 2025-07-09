@@ -80,11 +80,13 @@ target_include_directories(${PROJECT_NAME} PUBLIC
         $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include/${PROJECT_NAME}>
         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src/cpp>
         $<INSTALL_INTERFACE:include>
+        ${TINYXML2_INCLUDE_DIR}
         )
 
 target_link_libraries(${PROJECT_NAME}
         fastcdr
         fastdds
+        ${TINYXML2_LIBRARY}
         )
 
 if(MSVC OR MSVC_IDE)

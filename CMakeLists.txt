@@ -48,6 +48,7 @@ set(FASTDDS_MIN_VERSION "3.0.0")
 
 find_package(fastcdr REQUIRED)
 find_package(fastdds ${FASTDDS_MIN_VERSION} REQUIRED)
+find_package(TinyXML2 REQUIRED)
 
 ###############################################################################
 # Test system configuration
@@ -81,6 +82,34 @@ option(ASAN_BUILD "Activate address sanitizer flags" OFF)
 
 if (ASAN_BUILD)
     activate_address_sanitizer()
+endif()
+
+###############################################################################
+#Activate Code Coverage
+###############################################################################
+option(CODE_COVERAGE "Activate code coverage flags" OFF)
+
+if (CODE_COVERAGE)
+        # Warning/Error messages
+    if(NOT (CMAKE_BUILD_TYPE STREQUAL "Debug"))
+        message(WARNING "Code coverage results with an optimized (non-Debug) build may be misleading")
+    endif()
+
+    if("${CMAKE_C_COMPILER_ID}" MATCHES "(Apple)?[Cc]lang" OR "${CMAKE_CXX_COMPILER_ID}" MATCHES "(Apple)?[Cc]lang")
+        message(STATUS "Building with llvm Code Coverage Tools")
+
+        # set Flags
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fprofile-instr-generate -fcoverage-mapping")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fprofile-instr-generate -fcoverage-mapping")
+
+    elseif(CMAKE_COMPILER_IS_GNUCXX)
+        message(STATUS "Building with lcov Code Coverage Tools")
+
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} --coverage -fprofile-arcs -ftest-coverage")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage -fprofile-arcs -ftest-coverage")
+    else()
+        message(FATAL_ERROR "Code coverage requires Clang or GCC. Aborting.")
+    endif()
 endif()
 
 ###############################################################################

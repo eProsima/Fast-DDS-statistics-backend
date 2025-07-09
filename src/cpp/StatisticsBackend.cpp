@@ -23,10 +23,13 @@
 #include <string>
 #include <set>
 
+#include <tinyxml2.h>
+
 #include <fastdds/dds/core/status/StatusMask.hpp>
 #include <fastdds/dds/domain/DomainParticipant.hpp>
 #include <fastdds/dds/domain/DomainParticipantFactory.hpp>
 #include <fastdds/dds/domain/qos/DomainParticipantQos.hpp>
+#include <fastdds/dds/domain/qos/DomainParticipantExtendedQos.hpp>
 #include <fastdds/dds/subscriber/DataReader.hpp>
 #include <fastdds/dds/subscriber/qos/DataReaderQos.hpp>
 #include <fastdds/dds/subscriber/qos/SubscriberQos.hpp>
@@ -495,6 +498,47 @@ EntityId StatisticsBackend::init_monitor(
 
     return create_and_register_monitor(participant_name, domain_listener, callback_mask, data_mask,
                    participant_qos);
+}
+
+EntityId StatisticsBackend::init_monitor_with_profile(
+        const std::string& profile_name,
+        DomainListener* domain_listener,
+        CallbackMask callback_mask,
+        DataKindMask data_mask,
+        std::string app_id,
+        std::string app_metadata)
+{
+    /* Deactivate statistics in case they were set */
+#ifdef _WIN32
+    _putenv_s("FASTDDS_STATISTICS=", "");
+#else
+    unsetenv("FASTDDS_STATISTICS");
+#endif // ifdef _WIN32
+
+    /* Set DomainParticipantQoS */
+    DomainParticipantExtendedQos profile_extended_qos;
+    if (DomainParticipantFactory::get_instance()->get_participant_extended_qos_from_profile(profile_name,
+            profile_extended_qos) != RETCODE_OK)
+    {
+        throw Error("Profile \"" + profile_name + "\" not found.");
+    }
+
+    /* Set domain_name */
+    std::stringstream domain_name;
+    domain_name << profile_extended_qos.domainId();
+
+    profile_extended_qos.properties().properties().emplace_back(
+        "fastdds.application.id",
+        app_id,
+        "true");
+    profile_extended_qos.properties().properties().emplace_back(
+        "fastdds.application.metadata",
+        app_metadata,
+        "true");
+
+    return create_and_register_monitor(
+        domain_name.str(), domain_listener, callback_mask, data_mask, profile_extended_qos,
+        profile_extended_qos.domainId());
 }
 
 void StatisticsBackend::restart_monitor(
@@ -1065,6 +1109,67 @@ fastdds::statistics::detail::GUID_s StatisticsBackend::serialize_guid(
     }
 
     return guid_s;
+}
+
+std::vector<std::string> StatisticsBackend::load_xml_profiles_file(
+        const std::string& xml_file)
+{
+    if (DomainParticipantFactory::get_instance()->load_XML_profiles_file(xml_file.c_str()) != RETCODE_OK)
+    {
+        throw BadParameter("Failed to load XML profile file " + xml_file);
+    }
+
+    tinyxml2::XMLDocument doc;
+    if (doc.LoadFile(xml_file.c_str()) != tinyxml2::XML_SUCCESS)
+    {
+        throw BadParameter("Failed to load XML profile file " + xml_file);
+    }
+
+    tinyxml2::XMLElement* root = doc.RootElement();
+    tinyxml2::XMLElement* profiles = nullptr;
+
+    // Check if the root is "profiles" or it contains "profiles" as a child
+    if (std::string(root->Name()) == "profiles")
+    {
+        profiles = root;
+    }
+    else
+    {
+        profiles = root->FirstChildElement("profiles");
+    }
+
+    if (!profiles)
+    {
+        throw BadParameter("No profiles element found in file " + xml_file);
+    }
+
+    std::vector<std::string> participant_profiles;
+
+    // Iterate through each participant
+    bool found_participant = false;
+    for (tinyxml2::XMLElement* participant = profiles->FirstChildElement("participant");
+            participant != nullptr;
+            participant = participant->NextSiblingElement("participant"))
+    {
+        found_participant = true;
+        const char* profile_name = participant->Attribute("profile_name");
+
+        if (profile_name)
+        {
+            participant_profiles.emplace_back(profile_name);
+        }
+        else
+        {
+            throw BadParameter("Participant element without profile_name attribute in file " + xml_file);
+        }
+    }
+
+    if (!found_participant)
+    {
+        throw BadParameter("No participant profiles found in file " + xml_file);
+    }
+
+    return participant_profiles;
 }
 
 } // namespace statistics_backend

@@ -1,5 +1,6 @@
 .. |StatisticsBackend-api| replace:: :cpp:class:`StatisticsBackend<eprosima::statistics_backend::StatisticsBackend>`
 .. |init_monitor-api| replace:: :cpp:func:`init_monitor()<eprosima::statistics_backend::StatisticsBackend::init_monitor>`
+.. |init_monitor_with_profile-api| replace:: :cpp:func:`init_monitor_with_profile()<eprosima::statistics_backend::StatisticsBackend::init_monitor_with_profile>`
 .. |stop_monitor-api| replace:: :cpp:func:`stop_monitor()<eprosima::statistics_backend::StatisticsBackend::stop_monitor>`
 .. |restart_monitor-api| replace:: :cpp:func:`restart_monitor()<eprosima::statistics_backend::StatisticsBackend::restart_monitor>`
 .. |clear_monitor-api| replace:: :cpp:func:`clear_monitor()<eprosima::statistics_backend::StatisticsBackend::clear_monitor>`

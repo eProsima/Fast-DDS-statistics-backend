@@ -31,13 +31,19 @@ if(MSVC)
 endif(MSVC)
 
 target_include_directories(DDSSimpleCommunicationPublisher PRIVATE
-    ${PROJECT_SOURCE_DIR}/test/dds/communication)
+    ${PROJECT_SOURCE_DIR}/test/dds/communication
+    ${TINYXML2_INCLUDE_DIR})
 
 target_compile_definitions(DDSSimpleCommunicationPublisher PRIVATE
     $<$<AND:$<NOT:$<BOOL:${WIN32}>>,$<STREQUAL:"${CMAKE_BUILD_TYPE}","Debug">>:__DEBUG>
     $<$<BOOL:${INTERNAL_DEBUG}>:__INTERNALDEBUG> # Internal debug activated.
     )
-target_link_libraries(DDSSimpleCommunicationPublisher fastdds fastcdr foonathan_memory ${CMAKE_DL_LIBS})
+target_link_libraries(DDSSimpleCommunicationPublisher
+    fastdds
+    fastcdr
+    foonathan_memory
+    ${CMAKE_DL_LIBS}
+    ${TINYXML2_LIBRARY})
 
 get_win32_path_dependencies(DDSSimpleCommunicationPublisher TEST_FRIENDLY_PATH)
 
@@ -52,13 +58,19 @@ if(MSVC)
 endif(MSVC)
 
 target_include_directories(DDSSimpleCommunicationSubscriber PRIVATE
-    ${PROJECT_SOURCE_DIR}/test/dds/communication)
+    ${PROJECT_SOURCE_DIR}/test/dds/communication
+    ${TINYXML2_INCLUDE_DIR})
 
 target_compile_definitions(DDSSimpleCommunicationSubscriber PRIVATE
     $<$<AND:$<NOT:$<BOOL:${WIN32}>>,$<STREQUAL:"${CMAKE_BUILD_TYPE}","Debug">>:__DEBUG>
     $<$<BOOL:${INTERNAL_DEBUG}>:__INTERNALDEBUG> # Internal debug activated.
     )
-target_link_libraries(DDSSimpleCommunicationSubscriber fastdds fastcdr foonathan_memory ${CMAKE_DL_LIBS})
+target_link_libraries(DDSSimpleCommunicationSubscriber
+    fastdds
+    fastcdr
+    foonathan_memory
+    ${CMAKE_DL_LIBS}
+    ${TINYXML2_LIBRARY})
 
 get_win32_path_dependencies(DDSSimpleCommunicationSubscriber TEST_FRIENDLY_PATH)
 
@@ -74,13 +86,20 @@ endif(MSVC)
 
 target_include_directories(DDSSimpleCommunicationMonitor PRIVATE
     ${GTEST_INCLUDE_DIRS}
-    ${GMOCK_INCLUDE_DIRS})
+    ${GMOCK_INCLUDE_DIRS}
+    ${TINYXML2_INCLUDE_DIR})
 
 target_compile_definitions(DDSSimpleCommunicationMonitor PRIVATE
     $<$<AND:$<NOT:$<BOOL:${WIN32}>>,$<STREQUAL:"${CMAKE_BUILD_TYPE}","Debug">>:__DEBUG>
     $<$<BOOL:${INTERNAL_DEBUG}>:__INTERNALDEBUG> # Internal debug activated.
     )
-target_link_libraries(DDSSimpleCommunicationMonitor ${PROJECT_NAME} fastdds fastcdr foonathan_memory ${CMAKE_DL_LIBS})
+target_link_libraries(DDSSimpleCommunicationMonitor
+    ${PROJECT_NAME}
+    fastdds
+    fastcdr
+    foonathan_memory
+    ${CMAKE_DL_LIBS}
+    ${TINYXML2_LIBRARY})
 
 get_win32_path_dependencies(DDSSimpleCommunicationMonitor TEST_FRIENDLY_PATH)
 
