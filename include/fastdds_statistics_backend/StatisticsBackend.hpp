@@ -136,12 +136,12 @@ public:
      */
     FASTDDS_STATISTICS_BACKEND_DllAPI
     static EntityId init_monitor_with_profile(
-        const std::string& profile_name,
-        DomainListener* domain_listener = nullptr,
-        CallbackMask callback_mask = CallbackMask::all(),
-        DataKindMask data_mask = DataKindMask::none(),
-        std::string app_id = app_id_str[(int)AppId::UNKNOWN],
-        std::string app_metadata = "");
+            const std::string& profile_name,
+            DomainListener* domain_listener = nullptr,
+            CallbackMask callback_mask = CallbackMask::all(),
+            DataKindMask data_mask = DataKindMask::none(),
+            std::string app_id = app_id_str[(int)AppId::UNKNOWN],
+            std::string app_metadata = "");
 
     /**
      * @brief Restarts a given monitor.

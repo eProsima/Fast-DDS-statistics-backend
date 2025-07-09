@@ -500,7 +500,6 @@ EntityId StatisticsBackend::init_monitor(
                    participant_qos);
 }
 
-
 EntityId StatisticsBackend::init_monitor_with_profile(
         const std::string& profile_name,
         DomainListener* domain_listener,
@@ -519,7 +518,7 @@ EntityId StatisticsBackend::init_monitor_with_profile(
     /* Set DomainParticipantQoS */
     DomainParticipantExtendedQos profile_extended_qos;
     if (DomainParticipantFactory::get_instance()->get_participant_extended_qos_from_profile(profile_name,
-        profile_extended_qos) != RETCODE_OK)
+            profile_extended_qos) != RETCODE_OK)
     {
         throw Error("Profile \"" + profile_name + "\" not found.");
     }
@@ -537,8 +536,9 @@ EntityId StatisticsBackend::init_monitor_with_profile(
         app_metadata,
         "true");
 
-    return create_and_register_monitor(domain_name.str(), domain_listener, callback_mask, data_mask, profile_extended_qos,
-                   profile_extended_qos.domainId());
+    return create_and_register_monitor(
+        domain_name.str(), domain_listener, callback_mask, data_mask, profile_extended_qos,
+        profile_extended_qos.domainId());
 }
 
 void StatisticsBackend::restart_monitor(
@@ -1148,8 +1148,8 @@ std::vector<std::string> StatisticsBackend::load_xml_profiles_file(
     // Iterate through each participant
     bool found_participant = false;
     for (tinyxml2::XMLElement* participant = profiles->FirstChildElement("participant");
-         participant != nullptr;
-         participant = participant->NextSiblingElement("participant"))
+            participant != nullptr;
+            participant = participant->NextSiblingElement("participant"))
     {
         found_participant = true;
         const char* profile_name = participant->Attribute("profile_name");

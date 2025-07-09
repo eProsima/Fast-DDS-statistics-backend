@@ -801,10 +801,10 @@ TEST_F(init_monitor_tests, profile_does_not_exist)
     std::string profile_name = "non_existent_profile";
 
     EXPECT_THROW(StatisticsBackend::init_monitor_with_profile(
-            profile_name,
-            &domain_listener,
-            all_callback_mask_,
-            all_datakind_mask_), Error);
+                profile_name,
+                &domain_listener,
+                all_callback_mask_,
+                all_datakind_mask_), Error);
 }
 
 int main(
