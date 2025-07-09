@@ -58,10 +58,11 @@ target_include_directories(statistics_backend_tests PRIVATE
     ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}
     ${PROJECT_BINARY_DIR}/include
     ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME}
-    ${PROJECT_SOURCE_DIR}/src/cpp)
+    ${PROJECT_SOURCE_DIR}/src/cpp
+    ${TINYXML2_INCLUDE_DIR})
 
 target_link_libraries(statistics_backend_tests PUBLIC
-    ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastdds fastcdr)
+    ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastdds fastcdr ${TINYXML2_LIBRARY})
 
 get_win32_path_dependencies(statistics_backend_tests TEST_FRIENDLY_PATH)
 
@@ -116,10 +117,11 @@ target_include_directories(calling_user_listeners_tests PRIVATE
     ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}
     ${PROJECT_BINARY_DIR}/include
     ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME}
-    ${PROJECT_SOURCE_DIR}/src/cpp)
+    ${PROJECT_SOURCE_DIR}/src/cpp
+    ${TINYXML2_INCLUDE_DIR})
 
 target_link_libraries(calling_user_listeners_tests PUBLIC
-    ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastdds fastcdr)
+    ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastdds fastcdr ${TINYXML2_LIBRARY})
 
 if(MSVC)
     target_compile_definitions(calling_user_listeners_tests
@@ -382,10 +384,11 @@ target_include_directories(init_monitor_factory_fails_tests PRIVATE
     ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}
     ${PROJECT_BINARY_DIR}/include
     ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME}
-    ${PROJECT_SOURCE_DIR}/src/cpp)
+    ${PROJECT_SOURCE_DIR}/src/cpp
+    ${TINYXML2_INCLUDE_DIR})
 
 target_link_libraries(init_monitor_factory_fails_tests PUBLIC
-    ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastdds fastcdr)
+    ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastdds fastcdr ${TINYXML2_LIBRARY})
 
 get_win32_path_dependencies(init_monitor_factory_fails_tests TEST_FRIENDLY_PATH)
 
@@ -457,10 +460,11 @@ target_include_directories(load_xml_profiles_file_tests PRIVATE
     ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}
     ${PROJECT_BINARY_DIR}/include
     ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME}
-    ${PROJECT_SOURCE_DIR}/src/cpp)
+    ${PROJECT_SOURCE_DIR}/src/cpp
+    ${TINYXML2_INCLUDE_DIR})
 
 target_link_libraries(load_xml_profiles_file_tests PUBLIC
-    ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastdds fastcdr)
+    ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastdds fastcdr ${TINYXML2_LIBRARY})
 
 get_win32_path_dependencies(load_xml_profiles_file_tests TEST_FRIENDLY_PATH)
 
@@ -513,10 +517,11 @@ target_include_directories(get_data_tests PRIVATE
     ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}
     ${PROJECT_BINARY_DIR}/include
     ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME}
-    ${PROJECT_SOURCE_DIR}/src/cpp)
+    ${PROJECT_SOURCE_DIR}/src/cpp
+    ${TINYXML2_INCLUDE_DIR})
 
 target_link_libraries(get_data_tests PUBLIC
-    ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastdds fastcdr)
+    ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastdds fastcdr ${TINYXML2_LIBRARY})
 
 get_win32_path_dependencies(get_data_tests TEST_FRIENDLY_PATH)
 
@@ -609,10 +614,11 @@ if(GTEST_FOUND AND GMOCK_FOUND)
         ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}
         ${PROJECT_BINARY_DIR}/include
         ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME}
-        ${PROJECT_SOURCE_DIR}/src/cpp)
+        ${PROJECT_SOURCE_DIR}/src/cpp
+        ${TINYXML2_INCLUDE_DIR})
 
     target_link_libraries(is_active_tests PUBLIC
-        ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastdds fastcdr)
+        ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastdds fastcdr ${TINYXML2_LIBRARY})
 
     get_win32_path_dependencies(is_active_tests TEST_FRIENDLY_PATH)
 
@@ -672,10 +678,11 @@ if(GTEST_FOUND AND GMOCK_FOUND)
         ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}
         ${PROJECT_BINARY_DIR}/include
         ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME}
-        ${PROJECT_SOURCE_DIR}/src/cpp)
+        ${PROJECT_SOURCE_DIR}/src/cpp
+        ${TINYXML2_INCLUDE_DIR})
 
     target_link_libraries(is_metatraffic_tests PUBLIC
-        ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastdds fastcdr)
+        ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastdds fastcdr ${TINYXML2_LIBRARY})
 
     get_win32_path_dependencies(is_metatraffic_tests TEST_FRIENDLY_PATH)
 
@@ -731,10 +738,11 @@ target_include_directories(backend_dump_tests PRIVATE
     ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}
     ${PROJECT_BINARY_DIR}/include
     ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME}
-    ${PROJECT_SOURCE_DIR}/src/cpp)
+    ${PROJECT_SOURCE_DIR}/src/cpp
+    ${TINYXML2_INCLUDE_DIR})
 
 target_link_libraries(backend_dump_tests PUBLIC
-    ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastdds fastcdr)
+    ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastdds fastcdr ${TINYXML2_LIBRARY})
 
 get_win32_path_dependencies(backend_dump_tests TEST_FRIENDLY_PATH)
 
@@ -788,10 +796,11 @@ target_include_directories(clear_statistics_data_tests PRIVATE
     ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}
     ${PROJECT_BINARY_DIR}/include
     ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME}
-    ${PROJECT_SOURCE_DIR}/src/cpp)
+    ${PROJECT_SOURCE_DIR}/src/cpp
+    ${TINYXML2_INCLUDE_DIR})
 
 target_link_libraries(clear_statistics_data_tests PUBLIC
-    ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastdds fastcdr)
+    ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastdds fastcdr ${TINYXML2_LIBRARY})
 
 get_win32_path_dependencies(clear_statistics_data_tests TEST_FRIENDLY_PATH)
 
@@ -844,10 +853,11 @@ target_include_directories(get_status_data_tests PRIVATE
     ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}
     ${PROJECT_BINARY_DIR}/include
     ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME}
-    ${PROJECT_SOURCE_DIR}/src/cpp)
+    ${PROJECT_SOURCE_DIR}/src/cpp
+    ${TINYXML2_INCLUDE_DIR})
 
 target_link_libraries(get_status_data_tests PUBLIC
-    ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastdds fastcdr)
+    ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastdds fastcdr ${TINYXML2_LIBRARY})
 
 get_win32_path_dependencies(get_status_data_tests TEST_FRIENDLY_PATH)
 
@@ -910,10 +920,11 @@ if(GTEST_FOUND AND GMOCK_FOUND)
         ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}
         ${PROJECT_BINARY_DIR}/include
         ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME}
-        ${PROJECT_SOURCE_DIR}/src/cpp)
+        ${PROJECT_SOURCE_DIR}/src/cpp
+        ${TINYXML2_INCLUDE_DIR})
 
     target_link_libraries(clear_inactive_entities_tests PUBLIC
-        ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastdds fastcdr)
+        ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastdds fastcdr ${TINYXML2_LIBRARY})
 
     get_win32_path_dependencies(clear_inactive_entities_tests TEST_FRIENDLY_PATH)
 

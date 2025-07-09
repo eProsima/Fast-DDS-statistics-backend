@@ -44,9 +44,10 @@ target_include_directories(entitymetatraffic_tests PRIVATE
     ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}
     ${PROJECT_BINARY_DIR}/include
     ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME}
-    ${PROJECT_SOURCE_DIR}/src/cpp)
+    ${PROJECT_SOURCE_DIR}/src/cpp
+    ${TINYXML2_INCLUDE_DIR})
 
-target_link_libraries(entitymetatraffic_tests PUBLIC ${GTEST_LIBRARIES} fastdds fastcdr)
+target_link_libraries(entitymetatraffic_tests PUBLIC ${GTEST_LIBRARIES} fastdds fastcdr ${TINYXML2_LIBRARY})
 
 get_win32_path_dependencies(entitymetatraffic_tests TEST_FRIENDLY_PATH)
 

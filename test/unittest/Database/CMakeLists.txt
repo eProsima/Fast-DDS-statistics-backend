@@ -48,10 +48,11 @@ target_include_directories(sample_tests PRIVATE
     ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}
     ${PROJECT_BINARY_DIR}/include
     ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME}
-    ${PROJECT_SOURCE_DIR}/src/cpp)
+    ${PROJECT_SOURCE_DIR}/src/cpp
+    ${TINYXML2_INCLUDE_DIR})
 
 target_link_libraries(sample_tests PUBLIC
-    ${GTEST_LIBRARIES} fastdds fastcdr
+    ${GTEST_LIBRARIES} fastdds fastcdr ${TINYXML2_LIBRARY}
     )
 
 get_win32_path_dependencies(sample_tests TEST_FRIENDLY_PATH)
@@ -120,10 +121,11 @@ target_include_directories(data_tests PRIVATE
     ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}
     ${PROJECT_BINARY_DIR}/include
     ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME}
-    ${PROJECT_SOURCE_DIR}/src/cpp)
+    ${PROJECT_SOURCE_DIR}/src/cpp
+    ${TINYXML2_INCLUDE_DIR})
 
 target_link_libraries(data_tests PUBLIC
-        ${GTEST_LIBRARIES} fastdds fastcdr
+        ${GTEST_LIBRARIES} fastdds fastcdr ${TINYXML2_LIBRARY}
     )
 
 get_win32_path_dependencies(data_tests TEST_FRIENDLY_PATH)
@@ -163,10 +165,11 @@ target_include_directories(database_tests PRIVATE
     ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}
     ${PROJECT_BINARY_DIR}/include
     ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME}
-    ${PROJECT_SOURCE_DIR}/src/cpp)
+    ${PROJECT_SOURCE_DIR}/src/cpp
+    ${TINYXML2_INCLUDE_DIR})
 
 target_link_libraries(database_tests PUBLIC
-        ${GTEST_LIBRARIES} fastdds fastcdr
+        ${GTEST_LIBRARIES} fastdds fastcdr ${TINYXML2_LIBRARY}
     )
 
 get_win32_path_dependencies(database_tests TEST_FRIENDLY_PATH)
@@ -423,10 +426,11 @@ target_include_directories(database_process_entities_tests PRIVATE
     ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}
     ${PROJECT_BINARY_DIR}/include
     ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME}
-    ${PROJECT_SOURCE_DIR}/src/cpp)
+    ${PROJECT_SOURCE_DIR}/src/cpp
+    ${TINYXML2_INCLUDE_DIR})
 
 target_link_libraries(database_process_entities_tests PUBLIC
-        ${GTEST_LIBRARIES} fastdds fastcdr
+        ${GTEST_LIBRARIES} fastdds fastcdr ${TINYXML2_LIBRARY}
     )
 
 get_win32_path_dependencies(database_process_entities_tests TEST_FRIENDLY_PATH)
@@ -482,11 +486,12 @@ target_include_directories(database_dump_tests PRIVATE
     ${PROJECT_BINARY_DIR}/include
     ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME}
     ${PROJECT_SOURCE_DIR}/src/cpp
-    ${PROJECT_SOURCE_DIR}/test/unittest/TestUtils)
+    ${PROJECT_SOURCE_DIR}/test/unittest/TestUtils
+    ${TINYXML2_INCLUDE_DIR})
 
 
 target_link_libraries(database_dump_tests PUBLIC
-        ${GTEST_LIBRARIES} fastdds fastcdr
+        ${GTEST_LIBRARIES} fastdds fastcdr ${TINYXML2_LIBRARY}
     )
 
 get_win32_path_dependencies(database_dump_tests TEST_FRIENDLY_PATH)
@@ -555,10 +560,11 @@ target_include_directories(database_clear_tests PRIVATE
     ${PROJECT_BINARY_DIR}/include
     ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME}
     ${PROJECT_SOURCE_DIR}/src/cpp
+    ${TINYXML2_INCLUDE_DIR}
     )
 
 target_link_libraries(database_clear_tests PUBLIC
-        ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastdds fastcdr
+        ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastdds fastcdr ${TINYXML2_LIBRARY}
     )
 
 get_win32_path_dependencies(database_clear_tests TEST_FRIENDLY_PATH)
@@ -593,10 +599,11 @@ target_include_directories(database_get_entities_tests PRIVATE
     ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}
     ${PROJECT_BINARY_DIR}/include
     ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME}
-    ${PROJECT_SOURCE_DIR}/src/cpp)
+    ${PROJECT_SOURCE_DIR}/src/cpp
+    ${TINYXML2_INCLUDE_DIR})
 
 target_link_libraries(database_get_entities_tests PUBLIC
-        ${GTEST_LIBRARIES} fastdds fastcdr
+        ${GTEST_LIBRARIES} fastdds fastcdr ${TINYXML2_LIBRARY}
     )
 
 get_win32_path_dependencies(database_get_entities_tests TEST_FRIENDLY_PATH)
@@ -634,10 +641,11 @@ target_include_directories(database_load_tests PRIVATE
     ${PROJECT_BINARY_DIR}/include
     ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME}
     ${PROJECT_SOURCE_DIR}/src/cpp
-    ${PROJECT_SOURCE_DIR}/test/unittest/TestUtils)
+    ${PROJECT_SOURCE_DIR}/test/unittest/TestUtils
+    ${TINYXML2_INCLUDE_DIR})
 
 target_link_libraries(database_load_tests PUBLIC
-        ${GTEST_LIBRARIES} fastdds fastcdr
+        ${GTEST_LIBRARIES} fastdds fastcdr ${TINYXML2_LIBRARY}
     )
 
 get_win32_path_dependencies(database_load_tests TEST_FRIENDLY_PATH)
@@ -686,11 +694,11 @@ target_include_directories(database_load_insert_tests PRIVATE
     ${PROJECT_BINARY_DIR}/include
     ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME}
     ${PROJECT_SOURCE_DIR}/src/cpp
-    ${PROJECT_SOURCE_DIR}/test/unittest/TestUtils)
+    ${PROJECT_SOURCE_DIR}/test/unittest/TestUtils
+    ${TINYXML2_INCLUDE_DIR})
 
 target_link_libraries(database_load_insert_tests PUBLIC
-        ${GTEST_LIBRARIES} fastdds fastcdr
-    )
+        ${GTEST_LIBRARIES} fastdds fastcdr ${TINYXML2_LIBRARY})
 
 get_win32_path_dependencies(database_load_insert_tests TEST_FRIENDLY_PATH)
 
@@ -726,10 +734,11 @@ target_include_directories(database_status_tests PRIVATE
     ${PROJECT_BINARY_DIR}/include
     ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME}
     ${PROJECT_SOURCE_DIR}/src/cpp
-    ${PROJECT_SOURCE_DIR}/test/unittest/TestUtils)
+    ${PROJECT_SOURCE_DIR}/test/unittest/TestUtils
+    ${TINYXML2_INCLUDE_DIR})
 
 target_link_libraries(database_status_tests PUBLIC
-    ${GTEST_LIBRARIES} fastdds fastcdr)
+    ${GTEST_LIBRARIES} fastdds fastcdr ${TINYXML2_LIBRARY})
 
 get_win32_path_dependencies(database_status_tests TEST_FRIENDLY_PATH)
 
@@ -776,11 +785,11 @@ target_include_directories(database_erase_tests PRIVATE
     ${PROJECT_BINARY_DIR}/include
     ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME}
     ${PROJECT_SOURCE_DIR}/src/cpp
-    ${PROJECT_SOURCE_DIR}/test/unittest/TestUtils)
+    ${PROJECT_SOURCE_DIR}/test/unittest/TestUtils
+    ${TINYXML2_INCLUDE_DIR})
 
 target_link_libraries(database_erase_tests PUBLIC
-        ${GTEST_LIBRARIES} fastdds fastcdr
-    )
+        ${GTEST_LIBRARIES} fastdds fastcdr ${TINYXML2_LIBRARY})
 
 get_win32_path_dependencies(database_erase_tests TEST_FRIENDLY_PATH)
 
@@ -833,10 +842,11 @@ target_include_directories(database_domain_view_graph_tests PRIVATE
     ${PROJECT_BINARY_DIR}/include
     ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME}
     ${PROJECT_SOURCE_DIR}/src/cpp
-    ${PROJECT_SOURCE_DIR}/test/TestUtils)
+    ${PROJECT_SOURCE_DIR}/test/TestUtils
+    ${TINYXML2_INCLUDE_DIR})
 
 target_link_libraries(database_domain_view_graph_tests PUBLIC
-    ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastdds fastcdr)
+    ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastdds fastcdr ${TINYXML2_LIBRARY})
 
 get_win32_path_dependencies(database_domain_view_graph_tests TEST_FRIENDLY_PATH)
 
