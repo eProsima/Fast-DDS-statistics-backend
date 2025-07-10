@@ -94,4 +94,5 @@ jobs:
           working-directory: 'src'
           path-replace-backslashes: 'true'
           list-tests: 'failed'
+          list-suites: 'failed'
 
