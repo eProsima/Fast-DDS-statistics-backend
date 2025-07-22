@@ -8,5 +8,5 @@ This release includes the following **improvements**:
 This release includes the following **bugfixes**:
 
 1. Fix documentation dependencies security vulnerabilities.
-2. Install fixed gcovr version.
+2. Install fixed ``gcovr`` version.
 3. Fix build issues adding ignored Info statuses.
