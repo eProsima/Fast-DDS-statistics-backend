@@ -50,6 +50,7 @@ This release includes the following **dependencies update**:
 Previous versions
 #################
 
+.. include:: previous_versions/v2.2.0.rst
 .. include:: previous_versions/v2.1.0.rst
 .. include:: previous_versions/v2.0.0.rst
 .. include:: previous_versions/v1.1.0.rst

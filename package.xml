@@ -9,7 +9,7 @@
   </description>
   <!-->Update maintainer information<-->
   <maintainer email="RaulSanchezMateos@eprosima.com">Raul Sánchez-Mateos</maintainer>
-  <maintainer email="jesuspoderoso@eprosima.com">Jesús Poderoso</maintainer>
+  <maintainer email="carlosespinoza@eprosima.com">Carlos Espinoza</maintainer>
   <maintainer email="miguelcompany@eprosima.com">Miguel Company</maintainer>
   <license file="LICENSE">Apache 2.0</license>
 
