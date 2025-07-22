@@ -4,8 +4,23 @@ Version 2.3.0
 #############
 
 This release includes the following **features**:
+
+* Save optional QoS.
+* Support initialize monitors using xml profiles.
+
 This release includes the following **improvements and bugfixes**:
+
+* Fix backend graph json dump exception.
+* Fix build with tests.
+
 This release includes the following **updates**:
+
+* Extend ROS 2 metatraffic topics.
+* Bump setuptools from 70.0.0 to 78.1.1 in /docs.
+* Remove deprecated windows-2019 runner.
+* Update types for Fast DDS Gen v4.1.0 Release.
+* Update github actions according to eProsima-CI v0.37.0.
+
 This release includes the following **dependencies update**:
 
 .. list-table::
