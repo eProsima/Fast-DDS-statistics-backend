@@ -386,6 +386,9 @@ struct EntityDiscoveryInfo
     // Status
     StatusLevel entity_status;
 
+    // Discovery source
+
+
     EntityDiscoveryInfo(
             EntityKind kind)
         : entity_kind(kind)
