@@ -1470,7 +1470,18 @@ void DatabaseDataQueue<ExtendedMonitorServiceStatusData>::process_sample()
             sample.src_ts = item.first;
             try
             {
-                process_sample_type(domain, entity, item.second->data.local_entity(), sample,
+                auto source_guid = item.second->data.local_entity();
+                try
+                {
+                   database_->get_entity_kind_by_guid(source_guid);
+                }
+                catch (const BadParameter&)
+                {
+                    // TODO: Initialise an Entity with discovery_source='proxy'
+                    // But the entities database is not accessible from here
+                }
+
+                process_sample_type(domain, entity, source_guid, sample,
                         item.second->data.value().entity_proxy());
 
                 updated_entity = database_->insert(domain, entity, sample);
