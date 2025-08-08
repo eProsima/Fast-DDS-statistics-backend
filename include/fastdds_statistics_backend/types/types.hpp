@@ -384,6 +384,18 @@ enum class StatisticKind
 };
 
 
+enum class DiscoverySource
+{
+    /// Unknown discovery source
+    UNKNOWN,
+
+    /// Any FastDDS discovery protocol
+    DISCOVERY,
+
+    /// Discovered because their data reached the backend by other means
+    PROXY
+};
+
 /** @struct MonitorServiceSample
  * Base class for all monitor service status samples. It adds the timepoint and status level to the sample
  *

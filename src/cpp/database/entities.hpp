@@ -63,6 +63,7 @@ struct Entity
         , metatraffic(entity_metatraffic)
         , active(entity_active)
         , status(entity_status)
+        , discovery_source(DiscoverySource::UNKNOWN)
     {
     }
 
@@ -123,6 +124,9 @@ struct Entity
 
     //! The status of entity
     StatusLevel status;
+
+    //! The source of discovery for this entity
+    DiscoverySource discovery_source;
 };
 
 /*
