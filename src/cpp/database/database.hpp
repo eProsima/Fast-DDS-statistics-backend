@@ -99,6 +99,7 @@ public:
      * @param status The status of the DomainParticipant.
      * @param app_id The AppId of the DomainParticipant.
      * @param app_metadata The App metadata of the DomainParticipant.
+     * @param discovery_source The DiscoverySource of the DomainParticipant.
      *
      * @return EntityId of the DomainParticipant once inserted.
      */
@@ -109,7 +110,8 @@ public:
             const EntityId& domain_id,
             const StatusLevel& status,
             const AppId& app_id,
-            const std::string& app_metadata);
+            const std::string& app_metadata,
+            const DiscoverySource& discovery_source);
 
     /**
      * @brief Process Host-User-Process entities and insert them in database.
@@ -187,6 +189,7 @@ public:
      * @param participant_id The EntityId of the Participant related to the Endpoint.
      * @param topic_id The EntityId of the Topic related to the Endpoint.
      * @param app_data The AppId and app metadata related to the Endpoint.
+     * @param discovery_source The DiscoverySource of the Endpoint.
      *
      * @return EntityId of the Endpoint once inserted.
      */
@@ -200,7 +203,8 @@ public:
             const EntityKind& kind,
             const EntityId& participant_id,
             const EntityId& topic_id,
-            const std::pair<AppId, std::string>& app_data);
+            const std::pair<AppId, std::string>& app_data,
+            const DiscoverySource& discovery_source);
 
     /**
      * @brief Insert a new entity into the database.
@@ -1172,6 +1176,7 @@ protected:
      * @param topic The Topic related to the Endpoint.
      * @param app_id The AppId related to the Endpoint.
      * @param app_metadata The app metadata related to the Endpoint.
+     * @param discovery_source The DiscoverySource related to the Endpoint.
      *
      * @return EntityId of the Endpoint once inserted.
      */
@@ -1183,7 +1188,8 @@ protected:
             const std::shared_ptr<DomainParticipant>& participant,
             const std::shared_ptr<Topic>& topic,
             const AppId& app_id,
-            const std::string& app_metadata);
+            const std::string& app_metadata,
+            const DiscoverySource& discovery_source);
 
     /**
      * @brief Get the locator with id \c entity_id. This method is not thread safe.

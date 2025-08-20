@@ -106,7 +106,8 @@ EntityId DatabaseEntityQueue::process_participant(
                 info.domain_id,
                 status,
                 info.app_id,
-                info.app_metadata);
+                info.app_metadata,
+                info.discovery_source);
 
             should_link_process_participant = true;
         }

@@ -110,7 +110,8 @@ EntityId Database::insert_new_participant(
         const EntityId& domain_id,
         const StatusLevel& status,
         const AppId& app_id,
-        const std::string& app_metadata)
+        const std::string& app_metadata,
+        const DiscoverySource& discovery_source)
 {
     std::lock_guard<std::shared_timed_mutex> guard(mutex_);
 
@@ -128,7 +129,8 @@ EntityId Database::insert_new_participant(
         domain,
         status,
         app_id,
-        app_metadata);
+        app_metadata,
+        discovery_source);
 
     EntityId entity_id;
     insert_nts(participant, entity_id);
@@ -412,7 +414,8 @@ EntityId Database::insert_new_endpoint(
         const EntityKind& kind,
         const EntityId& participant_id,
         const EntityId& topic_id,
-        const std::pair<AppId, std::string>& app_data)
+        const std::pair<AppId, std::string>& app_data,
+        const DiscoverySource& discovery_source)
 {
     std::lock_guard<std::shared_timed_mutex> guard(mutex_);
 
@@ -437,7 +440,8 @@ EntityId Database::insert_new_endpoint(
             participant,
             topic,
             app_data.first,
-            app_data.second);
+            app_data.second,
+            discovery_source);
     }
     else
     {
@@ -448,7 +452,8 @@ EntityId Database::insert_new_endpoint(
             participant,
             topic,
             app_data.first,
-            app_data.second);
+            app_data.second,
+            discovery_source);
     }
 
 
@@ -515,7 +520,8 @@ std::shared_ptr<DDSEndpoint> Database::create_endpoint_nts(
         const std::shared_ptr<DomainParticipant>& participant,
         const std::shared_ptr<Topic>& topic,
         const AppId& app_id,
-        const std::string& app_metadata)
+        const std::string& app_metadata,
+        const DiscoverySource& discovery_source)
 {
     return std::make_shared<T>(
         name,
@@ -525,7 +531,8 @@ std::shared_ptr<DDSEndpoint> Database::create_endpoint_nts(
         topic,
         StatusLevel::OK_STATUS,
         app_id,
-        app_metadata);
+        app_metadata,
+        discovery_source);
 }
 
 EntityId Database::insert(
