@@ -160,6 +160,8 @@ void StatisticsParticipantListener::on_participant_discovery(
 
     discovery_info.entity_status = StatusLevel::OK_STATUS;
 
+    discovery_info.discovery_source = DiscoverySource::DISCOVERY;
+
     switch (reason)
     {
         case ParticipantDiscoveryStatus::DISCOVERED_PARTICIPANT:
@@ -260,6 +262,7 @@ void StatisticsParticipantListener::on_participant_discovery(
             datawriter_discovery_info.is_virtual_metatraffic = true;
             datawriter_discovery_info.entity_status = StatusLevel::OK_STATUS;
             datawriter_discovery_info.discovery_status = discovery_info.discovery_status;
+            datawriter_discovery_info.discovery_source = DiscoverySource::DISCOVERY;
             entity_queue_->push(timestamp, datawriter_discovery_info);
         }
     }
@@ -297,6 +300,8 @@ void StatisticsParticipantListener::on_data_reader_discovery(
     discovery_info.topic_name = info.topic_name.to_string();
     discovery_info.type_name = info.type_name.to_string();
     discovery_info.locators = info.remote_locators;
+
+    discovery_info.discovery_source = DiscoverySource::DISCOVERY;
 
     switch (reason)
     {
@@ -380,6 +385,8 @@ void StatisticsParticipantListener::on_data_writer_discovery(
     discovery_info.topic_name = info.topic_name.to_string();
     discovery_info.type_name = info.type_name.to_string();
     discovery_info.locators = info.remote_locators;
+
+    discovery_info.discovery_source = DiscoverySource::DISCOVERY;
 
     switch (reason)
     {
