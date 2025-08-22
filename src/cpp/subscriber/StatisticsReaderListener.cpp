@@ -34,6 +34,8 @@
 #include <database/database_queue.hpp>
 #include <database/database.hpp>
 #include "QosSerializer.hpp"
+#include "ProxyDiscoveryInfo.hpp"
+
 
 namespace eprosima {
 namespace statistics_backend {
@@ -76,10 +78,11 @@ bool StatisticsReaderListener::get_available_data(
     return false;
 }
 
-bool StatisticsReaderListener::get_optional_qos_from_proxy_sample(
+
+bool StatisticsReaderListener::deserialize_proxy_data(
         eprosima::fastdds::statistics::dds::DomainParticipant* participant,
         const eprosima::fastdds::statistics::MonitorServiceStatusData& data,
-        database::Qos& qos)
+        database::ExtendedMonitorServiceStatusData& extended_data)
 {
     if (!participant)
     {
@@ -109,7 +112,11 @@ bool StatisticsReaderListener::get_optional_qos_from_proxy_sample(
                 return false;
             }
 
-            qos = optional_qos_to_backend_qos(participant_data);
+            extended_data.entity_discovery_info = fill_discovery_info(participant_data,
+                details::StatisticsBackendData::DiscoveryStatus::DISCOVERY,
+                DiscoverySource::PROXY);
+            extended_data.entity_discovery_info.domain_id = participant->get_domain_id();
+            extended_data.optional_qos = optional_qos_to_backend_qos(participant_data);
             return true;
         }
         case EntityKind::DATAWRITER:
@@ -123,8 +130,10 @@ bool StatisticsReaderListener::get_optional_qos_from_proxy_sample(
                         "Failed to get publication data for proxy sample.");
                 return false;
             }
-
-            qos = optional_qos_to_backend_qos(publication_data);
+            extended_data.entity_discovery_info = fill_discovery_info(publication_data,
+                details::StatisticsBackendData::DiscoveryStatus::DISCOVERY,
+                DiscoverySource::PROXY);
+            extended_data.optional_qos = optional_qos_to_backend_qos(publication_data);
             return true;
         }
         case EntityKind::DATAREADER:
@@ -139,7 +148,10 @@ bool StatisticsReaderListener::get_optional_qos_from_proxy_sample(
                 return false;
             }
 
-            qos = optional_qos_to_backend_qos(subscription_data);
+            extended_data.entity_discovery_info = fill_discovery_info(subscription_data,
+                details::StatisticsBackendData::DiscoveryStatus::DISCOVERY,
+                DiscoverySource::PROXY);
+            extended_data.optional_qos = optional_qos_to_backend_qos(subscription_data);
             return true;
         }
         default:
@@ -206,17 +218,17 @@ void StatisticsReaderListener::on_data_available(
             auto participant = eprosima::fastdds::statistics::dds::DomainParticipant::narrow(
                 reader->get_subscriber()->get_participant());
 
-            if (!get_optional_qos_from_proxy_sample(
+            if (!deserialize_proxy_data(
                         const_cast<eprosima::fastdds::statistics::dds::DomainParticipant*>(participant),
                         inner_data,
-                        qos))
+                        *monitor_service_status_data))
             {
                 EPROSIMA_LOG_ERROR(STATISTICSREADERLISTENER,
                         "Failed to get optional QoS from proxy sample.");
                 return;
             }
 
-            monitor_service_status_data->optional_qos = qos;
+            //monitor_service_status_data->optional_qos = qos;
         }
 
         monitor_service_status_data_queue_->push(timestamp, monitor_service_status_data);

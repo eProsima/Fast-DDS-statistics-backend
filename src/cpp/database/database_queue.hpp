@@ -389,6 +389,8 @@ struct EntityDiscoveryInfo
     // Discovery source
     DiscoverySource discovery_source;
 
+    EntityDiscoveryInfo(){};
+
     EntityDiscoveryInfo(
             EntityKind kind)
         : entity_kind(kind)
@@ -410,6 +412,9 @@ struct ExtendedMonitorServiceStatusData
 {
     // Deserialized data received through MonitorService topic
     eprosima::fastdds::statistics::MonitorServiceStatusData data;
+
+    // Entity discovery related information
+    EntityDiscoveryInfo entity_discovery_info;
 
     // Deserialized entity optional QoS information received through Monitor Service's proxy samples
     database::Qos optional_qos;
