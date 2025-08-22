@@ -19,6 +19,7 @@
 #include <utility>
 
 #include "subscriber/StatisticsParticipantListener.hpp"
+#include "subscriber/ProxyDiscoveryInfo.hpp"
 
 #include <fastdds/dds/core/status/StatusMask.hpp>
 #include <fastdds/dds/domain/DomainParticipant.hpp>
@@ -78,59 +79,6 @@ noexcept
 {
 }
 
-// Search for an address different from localhost in the locator list
-bool search_address_in_locators(
-        const eprosima::fastdds::ResourceLimitedVector<Locator_t>& locators,
-        std::string& address)
-{
-    for (auto locator : locators)
-    {
-        // if the address is not localhost
-        if (!IPLocator::isLocal(locator))
-        {
-            // Convert the locator to an address with IP format
-            address =  IPLocator::ip_to_string(locator);
-            return true;
-        }
-    }
-    return false;
-}
-
-// Return a IP obtained from participant locators
-std::string get_address(
-        const ParticipantBuiltinTopicData& info)
-{
-    // The IP is obtained from the announced locators
-    // Search for a locator with an IP different from localhost
-    std::string address;
-
-    // 1. default_locators.unicast
-    if (search_address_in_locators(info.default_locators.unicast, address))
-    {
-        return address;
-    }
-
-    // 2. metatraffic_locators.unicast
-    if (search_address_in_locators(info.metatraffic_locators.unicast, address))
-    {
-        return address;
-    }
-
-    // 3. default_locators.multicast
-    if (search_address_in_locators(info.default_locators.multicast, address))
-    {
-        return address;
-    }
-
-    // 4. metatraffic_locators.multicast
-    if (search_address_in_locators(info.metatraffic_locators.multicast, address))
-    {
-        return address;
-    }
-
-    // The only option is for localhost to be the only valid IP
-    return "localhost";
-}
 
 void StatisticsParticipantListener::on_participant_discovery(
         DomainParticipant* /*participant*/,
