@@ -131,6 +131,8 @@ constexpr const char* DDS_VENDOR_TAG                = "dds_vendor";
 constexpr const char* DOMAIN_INFO_TAG                = "domain_info";
 constexpr const char* DOMAIN_ID_TAG                  = "domain_id";
 constexpr const char* DOMAIN_NAME_TAG                = "domain_name";
+//! Key tag for discovery source of a participant entity
+constexpr const char* DISCOVERY_SOURCE_TAG          = "discovery_source";
 
 //! Conversion from EntityKind to string
 constexpr const char* entity_kind_str[] =
@@ -139,6 +141,9 @@ constexpr const char* entity_kind_str[] =
 //! Conversion from StatusLevel to string
 constexpr const char* status_level_str[] =
 {OK_STATUS, WARNING_STATUS, ERROR_STATUS};
+//! Conversion from DiscoverySource to string
+constexpr const char* discovery_source_str[] =
+{"unknown", "discovery", "proxy"};
 
 /////
 // Data container

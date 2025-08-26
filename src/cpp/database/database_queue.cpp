@@ -1500,17 +1500,23 @@ void DatabaseDataQueue<ExtendedMonitorServiceStatusData>::process_sample()
                     //info.original_domain_id = item.second->original_domain_id;
                     timestamp = now();
                     details::StatisticsBackendData::get_instance()->entity_queue_->push(timestamp, participant_discovery_info);
+                    EPROSIMA_LOG_INFO(BACKEND_DATABASE_QUEUE, "Enqueue mock participant with GUID: "
+                            << to_string(participant_discovery_info.participant_guid));
                     participant_enqueued[participant_guid] = true;
                 }
 
                 timestamp = now();
                 details::StatisticsBackendData::get_instance()->entity_queue_->push(timestamp, item.second->entity_discovery_info);
+                EPROSIMA_LOG_INFO(BACKEND_DATABASE_QUEUE, "Enqueue entity with GUID: "
+                            << to_string(item.second->entity_discovery_info.guid) + " and participant GUID: "
+                            << to_string(item.second->entity_discovery_info.participant_guid));
                 // END OF ADDED CODE
 
-                EPROSIMA_LOG_WARNING(BACKEND_DATABASE_QUEUE,
-                        "Error processing PROXY status data. Data was not added to the statistics collection: "
-                        + std::string(
-                            e.what()));
+                // TODO: Remove this?
+                // EPROSIMA_LOG_WARNING(BACKEND_DATABASE_QUEUE,
+                //         "Error processing PROXY status data. Data was not added to the statistics collection: "
+                //         + std::string(
+                //             e.what()));
             }
             break;
         }
