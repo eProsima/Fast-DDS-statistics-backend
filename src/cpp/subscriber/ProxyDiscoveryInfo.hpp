@@ -22,6 +22,9 @@
 #include <fastdds/rtps/builtin/data/ParticipantBuiltinTopicData.hpp>
 #include <fastdds/rtps/builtin/data/PublicationBuiltinTopicData.hpp>
 #include <fastdds/rtps/builtin/data/SubscriptionBuiltinTopicData.hpp>
+#include <fastdds/rtps/participant/ParticipantDiscoveryInfo.hpp>
+#include <fastdds/rtps/reader/ReaderDiscoveryStatus.hpp>
+#include <fastdds/rtps/writer/WriterDiscoveryStatus.hpp>
 
 #include <database/database_queue.hpp>
 
@@ -37,21 +40,21 @@ std::string get_address(
 EntityDiscoveryInfo get_discovery_info(
         const EntityId& domain_of_discoverer,
         const fastdds::rtps::ParticipantBuiltinTopicData& participant_data,
-        const details::StatisticsBackendData::DiscoveryStatus& discovery_status,
+        const fastdds::rtps::ParticipantDiscoveryStatus& reason,
         const DiscoverySource& discovery_source
     );
 
 EntityDiscoveryInfo get_discovery_info(
         const EntityId& domain_of_discoverer,
         const fastdds::rtps::SubscriptionBuiltinTopicData& reader_data,
-        const details::StatisticsBackendData::DiscoveryStatus& discovery_status,
+        const fastdds::rtps::ReaderDiscoveryStatus& reason,
         const DiscoverySource&  discovery_source
     );
 
 EntityDiscoveryInfo get_discovery_info(
         const EntityId& domain_of_discoverer,
         const fastdds::rtps::PublicationBuiltinTopicData& writer_data,
-        const details::StatisticsBackendData::DiscoveryStatus& discovery_status,
+        const fastdds::rtps::WriterDiscoveryStatus& reason,
         const DiscoverySource& discovery_source
     );
 
