@@ -383,7 +383,9 @@ enum class StatisticKind
     SUM
 };
 
-
+/**
+ * Types of discovery sources of an entity.
+ */
 enum class DiscoverySource
 {
     /// Unknown discovery source
