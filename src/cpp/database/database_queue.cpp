@@ -1477,15 +1477,33 @@ void DatabaseDataQueue<ExtendedMonitorServiceStatusData>::process_sample()
                 process_sample_type(domain, entity, source_guid, sample,
                     item.second->data.value().entity_proxy());
 
-                    updated_entity = database_->insert(domain, entity, sample);
-                    database_->update_entity_qos(entity, item.second->optional_qos);
-                    details::StatisticsBackendData::get_instance()->on_status_reported(domain, entity, StatusKind::PROXY);
+                updated_entity = database_->insert(domain, entity, sample);
+                database_->update_entity_qos(entity, item.second->optional_qos);
+                details::StatisticsBackendData::get_instance()->on_status_reported(domain, entity, StatusKind::PROXY);
             }
             catch (const eprosima::statistics_backend::Exception& e)
+            {
+                std::chrono::system_clock::time_point timestamp;
+                GUID_t participant_guid = item.second->entity_discovery_info.participant_guid;
+                if (participant_enqueued.find(participant_guid) == participant_enqueued.end())
                 {
+                    // Sometimes, PROXY messages from endpoints arrive before the participant's message,
+                    // to avoid database inconsistencies, we enqueue an incomplete participant discovery
+                    // that will be updated when the real participant proxy message arrives.
 
+                    // ADDED CODE BLOCK
+                    // If the entity is not found, it might be because it is a PROXY discovery and the participant
+                    // has not been created yet. We create it now and enqueue the discovery info to be processed later.
+                    EntityDiscoveryInfo participant_discovery_info(EntityKind::PARTICIPANT);
+                    participant_discovery_info.participant_guid = item.second->entity_discovery_info.participant_guid;
+                    participant_discovery_info.qos = item.second->entity_discovery_info.qos;
+                    //info.original_domain_id = item.second->original_domain_id;
+                    timestamp = now();
+                    details::StatisticsBackendData::get_instance()->entity_queue_->push(timestamp, participant_discovery_info);
+                    participant_enqueued[participant_guid] = true;
+                }
 
-                std::chrono::system_clock::time_point timestamp = now();
+                timestamp = now();
                 details::StatisticsBackendData::get_instance()->entity_queue_->push(timestamp, item.second->entity_discovery_info);
                 // END OF ADDED CODE
 

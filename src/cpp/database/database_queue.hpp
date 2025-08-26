@@ -363,6 +363,7 @@ struct EntityDiscoveryInfo
     database::Qos qos;
 
     // Participant data
+    fastdds::rtps::GUID_t participant_guid;
     std::string address;
     std::string participant_name;
     AppId app_id;
@@ -386,8 +387,11 @@ struct EntityDiscoveryInfo
     // Status
     StatusLevel entity_status;
 
-    // Discovery source
+    // Discovery source information
     DiscoverySource discovery_source;
+    // Original domain id where the entity was discovered,
+    // useful when discovery_source is PROXY
+    EntityId original_domain_id;
 
     EntityDiscoveryInfo(){};
 
@@ -654,6 +658,8 @@ protected:
     // Database
     Database* database_;
 
+    // Structure to keep if the discovery of a participant has already been enqueued
+    std::map<eprosima::fastdds::rtps::GUID_t, bool> participant_enqueued;
 };
 
 template<>

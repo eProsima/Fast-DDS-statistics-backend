@@ -34,22 +34,25 @@ using EntityDiscoveryInfo = database::EntityDiscoveryInfo;
 std::string get_address(
         const fastdds::rtps::ParticipantBuiltinTopicData& info);
 
-EntityDiscoveryInfo fill_discovery_info(
+EntityDiscoveryInfo get_discovery_info(
+        const EntityId& domain_of_discoverer,
         const fastdds::rtps::ParticipantBuiltinTopicData& participant_data,
-        details::StatisticsBackendData::DiscoveryStatus discovery_status,
-        DiscoverySource discovery_source
+        const details::StatisticsBackendData::DiscoveryStatus& discovery_status,
+        const DiscoverySource& discovery_source
     );
 
-EntityDiscoveryInfo fill_discovery_info(
+EntityDiscoveryInfo get_discovery_info(
+        const EntityId& domain_of_discoverer,
         const fastdds::rtps::SubscriptionBuiltinTopicData& reader_data,
-        details::StatisticsBackendData::DiscoveryStatus discovery_status,
-        DiscoverySource discovery_source
+        const details::StatisticsBackendData::DiscoveryStatus& discovery_status,
+        const DiscoverySource&  discovery_source
     );
 
-EntityDiscoveryInfo fill_discovery_info(
+EntityDiscoveryInfo get_discovery_info(
+        const EntityId& domain_of_discoverer,
         const fastdds::rtps::PublicationBuiltinTopicData& writer_data,
-        details::StatisticsBackendData::DiscoveryStatus discovery_status,
-        DiscoverySource discovery_source
+        const details::StatisticsBackendData::DiscoveryStatus& discovery_status,
+        const DiscoverySource& discovery_source
     );
 
 } // namespace subscriber

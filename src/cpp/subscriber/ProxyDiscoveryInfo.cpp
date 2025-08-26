@@ -86,22 +86,29 @@ std::string get_address(
     return "localhost";
 }
 
-EntityDiscoveryInfo fill_discovery_info(
+EntityDiscoveryInfo get_discovery_info(
+        const EntityId& domain_of_discoverer,
         const fastdds::rtps::ParticipantBuiltinTopicData& participant_data,
-        details::StatisticsBackendData::DiscoveryStatus discovery_status,
-        DiscoverySource discovery_source
+        const details::StatisticsBackendData::DiscoveryStatus& discovery_status,
+        const DiscoverySource& discovery_source
     )
 {
     EntityDiscoveryInfo discovery_info(EntityKind::PARTICIPANT);
-    discovery_info.domain_id = participant_data.domain_id;
+
+    // domain_id is set to the discoverer domain in order to avoid issues when registering
+    // the entity in the database. The entity original domain id is passed through
+    // the original_domain_id field
+    discovery_info.domain_id = domain_of_discoverer;
+    discovery_info.original_domain_id = participant_data.domain_id;
     discovery_info.guid = participant_data.guid;
     discovery_info.qos = subscriber::participant_proxy_data_to_backend_qos(participant_data);
 
-
-    // Discovery details not always depend on the participant data itself so they must be passed as parameters
+    // Discovery details dont always depend on the participant data itself so they
+    // are passed as parameters
     discovery_info.discovery_status = discovery_status;
     discovery_info.discovery_source = discovery_source;
 
+    discovery_info.participant_guid = participant_data.guid;
     discovery_info.address = get_address(participant_data);
     discovery_info.participant_name = participant_data.participant_name.to_string();
     discovery_info.entity_status = StatusLevel::OK_STATUS;
@@ -145,16 +152,21 @@ EntityDiscoveryInfo fill_discovery_info(
     return discovery_info;
 }
 
-EntityDiscoveryInfo fill_discovery_info(
+EntityDiscoveryInfo get_discovery_info(
+        const EntityId& domain_of_discoverer,
         const fastdds::rtps::SubscriptionBuiltinTopicData& reader_data,
-        details::StatisticsBackendData::DiscoveryStatus discovery_status,
-        DiscoverySource discovery_source
+        const details::StatisticsBackendData::DiscoveryStatus& discovery_status,
+        const DiscoverySource&  discovery_source
     )
 {
     EntityDiscoveryInfo discovery_info(EntityKind::DATAREADER);
 
-    // TODO: Check how to get this
-    //discovery_info.domain_id = reader_data.domain_id;
+    // domain_id is set to the discoverer domain in order to avoid issues when registering
+    // the entity in the database. The entity original domain id is passed through
+    // the original_domain_id field
+    discovery_info.domain_id = domain_of_discoverer;
+    // TODO: Somehow get original domain id
+    // discovery_info.original_domain_id = <something>;
     discovery_info.guid = reader_data.guid;
     discovery_info.qos = subscriber::reader_proxy_data_to_backend_qos(reader_data);
 
@@ -164,6 +176,8 @@ EntityDiscoveryInfo fill_discovery_info(
 
     discovery_info.discovery_status = discovery_status;
     discovery_info.discovery_source = discovery_source;
+
+    discovery_info.participant_guid = reader_data.participant_guid;
 
     // TODO: Check how to get this
     // In case of a new data reader discovered, add type info if available
@@ -194,16 +208,21 @@ EntityDiscoveryInfo fill_discovery_info(
     return discovery_info;
 }
 
-EntityDiscoveryInfo fill_discovery_info(
+EntityDiscoveryInfo get_discovery_info(
+        const EntityId& domain_of_discoverer,
         const fastdds::rtps::PublicationBuiltinTopicData& writer_data,
-        details::StatisticsBackendData::DiscoveryStatus discovery_status,
-        DiscoverySource discovery_source
+        const details::StatisticsBackendData::DiscoveryStatus& discovery_status,
+        const DiscoverySource& discovery_source
     )
 {
     EntityDiscoveryInfo discovery_info(EntityKind::DATAWRITER);
 
-    // TODO: Check how to get this
-    // discovery_info.domain_id = domain_id_;
+    // domain_id is set to the discoverer domain in order to avoid issues when registering
+    // the entity in the database. The entity original domain id is passed through
+    // the original_domain_id field
+    discovery_info.domain_id = domain_of_discoverer;
+    // TODO: Somehow get original domain id
+    // discovery_info.original_domain_id = <something>;
     discovery_info.guid = writer_data.guid;
     discovery_info.qos = subscriber::writer_proxy_data_to_backend_qos(writer_data);
 
@@ -213,6 +232,9 @@ EntityDiscoveryInfo fill_discovery_info(
 
     discovery_info.discovery_status = discovery_status;
     discovery_info.discovery_source = discovery_source;
+
+    discovery_info.participant_guid = writer_data.participant_guid;
+
 
     // TODO: Get this info
     // // In case of a new data writer discovered, add type info if available
