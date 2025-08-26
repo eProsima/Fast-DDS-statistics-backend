@@ -15,15 +15,16 @@
 /**
  * @file ProxyDiscoveryInfo.cpp
  */
+#include <utility>
 
 #include "subscriber/ProxyDiscoveryInfo.hpp"
 #include "subscriber/QosSerializer.hpp"
 #include "subscriber/StatisticsParticipantListener.hpp"
 #include <fastdds/rtps/common/Locator.hpp>
-
 #include <fastdds/dds/xtypes/dynamic_types/DynamicTypeBuilder.hpp>
 #include <fastdds/dds/xtypes/dynamic_types/DynamicTypeBuilderFactory.hpp>
 #include <fastdds/dds/xtypes/utils.hpp>
+#include <fastdds/dds/log/Log.hpp>
 
 namespace eprosima {
 namespace statistics_backend {
@@ -31,6 +32,8 @@ namespace subscriber {
 
 using Locator_t = fastdds::rtps::Locator_t;
 using IPLocator = fastdds::rtps::IPLocator;
+using namespace eprosima::fastdds::dds;
+using namespace eprosima::fastdds::rtps;
 
 // Search for an address different from localhost in the locator list
 bool search_address_in_locators(
@@ -89,12 +92,16 @@ std::string get_address(
 EntityDiscoveryInfo get_discovery_info(
         const EntityId& domain_of_discoverer,
         const fastdds::rtps::ParticipantBuiltinTopicData& participant_data,
-        const details::StatisticsBackendData::DiscoveryStatus& discovery_status,
+        const fastdds::rtps::ParticipantDiscoveryStatus& reason,
         const DiscoverySource& discovery_source
     )
 {
-    EntityDiscoveryInfo discovery_info(EntityKind::PARTICIPANT);
+    // Meaningful prefix for metatraffic entities
+    const std::string metatraffic_prefix = "___EPROSIMA___METATRAFFIC___DOMAIN_" + std::to_string(domain_of_discoverer.value()) +
+    "___";
+    const std::string metatraffic_alias = "_metatraffic_";
 
+    EntityDiscoveryInfo discovery_info(EntityKind::PARTICIPANT);
     // domain_id is set to the discoverer domain in order to avoid issues when registering
     // the entity in the database. The entity original domain id is passed through
     // the original_domain_id field
@@ -102,16 +109,36 @@ EntityDiscoveryInfo get_discovery_info(
     discovery_info.original_domain_id = participant_data.domain_id;
     discovery_info.guid = participant_data.guid;
     discovery_info.qos = subscriber::participant_proxy_data_to_backend_qos(participant_data);
-
-    // Discovery details dont always depend on the participant data itself so they
-    // are passed as parameters
-    discovery_info.discovery_status = discovery_status;
     discovery_info.discovery_source = discovery_source;
-
     discovery_info.participant_guid = participant_data.guid;
     discovery_info.address = get_address(participant_data);
     discovery_info.participant_name = participant_data.participant_name.to_string();
     discovery_info.entity_status = StatusLevel::OK_STATUS;
+
+    switch (reason)
+    {
+        case ParticipantDiscoveryStatus::DISCOVERED_PARTICIPANT:
+        {
+            EPROSIMA_LOG_INFO(StatisticsParticipantListener, "DomainParticipant discovered: " << info.guid);
+            discovery_info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::DISCOVERY;
+            break;
+        }
+        case ParticipantDiscoveryStatus::CHANGED_QOS_PARTICIPANT:
+        {
+            // TODO [ILG] : Process these messages and save the updated QoS
+            EPROSIMA_LOG_INFO(StatisticsParticipantListener, "DomainParticipant updated: " << info.guid);
+            discovery_info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::UPDATE;
+            break;
+        }
+        case ParticipantDiscoveryStatus::REMOVED_PARTICIPANT:
+        case ParticipantDiscoveryStatus::DROPPED_PARTICIPANT:
+        case ParticipantDiscoveryStatus::IGNORED_PARTICIPANT:
+        {
+            EPROSIMA_LOG_INFO(StatisticsParticipantListener, "DomainParticipant removed: " << info.guid);
+            discovery_info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY;
+            break;
+        }
+    }
 
     // Get data from participant discovery info
     auto get_property_value =
@@ -155,7 +182,7 @@ EntityDiscoveryInfo get_discovery_info(
 EntityDiscoveryInfo get_discovery_info(
         const EntityId& domain_of_discoverer,
         const fastdds::rtps::SubscriptionBuiltinTopicData& reader_data,
-        const details::StatisticsBackendData::DiscoveryStatus& discovery_status,
+        const fastdds::rtps::ReaderDiscoveryStatus& reason,
         const DiscoverySource&  discovery_source
     )
 {
@@ -173,37 +200,57 @@ EntityDiscoveryInfo get_discovery_info(
     discovery_info.topic_name = reader_data.topic_name.to_string();
     discovery_info.type_name = reader_data.type_name.to_string();
     discovery_info.locators = reader_data.remote_locators;
-
-    discovery_info.discovery_status = discovery_status;
     discovery_info.discovery_source = discovery_source;
-
     discovery_info.participant_guid = reader_data.participant_guid;
 
-    // TODO: Check how to get this
+    switch (reason)
+    {
+        case ReaderDiscoveryStatus::DISCOVERED_READER:
+        {
+            EPROSIMA_LOG_INFO(StatisticsParticipantListener, "DataReader discovered: " << info.guid);
+            discovery_info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::DISCOVERY;
+            break;
+        }
+        case ReaderDiscoveryStatus::CHANGED_QOS_READER:
+        {
+            // TODO [ILG] : Process these messages and save the updated QoS
+            EPROSIMA_LOG_INFO(StatisticsParticipantListener, "DataReader updated: " << info.guid);
+            discovery_info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::UPDATE;
+            break;
+        }
+        case ReaderDiscoveryStatus::REMOVED_READER:
+        case ReaderDiscoveryStatus::IGNORED_READER:
+        {
+            EPROSIMA_LOG_INFO(StatisticsParticipantListener, "DataReader removed: " << info.guid);
+            discovery_info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY;
+            break;
+        }
+    }
+
     // In case of a new data reader discovered, add type info if available
-    // if (reader_data.type_information.assigned() == true)
-    // {
-    //     // Create IDL representation of the discovered type
-    //     // Get remote type information
-    //     xtypes::TypeObject remote_type_object;
-    //     if (RETCODE_OK != DomainParticipantFactory::get_instance()->type_object_registry().get_type_object(
-    //                 info.type_information.type_information.complete().typeid_with_size().type_id(),
-    //                 remote_type_object))
-    //     {
-    //         EPROSIMA_LOG_ERROR(STATISTICS_PARTICIPANT_LISTENER,
-    //                 "Error getting type object for type " << info.type_name);
-    //         return;
-    //     }
+    if (ReaderDiscoveryStatus::DISCOVERED_READER == reason &&reader_data.type_information.assigned() == true)
+    {
+        // Create IDL representation of the discovered type
+        // Get remote type information
+        xtypes::TypeObject remote_type_object;
+        if (RETCODE_OK != DomainParticipantFactory::get_instance()->type_object_registry().get_type_object(
+                    reader_data.type_information.type_information.complete().typeid_with_size().type_id(),
+                    remote_type_object))
+        {
+            EPROSIMA_LOG_ERROR(STATISTICS_PARTICIPANT_LISTENER,
+                    "Error getting type object for type " << reader_data.type_name);
+            return discovery_info;
+        }
 
-    //     // Build remotely discovered type
-    //     DynamicType::_ref_type remote_type = DynamicTypeBuilderFactory::get_instance()->create_type_w_type_object(
-    //         remote_type_object)->build();
+        // Build remotely discovered type
+        DynamicType::_ref_type remote_type = DynamicTypeBuilderFactory::get_instance()->create_type_w_type_object(
+            remote_type_object)->build();
 
-    //     // Serialize DynamicType into its IDL representation
-    //     std::stringstream idl;
-    //     idl_serialize(remote_type, idl);
-    //     discovery_info.type_idl = idl.str();
-    // }
+        // Serialize DynamicType into its IDL representation
+        std::stringstream idl;
+        idl_serialize(remote_type, idl);
+        discovery_info.type_idl = idl.str();
+    }
 
     return discovery_info;
 }
@@ -211,7 +258,7 @@ EntityDiscoveryInfo get_discovery_info(
 EntityDiscoveryInfo get_discovery_info(
         const EntityId& domain_of_discoverer,
         const fastdds::rtps::PublicationBuiltinTopicData& writer_data,
-        const details::StatisticsBackendData::DiscoveryStatus& discovery_status,
+        const fastdds::rtps::WriterDiscoveryStatus& reason,
         const DiscoverySource& discovery_source
     )
 {
@@ -229,38 +276,57 @@ EntityDiscoveryInfo get_discovery_info(
     discovery_info.topic_name = writer_data.topic_name.to_string();
     discovery_info.type_name = writer_data.type_name.to_string();
     discovery_info.locators = writer_data.remote_locators;
-
-    discovery_info.discovery_status = discovery_status;
     discovery_info.discovery_source = discovery_source;
-
     discovery_info.participant_guid = writer_data.participant_guid;
 
+    switch (reason)
+    {
+        case WriterDiscoveryStatus::DISCOVERED_WRITER:
+        {
+            EPROSIMA_LOG_INFO(StatisticsParticipantListener, "DataWriter discovered: " << info.guid);
+            discovery_info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::DISCOVERY;
+            break;
+        }
+        case WriterDiscoveryStatus::CHANGED_QOS_WRITER:
+        {
+            // TODO [ILG] : Process these messages and save the updated QoS
+            EPROSIMA_LOG_INFO(StatisticsParticipantListener, "DataWriter updated: " << info.guid);
+            discovery_info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::UPDATE;
+            break;
+        }
+        case WriterDiscoveryStatus::REMOVED_WRITER:
+        case WriterDiscoveryStatus::IGNORED_WRITER:
+        {
+            EPROSIMA_LOG_INFO(StatisticsParticipantListener, "DataWriter removed: " << info.guid);
+            discovery_info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY;
+            break;
+        }
+    }
 
-    // TODO: Get this info
-    // // In case of a new data writer discovered, add type info if available
-    // if (WriterDiscoveryStatus::DISCOVERED_WRITER == reason && info.type_information.assigned() == true)
-    // {
-    //     // Create IDL representation of the discovered type
-    //     // Get remote type information
-    //     xtypes::TypeObject remote_type_object;
-    //     if (RETCODE_OK != DomainParticipantFactory::get_instance()->type_object_registry().get_type_object(
-    //                 info.type_information.type_information.complete().typeid_with_size().type_id(),
-    //                 remote_type_object))
-    //     {
-    //         EPROSIMA_LOG_ERROR(STATISTICS_PARTICIPANT_LISTENER,
-    //                 "Error getting type object for type " << info.type_name);
-    //         return;
-    //     }
+    // In case of a new data writer discovered, add type info if available
+    if (WriterDiscoveryStatus::DISCOVERED_WRITER == reason && writer_data.type_information.assigned() == true)
+    {
+        // Create IDL representation of the discovered type
+        // Get remote type information
+        xtypes::TypeObject remote_type_object;
+        if (RETCODE_OK != DomainParticipantFactory::get_instance()->type_object_registry().get_type_object(
+                    writer_data.type_information.type_information.complete().typeid_with_size().type_id(),
+                    remote_type_object))
+        {
+            EPROSIMA_LOG_ERROR(STATISTICS_PARTICIPANT_LISTENER,
+                    "Error getting type object for type " << writer_data.type_name);
+            return discovery_info;
+        }
 
-    //     // Build remotely discovered type
-    //     DynamicType::_ref_type remote_type = DynamicTypeBuilderFactory::get_instance()->create_type_w_type_object(
-    //         remote_type_object)->build();
+        // Build remotely discovered type
+        DynamicType::_ref_type remote_type = DynamicTypeBuilderFactory::get_instance()->create_type_w_type_object(
+            remote_type_object)->build();
 
-    //     // Serialize DynamicType into its IDL representation
-    //     std::stringstream idl;
-    //     idl_serialize(remote_type, idl);
-    //     discovery_info.type_idl = idl.str();
-    // }
+        // Serialize DynamicType into its IDL representation
+        std::stringstream idl;
+        idl_serialize(remote_type, idl);
+        discovery_info.type_idl = idl.str();
+    }
 
 
     return discovery_info;

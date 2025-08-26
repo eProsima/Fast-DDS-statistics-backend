@@ -115,7 +115,7 @@ bool StatisticsReaderListener::deserialize_proxy_data(
 
             // Discovery info is required for proxy discoveries
             extended_data.entity_discovery_info = get_discovery_info(participant->get_domain_id(), participant_data,
-                details::StatisticsBackendData::DiscoveryStatus::DISCOVERY,
+                ParticipantDiscoveryStatus::DISCOVERED_PARTICIPANT,
                 DiscoverySource::PROXY);
             extended_data.optional_qos = optional_qos_to_backend_qos(participant_data);
             return true;
@@ -132,7 +132,7 @@ bool StatisticsReaderListener::deserialize_proxy_data(
                 return false;
             }
             extended_data.entity_discovery_info = get_discovery_info(participant->get_domain_id(), publication_data,
-                details::StatisticsBackendData::DiscoveryStatus::DISCOVERY,
+                WriterDiscoveryStatus::DISCOVERED_WRITER,
                 DiscoverySource::PROXY);
             extended_data.optional_qos = optional_qos_to_backend_qos(publication_data);
             return true;
@@ -150,7 +150,7 @@ bool StatisticsReaderListener::deserialize_proxy_data(
             }
 
             extended_data.entity_discovery_info = get_discovery_info(participant->get_domain_id(), subscription_data,
-                details::StatisticsBackendData::DiscoveryStatus::DISCOVERY,
+                ReaderDiscoveryStatus::DISCOVERED_READER,
                 DiscoverySource::PROXY);
             extended_data.optional_qos = optional_qos_to_backend_qos(subscription_data);
             return true;
