@@ -5921,6 +5921,8 @@ Info Database::get_info(
             info[APP_ID_TAG] = app_id_str[(int)participant->app_id];
             info[APP_METADATA_TAG] = participant->app_metadata;
             info[DDS_VENDOR_TAG] = participant->dds_vendor;
+            info[DISCOVERY_SOURCE_TAG] = discovery_source_str[(int)entity->discovery_source];
+
 
             // Locators associated to endpoints
             std::set<std::string> locator_set;
@@ -5963,6 +5965,7 @@ Info Database::get_info(
             info[APP_ID_TAG] = app_id_str[(int)dds_entity->app_id];
             info[APP_METADATA_TAG] = dds_entity->app_metadata;
             info[DDS_VENDOR_TAG] = dds_entity->dds_vendor;
+            info[DISCOVERY_SOURCE_TAG] = discovery_source_str[(int)entity->discovery_source];
             break;
         }
         default:

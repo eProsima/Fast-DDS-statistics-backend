@@ -127,6 +127,8 @@ constexpr const char* APP_METADATA_TAG                  = "app_metadata";
 constexpr const char* VIRTUAL_METATRAFFIC_TAG       = "virtual_metatraffic";
 //! Key tag for vendor id of a participant entity
 constexpr const char* DDS_VENDOR_TAG                = "dds_vendor";
+//! Key tag for discovery source of a participant entity
+constexpr const char* DISCOVERY_SOURCE_TAG          = "discovery_source";
 
 //! Conversion from EntityKind to string
 constexpr const char* entity_kind_str[] =
@@ -135,6 +137,9 @@ constexpr const char* entity_kind_str[] =
 //! Conversion from StatusLevel to string
 constexpr const char* status_level_str[] =
 {OK_STATUS, WARNING_STATUS, ERROR_STATUS};
+//! Conversion from DiscoverySource to string
+constexpr const char* discovery_source_str[] =
+{"unknown", "discovery", "proxy"};
 
 /////
 // Data container
