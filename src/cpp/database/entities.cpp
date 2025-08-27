@@ -99,7 +99,8 @@ DDSEndpoint::DDSEndpoint(
         AppId endpoint_app_id, /* AppId::UNKNOWN */
         std::string endpoint_app_metadata /* "" */,
         DiscoverySource endpoint_discovery_source /* DiscoverySource::UNKNOWN */) noexcept
-    : DDSEntity(entity_kind, endpoint_name, endpoint_qos, endpoint_guid, status, endpoint_app_id, endpoint_app_metadata, endpoint_discovery_source)
+    : DDSEntity(entity_kind, endpoint_name, endpoint_qos, endpoint_guid, status, endpoint_app_id, endpoint_app_metadata,
+            endpoint_discovery_source)
     , participant(endpoint_participant)
     , topic(endpoint_topic)
 {

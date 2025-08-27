@@ -68,8 +68,6 @@ struct Entity
     {
     }
 
-
-
     virtual ~Entity() = default;
 
     /**
