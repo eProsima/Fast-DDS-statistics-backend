@@ -143,6 +143,7 @@ EntityId DatabaseEntityQueue::process_participant(
             info.user,
             process_name,
             process_pid,
+            info.discovery_source,
             should_link_process_participant,
             participant_id,
             physical_entities_ids);
@@ -1486,7 +1487,7 @@ void DatabaseDataQueue<ExtendedMonitorServiceStatusData>::process_sample()
             {
                 std::chrono::system_clock::time_point timestamp;
                 GUID_t participant_guid = item.second->entity_discovery_info.participant_guid;
-                if (participant_enqueued.find(participant_guid) == participant_enqueued.end())
+                if (item.second->entity_discovery_info.kind() != EntityKind::PARTICIPANT && participant_enqueued.find(participant_guid) == participant_enqueued.end())
                 {
                     // Sometimes, PROXY messages from endpoints arrive before the participant's message,
                     // to avoid database inconsistencies, we enqueue an incomplete participant discovery
@@ -1504,6 +1505,11 @@ void DatabaseDataQueue<ExtendedMonitorServiceStatusData>::process_sample()
                             participant_discovery_info);
                     EPROSIMA_LOG_INFO(BACKEND_DATABASE_QUEUE, "Enqueue mock participant with GUID: "
                             << to_string(participant_discovery_info.participant_guid));
+                    participant_enqueued[participant_guid] = true;
+                }
+                if (item.second->entity_discovery_info.kind() == EntityKind::PARTICIPANT)
+                {
+                    // Adding participant as proxy discovered
                     participant_enqueued[participant_guid] = true;
                 }
 

@@ -142,6 +142,7 @@ void Database::process_physical_entities(
         const std::string& user_name,
         const std::string& process_name,
         const std::string& process_pid,
+        const DiscoverySource& discovery_source,
         bool& should_link_process_participant,
         const EntityId& participant_id,
         std::map<std::string, EntityId>& physical_entities_ids)
@@ -157,6 +158,7 @@ void Database::process_physical_entities(
     if (hosts.empty())
     {
         host.reset(new Host(host_name));
+        host->discovery_source = discovery_source;
         EntityId entity_id;
         insert_nts(host, entity_id);
         host->id = entity_id;
@@ -167,6 +169,12 @@ void Database::process_physical_entities(
         std::shared_ptr<const Host> const_host = std::dynamic_pointer_cast<const Host>(get_entity_nts(
                             hosts.front().second));
         host = std::const_pointer_cast<Host>(const_host);
+        if (discovery_source == DiscoverySource::DISCOVERY && host->discovery_source != DiscoverySource::DISCOVERY)
+        {
+            // If the host already exists but it has been discovered thorugh the standard procedure, its state
+            // must be changed
+            host->discovery_source = discovery_source;
+        }
     }
 
     physical_entities_ids[HOST_ENTITY_TAG] = host->id;
@@ -182,12 +190,19 @@ void Database::process_physical_entities(
         if (const_user->host == host)
         {
             user = std::const_pointer_cast<User>(const_user);
+            if (discovery_source == DiscoverySource::DISCOVERY && user->discovery_source != DiscoverySource::DISCOVERY)
+            {
+                // If the user already exists but it has been discovered thorugh the standard procedure, its state
+                // must be changed
+                user->discovery_source = discovery_source;
+            }
             break;
         }
     }
     if (!user)
     {
         user.reset(new User(user_name, host));
+        user->discovery_source = discovery_source;
         EntityId entity_id;
         insert_nts(user, entity_id);
         user->id = entity_id;
@@ -205,12 +220,19 @@ void Database::process_physical_entities(
         if (const_process->user == user)
         {
             process = std::const_pointer_cast<Process>(const_process);
+            if (discovery_source == DiscoverySource::DISCOVERY && process->discovery_source != DiscoverySource::DISCOVERY)
+            {
+                // If the process already exists but it has been discovered thorugh the standard procedure, its state
+                // must be changed
+                process->discovery_source = discovery_source;
+            }
             break;
         }
     }
     if (!process)
     {
         process.reset(new Process(process_name, process_pid, user));
+        process->discovery_source = discovery_source;
         EntityId entity_id;
         insert_nts(process, entity_id);
         process->id = entity_id;
@@ -5903,6 +5925,7 @@ Info Database::get_info(
     info[ALIVE_TAG] = entity->active;
     info[METATRAFFIC_TAG] = entity->metatraffic;
     info[STATUS_TAG] = status_level_str[(int)entity->status];
+    info[DISCOVERY_SOURCE_TAG] = discovery_source_str[(int)entity->discovery_source];
 
     switch (entity->kind)
     {
@@ -5929,7 +5952,6 @@ Info Database::get_info(
             info[APP_ID_TAG] = app_id_str[(int)participant->app_id];
             info[APP_METADATA_TAG] = participant->app_metadata;
             info[DDS_VENDOR_TAG] = participant->dds_vendor;
-            info[DISCOVERY_SOURCE_TAG] = discovery_source_str[(int)entity->discovery_source];
 
 
             // Locators associated to endpoints
