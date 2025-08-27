@@ -79,7 +79,6 @@ noexcept
 {
 }
 
-
 void StatisticsParticipantListener::on_participant_discovery(
         DomainParticipant* /*participant*/,
         ParticipantDiscoveryStatus reason,
@@ -99,8 +98,9 @@ void StatisticsParticipantListener::on_participant_discovery(
     if (details::StatisticsBackendData::DiscoveryStatus::UPDATE != discovery_info.discovery_status)
     {
         // Meaningful prefix for metatraffic entities
-        const std::string metatraffic_prefix = "___EPROSIMA___METATRAFFIC___DOMAIN_" + std::to_string(domain_id_.value()) +
-        "___";
+        const std::string metatraffic_prefix = "___EPROSIMA___METATRAFFIC___DOMAIN_" +
+                std::to_string(domain_id_.value()) +
+                "___";
         const std::string metatraffic_alias = "_metatraffic_";
         // Create metatraffic endpoint and locator on the metatraffic topic.
         {

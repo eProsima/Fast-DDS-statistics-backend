@@ -1061,7 +1061,8 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample()
             catch (const eprosima::statistics_backend::Exception& e)
             {
                 EPROSIMA_LOG_WARNING(BACKEND_DATABASE_QUEUE,
-                        "Error processing HISTORY2HISTORY_LATENCY event. Data was not added to the statistics collection: " + std::string(
+                        "Error processing HISTORY2HISTORY_LATENCY event. Data was not added to the statistics collection: "
+                        + std::string(
                             e.what()));
             }
             break;
@@ -1475,7 +1476,7 @@ void DatabaseDataQueue<ExtendedMonitorServiceStatusData>::process_sample()
                 auto source_guid = item.second->data.local_entity();
 
                 process_sample_type(domain, entity, source_guid, sample,
-                    item.second->data.value().entity_proxy());
+                        item.second->data.value().entity_proxy());
 
                 updated_entity = database_->insert(domain, entity, sample);
                 database_->update_entity_qos(entity, item.second->optional_qos);
@@ -1499,17 +1500,19 @@ void DatabaseDataQueue<ExtendedMonitorServiceStatusData>::process_sample()
                     participant_discovery_info.qos = item.second->entity_discovery_info.qos;
                     //info.original_domain_id = item.second->original_domain_id;
                     timestamp = now();
-                    details::StatisticsBackendData::get_instance()->entity_queue_->push(timestamp, participant_discovery_info);
+                    details::StatisticsBackendData::get_instance()->entity_queue_->push(timestamp,
+                            participant_discovery_info);
                     EPROSIMA_LOG_INFO(BACKEND_DATABASE_QUEUE, "Enqueue mock participant with GUID: "
                             << to_string(participant_discovery_info.participant_guid));
                     participant_enqueued[participant_guid] = true;
                 }
 
                 timestamp = now();
-                details::StatisticsBackendData::get_instance()->entity_queue_->push(timestamp, item.second->entity_discovery_info);
+                details::StatisticsBackendData::get_instance()->entity_queue_->push(timestamp,
+                        item.second->entity_discovery_info);
                 EPROSIMA_LOG_INFO(BACKEND_DATABASE_QUEUE, "Enqueue entity with GUID: "
-                            << to_string(item.second->entity_discovery_info.guid) + " and participant GUID: "
-                            << to_string(item.second->entity_discovery_info.participant_guid));
+                        << to_string(item.second->entity_discovery_info.guid) + " and participant GUID: "
+                        << to_string(item.second->entity_discovery_info.participant_guid));
                 // END OF ADDED CODE
 
                 // TODO: Remove this?

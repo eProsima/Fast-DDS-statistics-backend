@@ -42,24 +42,24 @@ EntityDiscoveryInfo get_discovery_info(
         const fastdds::rtps::ParticipantBuiltinTopicData& participant_data,
         const fastdds::rtps::ParticipantDiscoveryStatus& reason,
         const DiscoverySource& discovery_source
-    );
+        );
 
 EntityDiscoveryInfo get_discovery_info(
         const EntityId& domain_of_discoverer,
         const fastdds::rtps::SubscriptionBuiltinTopicData& reader_data,
         const fastdds::rtps::ReaderDiscoveryStatus& reason,
         const DiscoverySource&  discovery_source
-    );
+        );
 
 EntityDiscoveryInfo get_discovery_info(
         const EntityId& domain_of_discoverer,
         const fastdds::rtps::PublicationBuiltinTopicData& writer_data,
         const fastdds::rtps::WriterDiscoveryStatus& reason,
         const DiscoverySource& discovery_source
-    );
+        );
 
 } // namespace subscriber
 } // namespace statistics_backend
 } // namespace eprosima
 
-#endif
+#endif // ifndef FASTDDS_STATISTICS_BACKEND_SRC_CPP_SUBSCRIBER__PROXY_DISCOVERY_INFO_HPP

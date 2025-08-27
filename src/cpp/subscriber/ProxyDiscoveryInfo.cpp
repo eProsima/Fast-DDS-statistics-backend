@@ -94,11 +94,12 @@ EntityDiscoveryInfo get_discovery_info(
         const fastdds::rtps::ParticipantBuiltinTopicData& participant_data,
         const fastdds::rtps::ParticipantDiscoveryStatus& reason,
         const DiscoverySource& discovery_source
-    )
+        )
 {
     // Meaningful prefix for metatraffic entities
-    const std::string metatraffic_prefix = "___EPROSIMA___METATRAFFIC___DOMAIN_" + std::to_string(domain_of_discoverer.value()) +
-    "___";
+    const std::string metatraffic_prefix = "___EPROSIMA___METATRAFFIC___DOMAIN_" +
+            std::to_string(domain_of_discoverer.value()) +
+            "___";
     const std::string metatraffic_alias = "_metatraffic_";
 
     EntityDiscoveryInfo discovery_info(EntityKind::PARTICIPANT);
@@ -184,7 +185,7 @@ EntityDiscoveryInfo get_discovery_info(
         const fastdds::rtps::SubscriptionBuiltinTopicData& reader_data,
         const fastdds::rtps::ReaderDiscoveryStatus& reason,
         const DiscoverySource&  discovery_source
-    )
+        )
 {
     EntityDiscoveryInfo discovery_info(EntityKind::DATAREADER);
 
@@ -228,7 +229,7 @@ EntityDiscoveryInfo get_discovery_info(
     }
 
     // In case of a new data reader discovered, add type info if available
-    if (ReaderDiscoveryStatus::DISCOVERED_READER == reason &&reader_data.type_information.assigned() == true)
+    if (ReaderDiscoveryStatus::DISCOVERED_READER == reason && reader_data.type_information.assigned() == true)
     {
         // Create IDL representation of the discovered type
         // Get remote type information
@@ -260,7 +261,7 @@ EntityDiscoveryInfo get_discovery_info(
         const fastdds::rtps::PublicationBuiltinTopicData& writer_data,
         const fastdds::rtps::WriterDiscoveryStatus& reason,
         const DiscoverySource& discovery_source
-    )
+        )
 {
     EntityDiscoveryInfo discovery_info(EntityKind::DATAWRITER);
 
