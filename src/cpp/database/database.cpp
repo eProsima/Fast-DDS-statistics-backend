@@ -171,7 +171,7 @@ void Database::process_physical_entities(
         host = std::const_pointer_cast<Host>(const_host);
         if (discovery_source == DiscoverySource::DISCOVERY && host->discovery_source != DiscoverySource::DISCOVERY)
         {
-            // If the host already exists but it has been discovered thorugh the standard procedure, its state
+            // If the host already exists but it has now been discovered thorugh the standard procedure, its state
             // must be changed
             host->discovery_source = discovery_source;
         }
@@ -192,7 +192,7 @@ void Database::process_physical_entities(
             user = std::const_pointer_cast<User>(const_user);
             if (discovery_source == DiscoverySource::DISCOVERY && user->discovery_source != DiscoverySource::DISCOVERY)
             {
-                // If the user already exists but it has been discovered thorugh the standard procedure, its state
+                // If the user already exists but it has now been discovered thorugh the standard procedure, its state
                 // must be changed
                 user->discovery_source = discovery_source;
             }
@@ -222,7 +222,7 @@ void Database::process_physical_entities(
             process = std::const_pointer_cast<Process>(const_process);
             if (discovery_source == DiscoverySource::DISCOVERY && process->discovery_source != DiscoverySource::DISCOVERY)
             {
-                // If the process already exists but it has been discovered thorugh the standard procedure, its state
+                // If the process already exists but it has now been discovered thorugh the standard procedure, its state
                 // must be changed
                 process->discovery_source = discovery_source;
             }
@@ -4204,9 +4204,15 @@ Graph Database::get_entity_subgraph_nts(
 
     entity_graph[KIND_TAG] =  entity_kind_str[(int)entity->kind];
 
+    if( entity_graph[DISCOVERY_SOURCE_TAG] != entity->discovery_source)
+    {
+        entity_graph[DISCOVERY_SOURCE_TAG] =  discovery_source_str[(int)entity->discovery_source];
+        entity_graph_updated = true;
+    }
+
     if (entity_graph[ALIAS_TAG] != entity->alias)
     {
-        entity_graph[ALIAS_TAG] =  entity->alias;
+        entity_graph[ALIAS_TAG] = entity->alias;
         entity_graph_updated = true;
     }
 
@@ -5207,6 +5213,8 @@ DatabaseDump Database::dump_entity_(
     // metatraffic and active attributes are stored but ignored when loading
     entity_info[METATRAFFIC_TAG] = entity->metatraffic;
     entity_info[ALIVE_TAG] = entity->active;
+    entity_info[DISCOVERY_SOURCE_TAG] = discovery_source_str[(int)entity->discovery_source];
+
 
     // Populate subentity array
     {
@@ -5234,6 +5242,7 @@ DatabaseDump Database::dump_entity_(
     // metatraffic and active attributes are stored but ignored when loading
     entity_info[METATRAFFIC_TAG] = entity->metatraffic;
     entity_info[ALIVE_TAG] = entity->active;
+    entity_info[DISCOVERY_SOURCE_TAG] = discovery_source_str[(int)entity->discovery_source];
 
     // Populate subentity array
     {
@@ -5262,6 +5271,7 @@ DatabaseDump Database::dump_entity_(
     // metatraffic and active attributes are stored but ignored when loading
     entity_info[METATRAFFIC_TAG] = entity->metatraffic;
     entity_info[ALIVE_TAG] = entity->active;
+    entity_info[DISCOVERY_SOURCE_TAG] = discovery_source_str[(int)entity->discovery_source];
 
     // Populate subentity array
     {
@@ -5288,6 +5298,7 @@ DatabaseDump Database::dump_entity_(
     // metatraffic and active attributes are stored but ignored when loading
     entity_info[METATRAFFIC_TAG] = entity->metatraffic;
     entity_info[ALIVE_TAG] = entity->active;
+    entity_info[DISCOVERY_SOURCE_TAG] = discovery_source_str[(int)entity->discovery_source];
 
     // Populate subentity array for Topics
     {
@@ -5325,6 +5336,7 @@ DatabaseDump Database::dump_entity_(
     // metatraffic and active attributes are stored but ignored when loading
     entity_info[METATRAFFIC_TAG] = entity->metatraffic;
     entity_info[ALIVE_TAG] = entity->active;
+    entity_info[DISCOVERY_SOURCE_TAG] = discovery_source_str[(int)entity->discovery_source];
 
     // Populate subentity array for DataWriters
     {
@@ -5364,6 +5376,7 @@ DatabaseDump Database::dump_entity_(
     // metatraffic and active attributes are stored but ignored when loading
     entity_info[METATRAFFIC_TAG] = entity->metatraffic;
     entity_info[ALIVE_TAG] = entity->active;
+    entity_info[DISCOVERY_SOURCE_TAG] = discovery_source_str[(int)entity->discovery_source];
 
     if (entity->process)
     {
@@ -5466,6 +5479,7 @@ DatabaseDump Database::dump_entity_(
     // metatraffic and active attributes are stored but ignored when loading
     entity_info[METATRAFFIC_TAG] = entity->metatraffic;
     entity_info[ALIVE_TAG] = entity->active;
+    entity_info[DISCOVERY_SOURCE_TAG] = discovery_source_str[(int)entity->discovery_source];
 
     // Populate subentity array for Locators
     {
@@ -5537,6 +5551,7 @@ DatabaseDump Database::dump_entity_(
     // metatraffic and active attributes are stored but ignored when loading
     entity_info[METATRAFFIC_TAG] = entity->metatraffic;
     entity_info[ALIVE_TAG] = entity->active;
+    entity_info[DISCOVERY_SOURCE_TAG] = discovery_source_str[(int)entity->discovery_source];
 
     // Populate subentity array for Locators
     {
@@ -5584,6 +5599,7 @@ DatabaseDump Database::dump_entity_(
     // metatraffic and active attributes are stored but ignored when loading
     entity_info[METATRAFFIC_TAG] = entity->metatraffic;
     entity_info[ALIVE_TAG] = entity->active;
+    entity_info[DISCOVERY_SOURCE_TAG] = discovery_source_str[(int)entity->discovery_source];
 
     // Populate subentity array for DataWriters
     {
@@ -6002,7 +6018,6 @@ Info Database::get_info(
             info[APP_ID_TAG] = app_id_str[(int)dds_entity->app_id];
             info[APP_METADATA_TAG] = dds_entity->app_metadata;
             info[DDS_VENDOR_TAG] = dds_entity->dds_vendor;
-            info[DISCOVERY_SOURCE_TAG] = discovery_source_str[(int)entity->discovery_source];
             break;
         }
         default:
