@@ -107,7 +107,8 @@ EntityId DatabaseEntityQueue::process_participant(
                 status,
                 info.app_id,
                 info.app_metadata,
-                info.discovery_source);
+                info.discovery_source,
+                info.original_domain_id);
 
             should_link_process_participant = true;
         }
@@ -407,7 +408,8 @@ EntityId DatabaseEntityQueue::process_endpoint_discovery(
         participant_id.second,
         topic_id,
         app_data,
-        info.discovery_source);
+        info.discovery_source,
+        info.original_domain_id);
 
     // Force the refresh of the parent entities' status
     database_->change_entity_status(endpoint_id, true);
@@ -1499,12 +1501,9 @@ void DatabaseDataQueue<ExtendedMonitorServiceStatusData>::process_sample()
                     EntityDiscoveryInfo participant_discovery_info(EntityKind::PARTICIPANT);
                     participant_discovery_info.participant_guid = item.second->entity_discovery_info.participant_guid;
                     participant_discovery_info.qos = item.second->entity_discovery_info.qos;
-                    //info.original_domain_id = item.second->original_domain_id;
                     timestamp = now();
                     details::StatisticsBackendData::get_instance()->entity_queue_->push(timestamp,
                             participant_discovery_info);
-                    EPROSIMA_LOG_INFO(BACKEND_DATABASE_QUEUE, "Enqueue mock participant with GUID: "
-                            << to_string(participant_discovery_info.participant_guid));
                     participant_enqueued[participant_guid] = true;
                 }
                 if (item.second->entity_discovery_info.kind() == EntityKind::PARTICIPANT)
@@ -1516,16 +1515,8 @@ void DatabaseDataQueue<ExtendedMonitorServiceStatusData>::process_sample()
                 timestamp = now();
                 details::StatisticsBackendData::get_instance()->entity_queue_->push(timestamp,
                         item.second->entity_discovery_info);
-                EPROSIMA_LOG_INFO(BACKEND_DATABASE_QUEUE, "Enqueue entity with GUID: "
-                        << to_string(item.second->entity_discovery_info.guid) + " and participant GUID: "
-                        << to_string(item.second->entity_discovery_info.participant_guid));
                 // END OF ADDED CODE
 
-                // TODO: Remove this?
-                // EPROSIMA_LOG_WARNING(BACKEND_DATABASE_QUEUE,
-                //         "Error processing PROXY status data. Data was not added to the statistics collection: "
-                //         + std::string(
-                //             e.what()));
             }
             break;
         }

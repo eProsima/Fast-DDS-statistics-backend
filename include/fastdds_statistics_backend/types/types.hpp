@@ -44,6 +44,7 @@ using Graph = nlohmann::json;
  * Type DDS Domain IDs
  */
 using DomainId = uint32_t;
+constexpr DomainId UNKNOWN_DOMAIN_ID = 233;
 
 /**
  * Type used to represent time points

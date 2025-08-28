@@ -111,7 +111,8 @@ EntityId Database::insert_new_participant(
         const StatusLevel& status,
         const AppId& app_id,
         const std::string& app_metadata,
-        const DiscoverySource& discovery_source)
+        const DiscoverySource& discovery_source,
+        const DomainId& original_domain = UNKNOWN_DOMAIN_ID)
 {
     std::lock_guard<std::shared_timed_mutex> guard(mutex_);
 
@@ -130,7 +131,8 @@ EntityId Database::insert_new_participant(
         status,
         app_id,
         app_metadata,
-        discovery_source);
+        discovery_source,
+        original_domain);
 
     EntityId entity_id;
     insert_nts(participant, entity_id);
@@ -437,7 +439,8 @@ EntityId Database::insert_new_endpoint(
         const EntityId& participant_id,
         const EntityId& topic_id,
         const std::pair<AppId, std::string>& app_data,
-        const DiscoverySource& discovery_source)
+        const DiscoverySource& discovery_source,
+        const DomainId& original_domain = UNKNOWN_DOMAIN_ID)
 {
     std::lock_guard<std::shared_timed_mutex> guard(mutex_);
 
@@ -463,7 +466,8 @@ EntityId Database::insert_new_endpoint(
             topic,
             app_data.first,
             app_data.second,
-            discovery_source);
+            discovery_source,
+            original_domain);
     }
     else
     {
@@ -475,7 +479,8 @@ EntityId Database::insert_new_endpoint(
             topic,
             app_data.first,
             app_data.second,
-            discovery_source);
+            discovery_source,
+            original_domain);
     }
 
 
@@ -543,7 +548,8 @@ std::shared_ptr<DDSEndpoint> Database::create_endpoint_nts(
         const std::shared_ptr<Topic>& topic,
         const AppId& app_id,
         const std::string& app_metadata,
-        const DiscoverySource& discovery_source)
+        const DiscoverySource& discovery_source,
+        const DomainId& original_domain)
 {
     return std::make_shared<T>(
         name,
@@ -554,7 +560,8 @@ std::shared_ptr<DDSEndpoint> Database::create_endpoint_nts(
         StatusLevel::OK_STATUS,
         app_id,
         app_metadata,
-        discovery_source);
+        discovery_source,
+        original_domain);
 }
 
 EntityId Database::insert(
@@ -5968,7 +5975,7 @@ Info Database::get_info(
             info[APP_ID_TAG] = app_id_str[(int)participant->app_id];
             info[APP_METADATA_TAG] = participant->app_metadata;
             info[DDS_VENDOR_TAG] = participant->dds_vendor;
-
+            info[ORIGINAL_DOMAIN_TAG] = participant->original_domain;
 
             // Locators associated to endpoints
             std::set<std::string> locator_set;

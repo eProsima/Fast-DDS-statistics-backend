@@ -314,7 +314,8 @@ struct DDSEndpoint : DDSEntity
             StatusLevel status = StatusLevel::OK_STATUS,
             AppId endpoint_app_id = AppId::UNKNOWN,
             std::string endpoint_app_metadata = "",
-            DiscoverySource endpoint_discovery_source = DiscoverySource::UNKNOWN) noexcept;
+            DiscoverySource endpoint_discovery_source = DiscoverySource::UNKNOWN,
+            DomainId original_domain = UNKNOWN_DOMAIN_ID) noexcept;
 
     //! Reference to the DomainParticipant in which this Endpoint runs.
     details::fragile_ptr<DomainParticipant> participant;
@@ -330,6 +331,9 @@ struct DDSEndpoint : DDSEntity
      * The collection is ordered by the EntityId of the Locator nodes.
      */
     std::map<EntityId, details::fragile_ptr<Locator>> locators;
+
+    //! The original domain of the participant, UNKNOWN if not specified
+    DomainId original_domain;
 };
 
 /*
@@ -346,11 +350,13 @@ struct DomainParticipant : DDSEntity
             StatusLevel status = StatusLevel::OK_STATUS,
             AppId participant_app_id = AppId::UNKNOWN,
             std::string participant_app_metadata = "",
-            DiscoverySource participant_discovery_source = DiscoverySource::UNKNOWN) noexcept
+            DiscoverySource participant_discovery_source = DiscoverySource::UNKNOWN,
+            DomainId original_domain = UNKNOWN_DOMAIN_ID) noexcept
         : DDSEntity(EntityKind::PARTICIPANT, participant_name, participant_qos, participant_guid, status,
                 participant_app_id, participant_app_metadata, participant_discovery_source)
         , process(participant_process)
         , domain(participant_domain)
+        , original_domain(original_domain)
     {
     }
 
@@ -388,6 +394,9 @@ struct DomainParticipant : DDSEntity
 
     //! Actual monitor service data reported by Fast DDS Statistics Module regarding this DomainParticipant.
     DomainParticipantMonitorServiceData monitor_service_data;
+
+    //! The original domain of the participant, UNKNOWN if not specified
+    DomainId original_domain;
 };
 
 
@@ -448,9 +457,10 @@ struct DataReader : DDSEndpoint
             StatusLevel status = StatusLevel::OK_STATUS,
             AppId datareader_app_id = AppId::UNKNOWN,
             std::string datareader_app_metadata = "",
-            DiscoverySource datareader_discovery_source = DiscoverySource::UNKNOWN) noexcept
+            DiscoverySource datareader_discovery_source = DiscoverySource::UNKNOWN,
+            DomainId original_domain = UNKNOWN_DOMAIN_ID) noexcept
         : DDSEndpoint(EntityKind::DATAREADER, datareader_name, datareader_qos, datareader_guid, datareader_participant,
-                datareader_topic, status, datareader_app_id, datareader_app_metadata, datareader_discovery_source)
+                datareader_topic, status, datareader_app_id, datareader_app_metadata, datareader_discovery_source, original_domain)
     {
     }
 
@@ -481,9 +491,10 @@ struct DataWriter : DDSEndpoint
             StatusLevel status = StatusLevel::OK_STATUS,
             AppId datawriter_app_id = AppId::UNKNOWN,
             std::string datawriter_app_metadata = "",
-            DiscoverySource datawriter_discovery_source = DiscoverySource::UNKNOWN) noexcept
+            DiscoverySource datawriter_discovery_source = DiscoverySource::UNKNOWN,
+            DomainId original_domain = UNKNOWN_DOMAIN_ID) noexcept
         : DDSEndpoint(EntityKind::DATAWRITER, datawriter_name, datawriter_qos, datawriter_guid, datawriter_participant,
-                datawriter_topic, status, datawriter_app_id, datawriter_app_metadata, datawriter_discovery_source)
+                datawriter_topic, status, datawriter_app_id, datawriter_app_metadata, datawriter_discovery_source, original_domain)
     {
     }
 
