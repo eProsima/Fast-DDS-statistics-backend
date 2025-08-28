@@ -582,6 +582,12 @@ bool StatisticsBackend::is_metatraffic(
     return StatisticsBackendData::get_instance()->database_->is_metatraffic(entity_id);
 }
 
+bool StatisticsBackend::is_proxy(
+        EntityId entity_id)
+{
+    return StatisticsBackendData::get_instance()->database_->is_proxy(entity_id);
+}
+
 EntityKind StatisticsBackend::get_type(
         EntityId entity_id)
 {

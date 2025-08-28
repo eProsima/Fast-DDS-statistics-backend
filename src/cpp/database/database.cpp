@@ -5932,6 +5932,13 @@ bool Database::is_metatraffic(
     return get_entity_nts(entity_id)->metatraffic;
 }
 
+bool Database::is_proxy(
+        const EntityId& entity_id)
+{
+    std::shared_lock<std::shared_timed_mutex> lock(mutex_);
+    return (get_entity_nts(entity_id)->discovery_source == DiscoverySource::PROXY);
+}
+
 Info Database::get_info(
         const EntityId& entity_id)
 {

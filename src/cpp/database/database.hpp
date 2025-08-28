@@ -736,6 +736,16 @@ public:
             const EntityId& entity_id);
 
     /**
+     * @brief Returns whether the entity was discovered using a proxy message
+     *
+     * @param entity_id The ID of the entity whose proxy attribute is requested.
+     *
+     * @return True if proxy, false otherwise.
+     */
+    bool is_proxy(
+            const EntityId& entity_id);
+
+    /**
      * @brief Get the meta information of a given entity.
      *
      * @param entity_id The entity for which the meta information is retrieved.
