@@ -220,8 +220,10 @@ struct Domain : Entity
 {
     Domain(
             std::string domain_name,
+            DomainId domain_id,
             StatusLevel status = StatusLevel::OK_STATUS) noexcept
         : Entity(EntityKind::DOMAIN, domain_name, false, true, status)
+        , domain_id(domain_id)
     {
     }
 
@@ -241,6 +243,9 @@ struct Domain : Entity
      * The collection is ordered by the EntityId of the DomainParticipant nodes.
      */
     std::map<EntityId, details::fragile_ptr<DomainParticipant>> participants;
+
+    //! The domainId identifier
+    DomainId domain_id;
 };
 
 /*

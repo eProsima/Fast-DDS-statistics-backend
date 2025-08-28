@@ -3609,18 +3609,21 @@ Graph Database::get_domain_view_graph_nts(
 
 void Database::init_domain_view_graph(
         const std::string& domain_name,
+        const DomainId domain_id,
         const EntityId& domain_entity_id)
 {
     std::lock_guard<std::shared_timed_mutex> guard(mutex_);
-    init_domain_view_graph_nts(domain_name, domain_entity_id);
+    init_domain_view_graph_nts(domain_name, domain_id, domain_entity_id);
 }
 
 void Database::init_domain_view_graph_nts(
         const std::string& domain_name,
+        const DomainId domain_id,
         const EntityId& domain_entity_id)
 {
     domain_view_graph[domain_entity_id][KIND_TAG] = DOMAIN_ENTITY_TAG;
-    domain_view_graph[domain_entity_id][DOMAIN_ENTITY_TAG] = domain_name;
+    domain_view_graph[domain_entity_id][DOMAIN_INFO_TAG][DOMAIN_NAME_TAG] = domain_name;
+    domain_view_graph[domain_entity_id][DOMAIN_INFO_TAG][DOMAIN_ID_TAG] = domain_id;
     domain_view_graph[domain_entity_id][TOPIC_CONTAINER_TAG] = nlohmann::json::object();
     domain_view_graph[domain_entity_id][HOST_CONTAINER_TAG] = nlohmann::json::object();
 }
@@ -3946,9 +3949,17 @@ bool Database::regenerate_domain_graph_nts(
 
     Graph* domain_graph = &domain_view_graph[domain_entity_id];
 
-    std::shared_ptr<const Entity> domain_entity = get_entity_nts(domain_entity_id);
+    std::shared_ptr<const Entity> db_entity = get_entity_nts(domain_entity_id);
+    if (db_entity == nullptr || db_entity->kind != EntityKind::DOMAIN)
+    {
+        EPROSIMA_LOG_WARNING(BACKEND_DATABASE,
+                "Error regenerating graph. EntityId does not correspond to a valid Domain");
+        return false;
+    }
+    std::shared_ptr<const Domain> domain_entity = std::static_pointer_cast<const Domain>(db_entity);
     (*domain_graph)[KIND_TAG] = DOMAIN_ENTITY_TAG;
-    (*domain_graph)[DOMAIN_ENTITY_TAG] = domain_entity->name;
+    (*domain_graph)[DOMAIN_INFO_TAG][DOMAIN_NAME_TAG] = domain_entity->name;
+    (*domain_graph)[DOMAIN_INFO_TAG][DOMAIN_ID_TAG] = domain_entity->domain_id;
     (*domain_graph)[TOPIC_CONTAINER_TAG] = nlohmann::json::object();
     (*domain_graph)[HOST_CONTAINER_TAG] = nlohmann::json::object();
 
@@ -5245,6 +5256,7 @@ DatabaseDump Database::dump_entity_(
 {
     DatabaseDump entity_info = DatabaseDump::object();
     entity_info[NAME_TAG] = entity->name;
+    entity_info[DOMAIN_ID_TAG] = entity->domain_id;
     entity_info[ALIAS_TAG] = entity->alias;
     entity_info[STATUS_TAG] = entity->status;
 
@@ -6233,7 +6245,7 @@ void Database::load_database(
             check_entity_contains_all_references(dump, it, DOMAIN_ENTITY_TAG, TOPIC_CONTAINER_TAG, TOPIC_CONTAINER_TAG);
 
             // Create entity
-            std::shared_ptr<Domain> entity = std::make_shared<Domain>((*it).at(NAME_TAG));
+            std::shared_ptr<Domain> entity = std::make_shared<Domain>((*it).at(NAME_TAG), (*it).at(DOMAIN_ID_TAG));
             entity->alias = (*it).at(ALIAS_TAG);
 
             // Insert into database
