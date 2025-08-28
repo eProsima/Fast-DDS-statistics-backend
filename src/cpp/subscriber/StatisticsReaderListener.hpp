@@ -61,6 +61,7 @@ public:
      * @brief Constructor
      */
     StatisticsReaderListener(
+            EntityId domain_id,
             database::DatabaseDataQueue<eprosima::fastdds::statistics::Data>* data_queue,
             database::DatabaseDataQueue<database::ExtendedMonitorServiceStatusData>* monitor_service_status_data_queue,
             const database::Database* db)
@@ -104,6 +105,9 @@ protected:
 
     //! Const reference to the database
     const database::Database* db_;
+
+    // Database Domain ID to which this listener belongs
+    const EntityId domain_id_;
 };
 
 } //namespace database

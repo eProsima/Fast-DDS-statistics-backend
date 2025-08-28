@@ -47,6 +47,7 @@ using namespace eprosima::fastdds::dds;
 using namespace eprosima::fastdds::rtps;
 
 StatisticsReaderListener::StatisticsReaderListener(
+        EntityId domain_id,
         database::DatabaseDataQueue<eprosima::fastdds::statistics::Data>* data_queue,
         database::DatabaseDataQueue<database::ExtendedMonitorServiceStatusData>* monitor_service_data_queue,
         const database::Database* db)
@@ -55,6 +56,7 @@ noexcept
     , data_queue_(data_queue)
     , monitor_service_status_data_queue_(monitor_service_data_queue)
     , db_(db)
+    , domain_id_(domain_id)
 {
 }
 
@@ -111,9 +113,8 @@ bool StatisticsReaderListener::deserialize_proxy_data(
                 return false;
             }
 
-
             // Discovery info is required for proxy discoveries
-            extended_data.entity_discovery_info = get_discovery_info(participant->get_domain_id(), participant_data,
+            extended_data.entity_discovery_info = get_discovery_info(domain_id_, participant_data,
                             ParticipantDiscoveryStatus::DISCOVERED_PARTICIPANT,
                             DiscoverySource::PROXY);
             extended_data.optional_qos = optional_qos_to_backend_qos(participant_data);
@@ -130,7 +131,7 @@ bool StatisticsReaderListener::deserialize_proxy_data(
                         "Failed to get publication data for proxy sample.");
                 return false;
             }
-            extended_data.entity_discovery_info = get_discovery_info(participant->get_domain_id(), publication_data,
+            extended_data.entity_discovery_info = get_discovery_info(domain_id_, publication_data,
                             WriterDiscoveryStatus::DISCOVERED_WRITER,
                             DiscoverySource::PROXY);
             extended_data.optional_qos = optional_qos_to_backend_qos(publication_data);
@@ -148,7 +149,7 @@ bool StatisticsReaderListener::deserialize_proxy_data(
                 return false;
             }
 
-            extended_data.entity_discovery_info = get_discovery_info(participant->get_domain_id(), subscription_data,
+            extended_data.entity_discovery_info = get_discovery_info(domain_id_, subscription_data,
                             ReaderDiscoveryStatus::DISCOVERED_READER,
                             DiscoverySource::PROXY);
             extended_data.optional_qos = optional_qos_to_backend_qos(subscription_data);
