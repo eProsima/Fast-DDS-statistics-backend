@@ -391,7 +391,7 @@ struct EntityDiscoveryInfo
     DiscoverySource discovery_source;
     // Original domain id where the entity was discovered,
     // useful when discovery_source is PROXY
-    EntityId original_domain_id;
+    DomainId original_domain_id;
 
     EntityDiscoveryInfo()
     {
