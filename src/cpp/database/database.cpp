@@ -4210,6 +4210,7 @@ Graph Database::get_entity_subgraph_nts(
     std::shared_ptr<const Entity> entity = get_entity_nts(entity_id);
 
     entity_graph[KIND_TAG] =  entity_kind_str[(int)entity->kind];
+    entity_graph[DISCOVERY_SOURCE_TAG] =  discovery_source_str[(int)entity->discovery_source];
 
     if( entity_graph[DISCOVERY_SOURCE_TAG] != entity->discovery_source)
     {
