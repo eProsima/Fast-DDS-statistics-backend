@@ -427,7 +427,7 @@ int get_domain_view_graph_examples(
         Graph domain_view_graph = Graph::parse(file_example);
 
         //CONF-NAVIGATE-GRAPH-EXAMPLE
-        std::cout << "Domain: " << domain_view_graph[DOMAIN_ENTITY_TAG] << std::endl;
+        std::cout << "Domain: " << domain_view_graph[DOMAIN_INFO_TAG][DOMAIN_ID_TAG] << std::endl;
         // Iterate
         for (const auto& host : domain_view_graph[HOST_CONTAINER_TAG])
         {

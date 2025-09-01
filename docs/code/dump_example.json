@@ -38,6 +38,11 @@
         "4":
         {
             "name": "domain_0",
+            "alias": "domain_0",
+            "domain_id": 0,
+            "metatraffic": false,
+            "alive": true,
+            "status": 0,
             "participants": ["6"],
             "topics": ["5"]
         }

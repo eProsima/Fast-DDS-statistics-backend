@@ -1,7 +1,8 @@
 {
     "id": 0,
     "kind": "domain",
-    "name": "0",
+    "domain_id": 1,
+    "name": "domain_name",
     "alias": "domain_alias",
     "alive": true,
     "metatraffic": false,
