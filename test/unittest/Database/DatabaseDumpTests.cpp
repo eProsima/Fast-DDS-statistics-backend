@@ -80,7 +80,8 @@ void initialize_empty_entities(
     std::shared_ptr<User> user = std::make_shared<User>(std::string(USER_DEFAULT_NAME(index)), host);
     std::shared_ptr<Process> process = std::make_shared<Process>(std::string(PROCESS_DEFAULT_NAME(
                         index)), PID_DEFAULT, user);
-    std::shared_ptr<Domain> domain = std::make_shared<Domain>(std::string(DOMAIN_DEFAULT_NAME(index)), DOMAIN_DEFAULT_DOMAIN_ID(index));
+    std::shared_ptr<Domain> domain = std::make_shared<Domain>(std::string(DOMAIN_DEFAULT_NAME(
+                        index)), DOMAIN_DEFAULT_DOMAIN_ID(index));
     domain->alias = ALIAS_DEFAULT_NAME(index);
     std::shared_ptr<Topic> topic = std::make_shared<Topic>(std::string(TOPIC_DEFAULT_NAME(
                         index)), DATA_TYPE_DEFAULT, domain);
@@ -391,7 +392,8 @@ void initialize_empty_entities_unlinked(
     std::shared_ptr<User> user = std::make_shared<User>(std::string(USER_DEFAULT_NAME(index)), host);
     std::shared_ptr<Process> process = std::make_shared<Process>(std::string(PROCESS_DEFAULT_NAME(
                         index)), PID_DEFAULT, user);
-    std::shared_ptr<Domain> domain = std::make_shared<Domain>(std::string(DOMAIN_DEFAULT_NAME(index)), DOMAIN_DEFAULT_DOMAIN_ID(index));
+    std::shared_ptr<Domain> domain = std::make_shared<Domain>(std::string(DOMAIN_DEFAULT_NAME(
+                        index)), DOMAIN_DEFAULT_DOMAIN_ID(index));
     domain->alias = ALIAS_DEFAULT_NAME(index);
     std::shared_ptr<Topic> topic = std::make_shared<Topic>(std::string(TOPIC_DEFAULT_NAME(
                         index)), DATA_TYPE_DEFAULT, domain);

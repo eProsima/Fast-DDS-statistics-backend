@@ -106,7 +106,8 @@ void erase_and_check(
     db.init_domain_view_graph(domain_name, domain_id, domain_entity_id);
     db.regenerate_domain_graph(domain_entity_id);
     // Save entities associated to the erased domain to check that the cross maps are correctly erased.
-    std::vector<std::shared_ptr<const Entity>> participants = db.get_entities(EntityKind::PARTICIPANT, domain_entity_id);
+    std::vector<std::shared_ptr<const Entity>> participants =
+            db.get_entities(EntityKind::PARTICIPANT, domain_entity_id);
     std::vector<std::shared_ptr<const Entity>> readers = db.get_entities(EntityKind::DATAREADER, domain_entity_id);
     std::vector<std::shared_ptr<const Entity>> writers = db.get_entities(EntityKind::DATAWRITER, domain_entity_id);
     db.erase(domain_entity_id);
