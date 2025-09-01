@@ -182,6 +182,14 @@ TEST_F(statistics_backend_tests, get_info)
                 info.erase(LOCATOR_CONTAINER_TAG);
                 break;
             }
+            case EntityKind::DOMAIN:
+            {
+                std::shared_ptr<const Domain> domain =
+                        std::dynamic_pointer_cast<const Domain>(entity);
+                EXPECT_EQ(domain->domain_id, info[DOMAIN_ID_TAG]);
+                info.erase(DOMAIN_ID_TAG);
+                break;
+            }
             case EntityKind::DATAWRITER:
             case EntityKind::DATAREADER:
             {
@@ -555,7 +563,7 @@ TEST_F(statistics_backend_tests, get_domain_view_graph_invalid_domain)
     StatisticsBackendTest::set_database(db);
 
     // Get database graph from invalid domain
-    StatisticsBackendTest::regenerate_domain_graph(EntityId());
+    EXPECT_FALSE(StatisticsBackendTest::regenerate_domain_graph(EntityId()));
 
     // Load reference graph
     EXPECT_THROW(StatisticsBackend::get_domain_view_graph(EntityId()), BadParameter);

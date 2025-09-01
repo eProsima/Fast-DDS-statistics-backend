@@ -5958,6 +5958,13 @@ Info Database::get_info(
             info[LOCATOR_CONTAINER_TAG] = locators;
             break;
         }
+        case EntityKind::DOMAIN:
+        {
+            std::shared_ptr<const Domain> domain =
+                    std::dynamic_pointer_cast<const Domain>(entity);
+            info[DOMAIN_ID_TAG] = domain->domain_id;
+            break;
+        }
         case EntityKind::DATAWRITER:
         case EntityKind::DATAREADER:
         {
