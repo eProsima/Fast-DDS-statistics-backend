@@ -85,7 +85,8 @@ void check_erased_database(
 void erase_and_check(
         const std::string& initial_filename,
         const std::string& final_filename,
-        const std::string& domain)
+        const std::string& domain_name,
+        const DomainId domain_id)
 {
     // Read JSON files
     DatabaseDump initial_dump;
@@ -100,17 +101,17 @@ void erase_and_check(
     db.load_database(initial_dump);
 
     // Call erase monitor removing domain_1
-    std::vector<std::pair<EntityId, EntityId>> domains = db.get_entities_by_name(EntityKind::DOMAIN, domain);
-    EntityId domain_id = domains.begin()->first;
-    db.init_domain_view_graph(domain, domain_id);
-    db.regenerate_domain_graph(domain_id);
+    std::vector<std::pair<EntityId, EntityId>> domains = db.get_entities_by_name(EntityKind::DOMAIN, domain_name);
+    EntityId domain_entity_id = domains.begin()->first;
+    db.init_domain_view_graph(domain_name, domain_id, domain_entity_id);
+    db.regenerate_domain_graph(domain_entity_id);
     // Save entities associated to the erased domain to check that the cross maps are correctly erased.
-    std::vector<std::shared_ptr<const Entity>> participants = db.get_entities(EntityKind::PARTICIPANT, domain_id);
-    std::vector<std::shared_ptr<const Entity>> readers = db.get_entities(EntityKind::DATAREADER, domain_id);
-    std::vector<std::shared_ptr<const Entity>> writers = db.get_entities(EntityKind::DATAWRITER, domain_id);
-    db.erase(domain_id);
+    std::vector<std::shared_ptr<const Entity>> participants = db.get_entities(EntityKind::PARTICIPANT, domain_entity_id);
+    std::vector<std::shared_ptr<const Entity>> readers = db.get_entities(EntityKind::DATAREADER, domain_entity_id);
+    std::vector<std::shared_ptr<const Entity>> writers = db.get_entities(EntityKind::DATAWRITER, domain_entity_id);
+    db.erase(domain_entity_id);
 
-    check_erased_database(db, domain_id, participants, readers, writers);
+    check_erased_database(db, domain_entity_id, participants, readers, writers);
 
     // Dump erased database
     DatabaseDump erased_dump = db.dump_database();
@@ -126,7 +127,7 @@ void erase_and_check(
  */
 TEST(database_erase_tests, erase_domain_1)
 {
-    erase_and_check(COMPLEX_DUMP_FILE, COMPLEX_ERASED_DOMAIN_1_DUMP_FILE, "121");
+    erase_and_check(COMPLEX_DUMP_FILE, COMPLEX_ERASED_DOMAIN_1_DUMP_FILE, "121", 121);
 }
 
 /**
@@ -136,14 +137,14 @@ TEST(database_erase_tests, erase_domain_1)
  */
 TEST(database_erase_tests, erase_domain_2)
 {
-    erase_and_check(ALTERNATIVE_COMPLEX_DUMP_FILE, ALTERNATIVE_COMPLEX_ERASED_DOMAIN_2_DUMP_FILE, "122");
+    erase_and_check(ALTERNATIVE_COMPLEX_DUMP_FILE, ALTERNATIVE_COMPLEX_ERASED_DOMAIN_2_DUMP_FILE, "122", 122);
 }
 
 // This test checks that erasing a database where the participant is not yet linked to the process works as expected
 TEST(database_erase_tests, erase_domain_unlinked_participant_process)
 {
     erase_and_check(NO_PROCESS_PARTICIPANT_LINK_DUMP_FILE, NO_PROCESS_PARTICIPANT_LINK_ERASED_DOMAIN_DUMP_FILE,
-            "120");
+            "120", 120);
 }
 
 // This test checks that calling erase with an EntityId that does not correspond with EntityKind::DOMAIN, kills the

@@ -370,7 +370,7 @@ public:
 
         // Domain entity
         domain_name_ = std::to_string(statistics_participant.domain_id_);
-        domain_ = std::make_shared<Domain>(domain_name_);
+        domain_ = std::make_shared<Domain>(domain_name_, 0);
         domain_->id = 0;
 
         // Host entity
@@ -2635,7 +2635,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_topics)
 
     // Precondition: Another domain with ID 100 exists
     std::string another_domain_name = "another_domain";
-    std::shared_ptr<Domain> another_domain = std::make_shared<Domain>(another_domain_name);
+    std::shared_ptr<Domain> another_domain = std::make_shared<Domain>(another_domain_name, 0);
     EXPECT_CALL(database,
             get_entities_by_name(EntityKind::DOMAIN, another_domain_name)).Times(AnyNumber())
             .WillRepeatedly(Return(std::vector<std::pair<EntityId, EntityId>>(1,

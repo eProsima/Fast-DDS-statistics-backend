@@ -57,8 +57,8 @@ constexpr const int16_t MAGNITUDE_DEFAULT = 0;
 #define HOST_DEFAULT_NAME(x) "host_" + std::to_string(x)
 #define USER_DEFAULT_NAME(x) "user_" + std::to_string(x)
 #define PROCESS_DEFAULT_NAME(x) "process_" + std::to_string(x)
-#define DOMAIN_DEFAULT_NAME(x) "12" + std::to_string(x)
-#define ALIAS_DEFAULT_NAME(x) "domain_" + std::to_string(x)
+#define DOMAIN_DEFAULT_NAME(x) "domain_name_" + std::to_string(x)
+#define ALIAS_DEFAULT_NAME(x) "domain_alias_" + std::to_string(x)
 #define TOPIC_DEFAULT_NAME(x) "topic_" + std::to_string(x)
 #define PARTICIPANT_DEFAULT_NAME(x) "participant_" + std::to_string(x)
 #define DATAWRITER_DEFAULT_NAME(x) "datawriter_" + std::to_string(x)
@@ -90,7 +90,7 @@ void initialize_empty_entities(
     std::shared_ptr<User> user = std::make_shared<User>(std::string(USER_DEFAULT_NAME(index)), host);
     std::shared_ptr<Process> process = std::make_shared<Process>(std::string(PROCESS_DEFAULT_NAME(
                         index)), PID_DEFAULT, user);
-    std::shared_ptr<Domain> domain = std::make_shared<Domain>(std::string(DOMAIN_DEFAULT_NAME(index)));
+    std::shared_ptr<Domain> domain = std::make_shared<Domain>(std::string(DOMAIN_DEFAULT_NAME(index)), 0);
     domain->alias = ALIAS_DEFAULT_NAME(index);
     std::shared_ptr<Topic> topic = std::make_shared<Topic>(std::string(TOPIC_DEFAULT_NAME(
                         index)), DATA_TYPE_DEFAULT, domain);
@@ -159,7 +159,7 @@ TEST(database, clear_inactive_entities_database_simple)
     Database db;
     test::initialize_empty_entities(db, 0, true);
     auto domains = db.get_entities_by_name(EntityKind::DOMAIN, DOMAIN_DEFAULT_NAME(0));
-    db.init_domain_view_graph(DOMAIN_DEFAULT_NAME(0), domains[0].second);
+    db.init_domain_view_graph(DOMAIN_DEFAULT_NAME(0), 0, domains[0].second);
     db.regenerate_domain_graph(domains[0].second);
 
     // DATAWRITER

@@ -1295,6 +1295,7 @@
         "13":{
             "name":"domain_1",
             "alias":"domain_1",
+            "domain_id": 1,
             "metatraffic":false,
             "alive":true,
             "status": 0,
@@ -1308,6 +1309,7 @@
         "22":{
             "name":"domain_2",
             "alias":"domain_2",
+            "domain_id": 2,
             "metatraffic":false,
             "alive":true,
             "status": 0,

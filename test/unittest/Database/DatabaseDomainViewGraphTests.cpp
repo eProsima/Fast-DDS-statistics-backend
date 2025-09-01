@@ -55,10 +55,11 @@ public:
     void SetUp()
     {
         std::string domain_name = "33";
-        domain = std::make_shared<database::Domain>(domain_name);
+        DomainId domain_id = 33;
+        domain = std::make_shared<database::Domain>(domain_name, domain_id);
 
-        domain_id = database.insert(domain);
-        database.init_domain_view_graph(domain_name, domain_id);
+        domain_entity_id = database.insert(domain);
+        database.init_domain_view_graph(domain_name, domain_id, domain_entity_id);
 
         topic = std::make_shared<database::Topic>(
             "HelloWorld",
@@ -121,7 +122,7 @@ public:
 
     }
 
-    EntityId domain_id;
+    EntityId domain_entity_id;
     std::shared_ptr<eprosima::statistics_backend::database::Domain> domain;
 
     Qos entity_qos;
@@ -186,7 +187,7 @@ TEST_F(database_domain_view_graph_tests, complete_with_two_participants)
         database.link_participant_with_process(participant_id_1, process_id_1);
 
         // Add participant to graph
-        database.update_participant_in_graph(domain_id, host_id, user_id, process_id_1, participant_id_1);
+        database.update_participant_in_graph(domain_entity_id, host_id, user_id, process_id_1, participant_id_1);
 
         // Insert topic
         topic_id = database.insert(topic);
@@ -199,13 +200,13 @@ TEST_F(database_domain_view_graph_tests, complete_with_two_participants)
         datawriter_id_1 = database.insert(datawriter_1);
 
         // Add endpoint and topic to graph
-        database.update_endpoint_in_graph(domain_id, participant_id_1, topic_id, datawriter_id_1);
+        database.update_endpoint_in_graph(domain_entity_id, participant_id_1, topic_id, datawriter_id_1);
 
         // Insert participant_2 from process_2
         process_id_2 = database.insert(process_2);
         participant_id_2 = database.insert(participant_2);
         database.link_participant_with_process(participant_id_2, process_id_2);
-        database.update_participant_in_graph(domain_id, host_id, user_id, process_id_2, participant_id_2);
+        database.update_participant_in_graph(domain_entity_id, host_id, user_id, process_id_2, participant_id_2);
 
         // Insert locator
         locator_id_2 = database.insert(locator_2);
@@ -215,7 +216,7 @@ TEST_F(database_domain_view_graph_tests, complete_with_two_participants)
         datareader_id_2 = database.insert(datareader_2);
 
         // Add endpoint and topic to graph
-        database.update_endpoint_in_graph(domain_id, participant_id_2, topic_id, datareader_id_2);
+        database.update_endpoint_in_graph(domain_entity_id, participant_id_2, topic_id, datareader_id_2);
 
         // Load reference graph
         load_file(DOMAIN_VIEW_GRAPH_TWO_PARTICIPANTS_DUMP_FILE, json_graph);
@@ -225,8 +226,8 @@ TEST_F(database_domain_view_graph_tests, complete_with_two_participants)
     }
     // No Update
     {
-        database.update_participant_in_graph(domain_id, host_id, user_id, process_id_1, participant_id_1);
-        database.update_endpoint_in_graph(domain_id, participant_id_1, topic_id, datawriter_id_1);
+        database.update_participant_in_graph(domain_entity_id, host_id, user_id, process_id_1, participant_id_1);
+        database.update_endpoint_in_graph(domain_entity_id, participant_id_1, topic_id, datawriter_id_1);
 
         // Load reference graph
         load_file(DOMAIN_VIEW_GRAPH_TWO_PARTICIPANTS_DUMP_FILE, json_graph);
@@ -241,43 +242,43 @@ TEST_F(database_domain_view_graph_tests, complete_with_two_participants)
         std::shared_ptr<database::Entity> participant_entity_modified = std::const_pointer_cast<database::Entity>(
             participant_const_entity_modified);
         participant_entity_modified->alias = "participant_1_modified";
-        database.update_graph_on_updated_entity(domain_id, participant_id_1);
+        database.update_graph_on_updated_entity(domain_entity_id, participant_id_1);
 
         std::shared_ptr<const database::Entity> host_const_entity_modified = database.get_entity(host_id);
         std::shared_ptr<database::Entity> host_entity_modified = std::const_pointer_cast<database::Entity>(
             host_const_entity_modified);
         host_entity_modified->alias = "eprosima-host_modified";
-        database.update_graph_on_updated_entity(domain_id, host_id);
+        database.update_graph_on_updated_entity(domain_entity_id, host_id);
 
         std::shared_ptr<const database::Entity> user_const_entity_modified = database.get_entity(user_id);
         std::shared_ptr<database::Entity> user_entity_modified = std::const_pointer_cast<database::Entity>(
             user_const_entity_modified);
         user_entity_modified->alias = "eprosima_modified";
-        database.update_graph_on_updated_entity(domain_id, user_id);
+        database.update_graph_on_updated_entity(domain_entity_id, user_id);
 
         std::shared_ptr<const database::Entity> process_const_entity_modified = database.get_entity(process_id_1);
         std::shared_ptr<database::Entity> process_entity_modified = std::const_pointer_cast<database::Entity>(
             process_const_entity_modified);
         process_entity_modified->alias = "1234_modified";
-        database.update_graph_on_updated_entity(domain_id, process_id_1);
+        database.update_graph_on_updated_entity(domain_entity_id, process_id_1);
 
         std::shared_ptr<const database::Entity> topic_const_entity_modified = database.get_entity(topic_id);
         std::shared_ptr<database::Entity> topic_entity_modified = std::const_pointer_cast<database::Entity>(
             topic_const_entity_modified);
         topic_entity_modified->alias = "HelloWorld_modified";
-        database.update_graph_on_updated_entity(domain_id, topic_id);
+        database.update_graph_on_updated_entity(domain_entity_id, topic_id);
 
         std::shared_ptr<const database::Entity> datawriter_const_entity_modified = database.get_entity(datawriter_id_1);
         std::shared_ptr<database::Entity> datawriter_entity_modified = std::const_pointer_cast<database::Entity>(
             datawriter_const_entity_modified);
         datawriter_entity_modified->alias = "publisher_modified";
-        database.update_graph_on_updated_entity(domain_id, datawriter_id_1);
+        database.update_graph_on_updated_entity(domain_entity_id, datawriter_id_1);
 
         std::shared_ptr<const database::Entity> datareader_const_entity_modified = database.get_entity(datareader_id_2);
         std::shared_ptr<database::Entity> datareader_entity_modified = std::const_pointer_cast<database::Entity>(
             datareader_const_entity_modified);
         datareader_entity_modified->alias = "subscriber_modified";
-        database.update_graph_on_updated_entity(domain_id, datareader_id_2);
+        database.update_graph_on_updated_entity(domain_entity_id, datareader_id_2);
 
         // Load reference graph
         load_file(DOMAIN_VIEW_GRAPH_UPDATED_ENTITIES_DUMP_FILE, json_graph);
@@ -293,47 +294,47 @@ TEST_F(database_domain_view_graph_tests, complete_with_two_participants)
         std::shared_ptr<database::Entity> participant_entity_modified = std::const_pointer_cast<database::Entity>(
             participant_const_entity_modified);
         participant_entity_modified->alias = "participant_1";
-        database.update_graph_on_updated_entity(domain_id, participant_id_1);
+        database.update_graph_on_updated_entity(domain_entity_id, participant_id_1);
 
         std::shared_ptr<const database::Entity> host_const_entity_modified = database.get_entity(host_id);
         std::shared_ptr<database::Entity> host_entity_modified = std::const_pointer_cast<database::Entity>(
             host_const_entity_modified);
         host_entity_modified->alias = "eprosima-host";
-        database.update_graph_on_updated_entity(domain_id, host_id);
+        database.update_graph_on_updated_entity(domain_entity_id, host_id);
 
         std::shared_ptr<const database::Entity> user_const_entity_modified = database.get_entity(user_id);
         std::shared_ptr<database::Entity> user_entity_modified = std::const_pointer_cast<database::Entity>(
             user_const_entity_modified);
         user_entity_modified->alias = "eprosima";
-        database.update_graph_on_updated_entity(domain_id, user_id);
+        database.update_graph_on_updated_entity(domain_entity_id, user_id);
 
         std::shared_ptr<const database::Entity> process_const_entity_modified = database.get_entity(process_id_1);
         std::shared_ptr<database::Entity> process_entity_modified = std::const_pointer_cast<database::Entity>(
             process_const_entity_modified);
         process_entity_modified->alias = "1234";
-        database.update_graph_on_updated_entity(domain_id, process_id_1);
+        database.update_graph_on_updated_entity(domain_entity_id, process_id_1);
 
         std::shared_ptr<const database::Entity> topic_const_entity_modified = database.get_entity(topic_id);
         std::shared_ptr<database::Entity> topic_entity_modified = std::const_pointer_cast<database::Entity>(
             topic_const_entity_modified);
         topic_entity_modified->alias = "HelloWorld";
-        database.update_graph_on_updated_entity(domain_id, topic_id);
+        database.update_graph_on_updated_entity(domain_entity_id, topic_id);
 
         std::shared_ptr<const database::Entity> datawriter_const_entity_modified = database.get_entity(datawriter_id_1);
         std::shared_ptr<database::Entity> datawriter_entity_modified = std::const_pointer_cast<database::Entity>(
             datawriter_const_entity_modified);
         datawriter_entity_modified->alias = "publisher";
-        database.update_graph_on_updated_entity(domain_id, datawriter_id_1);
+        database.update_graph_on_updated_entity(domain_entity_id, datawriter_id_1);
 
         std::shared_ptr<const database::Entity> datareader_const_entity_modified = database.get_entity(datareader_id_2);
         std::shared_ptr<database::Entity> datareader_entity_modified = std::const_pointer_cast<database::Entity>(
             datareader_const_entity_modified);
         datareader_entity_modified->alias = "subscriber";
-        database.update_graph_on_updated_entity(domain_id, datareader_id_2);
+        database.update_graph_on_updated_entity(domain_entity_id, datareader_id_2);
 
         // Change status
         database.change_entity_status(datawriter_id_1, false);
-        database.update_endpoint_in_graph(domain_id, participant_id_1, topic_id, datawriter_id_1);
+        database.update_endpoint_in_graph(domain_entity_id, participant_id_1, topic_id, datawriter_id_1);
 
         // Load reference graph
         load_file(DOMAIN_VIEW_GRAPH_UNDISCOVER_ENDPOINT_DUMP_FILE, json_graph);
@@ -354,7 +355,7 @@ TEST_F(database_domain_view_graph_tests, complete_with_two_participants)
     // Undiscovery second participant
     {
         database.change_entity_status(participant_id_2, false);
-        database.update_endpoint_in_graph(domain_id, participant_id_2, topic_id, datareader_id_2);
+        database.update_endpoint_in_graph(domain_entity_id, participant_id_2, topic_id, datareader_id_2);
         database.update_participant_in_graph(domain->id, host_id, user_id, process_id_2, participant_id_2);
 
         // Load reference graph
@@ -382,7 +383,7 @@ TEST_F(database_domain_view_graph_tests, host_insert_failure)
         participant_id_1 = database.insert(participant_1);
 
         // Add participant to graph
-        database.update_participant_in_graph(domain_id, EntityId(), EntityId(), EntityId(), participant_id_1);
+        database.update_participant_in_graph(domain_entity_id, EntityId(), EntityId(), EntityId(), participant_id_1);
 
         // Insert topic
         topic_id = database.insert(topic);
@@ -395,7 +396,7 @@ TEST_F(database_domain_view_graph_tests, host_insert_failure)
         datawriter_id_1 = database.insert(datawriter_1);
 
         // Add endpoint and topic to graph
-        database.update_endpoint_in_graph(domain_id, participant_id_1, topic_id, datawriter_id_1);
+        database.update_endpoint_in_graph(domain_entity_id, participant_id_1, topic_id, datawriter_id_1);
 
         // Load reference graph
         load_file(DOMAIN_VIEW_GRAPH_HOST_INSERT_FAILURE_DUMP_FILE, json_graph);
@@ -406,7 +407,7 @@ TEST_F(database_domain_view_graph_tests, host_insert_failure)
     {
         // Delete topic with no endpoint in the graph
         database.change_entity_status(datawriter_id_1, false);
-        database.update_endpoint_in_graph(domain_id, participant_id_1, topic_id, datawriter_id_1);
+        database.update_endpoint_in_graph(domain_entity_id, participant_id_1, topic_id, datawriter_id_1);
 
         // Load reference graph
         load_file(DOMAIN_VIEW_GRAPH_EMPTY_DOMAIN_DUMP_FILE, json_graph);
@@ -437,7 +438,7 @@ TEST_F(database_domain_view_graph_tests, user_insert_failure)
     participant_id_1 = database.insert(participant_1);
 
     // Add participant to graph
-    database.update_participant_in_graph(domain_id, host_id, EntityId(), EntityId(), participant_id_1);
+    database.update_participant_in_graph(domain_entity_id, host_id, EntityId(), EntityId(), participant_id_1);
 
     // Insert topic
     topic_id = database.insert(topic);
@@ -450,7 +451,7 @@ TEST_F(database_domain_view_graph_tests, user_insert_failure)
     datawriter_id_1 = database.insert(datawriter_1);
 
     // Add endpoint and topic to graph
-    database.update_endpoint_in_graph(domain_id, participant_id_1, topic_id, datawriter_id_1);
+    database.update_endpoint_in_graph(domain_entity_id, participant_id_1, topic_id, datawriter_id_1);
 
     // Load reference graph
     load_file(DOMAIN_VIEW_GRAPH_USER_INSERT_FAILURE_DUMP_FILE, json_graph);
@@ -480,7 +481,7 @@ TEST_F(database_domain_view_graph_tests, process_insert_failure)
     participant_id_1 = database.insert(participant_1);
 
     // Add participant to graph
-    database.update_participant_in_graph(domain_id, host_id, user_id, EntityId(), participant_id_1);
+    database.update_participant_in_graph(domain_entity_id, host_id, user_id, EntityId(), participant_id_1);
 
     // Insert topic
     topic_id = database.insert(topic);
@@ -493,7 +494,7 @@ TEST_F(database_domain_view_graph_tests, process_insert_failure)
     datawriter_id_1 = database.insert(datawriter_1);
 
     // Add endpoint and topic to graph
-    database.update_endpoint_in_graph(domain_id, participant_id_1, topic_id, datawriter_id_1);
+    database.update_endpoint_in_graph(domain_entity_id, participant_id_1, topic_id, datawriter_id_1);
 
     // Load reference graph
     load_file(DOMAIN_VIEW_GRAPH_PROCESS_INSERT_FAILURE_DUMP_FILE, json_graph);
@@ -525,7 +526,7 @@ TEST_F(database_domain_view_graph_tests, regenerate_graph_functionality)
     database.link_participant_with_process(participant_id_1, process_id_1);
 
     // Add participant to graph
-    database.update_participant_in_graph(domain_id, host_id, user_id, process_id_1, participant_id_1);
+    database.update_participant_in_graph(domain_entity_id, host_id, user_id, process_id_1, participant_id_1);
 
     // Insert topic
     topic_id = database.insert(topic);
@@ -538,13 +539,13 @@ TEST_F(database_domain_view_graph_tests, regenerate_graph_functionality)
     datawriter_id_1 = database.insert(datawriter_1);
 
     // Add endpoint and topic to graph
-    database.update_endpoint_in_graph(domain_id, participant_id_1, topic_id, datawriter_id_1);
+    database.update_endpoint_in_graph(domain_entity_id, participant_id_1, topic_id, datawriter_id_1);
 
     // Insert participant_2 from process_2
     process_id_2 = database.insert(process_2);
     participant_id_2 = database.insert(participant_2);
     database.link_participant_with_process(participant_id_2, process_id_2);
-    database.update_participant_in_graph(domain_id, host_id, user_id, process_id_2, participant_id_2);
+    database.update_participant_in_graph(domain_entity_id, host_id, user_id, process_id_2, participant_id_2);
 
     // Insert locator
     locator_id_2 = database.insert(locator_2);
@@ -554,26 +555,26 @@ TEST_F(database_domain_view_graph_tests, regenerate_graph_functionality)
     datareader_id_2 = database.insert(datareader_2);
 
     // Add endpoint and topic to graph
-    database.update_endpoint_in_graph(domain_id, participant_id_2, topic_id, datareader_id_2);
+    database.update_endpoint_in_graph(domain_entity_id, participant_id_2, topic_id, datareader_id_2);
 
     // Undiscovery datawriter publisher
     load_file(DOMAIN_VIEW_GRAPH_UNDISCOVER_ENDPOINT_DUMP_FILE, json_graph);
     database.change_entity_status(datawriter_id_1, false);
-    database.regenerate_domain_graph(domain_id);
+    database.regenerate_domain_graph(domain_entity_id);
 
     ASSERT_EQ(json_graph, database.get_domain_view_graph(0));
 
     // Undiscovery first participant
     load_file(DOMAIN_VIEW_GRAPH_UNDISCOVER_PARTICIPANT_DUMP_FILE, json_graph);
     database.change_entity_status(participant_id_1, false);
-    database.regenerate_domain_graph(domain_id);
+    database.regenerate_domain_graph(domain_entity_id);
 
     ASSERT_EQ(json_graph, database.get_domain_view_graph(0));
 
     // Undiscovery second participant
     load_file(DOMAIN_VIEW_GRAPH_EMPTY_DOMAIN_DUMP_FILE, json_graph);
     database.change_entity_status(participant_id_2, false);
-    database.regenerate_domain_graph(domain_id);
+    database.regenerate_domain_graph(domain_entity_id);
     ASSERT_EQ(json_graph, database.get_domain_view_graph(0));
 }
 
@@ -601,7 +602,7 @@ TEST_F(database_domain_view_graph_tests, graph_with_strange_user_host_characters
     database.link_participant_with_process(participant_id_1, weird_process_id);
 
     // Add participant to graph
-    database.update_participant_in_graph(domain_id, host_id, user_id, process_id_1, participant_id_1);
+    database.update_participant_in_graph(domain_entity_id, host_id, user_id, process_id_1, participant_id_1);
 
     // Retrieve graph
     json_graph = database.get_domain_view_graph(0);

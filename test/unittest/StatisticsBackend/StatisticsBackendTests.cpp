@@ -491,7 +491,7 @@ TEST_F(statistics_backend_tests, set_alias)
 {
     StatisticsBackendTest::set_database(db);
     auto domains = db->get_entities_by_name(EntityKind::DOMAIN, "domain2");
-    db->init_domain_view_graph("domain2", domains[0].second);
+    db->init_domain_view_graph("domain2", 2, domains[0].second);
     StatisticsBackendTest::regenerate_domain_graph(domains[0].second);
 
     for (auto entity : entities)
@@ -541,7 +541,7 @@ TEST_F(statistics_backend_tests, get_domain_view_graph)
     StatisticsBackendTest::set_database(db);
 
     // Get database graph
-    db->init_domain_view_graph("domain2", EntityId(7));
+    db->init_domain_view_graph("domain2", 2, EntityId(7));
     StatisticsBackendTest::regenerate_domain_graph(EntityId(7));
     // Load reference graph
     Graph json_graph;
