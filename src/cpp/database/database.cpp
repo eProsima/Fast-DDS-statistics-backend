@@ -3950,12 +3950,8 @@ bool Database::regenerate_domain_graph_nts(
     Graph* domain_graph = &domain_view_graph[domain_entity_id];
 
     std::shared_ptr<const Entity> db_entity = get_entity_nts(domain_entity_id);
-    if (db_entity == nullptr || db_entity->kind != EntityKind::DOMAIN)
-    {
-        EPROSIMA_LOG_WARNING(BACKEND_DATABASE,
-                "Error regenerating graph. EntityId does not correspond to a valid Domain");
-        return false;
-    }
+    assert((db_entity != nullptr) && (db_entity->kind == EntityKind::DOMAIN));
+
     std::shared_ptr<const Domain> domain_entity = std::static_pointer_cast<const Domain>(db_entity);
     (*domain_graph)[KIND_TAG] = DOMAIN_ENTITY_TAG;
     (*domain_graph)[DOMAIN_INFO_TAG][DOMAIN_NAME_TAG] = domain_entity->name;
