@@ -14,12 +14,13 @@
 
 #include <TrafficInjector.h>
 
-#include <fastdds/dds/domain/DomainParticipantFactory.hpp>
+#include <fastdds/dds/core/ReturnCode.hpp>
 #include <fastdds/dds/domain/DomainParticipant.hpp>
-#include <fastdds/dds/subscriber/Subscriber.hpp>
+#include <fastdds/dds/domain/DomainParticipantFactory.hpp>
 #include <fastdds/dds/subscriber/DataReader.hpp>
 #include <fastdds/dds/subscriber/DataReaderListener.hpp>
 #include <fastdds/dds/subscriber/SampleInfo.hpp>
+#include <fastdds/dds/subscriber/Subscriber.hpp>
 #include <fastdds/dds/topic/Topic.hpp>
 
 #include <gtest_aux.hpp>
@@ -37,10 +38,18 @@ class StatisticsReaderListener : public eprosima::fastdds::dds::DataReaderListen
     void on_data_available(
             eprosima::fastdds::dds::DataReader* reader)
     {
-        // Each message is only received once
-        ASSERT_TRUE(message_received_.find(reader->get_topicdescription()->get_name()) != message_received_.end());
-        ASSERT_FALSE(message_received_[reader->get_topicdescription()->get_name()]);
-        message_received_[reader->get_topicdescription()->get_name()] = true;
+        void* data = reader->type()->create_data();
+        eprosima::fastdds::dds::SampleInfo info;
+        eprosima::fastdds::dds::ReturnCode_t retcode = reader->take_next_sample(data, &info);
+        ASSERT_EQ(retcode, eprosima::fastdds::dds::RETCODE_OK);
+        if (info.valid_data)
+        {
+            // Each message is only received once
+            ASSERT_TRUE(message_received_.find(reader->get_topicdescription()->get_name()) != message_received_.end());
+            ASSERT_FALSE(message_received_[reader->get_topicdescription()->get_name()]);
+            message_received_[reader->get_topicdescription()->get_name()] = true;
+        }
+        reader->type()->delete_data(data);
     }
 
 public:
