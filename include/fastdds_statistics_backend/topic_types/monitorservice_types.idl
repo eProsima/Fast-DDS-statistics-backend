@@ -95,7 +95,8 @@ module statistics {
         const StatusKind DEADLINE_MISSED           = 6;
         const StatusKind SAMPLE_LOST               = 7;
         const StatusKind EXTENDED_INCOMPATIBLE_QOS = 8;
-        const StatusKind STATUSES_SIZE             = 9;
+        const StatusKind CONNECTION_CLOSED         = 9;
+        const StatusKind STATUSES_SIZE             = 10;
     }; // module StatusKind
 
     union MonitorServiceData switch(StatusKind::StatusKind)
@@ -118,6 +119,8 @@ module statistics {
             SampleLostStatus_s sample_lost_status;
         case StatusKind::EXTENDED_INCOMPATIBLE_QOS:
             ExtendedIncompatibleQoSStatusSeq_s extended_incompatible_qos_status;
+        case StatusKind::CONNECTION_CLOSED:
+            octet bye;
         case StatusKind::STATUSES_SIZE:
             octet statuses_size;
     };
