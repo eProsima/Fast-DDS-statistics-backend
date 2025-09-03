@@ -455,7 +455,8 @@ struct DataReader : DDSEndpoint
             DiscoverySource datareader_discovery_source = DiscoverySource::UNKNOWN,
             DomainId original_domain = UNKNOWN_DOMAIN_ID) noexcept
         : DDSEndpoint(EntityKind::DATAREADER, datareader_name, datareader_qos, datareader_guid, datareader_participant,
-                datareader_topic, status, datareader_app_id, datareader_app_metadata, datareader_discovery_source, original_domain)
+                datareader_topic, status, datareader_app_id, datareader_app_metadata, datareader_discovery_source,
+                original_domain)
     {
     }
 
@@ -489,7 +490,8 @@ struct DataWriter : DDSEndpoint
             DiscoverySource datawriter_discovery_source = DiscoverySource::UNKNOWN,
             DomainId original_domain = UNKNOWN_DOMAIN_ID) noexcept
         : DDSEndpoint(EntityKind::DATAWRITER, datawriter_name, datawriter_qos, datawriter_guid, datawriter_participant,
-                datawriter_topic, status, datawriter_app_id, datawriter_app_metadata, datawriter_discovery_source, original_domain)
+                datawriter_topic, status, datawriter_app_id, datawriter_app_metadata, datawriter_discovery_source,
+                original_domain)
     {
     }
 
