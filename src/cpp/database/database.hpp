@@ -126,15 +126,15 @@ public:
      * @param participant_id The EntityId of the participant that the process might be linked to.
      * @param physical_entities_ids Map where host-user-process EntityIds are stored when inserted in database.
      */
-     void process_physical_entities(
-        const std::string& host_name,
-        const std::string& user_name,
-        const std::string& process_name,
-        const std::string& process_pid,
-        const DiscoverySource& discovery_source,
-        bool& should_link_process_participant,
-        const EntityId& participant_id,
-        std::map<std::string, EntityId>& physical_entities_ids);
+    void process_physical_entities(
+            const std::string& host_name,
+            const std::string& user_name,
+            const std::string& process_name,
+            const std::string& process_pid,
+            const DiscoverySource& discovery_source,
+            bool& should_link_process_participant,
+            const EntityId& participant_id,
+            std::map<std::string, EntityId>& physical_entities_ids);
 
     /**
      * @brief Check if the topic is already in the database. Topic type must match.

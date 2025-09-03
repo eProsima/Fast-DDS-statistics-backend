@@ -222,7 +222,8 @@ void Database::process_physical_entities(
         if (const_process->user == user)
         {
             process = std::const_pointer_cast<Process>(const_process);
-            if (discovery_source == DiscoverySource::DISCOVERY && process->discovery_source != DiscoverySource::DISCOVERY)
+            if (discovery_source == DiscoverySource::DISCOVERY &&
+                    process->discovery_source != DiscoverySource::DISCOVERY)
             {
                 // If the process already exists but it has now been discovered thorugh the standard procedure, its state
                 // must be changed
@@ -4212,7 +4213,7 @@ Graph Database::get_entity_subgraph_nts(
     entity_graph[KIND_TAG] =  entity_kind_str[(int)entity->kind];
     entity_graph[DISCOVERY_SOURCE_TAG] =  discovery_source_str[(int)entity->discovery_source];
 
-    if( entity_graph[DISCOVERY_SOURCE_TAG] != entity->discovery_source)
+    if ( entity_graph[DISCOVERY_SOURCE_TAG] != entity->discovery_source)
     {
         entity_graph[DISCOVERY_SOURCE_TAG] =  discovery_source_str[(int)entity->discovery_source];
         entity_graph_updated = true;
