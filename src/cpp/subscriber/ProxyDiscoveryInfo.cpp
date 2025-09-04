@@ -20,11 +20,13 @@
 #include "subscriber/ProxyDiscoveryInfo.hpp"
 #include "subscriber/QosSerializer.hpp"
 #include "subscriber/StatisticsParticipantListener.hpp"
-#include <fastdds/rtps/common/Locator.hpp>
+
+#include <fastdds/dds/domain/DomainParticipantFactory.hpp>
 #include <fastdds/dds/xtypes/dynamic_types/DynamicTypeBuilder.hpp>
 #include <fastdds/dds/xtypes/dynamic_types/DynamicTypeBuilderFactory.hpp>
 #include <fastdds/dds/xtypes/utils.hpp>
 #include <fastdds/dds/log/Log.hpp>
+#include <fastdds/rtps/common/Locator.hpp>
 
 namespace eprosima {
 namespace statistics_backend {
@@ -89,7 +91,7 @@ std::string get_address(
     return "localhost";
 }
 
-EntityDiscoveryInfo get_discovery_info(
+database::EntityDiscoveryInfo get_discovery_info(
         const EntityId& domain_of_discoverer,
         const fastdds::rtps::ParticipantBuiltinTopicData& participant_data,
         const fastdds::rtps::ParticipantDiscoveryStatus& reason,
@@ -102,7 +104,7 @@ EntityDiscoveryInfo get_discovery_info(
             "___";
     const std::string metatraffic_alias = "_metatraffic_";
 
-    EntityDiscoveryInfo discovery_info(EntityKind::PARTICIPANT);
+    database::EntityDiscoveryInfo discovery_info(EntityKind::PARTICIPANT);
     // domain_id is set to the discoverer domain in order to avoid issues when registering
     // the entity in the database. The entity original domain id is passed through
     // the original_domain_id field
@@ -180,14 +182,14 @@ EntityDiscoveryInfo get_discovery_info(
     return discovery_info;
 }
 
-EntityDiscoveryInfo get_discovery_info(
+database::EntityDiscoveryInfo get_discovery_info(
         const EntityId& domain_of_discoverer,
         const fastdds::rtps::SubscriptionBuiltinTopicData& reader_data,
         const fastdds::rtps::ReaderDiscoveryStatus& reason,
         const DiscoverySource&  discovery_source
         )
 {
-    EntityDiscoveryInfo discovery_info(EntityKind::DATAREADER);
+    database::EntityDiscoveryInfo discovery_info(EntityKind::DATAREADER);
 
     // domain_id is set to the discoverer domain in order to avoid issues when registering
     // the entity in the database. The entity original domain id is passed through
@@ -256,14 +258,14 @@ EntityDiscoveryInfo get_discovery_info(
     return discovery_info;
 }
 
-EntityDiscoveryInfo get_discovery_info(
+database::EntityDiscoveryInfo get_discovery_info(
         const EntityId& domain_of_discoverer,
         const fastdds::rtps::PublicationBuiltinTopicData& writer_data,
         const fastdds::rtps::WriterDiscoveryStatus& reason,
         const DiscoverySource& discovery_source
         )
 {
-    EntityDiscoveryInfo discovery_info(EntityKind::DATAWRITER);
+    database::EntityDiscoveryInfo discovery_info(EntityKind::DATAWRITER);
 
     // domain_id is set to the discoverer domain in order to avoid issues when registering
     // the entity in the database. The entity original domain id is passed through

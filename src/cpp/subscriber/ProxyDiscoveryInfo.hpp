@@ -37,21 +37,21 @@ using EntityDiscoveryInfo = database::EntityDiscoveryInfo;
 std::string get_address(
         const fastdds::rtps::ParticipantBuiltinTopicData& info);
 
-EntityDiscoveryInfo get_discovery_info(
+database::EntityDiscoveryInfo get_discovery_info(
         const EntityId& domain_of_discoverer,
         const fastdds::rtps::ParticipantBuiltinTopicData& participant_data,
         const fastdds::rtps::ParticipantDiscoveryStatus& reason,
         const DiscoverySource& discovery_source
         );
 
-EntityDiscoveryInfo get_discovery_info(
+database::EntityDiscoveryInfo get_discovery_info(
         const EntityId& domain_of_discoverer,
         const fastdds::rtps::SubscriptionBuiltinTopicData& reader_data,
         const fastdds::rtps::ReaderDiscoveryStatus& reason,
         const DiscoverySource&  discovery_source
         );
 
-EntityDiscoveryInfo get_discovery_info(
+database::EntityDiscoveryInfo get_discovery_info(
         const EntityId& domain_of_discoverer,
         const fastdds::rtps::PublicationBuiltinTopicData& writer_data,
         const fastdds::rtps::WriterDiscoveryStatus& reason,
