@@ -114,7 +114,7 @@ public:
         , data_queue_(&database_)
         , monitor_service_data_queue_(&database_)
         , data_mask_(eprosima::statistics_backend::DataKindMask::all())
-        , reader_listener_(&data_queue_, &monitor_service_data_queue_, &database_)
+        , reader_listener_(0, &data_queue_, &monitor_service_data_queue_, &database_)
     {
     }
 

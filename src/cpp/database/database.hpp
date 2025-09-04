@@ -99,6 +99,8 @@ public:
      * @param status The status of the DomainParticipant.
      * @param app_id The AppId of the DomainParticipant.
      * @param app_metadata The App metadata of the DomainParticipant.
+     * @param discovery_source The DiscoverySource of the DomainParticipant.
+     * @param original_domain The original DomainId of the DomainParticipant, UNKNOWN_DOMAIN_ID if not specified.
      *
      * @return EntityId of the DomainParticipant once inserted.
      */
@@ -109,7 +111,9 @@ public:
             const EntityId& domain_id,
             const StatusLevel& status,
             const AppId& app_id,
-            const std::string& app_metadata);
+            const std::string& app_metadata,
+            const DiscoverySource& discovery_source,
+            const DomainId& original_domain);
 
     /**
      * @brief Process Host-User-Process entities and insert them in database.
@@ -117,6 +121,7 @@ public:
      * @param user_name The name of the user.
      * @param process_name The name of the process.
      * @param process_pid The pid of the process.
+     * @param discovery_source The discovery source of the physical entities.
      * @param should_link_process_participant If true, try to link process to participant.
      * @param participant_id The EntityId of the participant that the process might be linked to.
      * @param physical_entities_ids Map where host-user-process EntityIds are stored when inserted in database.
@@ -126,6 +131,7 @@ public:
             const std::string& user_name,
             const std::string& process_name,
             const std::string& process_pid,
+            const DiscoverySource& discovery_source,
             bool& should_link_process_participant,
             const EntityId& participant_id,
             std::map<std::string, EntityId>& physical_entities_ids);
@@ -187,6 +193,8 @@ public:
      * @param participant_id The EntityId of the Participant related to the Endpoint.
      * @param topic_id The EntityId of the Topic related to the Endpoint.
      * @param app_data The AppId and app metadata related to the Endpoint.
+     * @param discovery_source The DiscoverySource of the Endpoint.
+     * @param original_domain The original DomainId of the Endpoint, UNKNOWN_DOMAIN_ID if not specified.
      *
      * @return EntityId of the Endpoint once inserted.
      */
@@ -200,7 +208,9 @@ public:
             const EntityKind& kind,
             const EntityId& participant_id,
             const EntityId& topic_id,
-            const std::pair<AppId, std::string>& app_data);
+            const std::pair<AppId, std::string>& app_data,
+            const DiscoverySource& discovery_source,
+            const DomainId& original_domain);
 
     /**
      * @brief Insert a new entity into the database.
@@ -724,6 +734,16 @@ public:
             const EntityId& entity_id);
 
     /**
+     * @brief Returns whether the entity was discovered using a proxy message
+     *
+     * @param entity_id The ID of the entity whose proxy attribute is requested.
+     *
+     * @return True if proxy, false otherwise.
+     */
+    bool is_proxy(
+            const EntityId& entity_id);
+
+    /**
      * @brief Get the meta information of a given entity.
      *
      * @param entity_id The entity for which the meta information is retrieved.
@@ -1170,6 +1190,8 @@ protected:
      * @param topic The Topic related to the Endpoint.
      * @param app_id The AppId related to the Endpoint.
      * @param app_metadata The app metadata related to the Endpoint.
+     * @param discovery_source The DiscoverySource related to the Endpoint.
+     * @param original_domain The DomainId of the original domain where the Endpoint has been discovered.
      *
      * @return EntityId of the Endpoint once inserted.
      */
@@ -1181,7 +1203,9 @@ protected:
             const std::shared_ptr<DomainParticipant>& participant,
             const std::shared_ptr<Topic>& topic,
             const AppId& app_id,
-            const std::string& app_metadata);
+            const std::string& app_metadata,
+            const DiscoverySource& discovery_source,
+            const DomainId& original_domain);
 
     /**
      * @brief Get the locator with id \c entity_id. This method is not thread safe.

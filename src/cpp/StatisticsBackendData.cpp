@@ -456,6 +456,11 @@ void StatisticsBackendData::stop_monitor(
     monitors_by_entity_.erase(it);
 }
 
+database::DatabaseEntityQueue* StatisticsBackendData::get_entity_queue()
+{
+    return entity_queue_;
+}
+
 } // namespace details
 } // namespace statistics_backend
 } // namespace eprosima

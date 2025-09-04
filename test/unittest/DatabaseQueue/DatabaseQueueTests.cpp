@@ -276,7 +276,9 @@ struct InsertParticipantArgs
                 const EntityId& domain_id,
                 const StatusLevel& status,
                 const AppId& app_id,
-                const std::string& app_metadata)> func)
+                const std::string& app_metadata,
+                const DiscoverySource& discovery_source,
+                const DomainId& original_domain)> func)
         : callback_(func)
     {
     }
@@ -288,7 +290,9 @@ struct InsertParticipantArgs
             const EntityId& domain_id,
             const StatusLevel& status,
             const AppId& app_id,
-            const std::string& app_metadata)
+            const std::string& app_metadata,
+            const DiscoverySource& discovery_source,
+            const DomainId& original_domain)
     {
         name_ = name;
         qos_ = qos;
@@ -297,7 +301,9 @@ struct InsertParticipantArgs
         status_ = status;
         app_id_ = app_id;
         app_metadata_ = app_metadata;
-        return callback_(name, qos, guid, domain_id, status, app_id, app_metadata);
+        discovery_source_ = discovery_source;
+        original_domain_ = original_domain;
+        return callback_(name, qos, guid, domain_id, status, app_id, app_metadata, discovery_source, original_domain);
     }
 
     std::function<EntityId(
@@ -307,7 +313,9 @@ struct InsertParticipantArgs
                 const EntityId& domain_id,
                 const StatusLevel& status,
                 const AppId& app_id,
-                const std::string& app_metadata)> callback_;
+                const std::string& app_metadata,
+                const DiscoverySource& discovery_source,
+                const DomainId& original_domain)> callback_;
 
     std::string name_;
     Qos qos_;
@@ -316,6 +324,8 @@ struct InsertParticipantArgs
     StatusLevel status_;
     AppId app_id_;
     std::string app_metadata_;
+    DiscoverySource discovery_source_;
+    DomainId original_domain_;
 };
 
 struct ProcessPhysicalArgs
@@ -326,6 +336,7 @@ struct ProcessPhysicalArgs
                 const std::string& user_name,
                 const std::string& process_name,
                 const std::string& process_pid,
+                const DiscoverySource& discovery_source,
                 bool& should_link_process_participant,
                 const EntityId& participant_id,
                 std::map<std::string, EntityId>& physical_entities_ids)> func)
@@ -338,6 +349,7 @@ struct ProcessPhysicalArgs
             const std::string& user_name,
             const std::string& process_name,
             const std::string& process_pid,
+            const DiscoverySource& discovery_source,
             bool& should_link_process_participant,
             const EntityId& participant_id,
             std::map<std::string, EntityId>& physical_entities_ids)
@@ -346,10 +358,11 @@ struct ProcessPhysicalArgs
         user_name_ = user_name;
         process_name_ = process_name;
         process_pid_ = process_pid;
+        discovery_source_ = discovery_source;
         should_link_process_participant_ = should_link_process_participant;
         participant_id_ = participant_id;
         physical_entities_ids_ = physical_entities_ids;
-        callback_(host_name, user_name, process_name, process_pid, should_link_process_participant, participant_id,
+        callback_(host_name, user_name, process_name, process_pid, discovery_source, should_link_process_participant, participant_id,
                 physical_entities_ids);
     }
 
@@ -358,6 +371,7 @@ struct ProcessPhysicalArgs
                 const std::string& user_name,
                 const std::string& process_name,
                 const std::string& process_pid,
+                const DiscoverySource& discovery_source,
                 bool& should_link_process_participant,
                 const EntityId& participant_id,
                 std::map<std::string, EntityId>& physical_entities_ids)> callback_;
@@ -366,6 +380,7 @@ struct ProcessPhysicalArgs
     std::string user_name_;
     std::string process_name_;
     std::string process_pid_;
+    DiscoverySource discovery_source_;
     bool should_link_process_participant_;
     EntityId participant_id_;
     std::map<std::string, EntityId> physical_entities_ids_;
@@ -422,7 +437,9 @@ struct InsertEndpointArgs
                 const EntityKind& kind,
                 const EntityId& participant_id,
                 const EntityId& topic_id,
-                const std::pair<AppId, std::string> app_data)> func)
+                const std::pair<AppId, std::string> app_data,
+                const DiscoverySource& discovery_source,
+                const DomainId& original_domain) > func)
         : callback_(func)
     {
     }
@@ -438,7 +455,9 @@ struct InsertEndpointArgs
             const EntityKind& kind,
             const EntityId& participant_id,
             const EntityId& topic_id,
-            const std::pair<AppId, std::string> app_data)
+            const std::pair<AppId, std::string> app_data,
+            const DiscoverySource& discovery_source,
+            const DomainId& original_domain)
     {
         endpoint_guid_ = endpoint_guid;
         name_ = name;
@@ -450,8 +469,10 @@ struct InsertEndpointArgs
         participant_id_ = participant_id;
         topic_id_ = topic_id;
         app_data_ = app_data;
+        discovery_source_ = discovery_source;
+        original_domain_ = original_domain;
         return callback_(endpoint_guid, name, alias, qos, is_virtual_metatraffic, locators, kind, participant_id,
-                       topic_id, app_data);
+                       topic_id, app_data, discovery_source, original_domain);
     }
 
     std::function<EntityId(
@@ -464,7 +485,9 @@ struct InsertEndpointArgs
                 const EntityKind& kind,
                 const EntityId& participant_id,
                 const EntityId& topic_id,
-                const std::pair<AppId, std::string> app_data)> callback_;
+                const std::pair<AppId, std::string> app_data,
+                const DiscoverySource& discovery_source,
+                const DomainId& original_domain) > callback_;
 
     std::string endpoint_guid_;
     std::string name_;
@@ -476,6 +499,8 @@ struct InsertEndpointArgs
     EntityId participant_id_;
     EntityId topic_id_;
     std::pair<AppId, std::string> app_data_;
+    DiscoverySource discovery_source_;
+    DomainId original_domain_;
 };
 
 class database_queue_tests : public ::testing::Test
@@ -600,6 +625,7 @@ TEST_F(database_queue_tests, push_participant)
     std::string pid = processname;
     std::string username = "user";
     std::string hostname = "host";
+    DiscoverySource discoverysource = DiscoverySource::DISCOVERY;
 
     // Build the process name
     std::stringstream ss;
@@ -624,7 +650,7 @@ TEST_F(database_queue_tests, push_participant)
         EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
                 .WillOnce(Throw(BadParameter("Error")));
 
-        EXPECT_CALL(database, insert_new_participant(_, _, _, _, _, _, _)).Times(0);
+        EXPECT_CALL(database, insert_new_participant(_, _, _, _, _, _, _, _, _)).Times(0);
 
         // Expectations: The status will throw an exception because the participant is not in the database
         EXPECT_CALL(database, change_entity_status(_, false)).Times(AnyNumber())
@@ -644,7 +670,7 @@ TEST_F(database_queue_tests, push_participant)
         EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
                 .WillOnce(Throw(BadParameter("Error")));
 
-        EXPECT_CALL(database, insert_new_participant(_, _, _, _, _, _, _)).Times(0);
+        EXPECT_CALL(database, insert_new_participant(_, _, _, _, _, _, _, _, _)).Times(0);
 
         // Expectations: The status will throw an exception because the participant is not in the database
         EXPECT_CALL(database, change_entity_status(_, true)).Times(AnyNumber())
@@ -672,7 +698,9 @@ TEST_F(database_queue_tests, push_participant)
                     const EntityId& domain_id,
                     const StatusLevel& status,
                     const AppId& app_id,
-                    const std::string& app_metadata)
+                    const std::string& app_metadata,
+                    const DiscoverySource& discovery_source,
+                    const DomainId& original_domain)
                 {
                     EXPECT_EQ(name, participant_name);
                     EXPECT_EQ(qos, participant_qos);
@@ -681,11 +709,13 @@ TEST_F(database_queue_tests, push_participant)
                     EXPECT_EQ(status, StatusLevel::OK_STATUS);
                     EXPECT_EQ(app_id, AppId::UNKNOWN);
                     EXPECT_EQ(app_metadata, "");
+                    EXPECT_EQ(discovery_source, discoverysource);
+                    EXPECT_EQ(original_domain, UNKNOWN_DOMAIN_ID);
 
                     return EntityId(1);
                 });
 
-        EXPECT_CALL(database, insert_new_participant(_, _, _, _, _, _, _)).Times(1)
+        EXPECT_CALL(database, insert_new_participant(_, _, _, _, _, _, _, _, _)).Times(1)
                 .WillOnce(Invoke(&insert_args, &InsertParticipantArgs::insert));
 
         // Precondition: Host-user-process exist
@@ -694,6 +724,7 @@ TEST_F(database_queue_tests, push_participant)
                     const std::string& user_name,
                     const std::string& process_name,
                     const std::string& process_pid,
+                    const DiscoverySource& discovery_source,
                     bool& should_link_process_participant,
                     const EntityId& participant_id,
                     std::map<std::string, EntityId>& physical_entities_ids)
@@ -702,6 +733,7 @@ TEST_F(database_queue_tests, push_participant)
                     EXPECT_EQ(user_name, username);
                     EXPECT_EQ(process_name, processname);
                     EXPECT_EQ(process_pid, pid);
+                    EXPECT_EQ(discovery_source, discoverysource);
                     EXPECT_EQ(should_link_process_participant, true);
                     EXPECT_EQ(participant_id, EntityId(1));
 
@@ -711,7 +743,7 @@ TEST_F(database_queue_tests, push_participant)
 
                 });
 
-        EXPECT_CALL(database, process_physical_entities(_, _, _, _, _, _, _)).Times(1)
+        EXPECT_CALL(database, process_physical_entities(_, _, _, _, _, _, _, _)).Times(1)
                 .WillOnce(Invoke(&process_physical_args, &ProcessPhysicalArgs::process));
 
         // Expectation: Modify graph and notify user
@@ -736,7 +768,7 @@ TEST_F(database_queue_tests, push_participant)
         EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
                 .WillOnce(Return(std::make_pair(EntityId(0), EntityId(1))));
 
-        EXPECT_CALL(database, insert_new_participant(_, _, _, _, _, _, _)).Times(0);
+        EXPECT_CALL(database, insert_new_participant(_, _, _, _, _, _, _, _, _)).Times(0);
 
         // Expectations: The status will be updated
         EXPECT_CALL(database, change_entity_status(EntityId(1), true)).Times(1);
@@ -747,6 +779,7 @@ TEST_F(database_queue_tests, push_participant)
                     const std::string& user_name,
                     const std::string& process_name,
                     const std::string& process_pid,
+                    const DiscoverySource& discovery_source,
                     bool& should_link_process_participant,
                     const EntityId& participant_id,
                     std::map<std::string, EntityId>& physical_entities_ids)
@@ -755,6 +788,7 @@ TEST_F(database_queue_tests, push_participant)
                     EXPECT_EQ(user_name, username);
                     EXPECT_EQ(process_name, processname);
                     EXPECT_EQ(process_pid, pid);
+                    EXPECT_EQ(discovery_source, DiscoverySource::UNKNOWN);
                     EXPECT_EQ(should_link_process_participant, false);
                     EXPECT_EQ(participant_id, EntityId(1));
 
@@ -764,7 +798,7 @@ TEST_F(database_queue_tests, push_participant)
 
                 });
 
-        EXPECT_CALL(database, process_physical_entities(_, _, _, _, _, _, _)).Times(1)
+        EXPECT_CALL(database, process_physical_entities(_, _, _, _, _, _, _, _)).Times(1)
                 .WillOnce(Invoke(&process_physical_args, &ProcessPhysicalArgs::process));
 
         // Expectation: Do not modify graph nor notify user
@@ -789,7 +823,7 @@ TEST_F(database_queue_tests, push_participant)
         EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
                 .WillOnce(Return(std::make_pair(EntityId(0), EntityId(1))));
 
-        EXPECT_CALL(database, process_physical_entities(_, _, _, _, _, _, _)).Times(0);
+        EXPECT_CALL(database, process_physical_entities(_, _, _, _, _, _, _, _)).Times(0);
 
         // Expectations: The status will be updated
         EXPECT_CALL(database, change_entity_status(EntityId(1), false)).Times(1);
@@ -800,6 +834,7 @@ TEST_F(database_queue_tests, push_participant)
                     const std::string& user_name,
                     const std::string& process_name,
                     const std::string& process_pid,
+                    const DiscoverySource& discovery_source,
                     bool& should_link_process_participant,
                     const EntityId& participant_id,
                     std::map<std::string, EntityId>& physical_entities_ids)
@@ -808,6 +843,7 @@ TEST_F(database_queue_tests, push_participant)
                     EXPECT_EQ(user_name, username);
                     EXPECT_EQ(process_name, processname);
                     EXPECT_EQ(process_pid, pid);
+                    EXPECT_EQ(discovery_source, discoverysource);
                     EXPECT_EQ(should_link_process_participant, false);
                     EXPECT_EQ(participant_id, EntityId(1));
 
@@ -817,7 +853,7 @@ TEST_F(database_queue_tests, push_participant)
 
                 });
 
-        EXPECT_CALL(database, process_physical_entities(_, _, _, _, _, _, _)).Times(1)
+        EXPECT_CALL(database, process_physical_entities(_, _, _, _, _, _, _, _)).Times(1)
                 .WillOnce(Invoke(&process_physical_args, &ProcessPhysicalArgs::process));
 
         // Expectation: Modify graph and notify user
@@ -850,7 +886,9 @@ TEST_F(database_queue_tests, push_participant)
                     const EntityId& domain_id,
                     const StatusLevel& status,
                     const AppId& app_id,
-                    const std::string& app_metadata) -> EntityId
+                    const std::string& app_metadata,
+                    const DiscoverySource& discovery_source,
+                    const DomainId& original_domain) -> EntityId
                 {
                     EXPECT_EQ(name, participant_name);
                     EXPECT_EQ(qos, participant_qos);
@@ -859,11 +897,13 @@ TEST_F(database_queue_tests, push_participant)
                     EXPECT_EQ(status, StatusLevel::OK_STATUS);
                     EXPECT_EQ(app_id, AppId::UNKNOWN);
                     EXPECT_EQ(app_metadata, "");
+                    EXPECT_EQ(discovery_source, discoverysource);
+                    EXPECT_EQ(original_domain, UNKNOWN_DOMAIN_ID);
 
                     throw BadParameter("Error");
                 });
 
-        EXPECT_CALL(database, insert_new_participant(_, _, _, _, _, _, _)).Times(1)
+        EXPECT_CALL(database, insert_new_participant(_, _, _, _, _, _, _, _, _)).Times(1)
                 .WillOnce(Invoke(&insert_args, &InsertParticipantArgs::insert));
 
         // Expectations: No notification to user
@@ -894,6 +934,7 @@ TEST_F(database_queue_tests, push_participant_participant_exists)
     std::string pid = processname;
     std::string username = "user";
     std::string hostname = "host";
+    DiscoverySource discoverysource = DiscoverySource::DISCOVERY;
 
     EntityDiscoveryInfo info(EntityKind::PARTICIPANT);
     info.domain_id = EntityId(0);
@@ -910,7 +951,7 @@ TEST_F(database_queue_tests, push_participant_participant_exists)
         EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
                 .WillOnce(Return(std::make_pair(EntityId(0), EntityId(1))));
         EXPECT_CALL(database, change_entity_status(EntityId(1), true)).Times(1);
-        EXPECT_CALL(database, insert_new_participant(_, _, _, _, _, _, _)).Times(0);
+        EXPECT_CALL(database, insert_new_participant(_, _, _, _, _, _, _, _, _)).Times(0);
 
         // Precondition: Host-user-process exist
         ProcessPhysicalArgs process_physical_args([&](
@@ -918,6 +959,7 @@ TEST_F(database_queue_tests, push_participant_participant_exists)
                     const std::string& user_name,
                     const std::string& process_name,
                     const std::string& process_pid,
+                    const DiscoverySource& discovery_source,
                     bool& should_link_process_participant,
                     const EntityId& participant_id,
                     std::map<std::string, EntityId>& physical_entities_ids)
@@ -926,6 +968,7 @@ TEST_F(database_queue_tests, push_participant_participant_exists)
                     EXPECT_EQ(user_name, username);
                     EXPECT_EQ(process_name, processname);
                     EXPECT_EQ(process_pid, pid);
+                    EXPECT_EQ(discovery_source, discoverysource);
                     EXPECT_EQ(should_link_process_participant, false);
                     EXPECT_EQ(participant_id, EntityId(1));
 
@@ -935,7 +978,7 @@ TEST_F(database_queue_tests, push_participant_participant_exists)
 
                 });
 
-        EXPECT_CALL(database, process_physical_entities(_, _, _, _, _, _, _)).Times(1)
+        EXPECT_CALL(database, process_physical_entities(_, _, _, _, _, _, _, _)).Times(1)
                 .WillOnce(Invoke(&process_physical_args, &ProcessPhysicalArgs::process));
 
         // Expectation: Modify graph and notify user
@@ -970,6 +1013,7 @@ TEST_F(database_queue_tests, push_participant_missing_physical_entity)
     std::string pid = processname;
     std::string username = "user";
     std::string hostname = "host";
+    DiscoverySource discoverysource = DiscoverySource::DISCOVERY;
 
     // Build the process name
     std::stringstream ss;
@@ -990,22 +1034,24 @@ TEST_F(database_queue_tests, push_participant_missing_physical_entity)
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
             .WillOnce(Return(std::make_pair(EntityId(0), EntityId(1))));
     EXPECT_CALL(database, change_entity_status(EntityId(1), true)).Times(1);
-    EXPECT_CALL(database, insert_new_participant(_, _, _, _, _, _, _)).Times(0);
+    EXPECT_CALL(database, insert_new_participant(_, _, _, _, _, _, _, _, _)).Times(0);
 
     // Expectation: Host or user or process are created
-    ProcessPhysicalArgs process_physical_args([&](
-                const std::string& host_name,
-                const std::string& user_name,
-                const std::string& process_name,
-                const std::string& process_pid,
-                bool& should_link_process_participant,
-                const EntityId& participant_id,
-                std::map<std::string, EntityId>& physical_entities_ids)
-            {
+        ProcessPhysicalArgs process_physical_args([&](
+                    const std::string& host_name,
+                    const std::string& user_name,
+                    const std::string& process_name,
+                    const std::string& process_pid,
+                    const DiscoverySource& discovery_source,
+                    bool& should_link_process_participant,
+                    const EntityId& participant_id,
+                    std::map<std::string, EntityId>& physical_entities_ids)
+                {
                 EXPECT_EQ(host_name, hostname);
                 EXPECT_EQ(user_name, username);
                 EXPECT_EQ(process_name, processname);
                 EXPECT_EQ(process_pid, pid);
+                EXPECT_EQ(discovery_source, discoverysource);
                 EXPECT_EQ(should_link_process_participant, false);
                 EXPECT_EQ(participant_id, EntityId(1));
 
@@ -1015,7 +1061,7 @@ TEST_F(database_queue_tests, push_participant_missing_physical_entity)
 
             });
 
-    EXPECT_CALL(database, process_physical_entities(_, _, _, _, _, _, _)).Times(1)
+    EXPECT_CALL(database, process_physical_entities(_, _, _, _, _, _, _, _)).Times(1)
             .WillOnce(Invoke(&process_physical_args, &ProcessPhysicalArgs::process));
 
     // Expectation: Modify graph and notify user
@@ -1049,6 +1095,7 @@ TEST_F(database_queue_tests, push_participant_process_insert_throws)
     std::string pid = processname;
     std::string username = "user";
     std::string hostname = "host";
+        DiscoverySource discoverysource = DiscoverySource::DISCOVERY;
 
     // Build the process name
     std::stringstream ss;
@@ -1069,22 +1116,24 @@ TEST_F(database_queue_tests, push_participant_process_insert_throws)
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
             .WillOnce(Return(std::make_pair(EntityId(0), EntityId(1))));
     EXPECT_CALL(database, change_entity_status(EntityId(1), true)).Times(1);
-    EXPECT_CALL(database, insert_new_participant(_, _, _, _, _, _, _)).Times(0);
+    EXPECT_CALL(database, insert_new_participant(_, _, _, _, _, _, _, _, _)).Times(0);
 
     // Expectation: The process creation throws
-    ProcessPhysicalArgs process_physical_args([&](
-                const std::string& host_name,
-                const std::string& user_name,
-                const std::string& process_name,
-                const std::string& process_pid,
-                bool& should_link_process_participant,
-                const EntityId& participant_id,
-                std::map<std::string, EntityId>& physical_entities_ids)
-            {
+        ProcessPhysicalArgs process_physical_args([&](
+                    const std::string& host_name,
+                    const std::string& user_name,
+                    const std::string& process_name,
+                    const std::string& process_pid,
+                    const DiscoverySource& discovery_source,
+                    bool& should_link_process_participant,
+                    const EntityId& participant_id,
+                    std::map<std::string, EntityId>& physical_entities_ids)
+                {
                 EXPECT_EQ(host_name, hostname);
                 EXPECT_EQ(user_name, username);
                 EXPECT_EQ(process_name, processname);
                 EXPECT_EQ(process_pid, pid);
+                EXPECT_EQ(discovery_source, discoverysource);
                 EXPECT_EQ(should_link_process_participant, false);
                 EXPECT_EQ(participant_id, EntityId(1));
 
@@ -1095,7 +1144,7 @@ TEST_F(database_queue_tests, push_participant_process_insert_throws)
 
             });
 
-    EXPECT_CALL(database, process_physical_entities(_, _, _, _, _, _, _)).Times(1)
+    EXPECT_CALL(database, process_physical_entities(_, _, _, _, _, _, _, _)).Times(1)
             .WillOnce(Invoke(&process_physical_args, &ProcessPhysicalArgs::process));
 
     // Expectation: Do not dodify graph nor notify user
@@ -1129,6 +1178,7 @@ TEST_F(database_queue_tests, push_participant_user_insert_throws)
     std::string pid = processname;
     std::string username = "user";
     std::string hostname = "host";
+    DiscoverySource discoverysource = DiscoverySource::DISCOVERY;
 
     // Build the process name
     std::stringstream ss;
@@ -1149,22 +1199,24 @@ TEST_F(database_queue_tests, push_participant_user_insert_throws)
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
             .WillOnce(Return(std::make_pair(EntityId(0), EntityId(1))));
     EXPECT_CALL(database, change_entity_status(EntityId(1), true)).Times(1);
-    EXPECT_CALL(database, insert_new_participant(_, _, _, _, _, _, _)).Times(0);
+    EXPECT_CALL(database, insert_new_participant(_, _, _, _, _, _, _, _, _)).Times(0);
 
     // Expectation: The host creation throws
-    ProcessPhysicalArgs process_physical_args([&](
-                const std::string& host_name,
-                const std::string& user_name,
-                const std::string& process_name,
-                const std::string& process_pid,
-                bool& should_link_process_participant,
-                const EntityId& participant_id,
-                std::map<std::string, EntityId>& physical_entities_ids)
-            {
+        ProcessPhysicalArgs process_physical_args([&](
+                    const std::string& host_name,
+                    const std::string& user_name,
+                    const std::string& process_name,
+                    const std::string& process_pid,
+                    const DiscoverySource& discovery_source,
+                    bool& should_link_process_participant,
+                    const EntityId& participant_id,
+                    std::map<std::string, EntityId>& physical_entities_ids)
+                {
                 EXPECT_EQ(host_name, hostname);
                 EXPECT_EQ(user_name, username);
                 EXPECT_EQ(process_name, processname);
                 EXPECT_EQ(process_pid, pid);
+                EXPECT_EQ(discovery_source, discoverysource);
                 EXPECT_EQ(should_link_process_participant, false);
                 EXPECT_EQ(participant_id, EntityId(1));
 
@@ -1174,7 +1226,7 @@ TEST_F(database_queue_tests, push_participant_user_insert_throws)
 
             });
 
-    EXPECT_CALL(database, process_physical_entities(_, _, _, _, _, _, _)).Times(1)
+    EXPECT_CALL(database, process_physical_entities(_, _, _, _, _, _, _, _)).Times(1)
             .WillOnce(Invoke(&process_physical_args, &ProcessPhysicalArgs::process));
 
     // Expectation: Do not modify graph nor notify user
@@ -1208,6 +1260,7 @@ TEST_F(database_queue_tests, push_participant_host_insert_throws)
     std::string pid = processname;
     std::string username = "user";
     std::string hostname = "host";
+        DiscoverySource discoverysource = DiscoverySource::DISCOVERY;
 
     // Build the process name
     std::stringstream ss;
@@ -1228,22 +1281,24 @@ TEST_F(database_queue_tests, push_participant_host_insert_throws)
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
             .WillOnce(Return(std::make_pair(EntityId(0), EntityId(1))));
     EXPECT_CALL(database, change_entity_status(EntityId(1), true)).Times(1);
-    EXPECT_CALL(database, insert_new_participant(_, _, _, _, _, _, _)).Times(0);
+    EXPECT_CALL(database, insert_new_participant(_, _, _, _, _, _, _, _, _)).Times(0);
 
     // Expectation: The host creation throws
-    ProcessPhysicalArgs process_physical_args([&](
-                const std::string& host_name,
-                const std::string& user_name,
-                const std::string& process_name,
-                const std::string& process_pid,
-                bool& should_link_process_participant,
-                const EntityId& participant_id,
-                std::map<std::string, EntityId>& physical_entities_ids)
-            {
+        ProcessPhysicalArgs process_physical_args([&](
+                    const std::string& host_name,
+                    const std::string& user_name,
+                    const std::string& process_name,
+                    const std::string& process_pid,
+                    const DiscoverySource& discovery_source,
+                    bool& should_link_process_participant,
+                    const EntityId& participant_id,
+                    std::map<std::string, EntityId>& physical_entities_ids)
+                {
                 EXPECT_EQ(host_name, hostname);
                 EXPECT_EQ(user_name, username);
                 EXPECT_EQ(process_name, processname);
                 EXPECT_EQ(process_pid, pid);
+                EXPECT_EQ(discovery_source, discoverysource);
                 EXPECT_EQ(should_link_process_participant, false);
                 EXPECT_EQ(participant_id, EntityId(1));
 
@@ -1253,7 +1308,7 @@ TEST_F(database_queue_tests, push_participant_host_insert_throws)
 
             });
 
-    EXPECT_CALL(database, process_physical_entities(_, _, _, _, _, _, _)).Times(1)
+    EXPECT_CALL(database, process_physical_entities(_, _, _, _, _, _, _, _)).Times(1)
             .WillOnce(Invoke(&process_physical_args, &ProcessPhysicalArgs::process));
 
 
@@ -1288,6 +1343,7 @@ TEST_F(database_queue_tests, push_participant_data_wrong_processname_format)
     std::string pid = processname;
     std::string username = "user";
     std::string hostname = "host";
+        DiscoverySource discoverysource = DiscoverySource::DISCOVERY;
 
     // Build the process name
     std::string processname_pid = processname;
@@ -1306,22 +1362,24 @@ TEST_F(database_queue_tests, push_participant_data_wrong_processname_format)
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
             .WillOnce(Return(std::make_pair(EntityId(0), EntityId(1))));
     EXPECT_CALL(database, change_entity_status(EntityId(1), true)).Times(1);
-    EXPECT_CALL(database, insert_new_participant(_, _, _, _, _, _, _)).Times(0);
+    EXPECT_CALL(database, insert_new_participant(_, _, _, _, _, _, _, _, _)).Times(0);
 
     // Expectation: The process is created and given ID 4
-    ProcessPhysicalArgs process_physical_args([&](
-                const std::string& host_name,
-                const std::string& user_name,
-                const std::string& process_name,
-                const std::string& process_pid,
-                bool& should_link_process_participant,
-                const EntityId& participant_id,
-                std::map<std::string, EntityId>& physical_entities_ids)
-            {
+        ProcessPhysicalArgs process_physical_args([&](
+                    const std::string& host_name,
+                    const std::string& user_name,
+                    const std::string& process_name,
+                    const std::string& process_pid,
+                    const DiscoverySource& discovery_source,
+                    bool& should_link_process_participant,
+                    const EntityId& participant_id,
+                    std::map<std::string, EntityId>& physical_entities_ids)
+                {
                 EXPECT_EQ(host_name, hostname);
                 EXPECT_EQ(user_name, username);
                 EXPECT_EQ(process_name, processname);
                 EXPECT_EQ(process_pid, pid);
+                EXPECT_EQ(discovery_source, discoverysource);
                 EXPECT_EQ(should_link_process_participant, false);
                 EXPECT_EQ(participant_id, EntityId(1));
 
@@ -1331,7 +1389,7 @@ TEST_F(database_queue_tests, push_participant_data_wrong_processname_format)
 
             });
 
-    EXPECT_CALL(database, process_physical_entities(_, _, _, _, _, _, _)).Times(1)
+    EXPECT_CALL(database, process_physical_entities(_, _, _, _, _, _, _, _)).Times(1)
             .WillOnce(Invoke(&process_physical_args, &ProcessPhysicalArgs::process));
 
     // Expectation: Modify graph and notify user
@@ -1363,6 +1421,8 @@ TEST_F(database_queue_tests, push_datawriter)
     std::string type_name = "type_name";
     std::string unicast_locator_str = "UDPv4:[127.0.0.1]:1024";
     std::string multicast_locator_str = "UDPv4:[239.1.1.1]:1024";
+    DiscoverySource discoverysource = DiscoverySource::DISCOVERY;
+    DomainId originaldomain = 2;
 
     EntityDiscoveryInfo info(EntityKind::DATAWRITER);
     info.domain_id = EntityId(0);
@@ -1399,7 +1459,7 @@ TEST_F(database_queue_tests, push_datawriter)
         EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, datawriter_guid_str)).Times(AnyNumber())
                 .WillOnce(Throw(BadParameter("Error")));
 
-        EXPECT_CALL(database, insert_new_endpoint(_, _, _, _, _, _, _, _, _, _)).Times(0);
+        EXPECT_CALL(database, insert_new_endpoint(_, _, _, _, _, _, _, _, _, _, _, _)).Times(0);
 
         EXPECT_CALL(database, change_entity_status(_, false)).Times(0);
 
@@ -1417,7 +1477,7 @@ TEST_F(database_queue_tests, push_datawriter)
         EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, datawriter_guid_str)).Times(AnyNumber())
                 .WillOnce(Throw(BadParameter("Error")));
 
-        EXPECT_CALL(database, insert_new_endpoint(_, _, _, _, _, _, _, _, _, _)).Times(0);
+        EXPECT_CALL(database, insert_new_endpoint(_, _, _, _, _, _, _, _, _, _, _, _)).Times(0);
 
         EXPECT_CALL(database, change_entity_status(_, true)).Times(0);
 
@@ -1447,7 +1507,10 @@ TEST_F(database_queue_tests, push_datawriter)
                     const EntityKind& kind,
                     const EntityId& participant_id,
                     const EntityId& topic_id,
-                    const std::pair<AppId, std::string> app_data)
+                    const std::pair<AppId, std::string> app_data,
+                    const DiscoverySource& discovery_source,
+                    const DomainId& original_domain
+                )
                 {
                     EXPECT_EQ(endpoint_guid, datawriter_guid_str);
                     EXPECT_EQ(name, datawriter_name);
@@ -1456,6 +1519,8 @@ TEST_F(database_queue_tests, push_datawriter)
                     EXPECT_EQ(is_virtual_metatraffic, false);
                     EXPECT_EQ(locators.unicast[0], info.locators.unicast[0]);
                     EXPECT_EQ(locators.multicast[0], info.locators.multicast[0]);
+                    EXPECT_EQ(discovery_source, discoverysource);
+                    EXPECT_EQ(original_domain, originaldomain);
 
                     EXPECT_EQ(kind, EntityKind::DATAWRITER);
                     EXPECT_EQ(participant_id, EntityId(1));
@@ -1466,7 +1531,7 @@ TEST_F(database_queue_tests, push_datawriter)
                     return EntityId(3);
                 });
 
-        EXPECT_CALL(database, insert_new_endpoint(_, _, _, _, _, _, _, _, _, _)).Times(1)
+        EXPECT_CALL(database, insert_new_endpoint(_, _, _, _, _, _, _, _, _, _, _, _)).Times(1)
                 .WillOnce(Invoke(&insert_datawriter_args, &InsertEndpointArgs::insert));
 
         // Expectation: Modify graph and notify user
@@ -1492,7 +1557,7 @@ TEST_F(database_queue_tests, push_datawriter)
         EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, datawriter_guid_str)).Times(1)
                 .WillOnce(Return(std::make_pair(EntityId(0), EntityId(3))));
 
-        EXPECT_CALL(database, insert_new_endpoint(_, _, _, _, _, _, _, _, _, _)).Times(0);
+        EXPECT_CALL(database, insert_new_endpoint(_, _, _, _, _, _, _, _, _, _, _, _)).Times(0);
 
         // Expectations: The status will be updated
         EXPECT_CALL(database, change_entity_status(EntityId(3), true)).Times(1);
@@ -1517,7 +1582,7 @@ TEST_F(database_queue_tests, push_datawriter)
         EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, datawriter_guid_str)).Times(1)
                 .WillOnce(Return(std::make_pair(EntityId(0), EntityId(3))));
 
-        EXPECT_CALL(database, insert_new_endpoint(_, _, _, _, _, _, _, _, _, _)).Times(0);
+        EXPECT_CALL(database, insert_new_endpoint(_, _, _, _, _, _, _, _, _, _, _, _)).Times(0);
 
         // Expectations: The status will be updated
         EXPECT_CALL(database, change_entity_status(EntityId(3), false)).Times(1);
@@ -1549,11 +1614,15 @@ TEST_F(database_queue_tests, push_datawriter)
                     const std::string& alias,
                     const Qos& qos,
                     const bool& is_virtual_metatraffic,
-                    const eprosima::fastdds::rtps::RemoteLocatorList& locators,
+                    const eprosima::fastdds::
+                            rtps::RemoteLocatorList& locators,
                     const EntityKind& kind,
                     const EntityId& participant_id,
                     const EntityId& topic_id,
-                    const std::pair<AppId, std::string> app_data) -> EntityId
+                    const std::pair<AppId, std::string> app_data,
+                    const DiscoverySource& discovery_source,
+                    const DomainId& original_domain
+                ) -> EntityId
                 {
                     EXPECT_EQ(endpoint_guid, datawriter_guid_str);
                     EXPECT_EQ(name, datawriter_name);
@@ -1565,13 +1634,14 @@ TEST_F(database_queue_tests, push_datawriter)
                     EXPECT_EQ(kind, EntityKind::DATAWRITER);
                     EXPECT_EQ(participant_id, EntityId(1));
                     EXPECT_EQ(topic_id, EntityId(2));
-
+                    EXPECT_EQ(discovery_source, discoverysource);
+                    EXPECT_EQ(original_domain, originaldomain);
                     static_cast<void>(app_data);
 
                     throw BadParameter("Error");
                 });
 
-        EXPECT_CALL(database, insert_new_endpoint(_, _, _, _, _, _, _, _, _, _)).Times(1)
+        EXPECT_CALL(database, insert_new_endpoint(_, _, _, _, _, _, _, _, _, _, _, _)).Times(1)
                 .WillOnce(Invoke(&insert_datawriter_args, &InsertEndpointArgs::insert));
 
         // Expectations: No notification to user
@@ -1600,6 +1670,8 @@ TEST_F(database_queue_tests, push_datawriter_topic_does_not_exist)
     std::string type_name = "type_name";
     std::string unicast_locator_str = "UDPv4:[127.0.0.1]:1024";
     std::string multicast_locator_str = "UDPv4:[239.1.1.1]:1024";
+    DiscoverySource discoverysource = DiscoverySource::DISCOVERY;
+    DomainId originaldomainid = 2;
 
     EntityDiscoveryInfo info(EntityKind::DATAWRITER);
     info.domain_id = EntityId(0);
@@ -1664,7 +1736,9 @@ TEST_F(database_queue_tests, push_datawriter_topic_does_not_exist)
                     const EntityKind& kind,
                     const EntityId& participant_id,
                     const EntityId& topic_id,
-                    const std::pair<AppId, std::string> app_data)
+                    const std::pair<AppId, std::string> app_data,
+                    const DiscoverySource& discovery_source,
+                    const DomainId& original_domain)
                 {
                     EXPECT_EQ(endpoint_guid, datawriter_guid_str);
                     EXPECT_EQ(name, datawriter_name);
@@ -1676,13 +1750,15 @@ TEST_F(database_queue_tests, push_datawriter_topic_does_not_exist)
                     EXPECT_EQ(kind, EntityKind::DATAWRITER);
                     EXPECT_EQ(participant_id, EntityId(1));
                     EXPECT_EQ(topic_id, EntityId(2));
+                    EXPECT_EQ(discovery_source, discoverysource);
+                    EXPECT_EQ(original_domain, originaldomainid);
 
                     static_cast<void>(app_data);
 
                     return EntityId(3);
                 });
 
-        EXPECT_CALL(database, insert_new_endpoint(_, _, _, _, _, _, _, _, _, _)).Times(1)
+        EXPECT_CALL(database, insert_new_endpoint(_, _, _, _, _, _, _, _, _, _, _, _)).Times(1)
                 .WillOnce(Invoke(&insert_datawriter_args, &InsertEndpointArgs::insert));
 
         // Expectation: Add the type to the database
@@ -1725,6 +1801,8 @@ TEST_F(database_queue_tests, push_datareader)
     std::string type_name = "type_name";
     std::string unicast_locator_str = "UDPv4:[127.0.0.1]:1024";
     std::string multicast_locator_str = "UDPv4:[239.1.1.1]:1024";
+    DiscoverySource discoverysource = DiscoverySource::DISCOVERY;
+    DomainId originaldomainid = 2;
 
     EntityDiscoveryInfo info(EntityKind::DATAREADER);
     info.domain_id = EntityId(0);
@@ -1761,7 +1839,7 @@ TEST_F(database_queue_tests, push_datareader)
         EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, datareader_guid_str)).Times(AnyNumber())
                 .WillOnce(Throw(BadParameter("Error")));
 
-        EXPECT_CALL(database, insert_new_endpoint(_, _, _, _, _, _, _, _, _, _)).Times(0);
+        EXPECT_CALL(database, insert_new_endpoint(_, _, _, _, _, _, _, _, _, _, _, _)).Times(0);
 
         EXPECT_CALL(database, change_entity_status(_, false)).Times(0);
 
@@ -1779,7 +1857,7 @@ TEST_F(database_queue_tests, push_datareader)
         EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, datareader_guid_str)).Times(AnyNumber())
                 .WillOnce(Throw(BadParameter("Error")));
 
-        EXPECT_CALL(database, insert_new_endpoint(_, _, _, _, _, _, _, _, _, _)).Times(0);
+        EXPECT_CALL(database, insert_new_endpoint(_, _, _, _, _, _, _, _, _, _, _, _)).Times(0);
 
         // Expectations: The status will throw an exception because the datareader is not in the database
         EXPECT_CALL(database, change_entity_status(_, true)).Times(0);
@@ -1809,7 +1887,9 @@ TEST_F(database_queue_tests, push_datareader)
                     const EntityKind& kind,
                     const EntityId& participant_id,
                     const EntityId& topic_id,
-                    const std::pair<AppId, std::string> app_data)
+                    const std::pair<AppId, std::string> app_data,
+                    const DiscoverySource& discovery_source,
+                    const DomainId& domain_id)
                 {
                     EXPECT_EQ(endpoint_guid, datareader_guid_str);
                     EXPECT_EQ(name, datareader_name);
@@ -1821,13 +1901,15 @@ TEST_F(database_queue_tests, push_datareader)
                     EXPECT_EQ(kind, EntityKind::DATAREADER);
                     EXPECT_EQ(participant_id, EntityId(1));
                     EXPECT_EQ(topic_id, EntityId(2));
+                    EXPECT_EQ(discovery_source, discoverysource);
+                    EXPECT_EQ(domain_id, originaldomainid);
 
                     static_cast<void>(app_data);
 
                     return EntityId(3);
                 });
 
-        EXPECT_CALL(database, insert_new_endpoint(_, _, _, _, _, _, _, _, _, _)).Times(1)
+        EXPECT_CALL(database, insert_new_endpoint(_, _, _, _, _, _, _, _, _, _, _, _)).Times(1)
                 .WillOnce(Invoke(&insert_datareader_args, &InsertEndpointArgs::insert));
 
         // Expectation: Modify graph and notify user
@@ -1854,7 +1936,7 @@ TEST_F(database_queue_tests, push_datareader)
         EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, datareader_guid_str)).Times(1)
                 .WillOnce(Return(std::make_pair(EntityId(0), EntityId(3))));
 
-        EXPECT_CALL(database, insert_new_endpoint(_, _, _, _, _, _, _, _, _, _)).Times(0);
+        EXPECT_CALL(database, insert_new_endpoint(_, _, _, _, _, _, _, _, _, _, _, _)).Times(0);
 
         // Expectations: The status will be updated
         EXPECT_CALL(database, change_entity_status(EntityId(3), true)).Times(1);
@@ -1879,7 +1961,7 @@ TEST_F(database_queue_tests, push_datareader)
         EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAREADER, datareader_guid_str)).Times(1)
                 .WillOnce(Return(std::make_pair(EntityId(0), EntityId(3))));
 
-        EXPECT_CALL(database, insert_new_endpoint(_, _, _, _, _, _, _, _, _, _)).Times(0);
+        EXPECT_CALL(database, insert_new_endpoint(_, _, _, _, _, _, _, _, _, _, _, _)).Times(0);
 
         // Expectations: The status will be updated
         EXPECT_CALL(database, change_entity_status(EntityId(3), false)).Times(1);
@@ -1915,7 +1997,9 @@ TEST_F(database_queue_tests, push_datareader)
                     const EntityKind& kind,
                     const EntityId& participant_id,
                     const EntityId& topic_id,
-                    const std::pair<AppId, std::string> app_data) -> EntityId
+                    const std::pair<AppId, std::string> app_data,
+                    const DiscoverySource& discovery_source,
+                    const DomainId& domain_id) -> EntityId
                 {
                     EXPECT_EQ(endpoint_guid, datareader_guid_str);
                     EXPECT_EQ(name, datareader_name);
@@ -1927,13 +2011,15 @@ TEST_F(database_queue_tests, push_datareader)
                     EXPECT_EQ(kind, EntityKind::DATAREADER);
                     EXPECT_EQ(participant_id, EntityId(1));
                     EXPECT_EQ(topic_id, EntityId(2));
+                    EXPECT_EQ(discovery_source, discoverysource);
+                    EXPECT_EQ(originaldomainid, domain_id);
 
                     static_cast<void>(app_data);
 
                     throw BadParameter("Error");
                 });
 
-        EXPECT_CALL(database, insert_new_endpoint(_, _, _, _, _, _, _, _, _, _)).Times(1)
+        EXPECT_CALL(database, insert_new_endpoint(_, _, _, _, _, _, _, _, _, _, _, _)).Times(1)
                 .WillOnce(Invoke(&insert_datareader_args, &InsertEndpointArgs::insert));
 
         // Expectations: No notification to user
@@ -1962,6 +2048,8 @@ TEST_F(database_queue_tests, push_datareader_topic_does_not_exist)
     std::string type_name = "type_name";
     std::string unicast_locator_str = "UDPv4:[127.0.0.1]:1024";
     std::string multicast_locator_str = "UDPv4:[239.1.1.1]:1024";
+    DiscoverySource discoverysource = DiscoverySource::DISCOVERY;
+    DomainId originaldomainid = 2;
 
     EntityDiscoveryInfo info(EntityKind::DATAREADER);
     info.domain_id = EntityId(0);
@@ -2025,7 +2113,9 @@ TEST_F(database_queue_tests, push_datareader_topic_does_not_exist)
                     const EntityKind& kind,
                     const EntityId& participant_id,
                     const EntityId& topic_id,
-                    const std::pair<AppId, std::string> app_data)
+                    const std::pair<AppId, std::string> app_data,
+                    const DiscoverySource& discovery_source,
+                    const DomainId& domain_id)
                 {
                     EXPECT_EQ(endpoint_guid, datareader_guid_str);
                     EXPECT_EQ(name, datareader_name);
@@ -2037,13 +2127,15 @@ TEST_F(database_queue_tests, push_datareader_topic_does_not_exist)
                     EXPECT_EQ(kind, EntityKind::DATAREADER);
                     EXPECT_EQ(participant_id, EntityId(1));
                     EXPECT_EQ(topic_id, EntityId(2));
+                        EXPECT_EQ(discovery_source, discoverysource);
+                        EXPECT_EQ(domain_id, originaldomainid);
 
                     static_cast<void>(app_data);
 
                     return EntityId(3);
                 });
 
-        EXPECT_CALL(database, insert_new_endpoint(_, _, _, _, _, _, _, _, _, _)).Times(1)
+        EXPECT_CALL(database, insert_new_endpoint(_, _, _, _, _, _, _, _, _, _, _, _)).Times(1)
                 .WillOnce(Invoke(&insert_datareader_args, &InsertEndpointArgs::insert));
 
         // Expectation: Add the type to the database

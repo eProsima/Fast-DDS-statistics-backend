@@ -247,6 +247,14 @@ public:
     void stop_monitor(
             EntityId monitor_id);
 
+
+    /**
+     * @brief Get the entity queue
+     *
+     * @return A pointer to the entity queue
+     */
+    database::DatabaseEntityQueue* get_entity_queue();
+
 protected:
 
     /**

@@ -110,7 +110,9 @@ EntityId Database::insert_new_participant(
         const EntityId& domain_id,
         const StatusLevel& status,
         const AppId& app_id,
-        const std::string& app_metadata)
+        const std::string& app_metadata,
+        const DiscoverySource& discovery_source,
+        const DomainId& original_domain = UNKNOWN_DOMAIN_ID)
 {
     std::lock_guard<std::shared_timed_mutex> guard(mutex_);
 
@@ -128,7 +130,9 @@ EntityId Database::insert_new_participant(
         domain,
         status,
         app_id,
-        app_metadata);
+        app_metadata,
+        discovery_source,
+        original_domain);
 
     EntityId entity_id;
     insert_nts(participant, entity_id);
@@ -140,6 +144,7 @@ void Database::process_physical_entities(
         const std::string& user_name,
         const std::string& process_name,
         const std::string& process_pid,
+        const DiscoverySource& discovery_source,
         bool& should_link_process_participant,
         const EntityId& participant_id,
         std::map<std::string, EntityId>& physical_entities_ids)
@@ -155,6 +160,7 @@ void Database::process_physical_entities(
     if (hosts.empty())
     {
         host.reset(new Host(host_name));
+        host->discovery_source = discovery_source;
         EntityId entity_id;
         insert_nts(host, entity_id);
         host->id = entity_id;
@@ -165,6 +171,12 @@ void Database::process_physical_entities(
         std::shared_ptr<const Host> const_host = std::dynamic_pointer_cast<const Host>(get_entity_nts(
                             hosts.front().second));
         host = std::const_pointer_cast<Host>(const_host);
+        if (discovery_source == DiscoverySource::DISCOVERY && host->discovery_source != DiscoverySource::DISCOVERY)
+        {
+            // If the host already exists but it has now been discovered thorugh the standard procedure, its state
+            // must be changed
+            host->discovery_source = discovery_source;
+        }
     }
 
     physical_entities_ids[HOST_ENTITY_TAG] = host->id;
@@ -180,12 +192,19 @@ void Database::process_physical_entities(
         if (const_user->host == host)
         {
             user = std::const_pointer_cast<User>(const_user);
+            if (discovery_source == DiscoverySource::DISCOVERY && user->discovery_source != DiscoverySource::DISCOVERY)
+            {
+                // If the user already exists but it has now been discovered thorugh the standard procedure, its state
+                // must be changed
+                user->discovery_source = discovery_source;
+            }
             break;
         }
     }
     if (!user)
     {
         user.reset(new User(user_name, host));
+        user->discovery_source = discovery_source;
         EntityId entity_id;
         insert_nts(user, entity_id);
         user->id = entity_id;
@@ -203,12 +222,20 @@ void Database::process_physical_entities(
         if (const_process->user == user)
         {
             process = std::const_pointer_cast<Process>(const_process);
+            if (discovery_source == DiscoverySource::DISCOVERY &&
+                    process->discovery_source != DiscoverySource::DISCOVERY)
+            {
+                // If the process already exists but it has now been discovered thorugh the standard procedure, its state
+                // must be changed
+                process->discovery_source = discovery_source;
+            }
             break;
         }
     }
     if (!process)
     {
         process.reset(new Process(process_name, process_pid, user));
+        process->discovery_source = discovery_source;
         EntityId entity_id;
         insert_nts(process, entity_id);
         process->id = entity_id;
@@ -412,7 +439,9 @@ EntityId Database::insert_new_endpoint(
         const EntityKind& kind,
         const EntityId& participant_id,
         const EntityId& topic_id,
-        const std::pair<AppId, std::string>& app_data)
+        const std::pair<AppId, std::string>& app_data,
+        const DiscoverySource& discovery_source,
+        const DomainId& original_domain = UNKNOWN_DOMAIN_ID)
 {
     std::lock_guard<std::shared_timed_mutex> guard(mutex_);
 
@@ -437,7 +466,9 @@ EntityId Database::insert_new_endpoint(
             participant,
             topic,
             app_data.first,
-            app_data.second);
+            app_data.second,
+            discovery_source,
+            original_domain);
     }
     else
     {
@@ -448,7 +479,9 @@ EntityId Database::insert_new_endpoint(
             participant,
             topic,
             app_data.first,
-            app_data.second);
+            app_data.second,
+            discovery_source,
+            original_domain);
     }
 
 
@@ -515,7 +548,9 @@ std::shared_ptr<DDSEndpoint> Database::create_endpoint_nts(
         const std::shared_ptr<DomainParticipant>& participant,
         const std::shared_ptr<Topic>& topic,
         const AppId& app_id,
-        const std::string& app_metadata)
+        const std::string& app_metadata,
+        const DiscoverySource& discovery_source,
+        const DomainId& original_domain)
 {
     return std::make_shared<T>(
         name,
@@ -525,7 +560,9 @@ std::shared_ptr<DDSEndpoint> Database::create_endpoint_nts(
         topic,
         StatusLevel::OK_STATUS,
         app_id,
-        app_metadata);
+        app_metadata,
+        discovery_source,
+        original_domain);
 }
 
 EntityId Database::insert(
@@ -4167,10 +4204,17 @@ Graph Database::get_entity_subgraph_nts(
     std::shared_ptr<const Entity> entity = get_entity_nts(entity_id);
 
     entity_graph[KIND_TAG] =  entity_kind_str[(int)entity->kind];
+    entity_graph[DISCOVERY_SOURCE_TAG] =  discovery_source_str[(int)entity->discovery_source];
+
+    if ( entity_graph[DISCOVERY_SOURCE_TAG] != entity->discovery_source)
+    {
+        entity_graph[DISCOVERY_SOURCE_TAG] =  discovery_source_str[(int)entity->discovery_source];
+        entity_graph_updated = true;
+    }
 
     if (entity_graph[ALIAS_TAG] != entity->alias)
     {
-        entity_graph[ALIAS_TAG] =  entity->alias;
+        entity_graph[ALIAS_TAG] = entity->alias;
         entity_graph_updated = true;
     }
 
@@ -5171,6 +5215,8 @@ DatabaseDump Database::dump_entity_(
     // metatraffic and active attributes are stored but ignored when loading
     entity_info[METATRAFFIC_TAG] = entity->metatraffic;
     entity_info[ALIVE_TAG] = entity->active;
+    entity_info[DISCOVERY_SOURCE_TAG] = discovery_source_str[(int)entity->discovery_source];
+
 
     // Populate subentity array
     {
@@ -5198,6 +5244,7 @@ DatabaseDump Database::dump_entity_(
     // metatraffic and active attributes are stored but ignored when loading
     entity_info[METATRAFFIC_TAG] = entity->metatraffic;
     entity_info[ALIVE_TAG] = entity->active;
+    entity_info[DISCOVERY_SOURCE_TAG] = discovery_source_str[(int)entity->discovery_source];
 
     // Populate subentity array
     {
@@ -5226,6 +5273,7 @@ DatabaseDump Database::dump_entity_(
     // metatraffic and active attributes are stored but ignored when loading
     entity_info[METATRAFFIC_TAG] = entity->metatraffic;
     entity_info[ALIVE_TAG] = entity->active;
+    entity_info[DISCOVERY_SOURCE_TAG] = discovery_source_str[(int)entity->discovery_source];
 
     // Populate subentity array
     {
@@ -5251,6 +5299,7 @@ DatabaseDump Database::dump_entity_(
     // metatraffic and active attributes are stored but ignored when loading
     entity_info[METATRAFFIC_TAG] = entity->metatraffic;
     entity_info[ALIVE_TAG] = entity->active;
+    entity_info[DISCOVERY_SOURCE_TAG] = discovery_source_str[(int)entity->discovery_source];
 
     // Populate subentity array for Topics
     {
@@ -5288,6 +5337,7 @@ DatabaseDump Database::dump_entity_(
     // metatraffic and active attributes are stored but ignored when loading
     entity_info[METATRAFFIC_TAG] = entity->metatraffic;
     entity_info[ALIVE_TAG] = entity->active;
+    entity_info[DISCOVERY_SOURCE_TAG] = discovery_source_str[(int)entity->discovery_source];
 
     // Populate subentity array for DataWriters
     {
@@ -5327,6 +5377,7 @@ DatabaseDump Database::dump_entity_(
     // metatraffic and active attributes are stored but ignored when loading
     entity_info[METATRAFFIC_TAG] = entity->metatraffic;
     entity_info[ALIVE_TAG] = entity->active;
+    entity_info[DISCOVERY_SOURCE_TAG] = discovery_source_str[(int)entity->discovery_source];
 
     if (entity->process)
     {
@@ -5429,6 +5480,7 @@ DatabaseDump Database::dump_entity_(
     // metatraffic and active attributes are stored but ignored when loading
     entity_info[METATRAFFIC_TAG] = entity->metatraffic;
     entity_info[ALIVE_TAG] = entity->active;
+    entity_info[DISCOVERY_SOURCE_TAG] = discovery_source_str[(int)entity->discovery_source];
 
     // Populate subentity array for Locators
     {
@@ -5500,6 +5552,7 @@ DatabaseDump Database::dump_entity_(
     // metatraffic and active attributes are stored but ignored when loading
     entity_info[METATRAFFIC_TAG] = entity->metatraffic;
     entity_info[ALIVE_TAG] = entity->active;
+    entity_info[DISCOVERY_SOURCE_TAG] = discovery_source_str[(int)entity->discovery_source];
 
     // Populate subentity array for Locators
     {
@@ -5547,6 +5600,7 @@ DatabaseDump Database::dump_entity_(
     // metatraffic and active attributes are stored but ignored when loading
     entity_info[METATRAFFIC_TAG] = entity->metatraffic;
     entity_info[ALIVE_TAG] = entity->active;
+    entity_info[DISCOVERY_SOURCE_TAG] = discovery_source_str[(int)entity->discovery_source];
 
     // Populate subentity array for DataWriters
     {
@@ -5872,6 +5926,13 @@ bool Database::is_metatraffic(
     return get_entity_nts(entity_id)->metatraffic;
 }
 
+bool Database::is_proxy(
+        const EntityId& entity_id)
+{
+    std::shared_lock<std::shared_timed_mutex> lock(mutex_);
+    return (get_entity_nts(entity_id)->discovery_source == DiscoverySource::PROXY);
+}
+
 Info Database::get_info(
         const EntityId& entity_id)
 {
@@ -5888,6 +5949,7 @@ Info Database::get_info(
     info[ALIVE_TAG] = entity->active;
     info[METATRAFFIC_TAG] = entity->metatraffic;
     info[STATUS_TAG] = status_level_str[(int)entity->status];
+    info[DISCOVERY_SOURCE_TAG] = discovery_source_str[(int)entity->discovery_source];
 
     switch (entity->kind)
     {
@@ -5914,6 +5976,7 @@ Info Database::get_info(
             info[APP_ID_TAG] = app_id_str[(int)participant->app_id];
             info[APP_METADATA_TAG] = participant->app_metadata;
             info[DDS_VENDOR_TAG] = participant->dds_vendor;
+            info[ORIGINAL_DOMAIN_TAG] = participant->original_domain;
 
             // Locators associated to endpoints
             std::set<std::string> locator_set;

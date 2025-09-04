@@ -32,6 +32,7 @@ set(${PROJECT_NAME}_SOURCES
     StatisticsBackend.cpp
     StatisticsBackendData.cpp
     subscriber/QosSerializer.cpp
+    subscriber/ProxyDiscoveryInfo.cpp
     subscriber/StatisticsParticipantListener.cpp
     subscriber/StatisticsReaderListener.cpp
     ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesPubSubTypes.cxx
