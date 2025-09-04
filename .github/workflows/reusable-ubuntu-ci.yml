@@ -119,7 +119,7 @@ jobs:
         with:
           packages_names: ${{ env.code_packages_names }}
           cmake_args: -DBUILD_TESTS=ON -DASAN_BUILD=ON
-          ctest_args: --label-exclude "xfail|xtsan"
+          ctest_args: --label-exclude "xfail|xtsan" --timeout 120
           workspace_dependencies: install
           cmake_build_type: Debug
           test_report_artifact: test_report_asan${{ inputs.dependencies_artifact_postfix }}_${{ inputs.custom_version_build }}
