@@ -1503,7 +1503,7 @@ void DatabaseDataQueue<ExtendedMonitorServiceStatusData>::process_sample()
                     participant_discovery_info.participant_guid = item.second->entity_discovery_info.participant_guid;
                     participant_discovery_info.qos = item.second->entity_discovery_info.qos;
                     timestamp = now();
-                    details::StatisticsBackendData::get_instance()->entity_queue_->push(timestamp,
+                    details::StatisticsBackendData::get_instance()->get_entity_queue()->push(timestamp,
                             participant_discovery_info);
                     participant_enqueued[participant_guid] = true;
                 }
@@ -1514,7 +1514,7 @@ void DatabaseDataQueue<ExtendedMonitorServiceStatusData>::process_sample()
                 }
 
                 timestamp = now();
-                details::StatisticsBackendData::get_instance()->entity_queue_->push(timestamp,
+                details::StatisticsBackendData::get_instance()->get_entity_queue()->push(timestamp,
                         item.second->entity_discovery_info);
                 // END OF ADDED CODE
 
