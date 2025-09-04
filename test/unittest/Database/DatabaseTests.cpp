@@ -3726,6 +3726,11 @@ TEST_F(database_tests, select_double_entity_invalid_needs_one_entity)
 TEST_F(database_tests, select_invalid_entities)
 {
 #ifndef NDEBUG
+
+    // Set death test style to "threadsafe" to avoid hangs.
+    // See https://github.com/google/googletest/blob/main/docs/advanced.md#death-tests-and-threads
+    (void)(::testing::FLAGS_gtest_death_test_style = "threadsafe");
+
     // Test assertions
 
     Timestamp t_from = std::chrono::system_clock::now();
