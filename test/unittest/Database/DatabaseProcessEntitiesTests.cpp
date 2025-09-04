@@ -105,7 +105,9 @@ TEST_F(database_process_entities_tests, insert_new_participant)
         domain_id,
         StatusLevel::OK_STATUS,
         AppId::UNKNOWN,
-        "");
+        "",
+        DiscoverySource::UNKNOWN,
+        UNKNOWN_DOMAIN_ID);
 
     /* Check that the participant is inserted correctly */
     std::map<EntityId, std::map<EntityId, std::shared_ptr<DomainParticipant>>> participants = db.participants();
@@ -152,7 +154,9 @@ TEST_F(database_process_entities_tests, insert_new_participant_already_exists)
                 domain_id,
                 StatusLevel::OK_STATUS,
                 AppId::UNKNOWN,
-                ""), BadParameter);
+                "",
+                DiscoverySource::UNKNOWN,
+                UNKNOWN_DOMAIN_ID), BadParameter);
 }
 
 TEST_F(database_process_entities_tests, insert_new_participant_no_domain)
@@ -165,7 +169,9 @@ TEST_F(database_process_entities_tests, insert_new_participant_no_domain)
                 EntityId(),
                 StatusLevel::OK_STATUS,
                 AppId::UNKNOWN,
-                ""), BadParameter);
+                "",
+                DiscoverySource::UNKNOWN,
+                UNKNOWN_DOMAIN_ID), BadParameter);
 }
 
 TEST_F(database_process_entities_tests, process_physical_entities)
@@ -182,7 +188,9 @@ TEST_F(database_process_entities_tests, process_physical_entities)
         domain_id,
         StatusLevel::OK_STATUS,
         AppId::UNKNOWN,
-        "");
+        "",
+        DiscoverySource::UNKNOWN,
+        UNKNOWN_DOMAIN_ID);
     std::map<EntityId, std::map<EntityId, std::shared_ptr<DomainParticipant>>> participants = db.participants();
 
     /* Insert a Host*/
@@ -213,6 +221,7 @@ TEST_F(database_process_entities_tests, process_physical_entities)
         user_name,
         process_name,
         process_pid,
+        DiscoverySource::UNKNOWN,
         should_link_process_participant,
         participant_id,
         physical_entities_ids);
@@ -251,7 +260,10 @@ TEST_F(database_process_entities_tests, process_physical_entities_no_link)
         domain_id,
         StatusLevel::OK_STATUS,
         AppId::UNKNOWN,
-        "");
+        "",
+        DiscoverySource::UNKNOWN,
+        UNKNOWN_DOMAIN_ID);
+
     std::map<EntityId, std::map<EntityId, std::shared_ptr<DomainParticipant>>> participants = db.participants();
 
     /* Insert a Host*/
@@ -283,6 +295,7 @@ TEST_F(database_process_entities_tests, process_physical_entities_no_link)
         user_name,
         process_name,
         process_pid,
+        DiscoverySource::UNKNOWN,
         should_link_process_participant,
         participant_id,
         physical_entities_ids);
@@ -317,7 +330,10 @@ TEST_F(database_process_entities_tests, process_physical_entities_no_process)
         domain_id,
         StatusLevel::OK_STATUS,
         AppId::UNKNOWN,
-        "");
+        "",
+        DiscoverySource::UNKNOWN,
+        UNKNOWN_DOMAIN_ID);
+
     std::map<EntityId, std::map<EntityId, std::shared_ptr<DomainParticipant>>> participants = db.participants();
 
     /* Insert a Host*/
@@ -344,6 +360,7 @@ TEST_F(database_process_entities_tests, process_physical_entities_no_process)
         user_name,
         process_name,
         process_pid,
+        DiscoverySource::UNKNOWN,
         should_link_process_participant,
         participant_id,
         physical_entities_ids);
@@ -393,7 +410,9 @@ TEST_F(database_process_entities_tests, process_physical_entities_no_process_no_
         domain_id,
         StatusLevel::OK_STATUS,
         AppId::UNKNOWN,
-        "");
+        "",
+        DiscoverySource::UNKNOWN,
+        UNKNOWN_DOMAIN_ID);
     std::map<EntityId, std::map<EntityId, std::shared_ptr<DomainParticipant>>> participants = db.participants();
 
     std::shared_ptr<Host> host = std::make_shared<Host>(host_name);
@@ -414,6 +433,7 @@ TEST_F(database_process_entities_tests, process_physical_entities_no_process_no_
         user_name,
         process_name,
         process_pid,
+        DiscoverySource::UNKNOWN,
         should_link_process_participant,
         participant_id,
         physical_entities_ids);
@@ -473,7 +493,9 @@ TEST_F(database_process_entities_tests, process_physical_entities_no_process_no_
         domain_id,
         StatusLevel::OK_STATUS,
         AppId::UNKNOWN,
-        "");
+        "",
+        DiscoverySource::UNKNOWN,
+        UNKNOWN_DOMAIN_ID);
     std::map<EntityId, std::map<EntityId, std::shared_ptr<DomainParticipant>>> participants = db.participants();
 
     std::map<std::string, EntityId> physical_entities_ids;
@@ -490,6 +512,7 @@ TEST_F(database_process_entities_tests, process_physical_entities_no_process_no_
         user_name,
         process_name,
         process_pid,
+        DiscoverySource::UNKNOWN,
         should_link_process_participant,
         participant_id,
         physical_entities_ids);
@@ -554,7 +577,9 @@ TEST_F(database_process_entities_tests, process_physical_entities_process_throws
         domain_id,
         StatusLevel::OK_STATUS,
         AppId::UNKNOWN,
-        "");
+        "",
+        DiscoverySource::UNKNOWN,
+        UNKNOWN_DOMAIN_ID);
     std::map<EntityId, std::map<EntityId, std::shared_ptr<DomainParticipant>>> participants = db.participants();
 
     std::map<std::string, EntityId> physical_entities_ids;
@@ -570,6 +595,7 @@ TEST_F(database_process_entities_tests, process_physical_entities_process_throws
                 user_name,
                 "",
                 "",
+                DiscoverySource::UNKNOWN,
                 should_link_process_participant,
                 participant_id,
                 physical_entities_ids), BadParameter);
@@ -619,7 +645,9 @@ TEST_F(database_process_entities_tests, process_physical_entities_user_throws)
         domain_id,
         StatusLevel::OK_STATUS,
         AppId::UNKNOWN,
-        "");
+        "",
+        DiscoverySource::UNKNOWN,
+        UNKNOWN_DOMAIN_ID);
     std::map<EntityId, std::map<EntityId, std::shared_ptr<DomainParticipant>>> participants = db.participants();
 
     std::map<std::string, EntityId> physical_entities_ids;
@@ -635,6 +663,7 @@ TEST_F(database_process_entities_tests, process_physical_entities_user_throws)
                 "",
                 "",
                 "",
+                DiscoverySource::UNKNOWN,
                 should_link_process_participant,
                 participant_id,
                 physical_entities_ids), BadParameter);
@@ -676,7 +705,9 @@ TEST_F(database_process_entities_tests, process_physical_entities_host_throws)
         domain_id,
         StatusLevel::OK_STATUS,
         AppId::UNKNOWN,
-        "");
+        "",
+        DiscoverySource::UNKNOWN,
+        UNKNOWN_DOMAIN_ID);
     std::map<EntityId, std::map<EntityId, std::shared_ptr<DomainParticipant>>> participants = db.participants();
 
     std::map<std::string, EntityId> physical_entities_ids;
@@ -692,6 +723,7 @@ TEST_F(database_process_entities_tests, process_physical_entities_host_throws)
                 "",
                 "",
                 "",
+                DiscoverySource::UNKNOWN,
                 should_link_process_participant,
                 participant_id,
                 physical_entities_ids), BadParameter);
@@ -842,7 +874,9 @@ TEST_F(database_process_entities_tests, insert_new_endpoint_datawriter)
         EntityKind::DATAWRITER,
         participant_id,
         topic_id,
-        std::pair<AppId, std::string>(AppId::UNKNOWN, ""));
+        std::pair<AppId, std::string>(AppId::UNKNOWN, ""),
+        DiscoverySource::UNKNOWN,
+        UNKNOWN_DOMAIN_ID);
 
     /* Check that the endpoint is inserted correctly */
     std::map<EntityId, std::map<EntityId, std::shared_ptr<DataWriter>>> datawriters = db.datawriters();
@@ -926,7 +960,9 @@ TEST_F(database_process_entities_tests, insert_new_endpoint_datareader)
         EntityKind::DATAREADER,
         participant_id,
         topic_id,
-        std::pair<AppId, std::string>(AppId::UNKNOWN, ""));
+        std::pair<AppId, std::string>(AppId::UNKNOWN, ""),
+        DiscoverySource::UNKNOWN,
+        UNKNOWN_DOMAIN_ID);
 
     /* Check that the endpoint is inserted correctly */
     std::map<EntityId, std::map<EntityId, std::shared_ptr<DataReader>>> datareaders = db.datareaders();
@@ -1020,7 +1056,9 @@ TEST_F(database_process_entities_tests, insert_new_endpoint_already_exists)
                 EntityKind::DATAREADER,
                 participant_id,
                 topic_id,
-                std::pair<AppId, std::string>(AppId::UNKNOWN, "")), BadParameter);
+                std::pair<AppId, std::string>(AppId::UNKNOWN, ""),
+                DiscoverySource::UNKNOWN,
+                UNKNOWN_DOMAIN_ID), BadParameter);
 }
 
 TEST_F(database_process_entities_tests, insert_new_endpoint_no_topic)
@@ -1069,7 +1107,9 @@ TEST_F(database_process_entities_tests, insert_new_endpoint_no_topic)
                 EntityKind::DATAREADER,
                 participant_id,
                 EntityId(),
-                std::pair<AppId, std::string>(AppId::UNKNOWN, "")), BadParameter);
+                std::pair<AppId, std::string>(AppId::UNKNOWN, ""),
+                DiscoverySource::UNKNOWN,
+                UNKNOWN_DOMAIN_ID), BadParameter);
 }
 
 TEST_F(database_process_entities_tests, insert_new_endpoint_no_participant)
@@ -1113,7 +1153,9 @@ TEST_F(database_process_entities_tests, insert_new_endpoint_no_participant)
                 EntityKind::DATAREADER,
                 EntityId(),
                 topic_id,
-                std::pair<AppId, std::string>(AppId::UNKNOWN, "")), BadParameter);
+                std::pair<AppId, std::string>(AppId::UNKNOWN, ""),
+                DiscoverySource::UNKNOWN,
+                UNKNOWN_DOMAIN_ID), BadParameter);
 }
 
 TEST_F(database_process_entities_tests, insert_new_endpoint_no_locators)
@@ -1164,7 +1206,10 @@ TEST_F(database_process_entities_tests, insert_new_endpoint_no_locators)
         EntityKind::DATAREADER,
         participant_id,
         topic_id,
-        std::pair<AppId, std::string>(AppId::UNKNOWN, ""));
+        std::pair<AppId, std::string>(AppId::UNKNOWN, ""),
+        DiscoverySource::UNKNOWN,
+        UNKNOWN_DOMAIN_ID
+        );
 
     /* Check that the endpoint is inserted correctly */
     std::map<EntityId, std::map<EntityId, std::shared_ptr<DataReader>>> datareaders = db.datareaders();

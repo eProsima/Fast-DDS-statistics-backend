@@ -57,20 +57,23 @@ class Database
 {
 public:
 
-    MOCK_METHOD7(insert_new_participant, EntityId(
+    MOCK_METHOD9(insert_new_participant, EntityId(
                 const std::string& name,
                 const Qos& qos,
                 const std::string& guid,
                 const EntityId& domain_id,
                 const StatusLevel& status,
                 const AppId& app_id,
-                const std::string& app_metadata));
+                const std::string& app_metadata,
+                const DiscoverySource& discovery_source,
+                const DomainId& original_domain));
 
-    MOCK_METHOD7(process_physical_entities, void(
+    MOCK_METHOD8(process_physical_entities, void(
                 const std::string& host_name,
                 const std::string& user_name,
                 const std::string& process_name,
                 const std::string& process_pid,
+                const DiscoverySource& discovery_source,
                 bool& should_link_process_participant,
                 const EntityId& participant_id,
                 std::map<std::string, EntityId>& physical_entities_ids));
@@ -92,17 +95,21 @@ public:
                 const std::string& alias,
                 const EntityId& domain_id));
 
-    MOCK_METHOD10(insert_new_endpoint, EntityId(
-                const std::string& endpoint_guid,
-                const std::string& name,
-                const std::string& alias,
-                const Qos& qos,
-                const bool& is_virtual_metatraffic,
-                const fastdds::rtps::RemoteLocatorList& locators,
-                const EntityKind& kind,
-                const EntityId& participant_id,
-                const EntityId& topic_id,
-                const std::pair<AppId, std::string>& app_data));
+    MOCK_METHOD(EntityId, insert_new_endpoint, (
+        const std::string& endpoint_guid,
+        const std::string& name,
+        const std::string& alias,
+        const Qos& qos,
+        const bool& is_virtual_metatraffic,
+        const fastdds::rtps::RemoteLocatorList& locators,
+        const EntityKind& kind,
+        const EntityId& participant_id,
+        const EntityId& topic_id,
+        (const std::pair<AppId, std::string>&) app_data,
+        const DiscoverySource& discovery_source,
+        const DomainId& original_domain
+    ), ());
+
 
     MOCK_METHOD1(insert, EntityId(
                 std::shared_ptr<Entity> entity));
