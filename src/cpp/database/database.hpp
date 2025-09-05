@@ -582,11 +582,13 @@ public:
     /**
      * @brief Init domain view graph with specified domain.
      *
-     * @param domain_name Domain where monitoring.
+     * @param domain_name The name of the domain where monitoring.
+     * @param domain_id The DomainId of the domain where monitoring.
      * @param domain_entity_id The EntityId of the domain.
      */
     void init_domain_view_graph(
             const std::string& domain_name,
+            const DomainId domain_id,
             const EntityId& domain_entity_id);
 
     /**
@@ -1373,6 +1375,7 @@ protected:
      */
     void init_domain_view_graph_nts(
             const std::string& domain_name,
+            const DomainId domain_id,
             const EntityId& domain_entity_id);
 
     /**

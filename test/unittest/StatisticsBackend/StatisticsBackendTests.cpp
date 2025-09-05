@@ -182,6 +182,14 @@ TEST_F(statistics_backend_tests, get_info)
                 info.erase(LOCATOR_CONTAINER_TAG);
                 break;
             }
+            case EntityKind::DOMAIN:
+            {
+                std::shared_ptr<const Domain> domain =
+                        std::dynamic_pointer_cast<const Domain>(entity);
+                EXPECT_EQ(domain->domain_id, info[DOMAIN_ID_TAG]);
+                info.erase(DOMAIN_ID_TAG);
+                break;
+            }
             case EntityKind::DATAWRITER:
             case EntityKind::DATAREADER:
             {
@@ -491,7 +499,7 @@ TEST_F(statistics_backend_tests, set_alias)
 {
     StatisticsBackendTest::set_database(db);
     auto domains = db->get_entities_by_name(EntityKind::DOMAIN, "domain2");
-    db->init_domain_view_graph("domain2", domains[0].second);
+    db->init_domain_view_graph("domain2", 2, domains[0].second);
     StatisticsBackendTest::regenerate_domain_graph(domains[0].second);
 
     for (auto entity : entities)
@@ -541,7 +549,7 @@ TEST_F(statistics_backend_tests, get_domain_view_graph)
     StatisticsBackendTest::set_database(db);
 
     // Get database graph
-    db->init_domain_view_graph("domain2", EntityId(7));
+    db->init_domain_view_graph("domain2", 2, EntityId(7));
     StatisticsBackendTest::regenerate_domain_graph(EntityId(7));
     // Load reference graph
     Graph json_graph;
@@ -555,7 +563,7 @@ TEST_F(statistics_backend_tests, get_domain_view_graph_invalid_domain)
     StatisticsBackendTest::set_database(db);
 
     // Get database graph from invalid domain
-    StatisticsBackendTest::regenerate_domain_graph(EntityId());
+    EXPECT_FALSE(StatisticsBackendTest::regenerate_domain_graph(EntityId()));
 
     // Load reference graph
     EXPECT_THROW(StatisticsBackend::get_domain_view_graph(EntityId()), BadParameter);

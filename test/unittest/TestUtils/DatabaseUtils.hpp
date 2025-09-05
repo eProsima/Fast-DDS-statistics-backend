@@ -194,11 +194,11 @@ public:
         db.insert(process2);
         entities[6] = process2;
 
-        auto domain1 = std::make_shared<Domain>("domain1");
+        auto domain1 = std::make_shared<Domain>("domain1", 1);
         db.insert(domain1);
         entities[7] = domain1;
 
-        auto domain2 = std::make_shared<Domain>("domain2");
+        auto domain2 = std::make_shared<Domain>("domain2", 2);
         db.insert(domain2);
         entities[8] = domain2;
 

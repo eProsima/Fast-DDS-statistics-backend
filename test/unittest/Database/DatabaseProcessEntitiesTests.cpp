@@ -94,7 +94,7 @@ public:
 TEST_F(database_process_entities_tests, insert_new_participant)
 {
     /* Insert a domain */
-    std::shared_ptr<Domain> domain = std::make_shared<Domain>("test_domain");
+    std::shared_ptr<Domain> domain = std::make_shared<Domain>("test_domain", 0);
     EntityId domain_id = db.insert(domain);
 
     /* Create a DomainParticipant*/
@@ -129,7 +129,7 @@ TEST_F(database_process_entities_tests, insert_new_participant)
 TEST_F(database_process_entities_tests, insert_new_participant_already_exists)
 {
     /* Insert a domain */
-    std::shared_ptr<Domain> domain = std::make_shared<Domain>("test_domain");
+    std::shared_ptr<Domain> domain = std::make_shared<Domain>("test_domain", 0);
     EntityId domain_id = db.insert(domain);
 
     /* Insert a DomainParticipant*/
@@ -171,7 +171,7 @@ TEST_F(database_process_entities_tests, insert_new_participant_no_domain)
 TEST_F(database_process_entities_tests, process_physical_entities)
 {
     /* Insert a domain */
-    std::shared_ptr<Domain> domain = std::make_shared<Domain>("test_domain");
+    std::shared_ptr<Domain> domain = std::make_shared<Domain>("test_domain", 0);
     EntityId domain_id = db.insert(domain);
 
     /* Insert a DomainParticipant*/
@@ -240,7 +240,7 @@ TEST_F(database_process_entities_tests, process_physical_entities)
 TEST_F(database_process_entities_tests, process_physical_entities_no_link)
 {
     /* Insert a domain */
-    std::shared_ptr<Domain> domain = std::make_shared<Domain>("test_domain");
+    std::shared_ptr<Domain> domain = std::make_shared<Domain>("test_domain", 0);
     EntityId domain_id = db.insert(domain);
 
     /* Insert a DomainParticipant*/
@@ -306,7 +306,7 @@ TEST_F(database_process_entities_tests, process_physical_entities_no_link)
 TEST_F(database_process_entities_tests, process_physical_entities_no_process)
 {
     /* Insert a domain */
-    std::shared_ptr<Domain> domain = std::make_shared<Domain>("test_domain");
+    std::shared_ptr<Domain> domain = std::make_shared<Domain>("test_domain", 0);
     EntityId domain_id = db.insert(domain);
 
     /* Insert a DomainParticipant*/
@@ -382,7 +382,7 @@ TEST_F(database_process_entities_tests, process_physical_entities_no_process)
 TEST_F(database_process_entities_tests, process_physical_entities_no_process_no_user)
 {
     /* Insert a domain */
-    std::shared_ptr<Domain> domain = std::make_shared<Domain>("test_domain");
+    std::shared_ptr<Domain> domain = std::make_shared<Domain>("test_domain", 0);
     EntityId domain_id = db.insert(domain);
 
     /* Insert a DomainParticipant*/
@@ -462,7 +462,7 @@ TEST_F(database_process_entities_tests, process_physical_entities_no_process_no_
 TEST_F(database_process_entities_tests, process_physical_entities_no_process_no_user_no_host)
 {
     /* Insert a domain */
-    std::shared_ptr<Domain> domain = std::make_shared<Domain>("test_domain");
+    std::shared_ptr<Domain> domain = std::make_shared<Domain>("test_domain", 0);
     EntityId domain_id = db.insert(domain);
 
     /* Insert a DomainParticipant*/
@@ -543,7 +543,7 @@ TEST_F(database_process_entities_tests, process_physical_entities_no_process_no_
 TEST_F(database_process_entities_tests, process_physical_entities_process_throws)
 {
     /* Insert a domain */
-    std::shared_ptr<Domain> domain = std::make_shared<Domain>("test_domain");
+    std::shared_ptr<Domain> domain = std::make_shared<Domain>("test_domain", 0);
     EntityId domain_id = db.insert(domain);
 
     /* Insert a DomainParticipant*/
@@ -608,7 +608,7 @@ TEST_F(database_process_entities_tests, process_physical_entities_process_throws
 TEST_F(database_process_entities_tests, process_physical_entities_user_throws)
 {
     /* Insert a domain */
-    std::shared_ptr<Domain> domain = std::make_shared<Domain>("test_domain");
+    std::shared_ptr<Domain> domain = std::make_shared<Domain>("test_domain", 0);
     EntityId domain_id = db.insert(domain);
 
     /* Insert a DomainParticipant*/
@@ -665,7 +665,7 @@ TEST_F(database_process_entities_tests, process_physical_entities_user_throws)
 TEST_F(database_process_entities_tests, process_physical_entities_host_throws)
 {
     /* Insert a domain */
-    std::shared_ptr<Domain> domain = std::make_shared<Domain>("test_domain");
+    std::shared_ptr<Domain> domain = std::make_shared<Domain>("test_domain", 0);
     EntityId domain_id = db.insert(domain);
 
     /* Insert a DomainParticipant*/
@@ -718,7 +718,7 @@ TEST_F(database_process_entities_tests, process_physical_entities_host_throws)
 TEST_F(database_process_entities_tests, is_topic_in_database)
 {
     /* Insert a domain */
-    std::shared_ptr<Domain> domain = std::make_shared<Domain>("test_domain");
+    std::shared_ptr<Domain> domain = std::make_shared<Domain>("test_domain", 0);
     db.insert(domain);
 
     std::shared_ptr<Topic> topic = std::make_shared<Topic>(topic_name, topic_type, domain);
@@ -739,7 +739,7 @@ TEST_F(database_process_entities_tests, is_topic_in_database)
 TEST_F(database_process_entities_tests, insert_new_topic)
 {
     /* Insert a domain */
-    std::shared_ptr<Domain> domain = std::make_shared<Domain>("test_domain");
+    std::shared_ptr<Domain> domain = std::make_shared<Domain>("test_domain", 0);
     EntityId domain_id = db.insert(domain);
 
     /* Create a Topic*/
@@ -761,7 +761,7 @@ TEST_F(database_process_entities_tests, insert_new_topic)
 TEST_F(database_process_entities_tests, insert_new_topic_already_exists)
 {
     /* Insert a domain */
-    std::shared_ptr<Domain> domain = std::make_shared<Domain>("test_domain");
+    std::shared_ptr<Domain> domain = std::make_shared<Domain>("test_domain", 0);
     EntityId domain_id = db.insert(domain);
 
     /* Insert a DomainParticipant*/
@@ -794,7 +794,7 @@ TEST_F(database_process_entities_tests, insert_new_topic_no_domain)
 TEST_F(database_process_entities_tests, insert_new_endpoint_datawriter)
 {
     /* Insert a domain */
-    std::shared_ptr<Domain> domain = std::make_shared<Domain>("test_domain");
+    std::shared_ptr<Domain> domain = std::make_shared<Domain>("test_domain", 0);
     EntityId domain_id = db.insert(domain);
 
     /* Insert a DomainParticipant*/
@@ -877,7 +877,7 @@ TEST_F(database_process_entities_tests, insert_new_endpoint_datawriter)
 TEST_F(database_process_entities_tests, insert_new_endpoint_datareader)
 {
     /* Insert a domain */
-    std::shared_ptr<Domain> domain = std::make_shared<Domain>("test_domain");
+    std::shared_ptr<Domain> domain = std::make_shared<Domain>("test_domain", 0);
     EntityId domain_id = db.insert(domain);
 
     /* Insert a DomainParticipant*/
@@ -961,7 +961,7 @@ TEST_F(database_process_entities_tests, insert_new_endpoint_datareader)
 TEST_F(database_process_entities_tests, insert_new_endpoint_already_exists)
 {
     /* Insert a domain */
-    std::shared_ptr<Domain> domain = std::make_shared<Domain>("test_domain");
+    std::shared_ptr<Domain> domain = std::make_shared<Domain>("test_domain", 0);
     db.insert(domain);
 
     /* Insert a DomainParticipant*/
@@ -1026,7 +1026,7 @@ TEST_F(database_process_entities_tests, insert_new_endpoint_already_exists)
 TEST_F(database_process_entities_tests, insert_new_endpoint_no_topic)
 {
     /* Insert a domain */
-    std::shared_ptr<Domain> domain = std::make_shared<Domain>("test_domain");
+    std::shared_ptr<Domain> domain = std::make_shared<Domain>("test_domain", 0);
     db.insert(domain);
 
     /* Insert a DomainParticipant*/
@@ -1075,7 +1075,7 @@ TEST_F(database_process_entities_tests, insert_new_endpoint_no_topic)
 TEST_F(database_process_entities_tests, insert_new_endpoint_no_participant)
 {
     /* Insert a domain */
-    std::shared_ptr<Domain> domain = std::make_shared<Domain>("test_domain");
+    std::shared_ptr<Domain> domain = std::make_shared<Domain>("test_domain", 0);
     db.insert(domain);
 
     /* Insert a Topic*/
@@ -1119,7 +1119,7 @@ TEST_F(database_process_entities_tests, insert_new_endpoint_no_participant)
 TEST_F(database_process_entities_tests, insert_new_endpoint_no_locators)
 {
     /* Insert a domain */
-    std::shared_ptr<Domain> domain = std::make_shared<Domain>("test_domain");
+    std::shared_ptr<Domain> domain = std::make_shared<Domain>("test_domain", 0);
     EntityId domain_id = db.insert(domain);
 
     /* Insert a DomainParticipant*/

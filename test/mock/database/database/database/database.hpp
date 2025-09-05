@@ -186,8 +186,9 @@ public:
     {
     }
 
-    MOCK_METHOD2(init_domain_view_graph, void(
+    MOCK_METHOD3(init_domain_view_graph, void(
                 const std::string& domain_name,
+                const DomainId domain_id,
                 const EntityId& domain_entity_id));
 
     MOCK_METHOD5(update_participant_in_graph, bool(

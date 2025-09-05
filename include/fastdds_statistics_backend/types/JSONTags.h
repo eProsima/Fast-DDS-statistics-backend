@@ -127,6 +127,10 @@ constexpr const char* APP_METADATA_TAG                  = "app_metadata";
 constexpr const char* VIRTUAL_METATRAFFIC_TAG       = "virtual_metatraffic";
 //! Key tag for vendor id of a participant entity
 constexpr const char* DDS_VENDOR_TAG                = "dds_vendor";
+//! Key tags for domain info of an entity
+constexpr const char* DOMAIN_INFO_TAG                = "domain_info";
+constexpr const char* DOMAIN_ID_TAG                  = "domain_id";
+constexpr const char* DOMAIN_NAME_TAG                = "domain_name";
 
 //! Conversion from EntityKind to string
 constexpr const char* entity_kind_str[] =

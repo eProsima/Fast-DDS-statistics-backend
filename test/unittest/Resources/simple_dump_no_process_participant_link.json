@@ -42,6 +42,7 @@
     "4": {
       "name": "120",
       "alias": "domain_0",
+      "domain_id": 120,
       "participants": [
         "6"
       ],

@@ -475,7 +475,7 @@ TEST_F(database_status_tests, domain)
     ASSERT_TRUE(locator->active);
 
     // The new entity will be active
-    auto domain1 = std::make_shared<Domain>("domain1");
+    auto domain1 = std::make_shared<Domain>("domain1", 1);
     db.insert(domain1);
     ASSERT_TRUE(domain1->active);
 

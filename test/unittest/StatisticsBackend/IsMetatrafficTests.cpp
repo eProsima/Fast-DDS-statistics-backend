@@ -31,8 +31,8 @@ constexpr const char* DATA_TYPE_DEFAULT = "data_type";
 #define HOST_DEFAULT_NAME(x) "host_" + std::to_string(x)
 #define USER_DEFAULT_NAME(x) "user_" + std::to_string(x)
 #define PROCESS_DEFAULT_NAME(x) "process_" + std::to_string(x)
-#define DOMAIN_DEFAULT_NAME(x) "12" + std::to_string(x)
-#define ALIAS_DEFAULT_NAME(x) "domain_" + std::to_string(x)
+#define DOMAIN_DEFAULT_NAME(x) "domain_name_" + std::to_string(x)
+#define ALIAS_DEFAULT_NAME(x) "domain_alias_" + std::to_string(x)
 #define NON_METATRAFFIC_TOPIC_NAMES {"topic_0", "rt/chatter", "Square"}
 #define METATRAFFIC_TOPIC_NAMES {"ros_discovery_info", "rt/rosout", "_fastdds_statistics_network_latency"}
 #define PARTICIPANT_DEFAULT_NAME(x) "participant_" + std::to_string(x)
@@ -47,7 +47,7 @@ TEST(is_metatraffic_tests, non_metatraffic_topic)
     // reset database
     details::StatisticsBackendData::get_instance()->database_.reset(new Database);
 
-    std::shared_ptr<Domain> domain = std::make_shared<Domain>(std::string(DOMAIN_DEFAULT_NAME(0)));
+    std::shared_ptr<Domain> domain = std::make_shared<Domain>(std::string(DOMAIN_DEFAULT_NAME(0)), 0);
     domain->alias = ALIAS_DEFAULT_NAME(0);
     details::StatisticsBackendData::get_instance()->database_->insert(domain);
 
@@ -67,7 +67,7 @@ TEST(is_metatraffic_tests, metatraffic_topic)
     // reset database
     details::StatisticsBackendData::get_instance()->database_.reset(new Database);
 
-    std::shared_ptr<Domain> domain = std::make_shared<Domain>(std::string(DOMAIN_DEFAULT_NAME(0)));
+    std::shared_ptr<Domain> domain = std::make_shared<Domain>(std::string(DOMAIN_DEFAULT_NAME(0)), 0);
     domain->alias = ALIAS_DEFAULT_NAME(0);
     details::StatisticsBackendData::get_instance()->database_->insert(domain);
 
@@ -87,7 +87,7 @@ TEST(is_metatraffic_tests, non_metatraffic_endpoint)
     // reset database
     details::StatisticsBackendData::get_instance()->database_.reset(new Database);
 
-    std::shared_ptr<Domain> domain = std::make_shared<Domain>(std::string(DOMAIN_DEFAULT_NAME(0)));
+    std::shared_ptr<Domain> domain = std::make_shared<Domain>(std::string(DOMAIN_DEFAULT_NAME(0)), 0);
     domain->alias = ALIAS_DEFAULT_NAME(0);
     details::StatisticsBackendData::get_instance()->database_->insert(domain);
 
@@ -118,7 +118,7 @@ TEST(is_metatraffic_tests, metatraffic_endpoint)
     // reset database
     details::StatisticsBackendData::get_instance()->database_.reset(new Database);
 
-    std::shared_ptr<Domain> domain = std::make_shared<Domain>(std::string(DOMAIN_DEFAULT_NAME(0)));
+    std::shared_ptr<Domain> domain = std::make_shared<Domain>(std::string(DOMAIN_DEFAULT_NAME(0)), 0);
     domain->alias = ALIAS_DEFAULT_NAME(0);
     details::StatisticsBackendData::get_instance()->database_->insert(domain);
 
@@ -162,7 +162,7 @@ TEST(is_metatraffic_tests, other_entity_kinds)
     details::StatisticsBackendData::get_instance()->database_->insert(process);
     ASSERT_EQ(StatisticsBackend::is_metatraffic(process->id), process->metatraffic);
     ASSERT_FALSE(StatisticsBackend::is_metatraffic(process->id));
-    std::shared_ptr<Domain> domain = std::make_shared<Domain>(std::string(DOMAIN_DEFAULT_NAME(0)));
+    std::shared_ptr<Domain> domain = std::make_shared<Domain>(std::string(DOMAIN_DEFAULT_NAME(0)), 0);
     domain->alias = ALIAS_DEFAULT_NAME(0);
     details::StatisticsBackendData::get_instance()->database_->insert(domain);
     ASSERT_EQ(StatisticsBackend::is_metatraffic(domain->id), domain->metatraffic);

@@ -1,6 +1,10 @@
 {
     "kind": "domain",
-    "domain": "33",
+    "domain_info":
+    {
+        "domain_id": 33,
+        "domain_name": "33"
+    },
     "topics":
     {
         "2":

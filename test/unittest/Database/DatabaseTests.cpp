@@ -43,7 +43,7 @@ void insert_ddsendpoint_valid()
     db.insert(user);
     auto process = std::make_shared<Process>("test_process", "test_pid", user);
     db.insert(process);
-    auto domain = std::make_shared<Domain>("test_domain");
+    auto domain = std::make_shared<Domain>("test_domain", 0);
     auto domain_id = db.insert(domain);
     auto participant = std::make_shared<DomainParticipant>(
         "test_participant", db.test_qos, "01.02.03.04", process, domain);
@@ -113,7 +113,7 @@ void insert_ddsendpoint_two_valid()
     db.insert(user);
     auto process = std::make_shared<Process>("test_process", "test_pid", user);
     db.insert(process);
-    auto domain = std::make_shared<Domain>("test_domain");
+    auto domain = std::make_shared<Domain>("test_domain", 0);
     auto domain_id = db.insert(domain);
     auto participant = std::make_shared<DomainParticipant>(
         "test_participant", db.test_qos, "01.02.03.04", process, domain);
@@ -216,7 +216,7 @@ void insert_ddsendpoint_duplicated()
     db.insert(user);
     auto process = std::make_shared<Process>("test_process", "test_pid", user);
     db.insert(process);
-    auto domain = std::make_shared<Domain>("test_domain");
+    auto domain = std::make_shared<Domain>("test_domain", 0);
     db.insert(domain);
     auto participant = std::make_shared<DomainParticipant>(
         "test_participant", db.test_qos, "01.02.03.04", process, domain);
@@ -245,7 +245,7 @@ void insert_ddsendpoint_wrong_participant()
     db.insert(user);
     auto process = std::make_shared<Process>("test_process", "test_pid", user);
     db.insert(process);
-    auto domain = std::make_shared<Domain>("test_domain");
+    auto domain = std::make_shared<Domain>("test_domain", 0);
     db.insert(domain);
     auto participant = std::make_shared<DomainParticipant>(
         "test_participant", db.test_qos, "01.02.03.04", process, domain);
@@ -275,7 +275,7 @@ void insert_ddsendpoint_wrong_topic()
     db.insert(user);
     auto process = std::make_shared<Process>("test_process", "test_pid", user);
     db.insert(process);
-    auto domain = std::make_shared<Domain>("test_domain");
+    auto domain = std::make_shared<Domain>("test_domain", 0);
     db.insert(domain);
     auto participant = std::make_shared<DomainParticipant>(
         "test_participant", db.test_qos, "01.02.03.04", process, domain);
@@ -304,7 +304,7 @@ void insert_ddsendpoint_empty_name()
     db.insert(user);
     auto process = std::make_shared<Process>("test_process", "test_pid", user);
     db.insert(process);
-    auto domain = std::make_shared<Domain>("test_domain");
+    auto domain = std::make_shared<Domain>("test_domain", 0);
     db.insert(domain);
     auto participant = std::make_shared<DomainParticipant>(
         "test_participant", db.test_qos, "01.02.03.04", process, domain);
@@ -332,7 +332,7 @@ void insert_ddsendpoint_empty_qos()
     db.insert(user);
     auto process = std::make_shared<Process>("test_process", "test_pid", user);
     db.insert(process);
-    auto domain = std::make_shared<Domain>("test_domain");
+    auto domain = std::make_shared<Domain>("test_domain", 0);
     db.insert(domain);
     auto participant = std::make_shared<DomainParticipant>(
         "test_participant", db.test_qos, "01.02.03.04", process, domain);
@@ -360,7 +360,7 @@ void insert_ddsendpoint_empty_guid()
     db.insert(user);
     auto process = std::make_shared<Process>("test_process", "test_pid", user);
     db.insert(process);
-    auto domain = std::make_shared<Domain>("test_domain");
+    auto domain = std::make_shared<Domain>("test_domain", 0);
     db.insert(domain);
     auto participant = std::make_shared<DomainParticipant>(
         "test_participant", db.test_qos, "01.02.03.04", process, domain);
@@ -388,7 +388,7 @@ void insert_ddsendpoint_empty_locators()
     db.insert(user);
     auto process = std::make_shared<Process>("test_process", "test_pid", user);
     db.insert(process);
-    auto domain = std::make_shared<Domain>("test_domain");
+    auto domain = std::make_shared<Domain>("test_domain", 0);
     db.insert(domain);
     auto participant = std::make_shared<DomainParticipant>(
         "test_participant", db.test_qos, "01.02.03.04", process, domain);
@@ -413,7 +413,7 @@ void insert_ddsendpoint_two_same_domain_same_guid()
     db.insert(user);
     auto process = std::make_shared<Process>("test_process", "test_pid", user);
     db.insert(process);
-    auto domain = std::make_shared<Domain>("test_domain");
+    auto domain = std::make_shared<Domain>("test_domain", 0);
     db.insert(domain);
     auto participant = std::make_shared<DomainParticipant>(
         "test_participant", db.test_qos, "01.02.03.04", process, domain);
@@ -447,9 +447,9 @@ void insert_ddsendpoint_two_diff_domain_same_guid()
     db.insert(user);
     auto process = std::make_shared<Process>("test_process", "test_pid", user);
     db.insert(process);
-    auto domain = std::make_shared<Domain>("test_domain");
+    auto domain = std::make_shared<Domain>("test_domain", 0);
     db.insert(domain);
-    auto domain_2 = std::make_shared<Domain>("test_domain_2");
+    auto domain_2 = std::make_shared<Domain>("test_domain_2", 1);
     db.insert(domain_2);
     auto participant = std::make_shared<DomainParticipant>(
         "test_participant", db.test_qos, "01.02.03.04", process, domain);
@@ -488,7 +488,7 @@ void insert_ddsendpoint_two_equal_locators()
     db.insert(user);
     auto process = std::make_shared<Process>("test_process", "test_pid", user);
     db.insert(process);
-    auto domain = std::make_shared<Domain>("test_domain");
+    auto domain = std::make_shared<Domain>("test_domain", 0);
     auto domain_id = db.insert(domain);
     auto participant = std::make_shared<DomainParticipant>(
         "test_participant", db.test_qos, "01.02.03.04", process, domain);
@@ -567,7 +567,7 @@ public:
         user_id = db.insert(user);
         process.reset(new Process(process_name, "12345", user));
         process_id = db.insert(process);
-        domain.reset(new Domain(domain_name));
+        domain.reset(new Domain(domain_name, 0));
         domain_id = db.insert(domain);
         participant.reset(new DomainParticipant(participant_name, db.test_qos, participant_guid, nullptr, domain));
         participant_id = db.insert(participant);
@@ -1064,7 +1064,7 @@ TEST_F(database_tests, insert_domain_valid)
     /* Insert a domain */
     DataBaseTest db;
     std::string domain_name = "test_domain";
-    auto domain = std::make_shared<Domain>(domain_name);
+    auto domain = std::make_shared<Domain>(domain_name, 0);
     EntityId domain_id = db.insert(domain);
 
     /* Check that the domain is inserted correctly */
@@ -1081,8 +1081,8 @@ TEST_F(database_tests, insert_domain_two_valid)
     DataBaseTest db;
     std::string domain_name = "test_domain";
     std::string domain_name_2 = "test_domain_2";
-    auto domain = std::make_shared<Domain>(domain_name);
-    auto domain_2 = std::make_shared<Domain>(domain_name_2);
+    auto domain = std::make_shared<Domain>(domain_name, 0);
+    auto domain_2 = std::make_shared<Domain>(domain_name_2, 1);
     EntityId domain_id = db.insert(domain);
     EntityId domain_id_2 = db.insert(domain_2);
 
@@ -1101,7 +1101,7 @@ TEST_F(database_tests, insert_domain_duplicated)
 {
     /* Insert a domain twice */
     DataBaseTest db;
-    auto domain = std::make_shared<Domain>("test_domain");
+    auto domain = std::make_shared<Domain>("test_domain", 0);
     db.insert(domain);
     ASSERT_THROW(db.insert(domain), BadParameter);
 }
@@ -1110,7 +1110,7 @@ TEST_F(database_tests, insert_domain_empty_name)
 {
     /* Insert a domain with empty name */
     DataBaseTest db;
-    auto domain = std::make_shared<Domain>("");
+    auto domain = std::make_shared<Domain>("", 0);
     ASSERT_THROW(db.insert(domain), BadParameter);
 }
 
@@ -1118,8 +1118,8 @@ TEST_F(database_tests, insert_domain_same_name)
 {
     /* Insert two domains with same name */
     DataBaseTest db;
-    auto domain = std::make_shared<Domain>("test_domain");
-    auto domain_2 = std::make_shared<Domain>("test_domain");
+    auto domain = std::make_shared<Domain>("test_domain", 0);
+    auto domain_2 = std::make_shared<Domain>("test_domain", 0);
     db.insert(domain);
     ASSERT_THROW(db.insert(domain_2), BadParameter);
 }
@@ -1128,7 +1128,7 @@ TEST_F(database_tests, insert_topic_valid)
 {
     /* Insert a domain */
     DataBaseTest db;
-    auto domain = std::make_shared<Domain>("test_domain");
+    auto domain = std::make_shared<Domain>("test_domain", 0);
     EntityId domain_id = db.insert(domain);
 
     /* Insert a topic */
@@ -1155,7 +1155,7 @@ TEST_F(database_tests, insert_topic_two_valid)
 {
     /* Insert a domain */
     DataBaseTest db;
-    auto domain = std::make_shared<Domain>("test_domain");
+    auto domain = std::make_shared<Domain>("test_domain", 0);
     EntityId domain_id = db.insert(domain);
 
     /* Insert two topics */
@@ -1192,7 +1192,7 @@ TEST_F(database_tests, insert_topic_duplicated)
 {
     /* Insert a domain */
     DataBaseTest db;
-    auto domain = std::make_shared<Domain>("test_domain");
+    auto domain = std::make_shared<Domain>("test_domain", 0);
     db.insert(domain);
 
     /* Insert a topic twice */
@@ -1205,11 +1205,11 @@ TEST_F(database_tests, insert_topic_wrong_domain)
 {
     /* Insert a domain */
     DataBaseTest db;
-    auto domain = std::make_shared<Domain>("test_domain");
+    auto domain = std::make_shared<Domain>("test_domain", 0);
     db.insert(domain);
 
     /* Insert a topic with a non-inserted domain */
-    auto domain_2 = std::make_shared<Domain>("test_domain_2");
+    auto domain_2 = std::make_shared<Domain>("test_domain_2", 1);
     auto topic = std::make_shared<Topic>("test_topic_name", "test_topic_type", domain_2);
     ASSERT_THROW(db.insert(topic), BadParameter);
 }
@@ -1218,7 +1218,7 @@ TEST_F(database_tests, insert_topic_empty_name)
 {
     /* Insert a domain */
     DataBaseTest db;
-    auto domain = std::make_shared<Domain>("test_domain");
+    auto domain = std::make_shared<Domain>("test_domain", 0);
     db.insert(domain);
 
     /* Insert a topic with empty name */
@@ -1230,7 +1230,7 @@ TEST_F(database_tests, insert_topic_empty_datatype)
 {
     /* Insert a domain */
     DataBaseTest db;
-    auto domain = std::make_shared<Domain>("test_domain");
+    auto domain = std::make_shared<Domain>("test_domain", 0);
     db.insert(domain);
 
     /* Insert a topic with empty data_type */
@@ -1242,7 +1242,7 @@ TEST_F(database_tests, insert_topic_two_same_domain_same_name)
 {
     /* Insert a domain */
     DataBaseTest db;
-    auto domain = std::make_shared<Domain>("test_domain");
+    auto domain = std::make_shared<Domain>("test_domain", 0);
     EntityId domain_id = db.insert(domain);
 
     /* Insert two topics with different types */
@@ -1279,7 +1279,7 @@ TEST_F(database_tests, insert_topic_two_same_domain_same_name_same_type)
 {
     /* Insert a domain */
     DataBaseTest db;
-    auto domain = std::make_shared<Domain>("test_domain");
+    auto domain = std::make_shared<Domain>("test_domain", 0);
     db.insert(domain);
 
     /* Insert two topics with same name and type */
@@ -1296,7 +1296,7 @@ TEST_F(database_tests, insert_topic_two_same_domain_diff_name_same_type)
 {
     /* Insert a domain */
     DataBaseTest db;
-    auto domain = std::make_shared<Domain>("test_domain");
+    auto domain = std::make_shared<Domain>("test_domain", 0);
     EntityId domain_id = db.insert(domain);
 
     /* Insert two topics */
@@ -1340,7 +1340,7 @@ TEST_F(database_tests, insert_participant_valid)
     db.insert(process);
 
     /* Insert a domain */
-    auto domain = std::make_shared<Domain>("test_domain");
+    auto domain = std::make_shared<Domain>("test_domain", 0);
     auto domain_id = db.insert(domain);
 
     /* Insert a DomainParticipant */
@@ -1377,7 +1377,7 @@ TEST_F(database_tests, insert_participant_two_valid)
     db.insert(process);
 
     /* Insert a domain */
-    auto domain = std::make_shared<Domain>("test_domain");
+    auto domain = std::make_shared<Domain>("test_domain", 0);
     auto domain_id = db.insert(domain);
 
     /* Insert two DomainParticipants */
@@ -1423,7 +1423,7 @@ TEST_F(database_tests, insert_participant_duplicated)
     db.insert(user);
     auto process = std::make_shared<Process>("test_process", "test_pid", user);
     db.insert(process);
-    auto domain = std::make_shared<Domain>("test_domain");
+    auto domain = std::make_shared<Domain>("test_domain", 0);
     db.insert(domain);
 
     /* Insert a DomainParticipant */
@@ -1443,11 +1443,11 @@ TEST_F(database_tests, insert_participant_wrong_domain)
     db.insert(user);
     auto process = std::make_shared<Process>("test_process", "test_pid", user);
     db.insert(process);
-    auto domain = std::make_shared<Domain>("test_domain");
+    auto domain = std::make_shared<Domain>("test_domain", 0);
     db.insert(domain);
 
     /* Insert a DomainParticipant in a non-inserted domain */
-    auto domain_2 = std::make_shared<Domain>("test_domain_2");
+    auto domain_2 = std::make_shared<Domain>("test_domain_2", 1);
     auto participant = std::make_shared<DomainParticipant>(
         "test_participant", db.test_qos, "01.02.03.04", process, domain_2);
     ASSERT_THROW(db.insert(participant), BadParameter);
@@ -1463,7 +1463,7 @@ TEST_F(database_tests, insert_participant_empty_name)
     db.insert(user);
     auto process = std::make_shared<Process>("test_process", "test_pid", user);
     db.insert(process);
-    auto domain = std::make_shared<Domain>("test_domain");
+    auto domain = std::make_shared<Domain>("test_domain", 0);
     db.insert(domain);
 
     /* Insert a DomainParticipant with an empty name */
@@ -1482,7 +1482,7 @@ TEST_F(database_tests, insert_participant_empty_qos)
     db.insert(user);
     auto process = std::make_shared<Process>("test_process", "test_pid", user);
     db.insert(process);
-    auto domain = std::make_shared<Domain>("test_domain");
+    auto domain = std::make_shared<Domain>("test_domain", 0);
     db.insert(domain);
 
     /* Insert a DomainParticipant with an empty name */
@@ -1501,7 +1501,7 @@ TEST_F(database_tests, insert_participant_empty_guid)
     db.insert(user);
     auto process = std::make_shared<Process>("test_process", "test_pid", user);
     db.insert(process);
-    auto domain = std::make_shared<Domain>("test_domain");
+    auto domain = std::make_shared<Domain>("test_domain", 0);
     db.insert(domain);
 
     /* Insert a DomainParticipant with an empty name */
@@ -1520,7 +1520,7 @@ TEST_F(database_tests, insert_participant_two_same_domain_same_guid)
     db.insert(user);
     auto process = std::make_shared<Process>("test_process", "test_pid", user);
     db.insert(process);
-    auto domain = std::make_shared<Domain>("test_domain");
+    auto domain = std::make_shared<Domain>("test_domain", 0);
     db.insert(domain);
 
     /* Insert two DomainParticipants with same domain and guid */
@@ -1543,9 +1543,9 @@ TEST_F(database_tests, insert_participant_two_diff_domain_same_guid)
     db.insert(user);
     auto process = std::make_shared<Process>("test_process", "test_pid", user);
     db.insert(process);
-    auto domain = std::make_shared<Domain>("test_domain");
+    auto domain = std::make_shared<Domain>("test_domain", 0);
     db.insert(domain);
-    auto domain_2 = std::make_shared<Domain>("test_domain_2");
+    auto domain_2 = std::make_shared<Domain>("test_domain_2", 1);
     db.insert(domain_2);
 
     /* Insert two DomainParticipants with different domain and same guid */
@@ -1720,7 +1720,7 @@ TEST_F(database_tests, link_participant_with_process_unlinked)
     db.insert(user);
     auto process = std::make_shared<Process>("test_process", "test_pid", user);
     auto process_id = db.insert(process);
-    auto domain = std::make_shared<Domain>("test_domain");
+    auto domain = std::make_shared<Domain>("test_domain", 0);
     auto domain_id = db.insert(domain);
     auto participant = std::make_shared<DomainParticipant>(
         "test_participant", db.test_qos, "01.02.03.04", nullptr, domain);
@@ -1756,7 +1756,7 @@ TEST_F(database_tests, link_participant_with_process_wrong_participant)
     db.insert(user);
     auto process = std::make_shared<Process>("test_process", "test_pid", user);
     auto process_id = db.insert(process);
-    auto domain = std::make_shared<Domain>("test_domain");
+    auto domain = std::make_shared<Domain>("test_domain", 0);
     db.insert(domain);
     auto participant = std::make_shared<DomainParticipant>(
         "test_participant", db.test_qos, "01.02.03.04", nullptr, domain);
@@ -1776,7 +1776,7 @@ TEST_F(database_tests, link_participant_with_process_wrong_process)
     db.insert(user);
     auto process = std::make_shared<Process>("test_process", "test_pid", user);
     db.insert(process);
-    auto domain = std::make_shared<Domain>("test_domain");
+    auto domain = std::make_shared<Domain>("test_domain", 0);
     db.insert(domain);
     auto participant = std::make_shared<DomainParticipant>(
         "test_participant", db.test_qos, "01.02.03.04", nullptr, domain);
@@ -1796,7 +1796,7 @@ TEST_F(database_tests, link_participant_with_process_linked_participant)
     db.insert(user);
     auto process = std::make_shared<Process>("test_process", "test_pid", user);
     auto process_id = db.insert(process);
-    auto domain = std::make_shared<Domain>("test_domain");
+    auto domain = std::make_shared<Domain>("test_domain", 0);
     db.insert(domain);
     auto participant = std::make_shared<DomainParticipant>(
         "test_participant", db.test_qos, "01.02.03.04", nullptr, domain);
@@ -3427,7 +3427,7 @@ TEST_F(database_tests, get_entities_by_name_topic)
     EXPECT_EQ(topics[0].second, topic_id);
 
     /* Insert another one with the same name and check that both of them are retrieved correctly */
-    auto domain_2 = std::make_shared<Domain>("domain_2");
+    auto domain_2 = std::make_shared<Domain>("domain_2", 1);
     db.insert(domain_2);
     auto topic_2 = std::make_shared<Topic>(topic_name, topic_type, domain_2);
     auto topic_id_2 = db.insert(topic_2);

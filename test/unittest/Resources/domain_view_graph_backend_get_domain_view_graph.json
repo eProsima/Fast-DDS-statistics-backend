@@ -1,5 +1,9 @@
 {
-    "domain": "domain2",
+    "domain_info":
+    {
+        "domain_id": 2,
+        "domain_name": "domain2"
+    },
     "hosts": {
         "1": {
             "alias": "host2",
