@@ -5,17 +5,20 @@
             "alias": "host2",
             "kind": "host",
             "metatraffic": false,
+            "discovery_source": "unknown",
             "status": "OK",
             "users": {
                 "3": {
                     "alias": "user2",
                     "kind": "user",
                     "metatraffic": false,
+                    "discovery_source": "unknown",
                     "processes": {
                         "5": {
                             "alias": "process2",
                             "kind": "process",
                             "metatraffic": false,
+                            "discovery_source": "unknown",
                             "participants": {
                                 "8": {
                                     "alias": "participant1",
@@ -25,6 +28,7 @@
                                     "endpoints": {},
                                     "kind": "participant",
                                     "metatraffic": false,
+                                    "discovery_source": "unknown",
                                     "status": "OK"
                                 },
                                 "9": {
@@ -39,6 +43,7 @@
                                             "app_metadata": "",
                                             "kind": "datareader",
                                             "metatraffic": false,
+                                            "discovery_source": "unknown",
                                             "status": "OK",
                                             "topic": "11"
                                         },
@@ -48,6 +53,7 @@
                                             "app_metadata": "",
                                             "kind": "datareader",
                                             "metatraffic": false,
+                                            "discovery_source": "unknown",
                                             "status": "OK",
                                             "topic": "11"
                                         },
@@ -57,6 +63,7 @@
                                             "app_metadata": "",
                                             "kind": "datawriter",
                                             "metatraffic": false,
+                                            "discovery_source": "unknown",
                                             "status": "OK",
                                             "topic": "11"
                                         },
@@ -66,12 +73,14 @@
                                             "app_metadata": "",
                                             "kind": "datawriter",
                                             "metatraffic": false,
+                                            "discovery_source": "unknown",
                                             "status": "OK",
                                             "topic": "11"
                                         }
                                     },
                                     "kind": "participant",
                                     "metatraffic": false,
+                                    "discovery_source": "unknown",
                                     "status": "OK"
                                 }
                             },
@@ -89,12 +98,14 @@
         "10": {
             "alias": "topic1",
             "kind": "topic",
-            "metatraffic": false
+            "metatraffic": false,
+            "discovery_source": "unknown"
         },
         "11": {
             "alias": "topic2",
             "kind": "topic",
-            "metatraffic": false
+            "metatraffic": false,
+            "discovery_source": "unknown"
         }
     }
 }

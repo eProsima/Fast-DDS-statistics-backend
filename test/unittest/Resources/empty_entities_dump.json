@@ -10,7 +10,8 @@
       "status": 0,
       "users": [
         "2"
-      ]
+      ],
+      "discovery_source": "unknown"
     }
   },
   "users": {
@@ -23,7 +24,8 @@
       "host": "1",
       "processes": [
         "3"
-      ]
+      ],
+      "discovery_source": "unknown"
     }
   },
   "processes": {
@@ -37,7 +39,8 @@
       "user": "2",
       "participants": [
         "6"
-      ]
+      ],
+      "discovery_source": "unknown"
     }
   },
   "domains": {
@@ -52,7 +55,8 @@
       ],
       "topics": [
         "5"
-      ]
+      ],
+      "discovery_source": "unknown"
     }
   },
   "topics": {
@@ -69,7 +73,8 @@
       ],
       "datareaders": [
         "8"
-      ]
+      ],
+      "discovery_source": "unknown"
     }
   },
   "participants": {
@@ -112,7 +117,8 @@
           "count": 0,
           "src_time": "0"
         }
-      }
+      },
+      "discovery_source": "unknown"
     }
   },
   "datawriters": {
@@ -156,7 +162,8 @@
           "count": 0,
           "src_time": "0"
         }
-      }
+      } ,
+      "discovery_source": "unknown"
     }
   },
   "datareaders": {
@@ -188,7 +195,8 @@
           "count": 0,
           "src_time": "0"
         }
-      }
+      } ,
+      "discovery_source": "unknown"
     }
   },
   "locators": {
@@ -203,7 +211,8 @@
       ],
       "datareaders": [
         "8"
-      ]
+      ] ,
+      "discovery_source": "unknown"
     }
   }
 }

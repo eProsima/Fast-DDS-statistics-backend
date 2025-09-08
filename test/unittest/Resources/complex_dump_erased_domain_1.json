@@ -61,6 +61,7 @@
       "name": "datareader_2",
       "alias": "datareader_2",
       "metatraffic": false,
+      "discovery_source": "unknown",
       "alive": true,
       "status": 0,
       "participant": "24",
@@ -130,6 +131,7 @@
       "name": "datareader_0",
       "alias": "datareader_0",
       "metatraffic": false,
+      "discovery_source": "unknown",
       "alive": true,
       "status": 0,
       "participant": "6",
@@ -261,6 +263,7 @@
       "name": "datawriter_2",
       "alias": "datawriter_2",
       "metatraffic": false,
+      "discovery_source": "unknown",
       "alive": true,
       "status": 0,
       "participant": "24",
@@ -390,6 +393,7 @@
       "name": "datawriter_0",
       "alias": "datawriter_0",
       "metatraffic": false,
+      "discovery_source": "unknown",
       "alive": true,
       "status": 0,
       "participant": "6",
@@ -405,6 +409,7 @@
       "name": "122",
       "alias": "domain_2",
       "metatraffic": false,
+      "discovery_source": "unknown",
       "alive": true,
       "status": 0,
       "participants": [
@@ -418,6 +423,7 @@
       "name": "120",
       "alias": "domain_0",
       "metatraffic": false,
+      "discovery_source": "unknown",
       "alive": true,
       "status": 0,
       "participants": [
@@ -431,6 +437,7 @@
       "name":"121",
       "alias":"domain_1",
       "metatraffic":false,
+      "discovery_source":"unknown",
       "alive":true,
       "status": 0,
       "participants":[],
@@ -442,6 +449,7 @@
       "name": "host_0",
       "alias": "host_0",
       "metatraffic": false,
+      "discovery_source": "unknown",
       "alive": true,
       "status": 0,
       "users": [
@@ -452,6 +460,7 @@
       "name": "host_1",
       "alias": "host_1",
       "metatraffic": false,
+      "discovery_source": "unknown",
       "alive": false,
       "status": 0,
       "users": [
@@ -462,6 +471,7 @@
       "name": "host_2",
       "alias": "host_2",
       "metatraffic": false,
+      "discovery_source": "unknown",
       "alive": true,
       "status": 0,
       "users": [
@@ -480,6 +490,7 @@
       "name": "locator_0",
       "alias": "locator_0",
       "metatraffic": false,
+      "discovery_source": "unknown",
       "alive": true,
       "status": 0
     },
@@ -493,6 +504,7 @@
       "name": "locator_2",
       "alias": "locator_2",
       "metatraffic": false,
+      "discovery_source": "unknown",
       "alive": true,
       "status": 0
     },
@@ -502,6 +514,7 @@
       "name": "locator_1",
       "alias": "locator_1",
       "metatraffic": false,
+      "discovery_source": "unknown",
       "alive": true,
       "status": 0
     }
@@ -691,6 +704,7 @@
       "name": "participant_2",
       "alias": "participant_2",
       "metatraffic": false,
+      "discovery_source": "unknown",
       "alive": true,
       "status": 0,
       "process": "21",
@@ -882,6 +896,7 @@
       "name": "participant_0",
       "alias": "participant_0",
       "metatraffic": false,
+      "discovery_source": "unknown",
       "alive": true,
       "status": 0,
       "process": "3",
@@ -895,6 +910,7 @@
       "name": "process_1",
       "alias": "process_1",
       "metatraffic": false,
+      "discovery_source": "unknown",
       "alive": false,
       "status": 0,
       "participants": [],
@@ -905,6 +921,7 @@
       "name": "process_2",
       "alias": "process_2",
       "metatraffic": false,
+      "discovery_source": "unknown",
       "alive": true,
       "status": 0,
       "participants": [
@@ -917,6 +934,7 @@
       "name": "process_0",
       "alias": "process_0",
       "metatraffic": false,
+      "discovery_source": "unknown",
       "alive": true,
       "status": 0,
       "participants": [
@@ -939,6 +957,7 @@
       "name": "topic_2",
       "alias": "topic_2",
       "metatraffic": false,
+      "discovery_source": "unknown",
       "alive": true,
       "status": 0
     },
@@ -954,6 +973,7 @@
       "name": "topic_0",
       "alias": "topic_0",
       "metatraffic": false,
+      "discovery_source": "unknown",
       "alive": true,
       "status": 0
     }
@@ -964,6 +984,7 @@
       "name": "user_1",
       "alias": "user_1",
       "metatraffic": false,
+      "discovery_source": "unknown",
       "alive": false,
       "status": 0,
       "processes": [
@@ -975,6 +996,7 @@
       "name": "user_0",
       "alias": "user_0",
       "metatraffic": false,
+      "discovery_source": "unknown",
       "alive": true,
       "status": 0,
       "processes": [
@@ -986,6 +1008,7 @@
       "name": "user_2",
       "alias": "user_2",
       "metatraffic": false,
+      "discovery_source": "unknown",
       "alive": true,
       "status": 0,
       "processes": [

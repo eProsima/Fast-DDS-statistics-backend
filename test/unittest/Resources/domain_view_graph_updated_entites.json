@@ -7,6 +7,7 @@
         {
             "kind": "topic",
             "metatraffic": false,
+            "discovery_source": "unknown",
             "alias": "HelloWorld_modified"
         }
     },
@@ -16,6 +17,7 @@
         {
             "kind": "host",
             "metatraffic": false,
+            "discovery_source": "unknown",
             "alias": "eprosima-host_modified",
             "status": "OK",
             "users":
@@ -24,6 +26,7 @@
                 {
                     "kind": "user",
                     "metatraffic": false,
+                    "discovery_source": "unknown",
                     "alias": "eprosima_modified",
                     "status": "OK",
                     "processes":
@@ -32,6 +35,7 @@
                         {
                             "kind": "process",
                             "metatraffic": false,
+                            "discovery_source": "unknown",
                             "alias": "1234_modified",
                             "pid": "1234",
                             "status": "OK",
@@ -41,6 +45,7 @@
                                 {
                                     "kind": "participant",
                                     "metatraffic": false,
+                                    "discovery_source": "unknown",
                                     "alias": "participant_1_modified",
                                     "status": "OK",
                                     "app_id": "UNKNOWN_APP",
@@ -54,6 +59,7 @@
                                             "app_id": "UNKNOWN_APP",
                                             "app_metadata": "",
                                             "metatraffic": false,
+                                            "discovery_source": "unknown",
                                             "alias": "publisher_modified",
                                             "status": "OK",
                                             "topic": "5"
@@ -66,6 +72,7 @@
                         {
                             "kind": "process",
                             "metatraffic": false,
+                            "discovery_source": "unknown",
                             "alias": "1235",
                             "pid": "1235",
                             "status": "OK",
@@ -75,6 +82,7 @@
                                 {
                                     "kind": "participant",
                                     "metatraffic": false,
+                                    "discovery_source": "unknown",
                                     "alias": "participant_2",
                                     "status": "OK",
                                     "app_id": "UNKNOWN_APP",
@@ -88,6 +96,7 @@
                                             "app_id": "UNKNOWN_APP",
                                             "app_metadata": "",
                                             "metatraffic": false,
+                                            "discovery_source": "unknown",
                                             "alias": "subscriber_modified",
                                             "status": "OK",
                                             "topic": "5"

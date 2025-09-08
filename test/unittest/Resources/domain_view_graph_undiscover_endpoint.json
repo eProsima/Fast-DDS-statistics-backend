@@ -7,6 +7,7 @@
         {
             "kind": "topic",
             "metatraffic": false,
+            "discovery_source": "unknown",
             "alias": "HelloWorld"
         }
     },
@@ -16,6 +17,7 @@
         {
             "kind": "host",
             "metatraffic": false,
+            "discovery_source": "unknown",
             "alias": "eprosima-host",
             "status": "OK",
             "users":
@@ -24,6 +26,7 @@
                 {
                     "kind": "user",
                     "metatraffic": false,
+                    "discovery_source": "unknown",
                     "alias": "eprosima",
                     "status": "OK",
                     "processes":
@@ -32,6 +35,7 @@
                         {
                             "kind": "process",
                             "metatraffic": false,
+                            "discovery_source": "unknown",
                             "alias": "1234",
                             "pid": "1234",
                             "status": "OK",
@@ -41,6 +45,7 @@
                                 {
                                     "kind": "participant",
                                     "metatraffic": false,
+                                    "discovery_source": "unknown",
                                     "alias": "participant_1",
                                     "status": "OK",
                                     "app_id": "UNKNOWN_APP",
@@ -55,6 +60,7 @@
                         {
                             "kind": "process",
                             "metatraffic": false,
+                            "discovery_source": "unknown",
                             "alias": "1235",
                             "pid": "1235",
                             "status": "OK",
@@ -64,6 +70,7 @@
                                 {
                                     "kind": "participant",
                                     "metatraffic": false,
+                                    "discovery_source": "unknown",
                                     "alias": "participant_2",
                                     "status": "OK",
                                     "app_id": "UNKNOWN_APP",
@@ -77,6 +84,7 @@
                                             "app_id": "UNKNOWN_APP",
                                             "app_metadata": "",
                                             "metatraffic": false,
+                                            "discovery_source": "unknown",
                                             "alias": "subscriber",
                                             "status": "OK",
                                             "topic": "5"

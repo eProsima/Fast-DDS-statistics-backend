@@ -626,6 +626,7 @@ TEST_F(database_queue_tests, push_participant)
     std::string username = "user";
     std::string hostname = "host";
     DiscoverySource discoverysource = DiscoverySource::DISCOVERY;
+    DomainId original_domain_id = UNKNOWN_DOMAIN_ID;
 
     // Build the process name
     std::stringstream ss;
@@ -643,6 +644,8 @@ TEST_F(database_queue_tests, push_participant)
     info.process = processname_pid;
     info.app_id = AppId::UNKNOWN;
     info.entity_status = StatusLevel::OK_STATUS;
+    info.discovery_source = discoverysource;
+    info.original_domain_id = original_domain_id;
 
     // Participant undiscovery: FAILURE
     {
@@ -788,7 +791,7 @@ TEST_F(database_queue_tests, push_participant)
                     EXPECT_EQ(user_name, username);
                     EXPECT_EQ(process_name, processname);
                     EXPECT_EQ(process_pid, pid);
-                    EXPECT_EQ(discovery_source, DiscoverySource::UNKNOWN);
+                    EXPECT_EQ(discovery_source, DiscoverySource::DISCOVERY);
                     EXPECT_EQ(should_link_process_participant, false);
                     EXPECT_EQ(participant_id, EntityId(1));
 
@@ -935,6 +938,7 @@ TEST_F(database_queue_tests, push_participant_participant_exists)
     std::string username = "user";
     std::string hostname = "host";
     DiscoverySource discoverysource = DiscoverySource::DISCOVERY;
+    DomainId original_domain_id = UNKNOWN_DOMAIN_ID;
 
     EntityDiscoveryInfo info(EntityKind::PARTICIPANT);
     info.domain_id = EntityId(0);
@@ -945,6 +949,8 @@ TEST_F(database_queue_tests, push_participant_participant_exists)
     info.host = hostname;
     info.user = username;
     info.process = processname;
+    info.discovery_source = discoverysource;
+    info.original_domain_id = original_domain_id;
 
     {
         // Precondition: The participant exists
@@ -1014,8 +1020,9 @@ TEST_F(database_queue_tests, push_participant_missing_physical_entity)
     std::string username = "user";
     std::string hostname = "host";
     DiscoverySource discoverysource = DiscoverySource::DISCOVERY;
+    DomainId original_domain_id = UNKNOWN_DOMAIN_ID;
 
-    // Build the process name
+    // Build the process nam
     std::stringstream ss;
     ss << processname << ":" << pid;
     std::string processname_pid = ss.str();
@@ -1029,6 +1036,8 @@ TEST_F(database_queue_tests, push_participant_missing_physical_entity)
     info.host = hostname;
     info.user = username;
     info.process = processname_pid;
+    info.discovery_source = discoverysource;
+    info.original_domain_id = original_domain_id;
 
     // Precondition: The participant exists
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
@@ -1096,8 +1105,9 @@ TEST_F(database_queue_tests, push_participant_process_insert_throws)
     std::string username = "user";
     std::string hostname = "host";
         DiscoverySource discoverysource = DiscoverySource::DISCOVERY;
+        DomainId original_domain_id = UNKNOWN_DOMAIN_ID;
 
-    // Build the process name
+    // Build the process nam
     std::stringstream ss;
     ss << processname << ":" << pid;
     std::string processname_pid = ss.str();
@@ -1111,6 +1121,8 @@ TEST_F(database_queue_tests, push_participant_process_insert_throws)
     info.host = hostname;
     info.user = username;
     info.process = processname_pid;
+    info.discovery_source = discoverysource;
+    info.original_domain_id = original_domain_id;
 
     // Precondition: The participant exists
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
@@ -1179,8 +1191,9 @@ TEST_F(database_queue_tests, push_participant_user_insert_throws)
     std::string username = "user";
     std::string hostname = "host";
     DiscoverySource discoverysource = DiscoverySource::DISCOVERY;
+    DomainId original_domain_id = UNKNOWN_DOMAIN_ID;
 
-    // Build the process name
+    // Build the process nam
     std::stringstream ss;
     ss << processname << ":" << pid;
     std::string processname_pid = ss.str();
@@ -1194,6 +1207,8 @@ TEST_F(database_queue_tests, push_participant_user_insert_throws)
     info.host = hostname;
     info.user = username;
     info.process = processname_pid;
+    info.discovery_source = discoverysource;
+    info.original_domain_id = original_domain_id;
 
     // Precondition: The participant exists
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
@@ -1261,8 +1276,9 @@ TEST_F(database_queue_tests, push_participant_host_insert_throws)
     std::string username = "user";
     std::string hostname = "host";
         DiscoverySource discoverysource = DiscoverySource::DISCOVERY;
+        DomainId original_domain_id = UNKNOWN_DOMAIN_ID;
 
-    // Build the process name
+    // Build the process nam
     std::stringstream ss;
     ss << processname << ":" << pid;
     std::string processname_pid = ss.str();
@@ -1276,6 +1292,8 @@ TEST_F(database_queue_tests, push_participant_host_insert_throws)
     info.host = hostname;
     info.user = username;
     info.process = processname_pid;
+    info.discovery_source = discoverysource;
+    info.original_domain_id = original_domain_id;
 
     // Precondition: The participant exists
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
@@ -1343,9 +1361,10 @@ TEST_F(database_queue_tests, push_participant_data_wrong_processname_format)
     std::string pid = processname;
     std::string username = "user";
     std::string hostname = "host";
-        DiscoverySource discoverysource = DiscoverySource::DISCOVERY;
+    DiscoverySource discoverysource = DiscoverySource::DISCOVERY;
+    DomainId original_domain_id = UNKNOWN_DOMAIN_ID;
 
-    // Build the process name
+    // Build the process nam
     std::string processname_pid = processname;
 
     EntityDiscoveryInfo info(EntityKind::PARTICIPANT);
@@ -1357,6 +1376,8 @@ TEST_F(database_queue_tests, push_participant_data_wrong_processname_format)
     info.host = hostname;
     info.user = username;
     info.process = processname_pid;
+    info.discovery_source = discoverysource;
+    info.original_domain_id = original_domain_id;
 
     // Precondition: The participant exists
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(1)
@@ -1422,8 +1443,8 @@ TEST_F(database_queue_tests, push_datawriter)
     std::string unicast_locator_str = "UDPv4:[127.0.0.1]:1024";
     std::string multicast_locator_str = "UDPv4:[239.1.1.1]:1024";
     DiscoverySource discoverysource = DiscoverySource::DISCOVERY;
+    DomainId original_domain_id = UNKNOWN_DOMAIN_ID;
     DomainId originaldomain = 2;
-
     EntityDiscoveryInfo info(EntityKind::DATAWRITER);
     info.domain_id = EntityId(0);
     std::stringstream(datawriter_guid_str) >> info.guid;
@@ -1436,6 +1457,9 @@ TEST_F(database_queue_tests, push_datawriter)
     Locator_t multicast_locator;
     std::stringstream(multicast_locator_str) >> multicast_locator;
     info.locators.add_multicast_locator(multicast_locator);
+    info.discovery_source = discoverysource;
+    info.original_domain_id = original_domain_id;
+
 
     // Precondition: The participant exists and has ID 1
     std::string participant_name = "participant";
@@ -1671,8 +1695,8 @@ TEST_F(database_queue_tests, push_datawriter_topic_does_not_exist)
     std::string unicast_locator_str = "UDPv4:[127.0.0.1]:1024";
     std::string multicast_locator_str = "UDPv4:[239.1.1.1]:1024";
     DiscoverySource discoverysource = DiscoverySource::DISCOVERY;
+    DomainId original_domain_id = UNKNOWN_DOMAIN_ID;
     DomainId originaldomainid = 2;
-
     EntityDiscoveryInfo info(EntityKind::DATAWRITER);
     info.domain_id = EntityId(0);
     std::stringstream(datawriter_guid_str) >> info.guid;
@@ -1685,6 +1709,8 @@ TEST_F(database_queue_tests, push_datawriter_topic_does_not_exist)
     Locator_t multicast_locator;
     std::stringstream(multicast_locator_str) >> multicast_locator;
     info.locators.add_multicast_locator(multicast_locator);
+    info.discovery_source = discoverysource;
+    info.original_domain_id = original_domain_id;
 
     // Precondition: The participant exists and has ID 1
     std::string participant_name = "participant";
@@ -1802,8 +1828,8 @@ TEST_F(database_queue_tests, push_datareader)
     std::string unicast_locator_str = "UDPv4:[127.0.0.1]:1024";
     std::string multicast_locator_str = "UDPv4:[239.1.1.1]:1024";
     DiscoverySource discoverysource = DiscoverySource::DISCOVERY;
+    DomainId original_domain_id = UNKNOWN_DOMAIN_ID;
     DomainId originaldomainid = 2;
-
     EntityDiscoveryInfo info(EntityKind::DATAREADER);
     info.domain_id = EntityId(0);
     std::stringstream(datareader_guid_str) >> info.guid;
@@ -1816,6 +1842,8 @@ TEST_F(database_queue_tests, push_datareader)
     Locator_t multicast_locator;
     std::stringstream(multicast_locator_str) >> multicast_locator;
     info.locators.add_multicast_locator(multicast_locator);
+    info.discovery_source = discoverysource;
+    info.original_domain_id = original_domain_id;
 
     // Precondition: The participant exists and has ID 1
     std::string participant_name = "participant";
@@ -2049,8 +2077,7 @@ TEST_F(database_queue_tests, push_datareader_topic_does_not_exist)
     std::string unicast_locator_str = "UDPv4:[127.0.0.1]:1024";
     std::string multicast_locator_str = "UDPv4:[239.1.1.1]:1024";
     DiscoverySource discoverysource = DiscoverySource::DISCOVERY;
-    DomainId originaldomainid = 2;
-
+    DomainId original_domain_id = UNKNOWN_DOMAIN_ID;
     EntityDiscoveryInfo info(EntityKind::DATAREADER);
     info.domain_id = EntityId(0);
     std::stringstream(datareader_guid_str) >> info.guid;
@@ -2063,6 +2090,8 @@ TEST_F(database_queue_tests, push_datareader_topic_does_not_exist)
     Locator_t multicast_locator;
     std::stringstream(multicast_locator_str) >> multicast_locator;
     info.locators.add_multicast_locator(multicast_locator);
+    info.discovery_source = discoverysource;
+    info.original_domain_id = original_domain_id;
 
     // Precondition: The participant exists and has ID 1
     std::string participant_name = "participant";
@@ -2127,8 +2156,8 @@ TEST_F(database_queue_tests, push_datareader_topic_does_not_exist)
                     EXPECT_EQ(kind, EntityKind::DATAREADER);
                     EXPECT_EQ(participant_id, EntityId(1));
                     EXPECT_EQ(topic_id, EntityId(2));
-                        EXPECT_EQ(discovery_source, discoverysource);
-                        EXPECT_EQ(domain_id, originaldomainid);
+                    EXPECT_EQ(discovery_source, info.discovery_source);
+                    EXPECT_EQ(domain_id, info.original_domain_id);
 
                     static_cast<void>(app_data);
 
