@@ -229,6 +229,8 @@ void StatisticsReaderListener::on_data_available(
                 return;
             }
 
+            EPROSIMA_LOG_ERROR(STATISTICSREADERLISTENER, "New data on guid " << monitor_service_status_data->entity_discovery_info.guid << " and topic : " << monitor_service_status_data->entity_discovery_info.topic_name);
+
             //monitor_service_status_data->optional_qos = qos;
         }
 
