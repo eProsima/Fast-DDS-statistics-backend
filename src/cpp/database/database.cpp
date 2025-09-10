@@ -149,11 +149,25 @@ void Database::process_physical_entities(
         const EntityId& participant_id,
         std::map<std::string, EntityId>& physical_entities_ids)
 {
+    std::lock_guard<std::shared_timed_mutex> guard(mutex_);
+    process_physical_entities_nts(host_name, user_name, process_name, process_pid,
+        discovery_source, should_link_process_participant, participant_id, physical_entities_ids);
+}
+
+void Database::process_physical_entities_nts(
+        const std::string& host_name,
+        const std::string& user_name,
+        const std::string& process_name,
+        const std::string& process_pid,
+        const DiscoverySource& discovery_source,
+        bool& should_link_process_participant,
+        const EntityId& participant_id,
+        std::map<std::string, EntityId>& physical_entities_ids)
+{
     std::shared_ptr<Host> host;
     std::shared_ptr<User> user;
     std::shared_ptr<Process> process;
 
-    std::lock_guard<std::shared_timed_mutex> guard(mutex_);
 
     // Get host entity
     auto hosts = get_entities_by_name_nts(EntityKind::HOST, host_name);
@@ -248,7 +262,6 @@ void Database::process_physical_entities(
     {
         link_participant_with_process_nts(participant_id, process->id);
     }
-
 }
 
 bool Database::is_topic_in_database(
@@ -280,6 +293,7 @@ bool Database::is_topic_in_database(
         return false;
     }
 }
+
 
 EntityId Database::insert_new_topic(
         const std::string& name,
@@ -2470,6 +2484,91 @@ const std::shared_ptr<const Entity> Database::get_entity_nts(
     throw BadParameter("Database does not contain an entity with ID " + std::to_string(entity_id.value()));
 }
 
+
+const std::shared_ptr<Entity> Database::get_mutable_entity_nts(
+        const EntityId& entity_id)
+{
+    /* Iterate over all the collections looking for the entity */
+    for (const auto& host_it : hosts_)
+    {
+        if (host_it.second->id == entity_id)
+        {
+            return host_it.second;
+        }
+    }
+    for (const auto& process_it : processes_)
+    {
+        if (process_it.second->id == entity_id)
+        {
+            return process_it.second;
+        }
+    }
+    for (const auto& user_it : users_)
+    {
+        if (user_it.second->id == entity_id)
+        {
+            return user_it.second;
+        }
+    }
+    for (const auto& domain_it : domains_)
+    {
+        if (domain_it.second->id == entity_id)
+        {
+            return domain_it.second;
+        }
+    }
+    for (const auto& domain_it : topics_)
+    {
+        for (const auto& topic_it : domain_it.second)
+        {
+            if (topic_it.second->id == entity_id)
+            {
+                return topic_it.second;
+            }
+        }
+    }
+    for (const auto& domain_it : participants_)
+    {
+        for (const auto& participant_it : domain_it.second)
+        {
+            if (participant_it.second->id == entity_id)
+            {
+                return participant_it.second;
+            }
+        }
+    }
+    for (const auto& domain_it : datareaders_)
+    {
+        for (const auto& datareader_it : domain_it.second)
+        {
+            if (datareader_it.second->id == entity_id)
+            {
+                return datareader_it.second;
+            }
+        }
+    }
+    for (const auto& domain_it : datawriters_)
+    {
+        for (const auto& datawriter_it : domain_it.second)
+        {
+            if (datawriter_it.second->id == entity_id)
+            {
+                return datawriter_it.second;
+            }
+        }
+    }
+    for (const auto& locator_it : locators_)
+    {
+        if (locator_it.second->id == entity_id)
+        {
+            return locator_it.second;
+        }
+    }
+    /* The entity has not been found */
+    throw BadParameter("Database does not contain an entity with ID " + std::to_string(entity_id.value()));
+}
+
+
 std::vector<std::pair<EntityId, EntityId>> Database::get_entities_by_name(
         EntityKind entity_kind,
         const std::string& name) const
@@ -4375,6 +4474,111 @@ bool Database::update_entity_qos_nts(
     db_entity->qos.merge_patch(received_qos);
 
     return (db_entity->qos != old_qos);
+}
+
+bool Database::update_participant_discovery_info(
+    const EntityId& participant_id,
+        const std::string& host,
+        const std::string& user,
+        const std::string& process,
+        const std::string& name,
+        const Qos& qos,
+        const std::string& guid,
+        const EntityId& domain_id,
+        const StatusLevel& status,
+        const AppId& app_id,
+        const std::string& app_metadata,
+        const DiscoverySource& discovery_source,
+        const DomainId& original_domain)
+{
+    std::lock_guard<std::shared_timed_mutex> guard(mutex_);
+    return update_participant_discovery_info_nts(participant_id, host, user, process, name, qos, guid, domain_id, status, app_id, app_metadata, discovery_source, original_domain);
+}
+
+bool Database::update_participant_discovery_info_nts(
+        const EntityId& participant_id,
+        const std::string& host,
+        const std::string& user,
+        const std::string& process,
+        const std::string& name,
+        const Qos& qos,
+        const std::string& guid,
+        const EntityId& domain_id,
+        const StatusLevel& status,
+        const AppId& app_id,
+        const std::string& app_metadata,
+        const DiscoverySource& discovery_source,
+        const DomainId& original_domain)
+{
+    std::shared_ptr<Entity> db_entity = get_mutable_entity_nts(participant_id);
+    if (db_entity->kind != EntityKind::PARTICIPANT)
+    {
+        throw BadParameter("Entity with id " + std::to_string(participant_id.value()) + " is not a Participant");
+    }
+
+    // Update of the participant inner information
+    std::shared_ptr<DomainParticipant> db_participant =
+            std::const_pointer_cast<DomainParticipant>(std::static_pointer_cast<DomainParticipant>(db_entity));
+    db_participant->name = name;
+    db_participant->qos = qos;
+    db_participant->guid = guid;
+    db_participant->status = status;
+    db_participant->app_id = app_id;
+    db_participant->app_metadata = app_metadata;
+    db_participant->discovery_source = discovery_source;
+    db_participant->original_domain = original_domain;
+    db_participant->alias = db_participant->name;
+
+    // Update of other entities that are linked to the participant
+    std::map<std::string, EntityId> physical_entities_ids;
+    physical_entities_ids[HOST_ENTITY_TAG] = EntityId::invalid();
+    physical_entities_ids[USER_ENTITY_TAG] = EntityId::invalid();
+    physical_entities_ids[PROCESS_ENTITY_TAG] = EntityId::invalid();
+    bool graph_updated = false;
+    bool should_link_process_participant = true;
+    try
+    {
+        // Get process entity
+        std::string process_name;
+        std::string process_pid;
+        size_t separator_pos = process.find_last_of(':');
+        if (separator_pos == std::string::npos)
+        {
+            process_name = process;
+            process_pid = process;
+            EPROSIMA_LOG_INFO(BACKEND_DATABASE,
+                    "Process name " + process_name + " does not follow the [command]:[PID] pattern");
+        }
+        else
+        {
+            process_name = process.substr(0, separator_pos);
+            process_pid = process.substr(separator_pos + 1);
+        }
+
+
+        db_participant->process->name = process_name;
+        db_participant->process->pid = process_pid;
+        db_participant->process->user->name = user;
+        db_participant->process->user->host->name = host;
+        physical_entities_ids[PROCESS_ENTITY_TAG] = db_participant->process->id;
+        physical_entities_ids[USER_ENTITY_TAG] = db_participant->process->user->id;
+        physical_entities_ids[HOST_ENTITY_TAG] = db_participant->process->user->host->id;
+    }
+    catch (const std::exception& e)
+    {
+        EPROSIMA_LOG_ERROR(BACKEND_DATABASE_QUEUE, e.what());
+    }
+
+    graph_updated = update_participant_in_graph_nts(
+        domain_id, physical_entities_ids[HOST_ENTITY_TAG], physical_entities_ids[USER_ENTITY_TAG],
+        physical_entities_ids[PROCESS_ENTITY_TAG], participant_id);
+
+    if (graph_updated)
+    {
+        details::StatisticsBackendData::get_instance()->on_domain_view_graph_update(domain_id);
+    }
+
+    return graph_updated;
 }
 
 bool Database::entity_status_logic(
