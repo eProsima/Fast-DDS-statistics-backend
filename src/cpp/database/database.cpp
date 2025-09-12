@@ -151,7 +151,7 @@ void Database::process_physical_entities(
 {
     std::lock_guard<std::shared_timed_mutex> guard(mutex_);
     process_physical_entities_nts(host_name, user_name, process_name, process_pid,
-        discovery_source, should_link_process_participant, participant_id, physical_entities_ids);
+            discovery_source, should_link_process_participant, participant_id, physical_entities_ids);
 }
 
 void Database::process_physical_entities_nts(
@@ -293,7 +293,6 @@ bool Database::is_topic_in_database(
         return false;
     }
 }
-
 
 EntityId Database::insert_new_topic(
         const std::string& name,
@@ -2484,7 +2483,6 @@ const std::shared_ptr<const Entity> Database::get_entity_nts(
     throw BadParameter("Database does not contain an entity with ID " + std::to_string(entity_id.value()));
 }
 
-
 const std::shared_ptr<Entity> Database::get_mutable_entity_nts(
         const EntityId& entity_id)
 {
@@ -2567,7 +2565,6 @@ const std::shared_ptr<Entity> Database::get_mutable_entity_nts(
     /* The entity has not been found */
     throw BadParameter("Database does not contain an entity with ID " + std::to_string(entity_id.value()));
 }
-
 
 std::vector<std::pair<EntityId, EntityId>> Database::get_entities_by_name(
         EntityKind entity_kind,
@@ -4477,7 +4474,7 @@ bool Database::update_entity_qos_nts(
 }
 
 bool Database::update_participant_discovery_info(
-    const EntityId& participant_id,
+        const EntityId& participant_id,
         const std::string& host,
         const std::string& user,
         const std::string& process,
@@ -4492,7 +4489,8 @@ bool Database::update_participant_discovery_info(
         const DomainId& original_domain)
 {
     std::lock_guard<std::shared_timed_mutex> guard(mutex_);
-    return update_participant_discovery_info_nts(participant_id, host, user, process, name, qos, guid, domain_id, status, app_id, app_metadata, discovery_source, original_domain);
+    return update_participant_discovery_info_nts(participant_id, host, user, process, name, qos, guid, domain_id,
+                   status, app_id, app_metadata, discovery_source, original_domain);
 }
 
 bool Database::update_participant_discovery_info_nts(
@@ -4535,7 +4533,6 @@ bool Database::update_participant_discovery_info_nts(
     physical_entities_ids[USER_ENTITY_TAG] = EntityId::invalid();
     physical_entities_ids[PROCESS_ENTITY_TAG] = EntityId::invalid();
     bool graph_updated = false;
-    bool should_link_process_participant = true;
     try
     {
         // Get process entity

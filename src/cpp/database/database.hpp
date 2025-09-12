@@ -579,36 +579,36 @@ public:
             const EntityId& entity,
             const Qos& received_qos);
 
-        /**
-         * @brief Update participant discovery information.
-         * @param participant_id The EntityId of the participant to be updated.
-         * @param host The name of the host.
-         * @param user The name of the user.
-         * @param process The name of the process.
-         * @param name The name of the participant.
-         * @param qos The QoS of the participant.
-         * @param guid The GUID of the participant.
-         * @param domain_id The EntityId of the domain to which the participant corresponds.
-         * @param status The status of the participant.
-         * @param app_id The AppId of the participant.
-         * @param app_metadata The App metadata of the participant.
-         * @param discovery_source The DiscoverySource of the participant.
-         * @param original_domain The original DomainId of the participant, UNKNOWN_DOMAIN_ID if not
-         */
-        bool update_participant_discovery_info(
-                const EntityId& participant_id,
-                const std::string& host,
-                const std::string& user,
-                const std::string& process,
-                const std::string& name,
-                const Qos& qos,
-                const std::string& guid,
-                const EntityId& domain_id,
-                const StatusLevel& status,
-                const AppId& app_id,
-                const std::string& app_metadata,
-                const DiscoverySource& discovery_source,
-                const DomainId& original_domain);
+    /**
+     * @brief Update participant discovery information.
+     * @param participant_id The EntityId of the participant to be updated.
+     * @param host The name of the host.
+     * @param user The name of the user.
+     * @param process The name of the process.
+     * @param name The name of the participant.
+     * @param qos The QoS of the participant.
+     * @param guid The GUID of the participant.
+     * @param domain_id The EntityId of the domain to which the participant corresponds.
+     * @param status The status of the participant.
+     * @param app_id The AppId of the participant.
+     * @param app_metadata The App metadata of the participant.
+     * @param discovery_source The DiscoverySource of the participant.
+     * @param original_domain The original DomainId of the participant, UNKNOWN_DOMAIN_ID if not
+     */
+    bool update_participant_discovery_info(
+            const EntityId& participant_id,
+            const std::string& host,
+            const std::string& user,
+            const std::string& process,
+            const std::string& name,
+            const Qos& qos,
+            const std::string& guid,
+            const EntityId& domain_id,
+            const StatusLevel& status,
+            const AppId& app_id,
+            const std::string& app_metadata,
+            const DiscoverySource& discovery_source,
+            const DomainId& original_domain);
 
     /**
      * @brief Get the specified domain view graph from database.
@@ -1216,14 +1216,14 @@ protected:
 
 
     void process_physical_entities_nts(
-        const std::string& host_name,
-        const std::string& user_name,
-        const std::string& process_name,
-        const std::string& process_pid,
-        const DiscoverySource& discovery_source,
-        bool& should_link_process_participant,
-        const EntityId& participant_id,
-        std::map<std::string, EntityId>& physical_entities_ids);
+            const std::string& host_name,
+            const std::string& user_name,
+            const std::string& process_name,
+            const std::string& process_pid,
+            const DiscoverySource& discovery_source,
+            bool& should_link_process_participant,
+            const EntityId& participant_id,
+            std::map<std::string, EntityId>& physical_entities_ids);
 
     /**
      * @brief Create new Endpoint. This method is not thread safe.
@@ -1414,7 +1414,7 @@ protected:
             const Qos& received_qos);
 
 
-     bool update_participant_discovery_info_nts(
+    bool update_participant_discovery_info_nts(
             const EntityId& participant_id,
             const std::string& host,
             const std::string& user,
@@ -1446,7 +1446,7 @@ protected:
      * @return A shared pointer to the Entity.
      */
     const std::shared_ptr<Entity> get_mutable_entity_nts(
-        const EntityId& entity_id);
+            const EntityId& entity_id);
 
     /**
      * @brief Get the specified domain view graph from database. This method is not thread safe.
