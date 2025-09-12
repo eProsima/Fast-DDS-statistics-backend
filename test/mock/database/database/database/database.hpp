@@ -96,19 +96,19 @@ public:
                 const EntityId& domain_id));
 
     MOCK_METHOD(EntityId, insert_new_endpoint, (
-        const std::string& endpoint_guid,
-        const std::string& name,
-        const std::string& alias,
-        const Qos& qos,
-        const bool& is_virtual_metatraffic,
-        const fastdds::rtps::RemoteLocatorList& locators,
-        const EntityKind& kind,
-        const EntityId& participant_id,
-        const EntityId& topic_id,
-        (const std::pair<AppId, std::string>&) app_data,
-        const DiscoverySource& discovery_source,
-        const DomainId& original_domain
-    ), ());
+                const std::string& endpoint_guid,
+                const std::string& name,
+                const std::string& alias,
+                const Qos& qos,
+                const bool& is_virtual_metatraffic,
+                const fastdds::rtps::RemoteLocatorList& locators,
+                const EntityKind& kind,
+                const EntityId& participant_id,
+                const EntityId& topic_id,
+                (const std::pair<AppId, std::string>&) app_data,
+                const DiscoverySource& discovery_source,
+                const DomainId& original_domain
+                ), ());
 
 
     MOCK_METHOD1(insert, EntityId(
@@ -228,6 +228,21 @@ public:
     MOCK_METHOD2(update_entity_qos, bool(
                 const EntityId& entity,
                 const Qos& received_qos));
+
+    MOCK_METHOD(bool, update_participant_discovery_info, (
+                const EntityId& participant_id,
+                const std::string& host,
+                const std::string& user,
+                const std::string& process,
+                const std::string& name,
+                const Qos& qos,
+                const std::string& guid,
+                const EntityId& domain_id,
+                const StatusLevel& status,
+                const AppId& app_id,
+                const std::string& app_metadata,
+                const DiscoverySource& discovery_source,
+                const DomainId& original_domain), ());
 
     int64_t next_id_{0};
 };

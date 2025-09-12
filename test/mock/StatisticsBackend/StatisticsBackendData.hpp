@@ -34,7 +34,7 @@ namespace statistics_backend {
 
 namespace database {
 struct EntityDiscoveryInfo;
-}
+} // namespace database
 
 namespace details {
 
@@ -43,6 +43,7 @@ class DatabaseEntityQueue
 public:
 
     MOCK_METHOD2(push, void(std::chrono::system_clock::time_point ts, const database::EntityDiscoveryInfo& item));
+
 };
 
 class StatisticsBackendData
@@ -81,19 +82,26 @@ public:
                 EntityId entity_id,
                 StatusKind status_kind));
 
-    MOCK_METHOD(DatabaseEntityQueue*, get_entity_queue, ());
-
     static StatisticsBackendData* get_instance()
     {
         static StatisticsBackendData instance;
         return &instance;
     }
 
+    DatabaseEntityQueue* get_entity_queue()
+    {
+        return entity_queue_;
+    }
+
 protected:
+
+    DatabaseEntityQueue* entity_queue_;
 
     StatisticsBackendData()
     {
+        entity_queue_ = new DatabaseEntityQueue();
     }
+
 };
 
 } // namespace details

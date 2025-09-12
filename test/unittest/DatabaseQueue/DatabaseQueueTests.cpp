@@ -362,7 +362,8 @@ struct ProcessPhysicalArgs
         should_link_process_participant_ = should_link_process_participant;
         participant_id_ = participant_id;
         physical_entities_ids_ = physical_entities_ids;
-        callback_(host_name, user_name, process_name, process_pid, discovery_source, should_link_process_participant, participant_id,
+        callback_(host_name, user_name, process_name, process_pid, discovery_source, should_link_process_participant,
+                participant_id,
                 physical_entities_ids);
     }
 
@@ -1046,16 +1047,16 @@ TEST_F(database_queue_tests, push_participant_missing_physical_entity)
     EXPECT_CALL(database, insert_new_participant(_, _, _, _, _, _, _, _, _)).Times(0);
 
     // Expectation: Host or user or process are created
-        ProcessPhysicalArgs process_physical_args([&](
-                    const std::string& host_name,
-                    const std::string& user_name,
-                    const std::string& process_name,
-                    const std::string& process_pid,
-                    const DiscoverySource& discovery_source,
-                    bool& should_link_process_participant,
-                    const EntityId& participant_id,
-                    std::map<std::string, EntityId>& physical_entities_ids)
-                {
+    ProcessPhysicalArgs process_physical_args([&](
+                const std::string& host_name,
+                const std::string& user_name,
+                const std::string& process_name,
+                const std::string& process_pid,
+                const DiscoverySource& discovery_source,
+                bool& should_link_process_participant,
+                const EntityId& participant_id,
+                std::map<std::string, EntityId>& physical_entities_ids)
+            {
                 EXPECT_EQ(host_name, hostname);
                 EXPECT_EQ(user_name, username);
                 EXPECT_EQ(process_name, processname);
@@ -1104,8 +1105,8 @@ TEST_F(database_queue_tests, push_participant_process_insert_throws)
     std::string pid = processname;
     std::string username = "user";
     std::string hostname = "host";
-        DiscoverySource discoverysource = DiscoverySource::DISCOVERY;
-        DomainId original_domain_id = UNKNOWN_DOMAIN_ID;
+    DiscoverySource discoverysource = DiscoverySource::DISCOVERY;
+    DomainId original_domain_id = UNKNOWN_DOMAIN_ID;
 
     // Build the process nam
     std::stringstream ss;
@@ -1131,16 +1132,16 @@ TEST_F(database_queue_tests, push_participant_process_insert_throws)
     EXPECT_CALL(database, insert_new_participant(_, _, _, _, _, _, _, _, _)).Times(0);
 
     // Expectation: The process creation throws
-        ProcessPhysicalArgs process_physical_args([&](
-                    const std::string& host_name,
-                    const std::string& user_name,
-                    const std::string& process_name,
-                    const std::string& process_pid,
-                    const DiscoverySource& discovery_source,
-                    bool& should_link_process_participant,
-                    const EntityId& participant_id,
-                    std::map<std::string, EntityId>& physical_entities_ids)
-                {
+    ProcessPhysicalArgs process_physical_args([&](
+                const std::string& host_name,
+                const std::string& user_name,
+                const std::string& process_name,
+                const std::string& process_pid,
+                const DiscoverySource& discovery_source,
+                bool& should_link_process_participant,
+                const EntityId& participant_id,
+                std::map<std::string, EntityId>& physical_entities_ids)
+            {
                 EXPECT_EQ(host_name, hostname);
                 EXPECT_EQ(user_name, username);
                 EXPECT_EQ(process_name, processname);
@@ -1217,16 +1218,16 @@ TEST_F(database_queue_tests, push_participant_user_insert_throws)
     EXPECT_CALL(database, insert_new_participant(_, _, _, _, _, _, _, _, _)).Times(0);
 
     // Expectation: The host creation throws
-        ProcessPhysicalArgs process_physical_args([&](
-                    const std::string& host_name,
-                    const std::string& user_name,
-                    const std::string& process_name,
-                    const std::string& process_pid,
-                    const DiscoverySource& discovery_source,
-                    bool& should_link_process_participant,
-                    const EntityId& participant_id,
-                    std::map<std::string, EntityId>& physical_entities_ids)
-                {
+    ProcessPhysicalArgs process_physical_args([&](
+                const std::string& host_name,
+                const std::string& user_name,
+                const std::string& process_name,
+                const std::string& process_pid,
+                const DiscoverySource& discovery_source,
+                bool& should_link_process_participant,
+                const EntityId& participant_id,
+                std::map<std::string, EntityId>& physical_entities_ids)
+            {
                 EXPECT_EQ(host_name, hostname);
                 EXPECT_EQ(user_name, username);
                 EXPECT_EQ(process_name, processname);
@@ -1275,8 +1276,8 @@ TEST_F(database_queue_tests, push_participant_host_insert_throws)
     std::string pid = processname;
     std::string username = "user";
     std::string hostname = "host";
-        DiscoverySource discoverysource = DiscoverySource::DISCOVERY;
-        DomainId original_domain_id = UNKNOWN_DOMAIN_ID;
+    DiscoverySource discoverysource = DiscoverySource::DISCOVERY;
+    DomainId original_domain_id = UNKNOWN_DOMAIN_ID;
 
     // Build the process nam
     std::stringstream ss;
@@ -1302,16 +1303,16 @@ TEST_F(database_queue_tests, push_participant_host_insert_throws)
     EXPECT_CALL(database, insert_new_participant(_, _, _, _, _, _, _, _, _)).Times(0);
 
     // Expectation: The host creation throws
-        ProcessPhysicalArgs process_physical_args([&](
-                    const std::string& host_name,
-                    const std::string& user_name,
-                    const std::string& process_name,
-                    const std::string& process_pid,
-                    const DiscoverySource& discovery_source,
-                    bool& should_link_process_participant,
-                    const EntityId& participant_id,
-                    std::map<std::string, EntityId>& physical_entities_ids)
-                {
+    ProcessPhysicalArgs process_physical_args([&](
+                const std::string& host_name,
+                const std::string& user_name,
+                const std::string& process_name,
+                const std::string& process_pid,
+                const DiscoverySource& discovery_source,
+                bool& should_link_process_participant,
+                const EntityId& participant_id,
+                std::map<std::string, EntityId>& physical_entities_ids)
+            {
                 EXPECT_EQ(host_name, hostname);
                 EXPECT_EQ(user_name, username);
                 EXPECT_EQ(process_name, processname);
@@ -1386,16 +1387,16 @@ TEST_F(database_queue_tests, push_participant_data_wrong_processname_format)
     EXPECT_CALL(database, insert_new_participant(_, _, _, _, _, _, _, _, _)).Times(0);
 
     // Expectation: The process is created and given ID 4
-        ProcessPhysicalArgs process_physical_args([&](
-                    const std::string& host_name,
-                    const std::string& user_name,
-                    const std::string& process_name,
-                    const std::string& process_pid,
-                    const DiscoverySource& discovery_source,
-                    bool& should_link_process_participant,
-                    const EntityId& participant_id,
-                    std::map<std::string, EntityId>& physical_entities_ids)
-                {
+    ProcessPhysicalArgs process_physical_args([&](
+                const std::string& host_name,
+                const std::string& user_name,
+                const std::string& process_name,
+                const std::string& process_pid,
+                const DiscoverySource& discovery_source,
+                bool& should_link_process_participant,
+                const EntityId& participant_id,
+                std::map<std::string, EntityId>& physical_entities_ids)
+            {
                 EXPECT_EQ(host_name, hostname);
                 EXPECT_EQ(user_name, username);
                 EXPECT_EQ(process_name, processname);
@@ -1443,7 +1444,6 @@ TEST_F(database_queue_tests, push_datawriter)
     std::string unicast_locator_str = "UDPv4:[127.0.0.1]:1024";
     std::string multicast_locator_str = "UDPv4:[239.1.1.1]:1024";
     DiscoverySource discoverysource = DiscoverySource::DISCOVERY;
-    DomainId original_domain_id = UNKNOWN_DOMAIN_ID;
     DomainId originaldomain = 2;
     EntityDiscoveryInfo info(EntityKind::DATAWRITER);
     info.domain_id = EntityId(0);
@@ -1458,7 +1458,7 @@ TEST_F(database_queue_tests, push_datawriter)
     std::stringstream(multicast_locator_str) >> multicast_locator;
     info.locators.add_multicast_locator(multicast_locator);
     info.discovery_source = discoverysource;
-    info.original_domain_id = original_domain_id;
+    info.original_domain_id = originaldomain;
 
 
     // Precondition: The participant exists and has ID 1
@@ -1534,7 +1534,7 @@ TEST_F(database_queue_tests, push_datawriter)
                     const std::pair<AppId, std::string> app_data,
                     const DiscoverySource& discovery_source,
                     const DomainId& original_domain
-                )
+                    )
                 {
                     EXPECT_EQ(endpoint_guid, datawriter_guid_str);
                     EXPECT_EQ(name, datawriter_name);
@@ -1646,7 +1646,7 @@ TEST_F(database_queue_tests, push_datawriter)
                     const std::pair<AppId, std::string> app_data,
                     const DiscoverySource& discovery_source,
                     const DomainId& original_domain
-                ) -> EntityId
+                    ) -> EntityId
                 {
                     EXPECT_EQ(endpoint_guid, datawriter_guid_str);
                     EXPECT_EQ(name, datawriter_name);
@@ -1695,7 +1695,6 @@ TEST_F(database_queue_tests, push_datawriter_topic_does_not_exist)
     std::string unicast_locator_str = "UDPv4:[127.0.0.1]:1024";
     std::string multicast_locator_str = "UDPv4:[239.1.1.1]:1024";
     DiscoverySource discoverysource = DiscoverySource::DISCOVERY;
-    DomainId original_domain_id = UNKNOWN_DOMAIN_ID;
     DomainId originaldomainid = 2;
     EntityDiscoveryInfo info(EntityKind::DATAWRITER);
     info.domain_id = EntityId(0);
@@ -1710,7 +1709,7 @@ TEST_F(database_queue_tests, push_datawriter_topic_does_not_exist)
     std::stringstream(multicast_locator_str) >> multicast_locator;
     info.locators.add_multicast_locator(multicast_locator);
     info.discovery_source = discoverysource;
-    info.original_domain_id = original_domain_id;
+    info.original_domain_id = originaldomainid;
 
     // Precondition: The participant exists and has ID 1
     std::string participant_name = "participant";
@@ -1828,7 +1827,6 @@ TEST_F(database_queue_tests, push_datareader)
     std::string unicast_locator_str = "UDPv4:[127.0.0.1]:1024";
     std::string multicast_locator_str = "UDPv4:[239.1.1.1]:1024";
     DiscoverySource discoverysource = DiscoverySource::DISCOVERY;
-    DomainId original_domain_id = UNKNOWN_DOMAIN_ID;
     DomainId originaldomainid = 2;
     EntityDiscoveryInfo info(EntityKind::DATAREADER);
     info.domain_id = EntityId(0);
@@ -1843,7 +1841,7 @@ TEST_F(database_queue_tests, push_datareader)
     std::stringstream(multicast_locator_str) >> multicast_locator;
     info.locators.add_multicast_locator(multicast_locator);
     info.discovery_source = discoverysource;
-    info.original_domain_id = original_domain_id;
+    info.original_domain_id = originaldomainid;
 
     // Precondition: The participant exists and has ID 1
     std::string participant_name = "participant";
@@ -2077,7 +2075,7 @@ TEST_F(database_queue_tests, push_datareader_topic_does_not_exist)
     std::string unicast_locator_str = "UDPv4:[127.0.0.1]:1024";
     std::string multicast_locator_str = "UDPv4:[239.1.1.1]:1024";
     DiscoverySource discoverysource = DiscoverySource::DISCOVERY;
-    DomainId original_domain_id = UNKNOWN_DOMAIN_ID;
+    DomainId originaldomainid = 2;
     EntityDiscoveryInfo info(EntityKind::DATAREADER);
     info.domain_id = EntityId(0);
     std::stringstream(datareader_guid_str) >> info.guid;
@@ -2091,7 +2089,7 @@ TEST_F(database_queue_tests, push_datareader_topic_does_not_exist)
     std::stringstream(multicast_locator_str) >> multicast_locator;
     info.locators.add_multicast_locator(multicast_locator);
     info.discovery_source = discoverysource;
-    info.original_domain_id = original_domain_id;
+    info.original_domain_id = originaldomainid;
 
     // Precondition: The participant exists and has ID 1
     std::string participant_name = "participant";

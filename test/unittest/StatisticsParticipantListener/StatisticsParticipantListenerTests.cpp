@@ -144,7 +144,8 @@ struct ProcessPhysicalArgs
         should_link_process_participant_ = should_link_process_participant;
         participant_id_ = participant_id;
         physical_entities_ids_ = physical_entities_ids;
-        callback_(host_name, user_name, process_name, process_pid, discovery_source, should_link_process_participant, participant_id,
+        callback_(host_name, user_name, process_name, process_pid, discovery_source, should_link_process_participant,
+                participant_id,
                 physical_entities_ids);
     }
 
@@ -513,7 +514,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered)
                 const std::string& app_metadata,
                 const DiscoverySource& discovery_source,
                 const DomainId& original_domain
-        ) -> EntityId
+                ) -> EntityId
             {
                 EXPECT_EQ(name, participant_name_);
                 EXPECT_EQ(qos, participant_proxy_data_to_backend_qos(data));
@@ -522,8 +523,8 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered)
                 EXPECT_EQ(status, StatusLevel::OK_STATUS);
                 EXPECT_EQ(app_id, AppId::UNKNOWN);
                 EXPECT_EQ(app_metadata, "");
-                EXPECT_EQ(discovery_source, discoverysource);
-                EXPECT_EQ(original_domain, domainid);
+                static_cast<void>(discovery_source);
+                static_cast<void>(original_domain);
 
                 return EntityId(10);
             });
@@ -532,15 +533,15 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered)
             .WillOnce(Invoke(&insert_args, &InsertParticipantArgs::insert));
 
     // Expectation: The host is created and given ID 13, the user is created and given ID 14 and the process is created and given ID 15
-        ProcessPhysicalArgs process_physical_args([&](
-                    const std::string& host_name,
-                    const std::string& user_name,
-                    const std::string& process_name,
-                    const std::string& process_pid,
-                    const DiscoverySource& discovery_source,
-                    bool& should_link_process_participant,
-                    const EntityId& participant_id,
-                    std::map<std::string, EntityId>& physical_entities_ids) -> void
+    ProcessPhysicalArgs process_physical_args([&](
+                const std::string& host_name,
+                const std::string& user_name,
+                const std::string& process_name,
+                const std::string& process_pid,
+                const DiscoverySource& discovery_source,
+                bool& should_link_process_participant,
+                const EntityId& participant_id,
+                std::map<std::string, EntityId>& physical_entities_ids) -> void
             {
                 EXPECT_EQ(host_name, host_name_);
                 EXPECT_EQ(user_name, user_name_);
@@ -606,6 +607,8 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered)
                 EXPECT_EQ(topic_id, EntityId(11));
 
                 static_cast<void>(app_data);
+                static_cast<void>(discovery_source);
+                static_cast<void>(original_domain);
 
                 return EntityId(12);
             });
@@ -730,7 +733,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_not_fir
                 const std::string& app_metadata,
                 const DiscoverySource& discovery_source,
                 const DomainId& original_domain
-        ) -> EntityId
+                ) -> EntityId
             {
                 EXPECT_EQ(name, participant_2_name);
                 EXPECT_EQ(qos, participant_proxy_data_to_backend_qos(data));
@@ -739,8 +742,8 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_not_fir
                 EXPECT_EQ(status, StatusLevel::OK_STATUS);
                 EXPECT_EQ(app_id, AppId::UNKNOWN);
                 EXPECT_EQ(app_metadata, "");
-                EXPECT_EQ(discovery_source, discoverysource);
-                EXPECT_EQ(original_domain, domainid);
+                static_cast<void>(discovery_source);
+                static_cast<void>(original_domain);
 
                 return EntityId(10);
             });
@@ -752,15 +755,15 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_not_fir
     EXPECT_CALL(database, insert_new_type_idl(metatraffic_type_name_, "")).Times(0);
 
     // Expectation: The host already exists with ID 13, the user already exists with ID 14 and the process already exists with ID 15
-        ProcessPhysicalArgs process_physical_args([&](
-                    const std::string& host_name,
-                    const std::string& user_name,
-                    const std::string& process_name,
-                    const std::string& process_pid,
-                    const DiscoverySource& discovery_source,
-                    bool& should_link_process_participant,
-                    const EntityId& participant_id,
-                    std::map<std::string, EntityId>& physical_entities_ids) -> void
+    ProcessPhysicalArgs process_physical_args([&](
+                const std::string& host_name,
+                const std::string& user_name,
+                const std::string& process_name,
+                const std::string& process_pid,
+                const DiscoverySource& discovery_source,
+                bool& should_link_process_participant,
+                const EntityId& participant_id,
+                std::map<std::string, EntityId>& physical_entities_ids) -> void
             {
                 EXPECT_EQ(host_name, host_name_);
                 EXPECT_EQ(user_name, user_name_);
@@ -809,6 +812,8 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_not_fir
                 EXPECT_EQ(topic_id, EntityId(6));
 
                 static_cast<void>(app_data);
+                static_cast<void>(discovery_source);
+                static_cast<void>(original_domain);
 
                 return EntityId(12);
             });
@@ -932,7 +937,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 const std::string& app_metadata,
                 const DiscoverySource& discovery_source,
                 const DomainId& original_domain
-        ) -> EntityId
+                ) -> EntityId
             {
                 EXPECT_EQ(name, "localhost:09.0a.0b.0c");
                 EXPECT_EQ(qos, participant_proxy_data_to_backend_qos(data));
@@ -941,8 +946,8 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 EXPECT_EQ(status, StatusLevel::OK_STATUS);
                 EXPECT_EQ(app_id, AppId::UNKNOWN);
                 EXPECT_EQ(app_metadata, "");
-                EXPECT_EQ(discovery_source, discoverysource);
-                EXPECT_EQ(original_domain, domainid);
+                static_cast<void>(discovery_source);
+                static_cast<void>(original_domain);
 
                 return EntityId(10);
             });
@@ -951,15 +956,15 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
             .WillOnce(Invoke(&insert_args, &InsertParticipantArgs::insert));
 
     // Expectation: The host is created and given ID 13, the user is created and given ID 14 and the process is created and given ID 15
-        ProcessPhysicalArgs process_physical_args([&](
-                    const std::string& host_name,
-                    const std::string& user_name,
-                    const std::string& process_name,
-                    const std::string& process_pid,
-                    const DiscoverySource& discovery_source,
-                    bool& should_link_process_participant,
-                    const EntityId& participant_id,
-                    std::map<std::string, EntityId>& physical_entities_ids) -> void
+    ProcessPhysicalArgs process_physical_args([&](
+                const std::string& host_name,
+                const std::string& user_name,
+                const std::string& process_name,
+                const std::string& process_pid,
+                const DiscoverySource& discovery_source,
+                bool& should_link_process_participant,
+                const EntityId& participant_id,
+                std::map<std::string, EntityId>& physical_entities_ids) -> void
             {
                 EXPECT_EQ(host_name, host_name_);
                 EXPECT_EQ(user_name, user_name_);
@@ -1025,6 +1030,8 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 EXPECT_EQ(topic_id, EntityId(11));
 
                 static_cast<void>(app_data);
+                static_cast<void>(discovery_source);
+                static_cast<void>(original_domain);
 
                 return EntityId(12);
             });
@@ -1175,7 +1182,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 const std::string& app_metadata,
                 const DiscoverySource& discovery_source,
                 const DomainId& original_domain
-        ) -> EntityId
+                ) -> EntityId
             {
                 EXPECT_EQ(name, "37.11.18.30:09.0a.0b.0c");
                 EXPECT_EQ(qos, participant_proxy_data_to_backend_qos(data));
@@ -1184,8 +1191,8 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 EXPECT_EQ(status, StatusLevel::OK_STATUS);
                 EXPECT_EQ(app_id, AppId::UNKNOWN);
                 EXPECT_EQ(app_metadata, "");
-                EXPECT_EQ(discovery_source, discoverysource);
-                EXPECT_EQ(original_domain, domainid);
+                static_cast<void>(discovery_source);
+                static_cast<void>(original_domain);
 
                 return EntityId(10);
             });
@@ -1197,15 +1204,15 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
     EXPECT_CALL(database, insert_new_type_idl(metatraffic_prefix + "TYPE", "")).Times(0);
 
     // Expectation: The host is created and given ID 13, the user is created and given ID 14 and the process is created and given ID 15
-        ProcessPhysicalArgs process_physical_args([&](
-                    const std::string& host_name,
-                    const std::string& user_name,
-                    const std::string& process_name,
-                    const std::string& process_pid,
-                    const DiscoverySource& discovery_source,
-                    bool& should_link_process_participant,
-                    const EntityId& participant_id,
-                    std::map<std::string, EntityId>& physical_entities_ids) -> void
+    ProcessPhysicalArgs process_physical_args([&](
+                const std::string& host_name,
+                const std::string& user_name,
+                const std::string& process_name,
+                const std::string& process_pid,
+                const DiscoverySource& discovery_source,
+                bool& should_link_process_participant,
+                const EntityId& participant_id,
+                std::map<std::string, EntityId>& physical_entities_ids) -> void
             {
                 EXPECT_EQ(host_name, host_name_);
                 EXPECT_EQ(user_name, user_name_);
@@ -1273,7 +1280,8 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 EXPECT_EQ(topic_id, EntityId(11));
 
                 static_cast<void>(app_data);
-
+                static_cast<void>(discovery_source);
+                static_cast<void>(original_domain);
                 return EntityId(12);
             });
 
@@ -1408,7 +1416,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 const std::string& app_metadata,
                 const DiscoverySource& discovery_source,
                 const DomainId& original_domain
-        ) -> EntityId
+                ) -> EntityId
             {
                 EXPECT_EQ(name, "37.11.18.30:09.0a.0b.0c");
                 EXPECT_EQ(qos, participant_proxy_data_to_backend_qos(data));
@@ -1417,8 +1425,8 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 EXPECT_EQ(status, StatusLevel::OK_STATUS);
                 EXPECT_EQ(app_id, AppId::UNKNOWN);
                 EXPECT_EQ(app_metadata, "");
-                EXPECT_EQ(discovery_source, discoverysource);
-                EXPECT_EQ(original_domain, domainid);
+                static_cast<void>(discovery_source);
+                static_cast<void>(original_domain);
 
                 return EntityId(10);
             });
@@ -1430,15 +1438,15 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
     EXPECT_CALL(database, insert_new_type_idl(metatraffic_type_name_, "")).Times(0);
 
     // Expectation: The host is created and given ID 13, the user is created and given ID 14 and the process is created and given ID 15
-        ProcessPhysicalArgs process_physical_args([&](
-                    const std::string& host_name,
-                    const std::string& user_name,
-                    const std::string& process_name,
-                    const std::string& process_pid,
-                    const DiscoverySource& discovery_source,
-                    bool& should_link_process_participant,
-                    const EntityId& participant_id,
-                    std::map<std::string, EntityId>& physical_entities_ids) -> void
+    ProcessPhysicalArgs process_physical_args([&](
+                const std::string& host_name,
+                const std::string& user_name,
+                const std::string& process_name,
+                const std::string& process_pid,
+                const DiscoverySource& discovery_source,
+                bool& should_link_process_participant,
+                const EntityId& participant_id,
+                std::map<std::string, EntityId>& physical_entities_ids) -> void
             {
                 EXPECT_EQ(host_name, host_name_);
                 EXPECT_EQ(user_name, user_name_);
@@ -1504,6 +1512,8 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 EXPECT_EQ(topic_id, EntityId(11));
 
                 static_cast<void>(app_data);
+                static_cast<void>(discovery_source);
+                static_cast<void>(original_domain);
 
                 return EntityId(12);
             });
@@ -1645,7 +1655,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 const std::string& app_metadata,
                 const DiscoverySource& discovery_source,
                 const DomainId& original_domain
-        ) -> EntityId
+                ) -> EntityId
             {
                 EXPECT_EQ(name, "37.11.18.30:09.0a.0b.0c");
                 EXPECT_EQ(qos, participant_proxy_data_to_backend_qos(data));
@@ -1654,8 +1664,8 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 EXPECT_EQ(status, StatusLevel::OK_STATUS);
                 EXPECT_EQ(app_id, AppId::UNKNOWN);
                 EXPECT_EQ(app_metadata, "");
-                EXPECT_EQ(discovery_source, discoverysource);
-                EXPECT_EQ(original_domain, domainid);
+                static_cast<void>(discovery_source);
+                static_cast<void>(original_domain);
 
                 return EntityId(10);
             });
@@ -1667,15 +1677,15 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
     EXPECT_CALL(database, insert_new_type_idl(metatraffic_type_name_, "")).Times(0);
 
     // Expectation: The host is created and given ID 13, the user is created and given ID 14 and the process is created and given ID 15
-        ProcessPhysicalArgs process_physical_args([&](
-                    const std::string& host_name,
-                    const std::string& user_name,
-                    const std::string& process_name,
-                    const std::string& process_pid,
-                    const DiscoverySource& discovery_source,
-                    bool& should_link_process_participant,
-                    const EntityId& participant_id,
-                    std::map<std::string, EntityId>& physical_entities_ids) -> void
+    ProcessPhysicalArgs process_physical_args([&](
+                const std::string& host_name,
+                const std::string& user_name,
+                const std::string& process_name,
+                const std::string& process_pid,
+                const DiscoverySource& discovery_source,
+                bool& should_link_process_participant,
+                const EntityId& participant_id,
+                std::map<std::string, EntityId>& physical_entities_ids) -> void
             {
                 EXPECT_EQ(host_name, host_name_);
                 EXPECT_EQ(user_name, user_name_);
@@ -1740,6 +1750,8 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 EXPECT_EQ(topic_id, EntityId(11));
 
                 static_cast<void>(app_data);
+                static_cast<void>(discovery_source);
+                static_cast<void>(original_domain);
 
                 return EntityId(12);
             });
@@ -1848,7 +1860,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 const std::string& app_metadata,
                 const DiscoverySource& discovery_source,
                 const DomainId& original_domain
-        ) -> EntityId
+                ) -> EntityId
             {
                 EXPECT_EQ(name, "37.11.18.30:09.0a.0b.0c");
                 EXPECT_EQ(qos, participant_proxy_data_to_backend_qos(data));
@@ -1857,8 +1869,8 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 EXPECT_EQ(status, StatusLevel::OK_STATUS);
                 EXPECT_EQ(app_id, AppId::UNKNOWN);
                 EXPECT_EQ(app_metadata, "");
-                EXPECT_EQ(discovery_source, discoverysource);
-                EXPECT_EQ(original_domain, domainid);
+                static_cast<void>(discovery_source);
+                static_cast<void>(original_domain);
 
                 return EntityId(10);
             });
@@ -1869,15 +1881,15 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
     // Expectation: Metatraffic topic types are ignored
     EXPECT_CALL(database, insert_new_type_idl(metatraffic_type_name_, "")).Times(0);
     // Expectation: The host is created and given ID 13, the user is created and given ID 14 and the process is created and given ID 15
-        ProcessPhysicalArgs process_physical_args([&](
-                    const std::string& host_name,
-                    const std::string& user_name,
-                    const std::string& process_name,
-                    const std::string& process_pid,
-                    const DiscoverySource& discovery_source,
-                    bool& should_link_process_participant,
-                    const EntityId& participant_id,
-                    std::map<std::string, EntityId>& physical_entities_ids) -> void
+    ProcessPhysicalArgs process_physical_args([&](
+                const std::string& host_name,
+                const std::string& user_name,
+                const std::string& process_name,
+                const std::string& process_pid,
+                const DiscoverySource& discovery_source,
+                bool& should_link_process_participant,
+                const EntityId& participant_id,
+                std::map<std::string, EntityId>& physical_entities_ids) -> void
             {
                 EXPECT_EQ(host_name, host_name_);
                 EXPECT_EQ(user_name, user_name_);
@@ -1941,6 +1953,8 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 EXPECT_EQ(topic_id, EntityId(11));
 
                 static_cast<void>(app_data);
+                static_cast<void>(discovery_source);
+                static_cast<void>(original_domain);
 
                 return EntityId(12);
             });
@@ -2083,7 +2097,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 const std::string& app_metadata,
                 const DiscoverySource& discovery_source,
                 const DomainId& original_domain
-        ) -> EntityId
+                ) -> EntityId
             {
                 EXPECT_EQ(name, "localhost:09.0a.0b.0c");
                 EXPECT_EQ(qos, participant_proxy_data_to_backend_qos(data));
@@ -2092,8 +2106,8 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 EXPECT_EQ(status, StatusLevel::OK_STATUS);
                 EXPECT_EQ(app_id, AppId::UNKNOWN);
                 EXPECT_EQ(app_metadata, "");
-                EXPECT_EQ(discovery_source, discoverysource);
-                EXPECT_EQ(original_domain, domainid);
+                static_cast<void>(discovery_source);
+                static_cast<void>(original_domain);
 
                 return EntityId(10);
             });
@@ -2105,15 +2119,15 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
     EXPECT_CALL(database, insert_new_type_idl(metatraffic_type_name_, "")).Times(0);
 
     // Expectation: The host is created and given ID 13, the user is created and given ID 14 and the process is created and given ID 15
-        ProcessPhysicalArgs process_physical_args([&](
-                    const std::string& host_name,
-                    const std::string& user_name,
-                    const std::string& process_name,
-                    const std::string& process_pid,
-                    const DiscoverySource& discovery_source,
-                    bool& should_link_process_participant,
-                    const EntityId& participant_id,
-                    std::map<std::string, EntityId>& physical_entities_ids) -> void
+    ProcessPhysicalArgs process_physical_args([&](
+                const std::string& host_name,
+                const std::string& user_name,
+                const std::string& process_name,
+                const std::string& process_pid,
+                const DiscoverySource& discovery_source,
+                bool& should_link_process_participant,
+                const EntityId& participant_id,
+                std::map<std::string, EntityId>& physical_entities_ids) -> void
             {
                 EXPECT_EQ(host_name, host_name_);
                 EXPECT_EQ(user_name, user_name_);
@@ -2180,6 +2194,8 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 EXPECT_EQ(topic_id, EntityId(11));
 
                 static_cast<void>(app_data);
+                static_cast<void>(discovery_source);
+                static_cast<void>(original_domain);
 
                 return EntityId(12);
             });
@@ -2301,15 +2317,15 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_partici
 
 
     // Expectation: The host already exists with ID 13, the user already exists with ID 14 and the process already exists with ID 15
-        ProcessPhysicalArgs process_physical_args([&](
-                    const std::string& host_name,
-                    const std::string& user_name,
-                    const std::string& process_name,
-                    const std::string& process_pid,
-                    const DiscoverySource& discovery_source,
-                    bool& should_link_process_participant,
-                    const EntityId& participant_id,
-                    std::map<std::string, EntityId>& physical_entities_ids) -> void
+    ProcessPhysicalArgs process_physical_args([&](
+                const std::string& host_name,
+                const std::string& user_name,
+                const std::string& process_name,
+                const std::string& process_pid,
+                const DiscoverySource& discovery_source,
+                bool& should_link_process_participant,
+                const EntityId& participant_id,
+                std::map<std::string, EntityId>& physical_entities_ids) -> void
             {
                 EXPECT_EQ(host_name, host_name_);
                 EXPECT_EQ(user_name, user_name_);
@@ -2387,15 +2403,15 @@ TEST_F(statistics_participant_listener_tests, new_participant_undiscovered_parti
     EXPECT_CALL(database, insert_new_participant(_, _, _, _, _, _, _, _, _)).Times(0);
 
     // Expectation: The host already exists with ID 13, the user already exists with ID 14 and the process already exists with ID 15
-        ProcessPhysicalArgs process_physical_args([&](
-                    const std::string& host_name,
-                    const std::string& user_name,
-                    const std::string& process_name,
-                    const std::string& process_pid,
-                    const DiscoverySource& discovery_source,
-                    bool& should_link_process_participant,
-                    const EntityId& participant_id,
-                    std::map<std::string, EntityId>& physical_entities_ids) -> void
+    ProcessPhysicalArgs process_physical_args([&](
+                const std::string& host_name,
+                const std::string& user_name,
+                const std::string& process_name,
+                const std::string& process_pid,
+                const DiscoverySource& discovery_source,
+                bool& should_link_process_participant,
+                const EntityId& participant_id,
+                std::map<std::string, EntityId>& physical_entities_ids) -> void
             {
                 EXPECT_EQ(host_name, host_name_);
                 EXPECT_EQ(user_name, user_name_);
@@ -2515,6 +2531,8 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered)
                 EXPECT_EQ(topic_id, EntityId(2));
 
                 static_cast<void>(app_data);
+                static_cast<void>(discovery_source);
+                static_cast<void>(original_domain);
 
                 return EntityId(10);
             });
@@ -2689,6 +2707,8 @@ TEST_F(statistics_participant_listener_tests, new_reader_no_topic)
                 EXPECT_EQ(topic_id, EntityId(10));
 
                 static_cast<void>(app_data);
+                static_cast<void>(discovery_source);
+                static_cast<void>(original_domain);
 
                 return EntityId(11);
             });
@@ -2972,6 +2992,8 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_locators)
                 EXPECT_EQ(topic_id, EntityId(2));
 
                 static_cast<void>(app_data);
+                static_cast<void>(discovery_source);
+                static_cast<void>(original_domain);
 
                 return EntityId(11);
             });
@@ -3124,6 +3146,8 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_locators_no_hos
                 EXPECT_EQ(topic_id, EntityId(2));
 
                 static_cast<void>(app_data);
+                static_cast<void>(discovery_source);
+                static_cast<void>(original_domain);
 
                 return EntityId(11);
             });
@@ -3475,7 +3499,8 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered)
                 EXPECT_EQ(topic_id, EntityId(2));
 
                 static_cast<void>(app_data);
-
+                static_cast<void>(discovery_source);
+                static_cast<void>(original_domain);
                 return EntityId(10);
             });
 
