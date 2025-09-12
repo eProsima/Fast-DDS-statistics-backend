@@ -59,7 +59,7 @@ struct InsertParticipantArgs
                 const AppId& app_id,
                 const std::string& app_metadata,
                 const DiscoverySource& discovery_source,
-                const DomainId& original_domain)> func)
+                const DomainId& origin_domain)> func)
         : callback_(func)
     {
     }
@@ -73,7 +73,7 @@ struct InsertParticipantArgs
             const AppId& app_id,
             const std::string& app_metadata,
             const DiscoverySource& discovery_source,
-            const DomainId& original_domain)
+            const DomainId& origin_domain)
     {
         name_ = name;
         qos_ = qos;
@@ -83,8 +83,8 @@ struct InsertParticipantArgs
         app_id_ = app_id;
         app_metadata_ = app_metadata;
         discovery_source_ = discovery_source;
-        original_domain_ = original_domain;
-        return callback_(name, qos, guid, domain_id, status, app_id, app_metadata, discovery_source, original_domain);
+        origin_domain_ = origin_domain;
+        return callback_(name, qos, guid, domain_id, status, app_id, app_metadata, discovery_source, origin_domain);
     }
 
     std::function<EntityId(
@@ -96,7 +96,7 @@ struct InsertParticipantArgs
                 const AppId& app_id,
                 const std::string& app_metadata,
                 const DiscoverySource& discovery_source,
-                const DomainId& original_domain)> callback_;
+                const DomainId& origin_domain)> callback_;
 
     std::string name_;
     Qos qos_;
@@ -106,7 +106,7 @@ struct InsertParticipantArgs
     AppId app_id_;
     std::string app_metadata_;
     DiscoverySource discovery_source_;
-    DomainId original_domain_;
+    DomainId origin_domain_;
 };
 
 
@@ -222,7 +222,7 @@ struct InsertEndpointArgs
                 const EntityId& topic_id,
                 const std::pair<AppId, std::string> app_data,
                 const DiscoverySource& discovery_source,
-                const DomainId& original_domain) > func)
+                const DomainId& origin_domain) > func)
         : callback_(func)
     {
     }
@@ -240,7 +240,7 @@ struct InsertEndpointArgs
             const EntityId& topic_id,
             const std::pair<AppId, std::string> app_data,
             const DiscoverySource& discovery_source,
-            const DomainId& original_domain)
+            const DomainId& origin_domain)
     {
         endpoint_guid_ = endpoint_guid;
         name_ = name;
@@ -253,9 +253,9 @@ struct InsertEndpointArgs
         topic_id_ = topic_id;
         app_data_ = app_data;
         discovery_source_ = discovery_source;
-        original_domain_ = original_domain;
+        origin_domain_ = origin_domain;
         return callback_(endpoint_guid, name, alias, qos, is_virtual_metatraffic, locators, kind, participant_id,
-                       topic_id, app_data, discovery_source, original_domain);
+                       topic_id, app_data, discovery_source, origin_domain);
     }
 
     std::function<EntityId(
@@ -270,7 +270,7 @@ struct InsertEndpointArgs
                 const EntityId& topic_id,
                 const std::pair<AppId, std::string> app_data,
                 const DiscoverySource& discovery_source,
-                const DomainId& original_domain) > callback_;
+                const DomainId& origin_domain) > callback_;
 
     std::string endpoint_guid_;
     std::string name_;
@@ -283,7 +283,7 @@ struct InsertEndpointArgs
     EntityId topic_id_;
     std::pair<AppId, std::string> app_data_;
     DiscoverySource discovery_source_;
-    DomainId original_domain_;
+    DomainId origin_domain_;
 };
 
 
@@ -390,8 +390,9 @@ public:
     std::shared_ptr<Locator> metatraffic_multicast_locator;
     std::shared_ptr<Locator> default_multicast_locator;
 
-    DiscoverySource discoverysource = DiscoverySource::DISCOVERY;
-    DomainId domainid = UNKNOWN_DOMAIN_ID;
+    // Proxy discovery source and unknown domain id
+    DiscoverySource discovery_source_ = DiscoverySource::DISCOVERY;
+    DomainId origin_domain_id_ = UNKNOWN_DOMAIN_ID;
 
     statistics_participant_listener_tests()
         : entity_queue(&database)
@@ -461,6 +462,10 @@ public:
 
         metatraffic_multicast_locator = std::make_shared<Locator>("UDPv4:[0.0.0.0]:2");
         default_multicast_locator = std::make_shared<Locator>("UDPv4:[0.0.0.0]:4");
+
+        // Proxy discovery source and unknown domain id
+        discovery_source_ = DiscoverySource::DISCOVERY;
+        origin_domain_id_ = UNKNOWN_DOMAIN_ID;
     }
 
 };
@@ -513,7 +518,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered)
                 const AppId& app_id,
                 const std::string& app_metadata,
                 const DiscoverySource& discovery_source,
-                const DomainId& original_domain
+                const DomainId& origin_domain
                 ) -> EntityId
             {
                 EXPECT_EQ(name, participant_name_);
@@ -523,8 +528,9 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered)
                 EXPECT_EQ(status, StatusLevel::OK_STATUS);
                 EXPECT_EQ(app_id, AppId::UNKNOWN);
                 EXPECT_EQ(app_metadata, "");
+
                 static_cast<void>(discovery_source);
-                static_cast<void>(original_domain);
+                static_cast<void>(origin_domain);
 
                 return EntityId(10);
             });
@@ -554,6 +560,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered)
                 physical_entities_ids[USER_ENTITY_TAG] = EntityId(14);
                 physical_entities_ids[PROCESS_ENTITY_TAG] = EntityId(15);
 
+                static_cast<void>(discovery_source);
             });
 
     EXPECT_CALL(database, process_physical_entities(_, _, _, _, _, _, _, _)).Times(1)
@@ -590,7 +597,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered)
                 const EntityId& topic_id,
                 const std::pair<AppId, std::string> app_data,
                 const DiscoverySource& discovery_source,
-                const DomainId& original_domain) -> EntityId
+                const DomainId& origin_domain) -> EntityId
             {
                 EXPECT_EQ(endpoint_guid, participant_guid_str_);
                 EXPECT_EQ(name, metatraffic_prefix + "TOPIC_0.0.1.c1");
@@ -608,7 +615,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered)
 
                 static_cast<void>(app_data);
                 static_cast<void>(discovery_source);
-                static_cast<void>(original_domain);
+                static_cast<void>(origin_domain);
 
                 return EntityId(12);
             });
@@ -732,7 +739,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_not_fir
                 const AppId& app_id,
                 const std::string& app_metadata,
                 const DiscoverySource& discovery_source,
-                const DomainId& original_domain
+                const DomainId& origin_domain
                 ) -> EntityId
             {
                 EXPECT_EQ(name, participant_2_name);
@@ -743,7 +750,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_not_fir
                 EXPECT_EQ(app_id, AppId::UNKNOWN);
                 EXPECT_EQ(app_metadata, "");
                 static_cast<void>(discovery_source);
-                static_cast<void>(original_domain);
+                static_cast<void>(origin_domain);
 
                 return EntityId(10);
             });
@@ -776,6 +783,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_not_fir
                 physical_entities_ids[USER_ENTITY_TAG] = EntityId(14);
                 physical_entities_ids[PROCESS_ENTITY_TAG] = EntityId(15);
 
+                static_cast<void>(discovery_source);
             });
 
     EXPECT_CALL(database, process_physical_entities(_, _, _, _, _, _, _, _)).Times(1)
@@ -794,7 +802,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_not_fir
                 const EntityId& topic_id,
                 const std::pair<AppId, std::string> app_data,
                 const DiscoverySource& discovery_source,
-                const DomainId& original_domain) -> EntityId
+                const DomainId& origin_domain) -> EntityId
             {
                 EXPECT_EQ(endpoint_guid, participant_2_guid_str);
                 EXPECT_EQ(name, metatraffic_prefix + "TOPIC_0.0.1.c1");
@@ -813,7 +821,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_not_fir
 
                 static_cast<void>(app_data);
                 static_cast<void>(discovery_source);
-                static_cast<void>(original_domain);
+                static_cast<void>(origin_domain);
 
                 return EntityId(12);
             });
@@ -936,7 +944,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 const AppId& app_id,
                 const std::string& app_metadata,
                 const DiscoverySource& discovery_source,
-                const DomainId& original_domain
+                const DomainId& origin_domain
                 ) -> EntityId
             {
                 EXPECT_EQ(name, "localhost:09.0a.0b.0c");
@@ -947,7 +955,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 EXPECT_EQ(app_id, AppId::UNKNOWN);
                 EXPECT_EQ(app_metadata, "");
                 static_cast<void>(discovery_source);
-                static_cast<void>(original_domain);
+                static_cast<void>(origin_domain);
 
                 return EntityId(10);
             });
@@ -977,6 +985,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 physical_entities_ids[USER_ENTITY_TAG] = EntityId(14);
                 physical_entities_ids[PROCESS_ENTITY_TAG] = EntityId(15);
 
+                static_cast<void>(discovery_source);
             });
 
     EXPECT_CALL(database, process_physical_entities(_, _, _, _, _, _, _, _)).Times(1)
@@ -1016,7 +1025,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 const EntityId& topic_id,
                 const std::pair<AppId, std::string> app_data,
                 const DiscoverySource& discovery_source,
-                const DomainId& original_domain) -> EntityId
+                const DomainId& origin_domain) -> EntityId
             {
                 EXPECT_EQ(endpoint_guid, participant_guid_str_);
                 EXPECT_EQ(name, metatraffic_prefix + "TOPIC_0.0.1.c1");
@@ -1031,7 +1040,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
 
                 static_cast<void>(app_data);
                 static_cast<void>(discovery_source);
-                static_cast<void>(original_domain);
+                static_cast<void>(origin_domain);
 
                 return EntityId(12);
             });
@@ -1181,7 +1190,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 const AppId& app_id,
                 const std::string& app_metadata,
                 const DiscoverySource& discovery_source,
-                const DomainId& original_domain
+                const DomainId& origin_domain
                 ) -> EntityId
             {
                 EXPECT_EQ(name, "37.11.18.30:09.0a.0b.0c");
@@ -1192,7 +1201,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 EXPECT_EQ(app_id, AppId::UNKNOWN);
                 EXPECT_EQ(app_metadata, "");
                 static_cast<void>(discovery_source);
-                static_cast<void>(original_domain);
+                static_cast<void>(origin_domain);
 
                 return EntityId(10);
             });
@@ -1225,6 +1234,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 physical_entities_ids[USER_ENTITY_TAG] = EntityId(14);
                 physical_entities_ids[PROCESS_ENTITY_TAG] = EntityId(15);
 
+                static_cast<void>(discovery_source);
             });
 
     EXPECT_CALL(database, process_physical_entities(_, _, _, _, _, _, _, _)).Times(1)
@@ -1262,7 +1272,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 const EntityId& topic_id,
                 const std::pair<AppId, std::string> app_data,
                 const DiscoverySource& discovery_source,
-                const DomainId& original_domain) -> EntityId
+                const DomainId& origin_domain) -> EntityId
             {
                 EXPECT_EQ(endpoint_guid, participant_guid_str_);
                 EXPECT_EQ(name, metatraffic_prefix + "TOPIC_0.0.1.c1");
@@ -1281,7 +1291,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
 
                 static_cast<void>(app_data);
                 static_cast<void>(discovery_source);
-                static_cast<void>(original_domain);
+                static_cast<void>(origin_domain);
                 return EntityId(12);
             });
 
@@ -1415,7 +1425,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 const AppId& app_id,
                 const std::string& app_metadata,
                 const DiscoverySource& discovery_source,
-                const DomainId& original_domain
+                const DomainId& origin_domain
                 ) -> EntityId
             {
                 EXPECT_EQ(name, "37.11.18.30:09.0a.0b.0c");
@@ -1426,7 +1436,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 EXPECT_EQ(app_id, AppId::UNKNOWN);
                 EXPECT_EQ(app_metadata, "");
                 static_cast<void>(discovery_source);
-                static_cast<void>(original_domain);
+                static_cast<void>(origin_domain);
 
                 return EntityId(10);
             });
@@ -1459,6 +1469,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 physical_entities_ids[USER_ENTITY_TAG] = EntityId(14);
                 physical_entities_ids[PROCESS_ENTITY_TAG] = EntityId(15);
 
+                static_cast<void>(discovery_source);
             });
 
     EXPECT_CALL(database, process_physical_entities(_, _, _, _, _, _, _, _)).Times(1)
@@ -1495,7 +1506,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 const EntityId& topic_id,
                 const std::pair<AppId, std::string> app_data,
                 const DiscoverySource& discovery_source,
-                const DomainId& original_domain) -> EntityId
+                const DomainId& origin_domain) -> EntityId
             {
                 EXPECT_EQ(endpoint_guid, participant_guid_str_);
                 EXPECT_EQ(name, metatraffic_prefix + "TOPIC_0.0.1.c1");
@@ -1513,7 +1524,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
 
                 static_cast<void>(app_data);
                 static_cast<void>(discovery_source);
-                static_cast<void>(original_domain);
+                static_cast<void>(origin_domain);
 
                 return EntityId(12);
             });
@@ -1654,7 +1665,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 const AppId& app_id,
                 const std::string& app_metadata,
                 const DiscoverySource& discovery_source,
-                const DomainId& original_domain
+                const DomainId& origin_domain
                 ) -> EntityId
             {
                 EXPECT_EQ(name, "37.11.18.30:09.0a.0b.0c");
@@ -1665,7 +1676,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 EXPECT_EQ(app_id, AppId::UNKNOWN);
                 EXPECT_EQ(app_metadata, "");
                 static_cast<void>(discovery_source);
-                static_cast<void>(original_domain);
+                static_cast<void>(origin_domain);
 
                 return EntityId(10);
             });
@@ -1698,6 +1709,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 physical_entities_ids[USER_ENTITY_TAG] = EntityId(14);
                 physical_entities_ids[PROCESS_ENTITY_TAG] = EntityId(15);
 
+                static_cast<void>(discovery_source);
             });
 
     EXPECT_CALL(database, process_physical_entities(_, _, _, _, _, _, _, _)).Times(1)
@@ -1734,7 +1746,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 const EntityId& topic_id,
                 const std::pair<AppId, std::string> app_data,
                 const DiscoverySource& discovery_source,
-                const DomainId& original_domain) -> EntityId
+                const DomainId& origin_domain) -> EntityId
             {
                 EXPECT_EQ(endpoint_guid, participant_guid_str_);
                 EXPECT_EQ(name, metatraffic_prefix + "TOPIC_0.0.1.c1");
@@ -1751,7 +1763,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
 
                 static_cast<void>(app_data);
                 static_cast<void>(discovery_source);
-                static_cast<void>(original_domain);
+                static_cast<void>(origin_domain);
 
                 return EntityId(12);
             });
@@ -1859,7 +1871,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 const AppId& app_id,
                 const std::string& app_metadata,
                 const DiscoverySource& discovery_source,
-                const DomainId& original_domain
+                const DomainId& origin_domain
                 ) -> EntityId
             {
                 EXPECT_EQ(name, "37.11.18.30:09.0a.0b.0c");
@@ -1870,7 +1882,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 EXPECT_EQ(app_id, AppId::UNKNOWN);
                 EXPECT_EQ(app_metadata, "");
                 static_cast<void>(discovery_source);
-                static_cast<void>(original_domain);
+                static_cast<void>(origin_domain);
 
                 return EntityId(10);
             });
@@ -1902,6 +1914,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 physical_entities_ids[USER_ENTITY_TAG] = EntityId(14);
                 physical_entities_ids[PROCESS_ENTITY_TAG] = EntityId(15);
 
+                static_cast<void>(discovery_source);
             });
 
     EXPECT_CALL(database, process_physical_entities(_, _, _, _, _, _, _, _)).Times(1)
@@ -1938,7 +1951,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 const EntityId& topic_id,
                 const std::pair<AppId, std::string> app_data,
                 const DiscoverySource& discovery_source,
-                const DomainId& original_domain) -> EntityId
+                const DomainId& origin_domain) -> EntityId
             {
                 EXPECT_EQ(endpoint_guid, participant_guid_str_);
                 EXPECT_EQ(name, metatraffic_prefix + "TOPIC_0.0.1.c1");
@@ -1954,7 +1967,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
 
                 static_cast<void>(app_data);
                 static_cast<void>(discovery_source);
-                static_cast<void>(original_domain);
+                static_cast<void>(origin_domain);
 
                 return EntityId(12);
             });
@@ -2096,7 +2109,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 const AppId& app_id,
                 const std::string& app_metadata,
                 const DiscoverySource& discovery_source,
-                const DomainId& original_domain
+                const DomainId& origin_domain
                 ) -> EntityId
             {
                 EXPECT_EQ(name, "localhost:09.0a.0b.0c");
@@ -2107,7 +2120,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 EXPECT_EQ(app_id, AppId::UNKNOWN);
                 EXPECT_EQ(app_metadata, "");
                 static_cast<void>(discovery_source);
-                static_cast<void>(original_domain);
+                static_cast<void>(origin_domain);
 
                 return EntityId(10);
             });
@@ -2140,6 +2153,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 physical_entities_ids[USER_ENTITY_TAG] = EntityId(14);
                 physical_entities_ids[PROCESS_ENTITY_TAG] = EntityId(15);
 
+                static_cast<void>(discovery_source);
             });
 
     EXPECT_CALL(database, process_physical_entities(_, _, _, _, _, _, _, _)).Times(1)
@@ -2176,7 +2190,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
                 const EntityId& topic_id,
                 const std::pair<AppId, std::string> app_data,
                 const DiscoverySource& discovery_source,
-                const DomainId& original_domain) -> EntityId
+                const DomainId& origin_domain) -> EntityId
             {
                 EXPECT_EQ(endpoint_guid, participant_guid_str_);
                 EXPECT_EQ(name, metatraffic_prefix + "TOPIC_0.0.1.c1");
@@ -2195,7 +2209,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_empty_n
 
                 static_cast<void>(app_data);
                 static_cast<void>(discovery_source);
-                static_cast<void>(original_domain);
+                static_cast<void>(origin_domain);
 
                 return EntityId(12);
             });
@@ -2338,6 +2352,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_discovered_partici
                 physical_entities_ids[USER_ENTITY_TAG] = EntityId(14);
                 physical_entities_ids[PROCESS_ENTITY_TAG] = EntityId(15);
 
+                static_cast<void>(discovery_source);
             });
 
     EXPECT_CALL(database, process_physical_entities(_, _, _, _, _, _, _, _)).Times(1)
@@ -2424,6 +2439,7 @@ TEST_F(statistics_participant_listener_tests, new_participant_undiscovered_parti
                 physical_entities_ids[USER_ENTITY_TAG] = EntityId(14);
                 physical_entities_ids[PROCESS_ENTITY_TAG] = EntityId(15);
 
+                static_cast<void>(discovery_source);
             });
 
     EXPECT_CALL(database, process_physical_entities(_, _, _, _, _, _, _, _)).Times(2)
@@ -2517,7 +2533,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered)
                 const EntityId& topic_id,
                 const std::pair<AppId, std::string> app_data,
                 const DiscoverySource& discovery_source,
-                const DomainId& original_domain) -> EntityId
+                const DomainId& origin_domain) -> EntityId
             {
                 EXPECT_EQ(endpoint_guid, reader_guid_str_);
                 EXPECT_EQ(name, topic_->name + "_" + reader_entity_id_str_);
@@ -2532,7 +2548,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_discovered)
 
                 static_cast<void>(app_data);
                 static_cast<void>(discovery_source);
-                static_cast<void>(original_domain);
+                static_cast<void>(origin_domain);
 
                 return EntityId(10);
             });
@@ -2692,7 +2708,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_no_topic)
                 const EntityId& topic_id,
                 const std::pair<AppId, std::string> app_data,
                 const DiscoverySource& discovery_source,
-                const DomainId& original_domain) -> EntityId
+                const DomainId& origin_domain) -> EntityId
             {
                 EXPECT_EQ(endpoint_guid, reader_guid_str_);
                 EXPECT_EQ(name, topic_->name + "_" + reader_entity_id_str_);
@@ -2708,7 +2724,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_no_topic)
 
                 static_cast<void>(app_data);
                 static_cast<void>(discovery_source);
-                static_cast<void>(original_domain);
+                static_cast<void>(origin_domain);
 
                 return EntityId(11);
             });
@@ -2829,7 +2845,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_topics)
                 const EntityId& topic_id,
                 const std::pair<AppId, std::string> app_data,
                 const DiscoverySource& discovery_source,
-                const DomainId& original_domain) -> EntityId
+                const DomainId& origin_domain) -> EntityId
             {
                 EXPECT_EQ(endpoint_guid, reader_guid_str_);
                 EXPECT_EQ(name, topic_->name + "_" + reader_entity_id_str_);
@@ -2844,6 +2860,8 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_topics)
                 EXPECT_EQ(topic_id, EntityId(2));
 
                 static_cast<void>(app_data);
+                static_cast<void>(discovery_source);
+                static_cast<void>(origin_domain);
 
                 return EntityId(10);
             });
@@ -2974,7 +2992,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_locators)
                 const EntityId& topic_id,
                 const std::pair<AppId, std::string> app_data,
                 const DiscoverySource& discovery_source,
-                const DomainId& original_domain) -> EntityId
+                const DomainId& origin_domain) -> EntityId
             {
                 EXPECT_EQ(endpoint_guid, reader_guid_str_);
                 EXPECT_EQ(name, topic_->name + "_" + reader_entity_id_str_);
@@ -2993,7 +3011,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_locators)
 
                 static_cast<void>(app_data);
                 static_cast<void>(discovery_source);
-                static_cast<void>(original_domain);
+                static_cast<void>(origin_domain);
 
                 return EntityId(11);
             });
@@ -3128,7 +3146,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_locators_no_hos
                 const EntityId& topic_id,
                 const std::pair<AppId, std::string> app_data,
                 const DiscoverySource& discovery_source,
-                const DomainId& original_domain) -> EntityId
+                const DomainId& origin_domain) -> EntityId
             {
                 EXPECT_EQ(endpoint_guid, reader_guid_str_);
                 EXPECT_EQ(name, topic_->name + "_" + reader_entity_id_str_);
@@ -3147,7 +3165,7 @@ TEST_F(statistics_participant_listener_tests, new_reader_several_locators_no_hos
 
                 static_cast<void>(app_data);
                 static_cast<void>(discovery_source);
-                static_cast<void>(original_domain);
+                static_cast<void>(origin_domain);
 
                 return EntityId(11);
             });
@@ -3485,7 +3503,7 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered)
                 const EntityId& topic_id,
                 const std::pair<AppId, std::string> app_data,
                 const DiscoverySource& discovery_source,
-                const DomainId& original_domain) -> EntityId
+                const DomainId& origin_domain) -> EntityId
             {
                 EXPECT_EQ(endpoint_guid, writer_guid_str_);
                 EXPECT_EQ(name, topic_->name + "_" + writer_entity_id_str_);
@@ -3500,7 +3518,7 @@ TEST_F(statistics_participant_listener_tests, new_writer_discovered)
 
                 static_cast<void>(app_data);
                 static_cast<void>(discovery_source);
-                static_cast<void>(original_domain);
+                static_cast<void>(origin_domain);
                 return EntityId(10);
             });
 
@@ -3659,7 +3677,7 @@ TEST_F(statistics_participant_listener_tests, new_writer_no_topic)
                 const EntityId& topic_id,
                 const std::pair<AppId, std::string> app_data,
                 const DiscoverySource& discovery_source,
-                const DomainId& original_domain) -> EntityId
+                const DomainId& origin_domain) -> EntityId
             {
                 EXPECT_EQ(endpoint_guid, writer_guid_str_);
                 EXPECT_EQ(name, topic_->name + "_" + writer_entity_id_str_);
@@ -3674,6 +3692,8 @@ TEST_F(statistics_participant_listener_tests, new_writer_no_topic)
                 EXPECT_EQ(topic_id, EntityId(10));
 
                 static_cast<void>(app_data);
+                static_cast<void>(discovery_source);
+                static_cast<void>(origin_domain);
 
                 return EntityId(11);
             });
@@ -3810,7 +3830,7 @@ TEST_F(statistics_participant_listener_tests, new_writer_several_locators)
                 const EntityId& topic_id,
                 const std::pair<AppId, std::string> app_data,
                 const DiscoverySource& discovery_source,
-                const DomainId& original_domain) -> EntityId
+                const DomainId& origin_domain) -> EntityId
             {
                 EXPECT_EQ(endpoint_guid, writer_guid_str_);
                 EXPECT_EQ(name, topic_->name + "_" + writer_entity_id_str_);
@@ -3828,6 +3848,8 @@ TEST_F(statistics_participant_listener_tests, new_writer_several_locators)
                 EXPECT_EQ(topic_id, EntityId(2));
 
                 static_cast<void>(app_data);
+                static_cast<void>(discovery_source);
+                static_cast<void>(origin_domain);
 
                 return EntityId(11);
             });
@@ -3956,7 +3978,7 @@ TEST_F(statistics_participant_listener_tests, new_writer_several_locators_no_hos
                 const EntityId& topic_id,
                 const std::pair<AppId, std::string> app_data,
                 const DiscoverySource& discovery_source,
-                const DomainId& original_domain) -> EntityId
+                const DomainId& origin_domain) -> EntityId
             {
                 EXPECT_EQ(endpoint_guid, writer_guid_str_);
                 EXPECT_EQ(name, topic_->name + "_" + writer_entity_id_str_);
@@ -3974,6 +3996,8 @@ TEST_F(statistics_participant_listener_tests, new_writer_several_locators_no_hos
                 EXPECT_EQ(topic_id, EntityId(2));
 
                 static_cast<void>(app_data);
+                static_cast<void>(discovery_source);
+                static_cast<void>(origin_domain);
 
                 return EntityId(11);
             });

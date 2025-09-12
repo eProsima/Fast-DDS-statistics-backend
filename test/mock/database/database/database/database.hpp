@@ -105,7 +105,7 @@ public:
                 const EntityKind& kind,
                 const EntityId& participant_id,
                 const EntityId& topic_id,
-                (const std::pair<AppId, std::string>&) app_data,
+                (const std::pair<AppId, std::string>&)app_data,
                 const DiscoverySource& discovery_source,
                 const DomainId& original_domain
                 ), ());
