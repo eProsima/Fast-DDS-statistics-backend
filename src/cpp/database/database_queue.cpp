@@ -1503,7 +1503,7 @@ void DatabaseDataQueue<ExtendedMonitorServiceStatusData>::process_sample()
 
                 details::StatisticsBackendData::get_instance()->on_status_reported(domain, entity, StatusKind::PROXY);
             }
-            catch (const eprosima::statistics_backend::Exception& e)
+            catch (const eprosima::statistics_backend::Exception&)
             {
                 std::chrono::system_clock::time_point timestamp;
                 if (item.second->entity_discovery_info.kind() == EntityKind::PARTICIPANT)
