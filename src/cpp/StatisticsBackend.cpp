@@ -472,6 +472,10 @@ EntityId StatisticsBackend::init_monitor(
         {
             throw BadParameter("Invalid locator format: " + locator_str);
         }
+        if (locator.kind == LOCATOR_KIND_SHM)
+        {
+            throw BadParameter("SHM locators are not supported: " + locator_str);
+        }
         if (locator.port > std::numeric_limits<uint32_t>::max())
         {
             throw BadParameter(std::to_string(locator.port) + " is out of range");
