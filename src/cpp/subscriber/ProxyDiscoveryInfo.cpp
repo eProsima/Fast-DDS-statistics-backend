@@ -196,7 +196,6 @@ database::EntityDiscoveryInfo get_discovery_info(
     // the original_domain_id field
     discovery_info.domain_id = domain_of_discoverer;
     // TODO: Somehow get original domain id
-    // discovery_info.original_domain_id = <something>;
     discovery_info.guid = reader_data.guid;
     discovery_info.qos = subscriber::reader_proxy_data_to_backend_qos(reader_data);
 
@@ -272,7 +271,6 @@ database::EntityDiscoveryInfo get_discovery_info(
     // the original_domain_id field
     discovery_info.domain_id = domain_of_discoverer;
     // TODO: Somehow get original domain id
-    // discovery_info.original_domain_id = <something>;
     discovery_info.guid = writer_data.guid;
     discovery_info.qos = subscriber::writer_proxy_data_to_backend_qos(writer_data);
 
@@ -333,6 +331,57 @@ database::EntityDiscoveryInfo get_discovery_info(
 
 
     return discovery_info;
+}
+
+database::EntityDiscoveryInfo get_metatraffic_discovery_info(
+        const EntityId& domain_of_discoverer,
+        const fastdds::rtps::ParticipantBuiltinTopicData& participant_data,
+        const details::StatisticsBackendData::DiscoveryStatus& status,
+        const DiscoverySource& discovery_source
+        )
+{
+    // Meaningful prefix for metatraffic entities
+    const std::string metatraffic_prefix = "___EPROSIMA___METATRAFFIC___DOMAIN_" +
+            std::to_string(domain_of_discoverer.value()) +
+            "___";
+    const std::string metatraffic_alias = "_metatraffic_";
+    // Create metatraffic endpoint and locator on the metatraffic topic.
+
+    // The endpoint QoS cannot be empty. We can use this to give a description to the user.
+    database::Qos meta_traffic_qos = {
+        {"description", "This is a virtual placeholder endpoint with no real counterpart"}};
+    // Push it to the queue
+    database::EntityDiscoveryInfo datawriter_discovery_info(EntityKind::DATAWRITER);
+
+    for (auto dds_locator : participant_data.metatraffic_locators.unicast)
+    {
+        datawriter_discovery_info.locators.add_unicast_locator(dds_locator);
+    }
+    for (auto dds_locator : participant_data.metatraffic_locators.multicast)
+    {
+        datawriter_discovery_info.locators.add_multicast_locator(dds_locator);
+    }
+    for (auto dds_locator : participant_data.default_locators.unicast)
+    {
+        datawriter_discovery_info.locators.add_unicast_locator(dds_locator);
+    }
+    for (auto dds_locator : participant_data.default_locators.multicast)
+    {
+        datawriter_discovery_info.locators.add_multicast_locator(dds_locator);
+    }
+
+    datawriter_discovery_info.domain_id = domain_of_discoverer;
+    datawriter_discovery_info.topic_name = metatraffic_prefix + "TOPIC";
+    datawriter_discovery_info.type_name = metatraffic_prefix + "TYPE";
+    datawriter_discovery_info.guid = participant_data.guid;
+    datawriter_discovery_info.qos = meta_traffic_qos;
+    datawriter_discovery_info.alias = metatraffic_alias;
+    datawriter_discovery_info.is_virtual_metatraffic = true;
+    datawriter_discovery_info.entity_status = StatusLevel::OK_STATUS;
+    datawriter_discovery_info.discovery_status = status;
+    datawriter_discovery_info.discovery_source = discovery_source;
+
+    return datawriter_discovery_info;
 }
 
 } // namespace subscriber

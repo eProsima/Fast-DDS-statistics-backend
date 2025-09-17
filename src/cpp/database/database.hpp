@@ -112,8 +112,8 @@ public:
             const StatusLevel& status,
             const AppId& app_id,
             const std::string& app_metadata,
-            const DiscoverySource& discovery_source,
-            const DomainId& original_domain);
+            DiscoverySource discovery_source,
+            DomainId original_domain);
 
     /**
      * @brief Process Host-User-Process entities and insert them in database.
@@ -131,7 +131,7 @@ public:
             const std::string& user_name,
             const std::string& process_name,
             const std::string& process_pid,
-            const DiscoverySource& discovery_source,
+            DiscoverySource discovery_source,
             bool& should_link_process_participant,
             const EntityId& participant_id,
             std::map<std::string, EntityId>& physical_entities_ids);
@@ -209,8 +209,8 @@ public:
             const EntityId& participant_id,
             const EntityId& topic_id,
             const std::pair<AppId, std::string>& app_data,
-            const DiscoverySource& discovery_source,
-            const DomainId& original_domain);
+            DiscoverySource discovery_source,
+            DomainId original_domain);
 
     /**
      * @brief Insert a new entity into the database.
@@ -607,8 +607,8 @@ public:
             const StatusLevel& status,
             const AppId& app_id,
             const std::string& app_metadata,
-            const DiscoverySource& discovery_source,
-            const DomainId& original_domain);
+            DiscoverySource discovery_source,
+            DomainId original_domain);
 
     /**
      * @brief Get the specified domain view graph from database.
@@ -1215,12 +1215,23 @@ protected:
             EntityId& entity_id);
 
 
+    /**
+     * @brief Process physical entities (Host, User, Process) related to a newly discovered participant. This method is not thread safe.
+     * @param host_name The name of the host.
+     * @param user_name The name of the user.
+     * @param process_name The name of the process.
+     * @param process_pid The PID of the process.
+     * @param discovery_source The DiscoverySource of the participant.
+     * @param should_link_process_participant Set to true if the process must be linked to the participant.
+     * @param participant_id The EntityId of the participant.
+     * @param physical_entities_ids Map where host-user-process EntityIds are stored when inserted in database.
+     */
     void process_physical_entities_nts(
             const std::string& host_name,
             const std::string& user_name,
             const std::string& process_name,
             const std::string& process_pid,
-            const DiscoverySource& discovery_source,
+            DiscoverySource discovery_source,
             bool& should_link_process_participant,
             const EntityId& participant_id,
             std::map<std::string, EntityId>& physical_entities_ids);
@@ -1248,8 +1259,8 @@ protected:
             const std::shared_ptr<Topic>& topic,
             const AppId& app_id,
             const std::string& app_metadata,
-            const DiscoverySource& discovery_source,
-            const DomainId& original_domain);
+            DiscoverySource discovery_source,
+            DomainId original_domain);
 
     /**
      * @brief Get the locator with id \c entity_id. This method is not thread safe.
@@ -1426,8 +1437,8 @@ protected:
             const StatusLevel& status,
             const AppId& app_id,
             const std::string& app_metadata,
-            const DiscoverySource& discovery_source,
-            const DomainId& original_domain);
+            DiscoverySource discovery_source,
+            DomainId original_domain);
 
     /**
      * Get an entity given its EntityId. This method is not thread safe.

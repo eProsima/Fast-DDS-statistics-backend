@@ -394,6 +394,7 @@ struct EntityDiscoveryInfo
     DomainId original_domain_id;
 
     EntityDiscoveryInfo()
+      : EntityDiscoveryInfo(EntityKind::INVALID)
     {
     }
 

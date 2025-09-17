@@ -228,8 +228,6 @@ void StatisticsReaderListener::on_data_available(
                         "Failed to get optional QoS from proxy sample.");
                 return;
             }
-
-            //monitor_service_status_data->optional_qos = qos;
         }
 
         monitor_service_status_data_queue_->push(timestamp, monitor_service_status_data);

@@ -58,6 +58,12 @@ database::EntityDiscoveryInfo get_discovery_info(
         const DiscoverySource& discovery_source
         );
 
+database::EntityDiscoveryInfo get_metatraffic_discovery_info(
+        const EntityId& domain_of_discoverer,
+        const fastdds::rtps::ParticipantBuiltinTopicData& participant_data,
+        const details::StatisticsBackendData::DiscoveryStatus& status,
+        const DiscoverySource& discovery_source
+        );
 } // namespace subscriber
 } // namespace statistics_backend
 } // namespace eprosima

@@ -97,48 +97,8 @@ void StatisticsParticipantListener::on_participant_discovery(
     // Create metatraffic entities
     if (details::StatisticsBackendData::DiscoveryStatus::UPDATE != discovery_info.discovery_status)
     {
-        // Meaningful prefix for metatraffic entities
-        const std::string metatraffic_prefix = "___EPROSIMA___METATRAFFIC___DOMAIN_" +
-                std::to_string(domain_id_.value()) +
-                "___";
-        const std::string metatraffic_alias = "_metatraffic_";
-        // Create metatraffic endpoint and locator on the metatraffic topic.
-        {
-            // The endpoint QoS cannot be empty. We can use this to give a description to the user.
-            database::Qos meta_traffic_qos = {
-                {"description", "This is a virtual placeholder endpoint with no real counterpart"}};
-            // Push it to the queue
-            database::EntityDiscoveryInfo datawriter_discovery_info(EntityKind::DATAWRITER);
-
-            for (auto dds_locator : info.metatraffic_locators.unicast)
-            {
-                datawriter_discovery_info.locators.add_unicast_locator(dds_locator);
-            }
-            for (auto dds_locator : info.metatraffic_locators.multicast)
-            {
-                datawriter_discovery_info.locators.add_multicast_locator(dds_locator);
-            }
-            for (auto dds_locator : info.default_locators.unicast)
-            {
-                datawriter_discovery_info.locators.add_unicast_locator(dds_locator);
-            }
-            for (auto dds_locator : info.default_locators.multicast)
-            {
-                datawriter_discovery_info.locators.add_multicast_locator(dds_locator);
-            }
-
-            datawriter_discovery_info.domain_id = domain_id_;
-            datawriter_discovery_info.topic_name = metatraffic_prefix + "TOPIC";
-            datawriter_discovery_info.type_name = metatraffic_prefix + "TYPE";
-            datawriter_discovery_info.guid = info.guid;
-            datawriter_discovery_info.qos = meta_traffic_qos;
-            datawriter_discovery_info.alias = metatraffic_alias;
-            datawriter_discovery_info.is_virtual_metatraffic = true;
-            datawriter_discovery_info.entity_status = StatusLevel::OK_STATUS;
-            datawriter_discovery_info.discovery_status = discovery_info.discovery_status;
-            datawriter_discovery_info.discovery_source = DiscoverySource::DISCOVERY;
-            entity_queue_->push(timestamp, datawriter_discovery_info);
-        }
+        EntityDiscoveryInfo datawriter_discovery_info = get_metatraffic_discovery_info(domain_id_, info, discovery_info.discovery_status, DiscoverySource::DISCOVERY);
+        entity_queue_->push(timestamp, datawriter_discovery_info);
     }
 
     // Wait until the entity queues is processed and restart the data queue

@@ -1532,9 +1532,7 @@ void DatabaseDataQueue<ExtendedMonitorServiceStatusData>::process_sample()
                     participant_discovery_info.guid = item.second->entity_discovery_info.participant_guid;
                     participant_discovery_info.qos = item.second->entity_discovery_info.qos;
                     participant_discovery_info.participant_guid = item.second->entity_discovery_info.participant_guid;
-                    // participant_discovery_info.address = item.second->entity_discovery_info.address;
                     participant_discovery_info.participant_name = "Unknown participant";
-                    // participant_discovery_info.app_metadata = "Unknown";
                     participant_discovery_info.app_id = AppId::UNKNOWN;
                     participant_discovery_info.host =
                             item.second->entity_discovery_info.host.empty()? "Unknown" :

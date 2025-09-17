@@ -111,8 +111,8 @@ EntityId Database::insert_new_participant(
         const StatusLevel& status,
         const AppId& app_id,
         const std::string& app_metadata,
-        const DiscoverySource& discovery_source,
-        const DomainId& original_domain = UNKNOWN_DOMAIN_ID)
+        DiscoverySource discovery_source,
+        DomainId original_domain = UNKNOWN_DOMAIN_ID)
 {
     std::lock_guard<std::shared_timed_mutex> guard(mutex_);
 
@@ -144,7 +144,7 @@ void Database::process_physical_entities(
         const std::string& user_name,
         const std::string& process_name,
         const std::string& process_pid,
-        const DiscoverySource& discovery_source,
+        DiscoverySource discovery_source,
         bool& should_link_process_participant,
         const EntityId& participant_id,
         std::map<std::string, EntityId>& physical_entities_ids)
@@ -159,7 +159,7 @@ void Database::process_physical_entities_nts(
         const std::string& user_name,
         const std::string& process_name,
         const std::string& process_pid,
-        const DiscoverySource& discovery_source,
+        DiscoverySource discovery_source,
         bool& should_link_process_participant,
         const EntityId& participant_id,
         std::map<std::string, EntityId>& physical_entities_ids)
@@ -453,8 +453,8 @@ EntityId Database::insert_new_endpoint(
         const EntityId& participant_id,
         const EntityId& topic_id,
         const std::pair<AppId, std::string>& app_data,
-        const DiscoverySource& discovery_source,
-        const DomainId& original_domain = UNKNOWN_DOMAIN_ID)
+        DiscoverySource discovery_source,
+        DomainId original_domain = UNKNOWN_DOMAIN_ID)
 {
     std::lock_guard<std::shared_timed_mutex> guard(mutex_);
 
@@ -562,8 +562,8 @@ std::shared_ptr<DDSEndpoint> Database::create_endpoint_nts(
         const std::shared_ptr<Topic>& topic,
         const AppId& app_id,
         const std::string& app_metadata,
-        const DiscoverySource& discovery_source,
-        const DomainId& original_domain)
+        DiscoverySource discovery_source,
+        DomainId original_domain)
 {
     return std::make_shared<T>(
         name,
@@ -4485,8 +4485,8 @@ bool Database::update_participant_discovery_info(
         const StatusLevel& status,
         const AppId& app_id,
         const std::string& app_metadata,
-        const DiscoverySource& discovery_source,
-        const DomainId& original_domain)
+        DiscoverySource discovery_source,
+        DomainId original_domain)
 {
     std::lock_guard<std::shared_timed_mutex> guard(mutex_);
     return update_participant_discovery_info_nts(participant_id, host, user, process, name, qos, guid, domain_id,
@@ -4505,8 +4505,8 @@ bool Database::update_participant_discovery_info_nts(
         const StatusLevel& status,
         const AppId& app_id,
         const std::string& app_metadata,
-        const DiscoverySource& discovery_source,
-        const DomainId& original_domain)
+        DiscoverySource discovery_source,
+        DomainId original_domain)
 {
     std::shared_ptr<Entity> db_entity = get_mutable_entity_nts(participant_id);
     if (db_entity->kind != EntityKind::PARTICIPANT)
