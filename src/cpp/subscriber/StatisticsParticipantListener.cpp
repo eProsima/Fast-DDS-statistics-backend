@@ -97,7 +97,9 @@ void StatisticsParticipantListener::on_participant_discovery(
     // Create metatraffic entities
     if (details::StatisticsBackendData::DiscoveryStatus::UPDATE != discovery_info.discovery_status)
     {
-        EntityDiscoveryInfo datawriter_discovery_info = get_metatraffic_discovery_info(domain_id_, info, discovery_info.discovery_status, DiscoverySource::DISCOVERY);
+        EntityDiscoveryInfo datawriter_discovery_info = get_metatraffic_discovery_info(domain_id_, info,
+                        discovery_info.discovery_status,
+                        DiscoverySource::DISCOVERY);
         entity_queue_->push(timestamp, datawriter_discovery_info);
     }
 
