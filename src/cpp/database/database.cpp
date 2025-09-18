@@ -112,7 +112,7 @@ EntityId Database::insert_new_participant(
         const AppId& app_id,
         const std::string& app_metadata,
         DiscoverySource discovery_source,
-        DomainId original_domain = UNKNOWN_DOMAIN_ID)
+        DomainId original_domain /*= UNKNOWN_DOMAIN_ID*/)
 {
     std::lock_guard<std::shared_timed_mutex> guard(mutex_);
 
@@ -4515,8 +4515,7 @@ bool Database::update_participant_discovery_info_nts(
     }
 
     // Update of the participant inner information
-    std::shared_ptr<DomainParticipant> db_participant =
-            std::const_pointer_cast<DomainParticipant>(std::static_pointer_cast<DomainParticipant>(db_entity));
+    std::shared_ptr<DomainParticipant> db_participant = std::static_pointer_cast<DomainParticipant>(db_entity);
     db_participant->name = name;
     db_participant->qos = qos;
     db_participant->guid = guid;

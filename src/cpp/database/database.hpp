@@ -113,7 +113,7 @@ public:
             const AppId& app_id,
             const std::string& app_metadata,
             DiscoverySource discovery_source,
-            DomainId original_domain);
+            DomainId original_domain = UNKNOWN_DOMAIN_ID);
 
     /**
      * @brief Process Host-User-Process entities and insert them in database.
