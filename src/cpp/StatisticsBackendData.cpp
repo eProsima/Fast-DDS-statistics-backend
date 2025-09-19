@@ -23,17 +23,21 @@
 
 #include <fastdds/dds/domain/DomainParticipant.hpp>
 #include <fastdds/dds/domain/DomainParticipantFactory.hpp>
-#include <fastdds/dds/domain/qos/DomainParticipantFactoryQos.hpp>
 #include <fastdds/dds/domain/DomainParticipantListener.hpp>
+#include <fastdds/dds/domain/qos/DomainParticipantFactoryQos.hpp>
 #include <fastdds/dds/log/Log.hpp>
 #include <fastdds/dds/subscriber/DataReader.hpp>
 #include <fastdds/dds/subscriber/Subscriber.hpp>
+#include <fastdds/dds/topic/qos/TopicQos.hpp>
 #include <fastdds/dds/topic/Topic.hpp>
+#include <fastdds/dds/topic/TypeSupport.hpp>
+#include <fastdds/dds/xtypes/dynamic_types/DynamicPubSubType.hpp>
 
 #include <fastdds_statistics_backend/listener/DomainListener.hpp>
 #include <fastdds_statistics_backend/listener/PhysicalListener.hpp>
 
 #include "Monitor.hpp"
+#include "subscriber/UserDataReaderListener.hpp"
 #include <database/database_queue.hpp>
 #include <database/database.hpp>
 
@@ -481,7 +485,12 @@ void StatisticsBackendData::stop_monitor(
     {
         if (monitor->subscriber)
         {
-            for (auto& reader : monitor->readers)
+            for (auto& reader : monitor->statistics_readers)
+            {
+                monitor->subscriber->delete_datareader(reader.second);
+            }
+
+            for (auto& reader : monitor->user_data_readers)
             {
                 monitor->subscriber->delete_datareader(reader.second);
             }
@@ -489,7 +498,12 @@ void StatisticsBackendData::stop_monitor(
             monitor->participant->delete_subscriber(monitor->subscriber);
         }
 
-        for (auto& topic : monitor->topics)
+        for (auto& topic : monitor->statistics_topics)
+        {
+            monitor->participant->delete_topic(topic.second);
+        }
+
+        for (auto& topic : monitor->user_data_topics)
         {
             monitor->participant->delete_topic(topic.second);
         }
@@ -497,9 +511,14 @@ void StatisticsBackendData::stop_monitor(
         fastdds::dds::DomainParticipantFactory::get_instance()->delete_participant(monitor->participant);
     }
 
-    if (monitor->reader_listener)
+    if (monitor->statistics_reader_listener)
     {
-        delete monitor->reader_listener;
+        delete monitor->statistics_reader_listener;
+    }
+
+    for (auto& user_data_listener : monitor->user_data_listeners)
+    {
+        delete user_data_listener.second;
     }
 
     if (monitor->participant_listener)
@@ -547,6 +566,108 @@ void StatisticsBackendData::stop_alert_watcher()
     {
         alert_watcher_thread_.join();
     }
+void StatisticsBackendData::start_topic_spy(
+        EntityId monitor_id,
+        const std::string& topic_name,
+        std::function<void(const std::string& data)> on_data_received)
+{
+    std::lock_guard<StatisticsBackendData> guard(*this);
+
+    auto monitor_it = monitors_by_entity_.find(monitor_id);
+    if (monitor_it == monitors_by_entity_.end())
+    {
+        throw BadParameter("No monitor with such ID");
+    }
+    auto& monitor = monitor_it->second;
+
+    // If the topic is already being spied, do nothing
+    if (monitor->user_data_readers.find(topic_name) != monitor->user_data_readers.end())
+    {
+        EPROSIMA_LOG_WARNING(STATISTICS_BACKEND_DATA, "Topic '" << topic_name << "' is already being spied");
+        return;
+    }
+
+    fastdds::dds::Topic* topic = nullptr;
+
+    auto topic_it = monitor->user_data_topics.find(topic_name);
+    if (topic_it == monitor->user_data_topics.end())
+    {
+        fastdds::dds::DynamicType::_ref_type topic_type = monitor->user_data_context.get_type_from_topic_name(topic_name);
+        if (!topic_type)
+        {
+            EPROSIMA_LOG_ERROR(STATISTICS_BACKEND_DATA, "Unable to get the type for topic '" << topic_name << "'");
+            return;
+        }
+
+        std::string type_name = topic_type->get_name().to_string();
+        fastdds::dds::TypeSupport type_support = fastdds::dds::TypeSupport(new fastdds::dds::DynamicPubSubType(topic_type));
+        if (fastdds::dds::RETCODE_OK != type_support.register_type(monitor->participant, type_name))
+        {
+            EPROSIMA_LOG_ERROR(STATISTICS_BACKEND_DATA, "Error registering type for topic '" << topic_name << "'");
+            return;
+        }
+
+        fastdds::dds::TopicQos topic_qos;
+        fastdds::dds::Topic* topic = monitor->participant->create_topic(topic_name, type_name, topic_qos);
+        if (!topic)
+        {
+            EPROSIMA_LOG_ERROR(STATISTICS_BACKEND_DATA, "Error creating topic '" << topic_name << "'");
+            return;
+        }
+        monitor->user_data_topics[topic_name] = topic;
+    }
+    else
+    {
+        topic = topic_it->second;
+    }
+
+    // Create a reader in the specified topic
+    fastdds::dds::DataReaderListener* listener = new subscriber::UserDataReaderListener(
+        on_data_received,
+        &monitor->user_data_context);
+    monitor->user_data_listeners[topic_name] = listener;
+
+    fastdds::dds::DataReader* reader = monitor->subscriber->create_datareader(
+        topic,
+        fastdds::dds::DATAREADER_QOS_DEFAULT,
+        listener);
+    if (!reader)
+    {
+        throw Error("Error creating user data reader in topic '" + topic_name + "'");
+    }
+    monitor->user_data_readers[topic_name] = reader;
+}
+
+void StatisticsBackendData::stop_topic_spy(
+        EntityId monitor_id,
+        const std::string& topic_name)
+{
+    std::lock_guard<StatisticsBackendData> guard(*this);
+
+    auto it = monitors_by_entity_.find(monitor_id);
+    if (it == monitors_by_entity_.end())
+    {
+        throw BadParameter("No monitor with such ID");
+    }
+    auto& monitor = it->second;
+
+    auto topic_it = monitor->user_data_topics.find(topic_name);
+    if (topic_it == monitor->user_data_topics.end())
+    {
+        throw BadParameter("User data topic '" + topic_name + "' not found in monitor");
+    }
+
+    // If the topic is not being spied, do nothing
+    if (monitor->user_data_readers.find(topic_name) == monitor->user_data_readers.end())
+    {
+        EPROSIMA_LOG_WARNING(STATISTICS_BACKEND_DATA, "Topic '" << topic_name << "' is not being spied");
+        return;
+    }
+
+    monitor->subscriber->delete_datareader(monitor->user_data_readers[topic_name]);
+    monitor->user_data_readers.erase(topic_name);
+    delete monitor->user_data_listeners[topic_name];
+    monitor->user_data_listeners.erase(topic_name);
 }
 
 } // namespace details
