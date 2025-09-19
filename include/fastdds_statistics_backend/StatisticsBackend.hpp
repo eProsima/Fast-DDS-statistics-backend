@@ -20,16 +20,17 @@
 #define FASTDDS_STATISTICS_BACKEND__STATISTICS_BACKEND_HPP
 
 #include <chrono>
+#include <functional>
 #include <string>
 
 #include <fastdds_statistics_backend/fastdds_statistics_backend_dll.h>
+#include <fastdds_statistics_backend/listener/CallbackMask.hpp>
 #include <fastdds_statistics_backend/listener/DomainListener.hpp>
 #include <fastdds_statistics_backend/listener/PhysicalListener.hpp>
-#include <fastdds_statistics_backend/listener/CallbackMask.hpp>
+#include <fastdds_statistics_backend/types/app_names.h>
 #include <fastdds_statistics_backend/types/EntityId.hpp>
 #include <fastdds_statistics_backend/types/types.hpp>
 #include <fastdds_statistics_backend/types/utils.hpp>
-#include <fastdds_statistics_backend/types/app_names.h>
 
 namespace eprosima {
 namespace statistics_backend {
@@ -181,6 +182,30 @@ public:
     FASTDDS_STATISTICS_BACKEND_DllAPI
     static void clear_monitor(
             EntityId monitor_id);
+
+    /**
+     * @brief Starts a topic spy on a given topic.
+     *
+     * @param monitor_id The entity ID of the monitor.
+     * @param topic_name The name of the topic to spy on.
+     * @param on_data_received Callback function to be called when new data in the introspected topic is received.
+     */
+    FASTDDS_STATISTICS_BACKEND_DllAPI
+    static void start_topic_spy(
+            EntityId monitor_id,
+            const std::string& topic_name,
+            std::function<void(const std::string& data)> on_data_received);
+
+    /**
+     * @brief Stops a topic spy on a given topic.
+     *
+     * @param monitor_id The entity ID of the monitor.
+     * @param topic_name The name of the topic to stop spying on.
+     */
+    FASTDDS_STATISTICS_BACKEND_DllAPI
+    static void stop_topic_spy(
+            EntityId monitor_id,
+            const std::string& topic_name);
 
     /**
      * @brief Set the listener of a monitor for the domain events.

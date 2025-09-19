@@ -110,7 +110,7 @@ void find_or_create_topic_and_type(
 
         try
         {
-            monitor.topics[topic_name] = dynamic_cast<Topic*>(topic_desc);
+            monitor.statistics_topics[topic_name] = dynamic_cast<Topic*>(topic_desc);
         }
         catch (const std::bad_cast& e)
         {
@@ -126,7 +126,7 @@ void find_or_create_topic_and_type(
             // Name already in use
             throw Error(std::string("Type name ") + type->get_name() + " is already in use");
         }
-        monitor.topics[topic_name] =
+        monitor.statistics_topics[topic_name] =
                 monitor.participant->create_topic(topic_name, type->get_name(), TOPIC_QOS_DEFAULT);
     }
 }
@@ -231,15 +231,16 @@ EntityId create_and_register_monitor(
         backend_data->database_.get(),
         backend_data->entity_queue_,
         backend_data->data_queue_,
-        backend_data->monitor_service_status_data_queue_);
+        backend_data->monitor_service_status_data_queue_,
+        &monitor->user_data_context);
     auto se_participant_listener_ = EPROSIMA_BACKEND_MAKE_SCOPE_EXIT(delete monitor->participant_listener);
 
-    monitor->reader_listener = new subscriber::StatisticsReaderListener(
+    monitor->statistics_reader_listener = new subscriber::StatisticsReaderListener(
         domain->id,
         backend_data->data_queue_,
         backend_data->monitor_service_status_data_queue_,
         backend_data->database_.get());
-    auto se_reader_listener_ = EPROSIMA_BACKEND_MAKE_SCOPE_EXIT(delete monitor->reader_listener);
+    auto se_reader_listener_ = EPROSIMA_BACKEND_MAKE_SCOPE_EXIT(delete monitor->statistics_reader_listener);
 
     /* Create DomainParticipant */
     StatusMask participant_mask = StatusMask::all();
@@ -274,14 +275,14 @@ EntityId create_and_register_monitor(
     auto se_topics_datareaders_ =
             EPROSIMA_BACKEND_MAKE_SCOPE_EXIT(
             {
-                for (auto& it : monitor->readers)
+                for (auto& it : monitor->statistics_readers)
                 {
                     if (nullptr != it.second)
                     {
                         monitor->subscriber->delete_datareader(it.second);
                     }
                 }
-                for (auto& it : monitor->topics)
+                for (auto& it : monitor->statistics_topics)
                 {
                     if (nullptr != it.second)
                     {
@@ -306,22 +307,22 @@ EntityId create_and_register_monitor(
         /* Create DataReaders */
         if (topic == MONITOR_SERVICE_TOPIC)
         {
-            monitor->readers[topic] = monitor->subscriber->create_datareader(
-                monitor->topics[topic],
+            monitor->statistics_readers[topic] = monitor->subscriber->create_datareader(
+                monitor->statistics_topics[topic],
                 eprosima::fastdds::statistics::dds::MONITOR_SERVICE_DATAREADER_QOS,
-                monitor->reader_listener,
+                monitor->statistics_reader_listener,
                 StatusMask::all());
         }
         else
         {
-            monitor->readers[topic] = monitor->subscriber->create_datareader(
-                monitor->topics[topic],
+            monitor->statistics_readers[topic] = monitor->subscriber->create_datareader(
+                monitor->statistics_topics[topic],
                 eprosima::fastdds::statistics::dds::STATISTICS_DATAREADER_QOS,
-                monitor->reader_listener,
+                monitor->statistics_reader_listener,
                 StatusMask::all());
         }
 
-        if (monitor->readers[topic] == nullptr)
+        if (monitor->statistics_readers[topic] == nullptr)
         {
             throw Error("Error initializing monitor. Could not create reader for topic " + std::string(topic));
         }
@@ -557,6 +558,21 @@ void StatisticsBackend::clear_monitor(
         EntityId monitor_id)
 {
     static_cast<void>(monitor_id);
+}
+
+void StatisticsBackend::start_topic_spy(
+            EntityId monitor_id,
+            const std::string& topic_name,
+            std::function<void(const std::string& data)> on_data_received)
+{
+    StatisticsBackendData::get_instance()->start_topic_spy(monitor_id, topic_name, on_data_received);
+}
+
+void StatisticsBackend::stop_topic_spy(
+        EntityId monitor_id,
+        const std::string& topic_name)
+{
+    StatisticsBackendData::get_instance()->stop_topic_spy(monitor_id, topic_name);
 }
 
 std::vector<EntityId> StatisticsBackend::get_entities(
