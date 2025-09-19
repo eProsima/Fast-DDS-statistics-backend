@@ -160,6 +160,28 @@ void StatisticsBackendData::on_status_reported(
     }
 }
 
+void StatisticsBackendData::on_alert_reported(
+        EntityId domain_id,
+        EntityId entity_id,
+        AlertKind alert_kind)
+{
+    auto monitor = monitors_by_entity_.find(domain_id);
+    if (monitor == monitors_by_entity_.end())
+    {
+        logWarning(STATISTICS_BACKEND_DATA, "Monitor not found for domain " << domain_id);
+        return;
+    }
+
+    if (should_call_domain_listener(*monitor->second, CallbackKind::ON_ALERT_REPORTED))
+    {
+        monitor->second->domain_listener->on_alert_reported(domain_id, entity_id, alert_kind);
+    }
+    else if (should_call_physical_listener(CallbackKind::ON_ALERT_REPORTED))
+    {
+        physical_listener_->on_alert_reported(domain_id, entity_id, alert_kind);
+    }
+}
+
 bool StatisticsBackendData::should_call_domain_listener(
         const Monitor& monitor,
         CallbackKind callback_kind,

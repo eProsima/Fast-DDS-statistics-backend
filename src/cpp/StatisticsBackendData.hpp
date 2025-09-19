@@ -231,6 +231,17 @@ public:
             EntityId entity_id,
             StatusKind status_kind);
 
+    /**
+     * @brief Notify the user about a new alert
+     *
+     * @param domain_id The domain where the alert is reported
+     * @param entity_id The entity for which the alert is reported
+     * @param alert_kind The AlertKind of the reported alert
+     */
+    void on_alert_reported(
+        EntityId domain_id,
+        EntityId entity_id,
+        AlertKind alert_kind);
 
     //////////////////////////////
     // STATISTICS BACKEND METHODS
