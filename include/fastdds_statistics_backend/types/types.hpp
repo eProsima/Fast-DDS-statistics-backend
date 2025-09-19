@@ -399,6 +399,16 @@ enum class DiscoverySource
     PROXY
 };
 
+/*
+ * Available alert kinds
+ */
+enum class AlertKind
+{
+    NONE,
+    NEW_DATA,
+    NO_DATA
+};
+
 /** @struct MonitorServiceSample
  * Base class for all monitor service status samples. It adds the timepoint and status level to the sample
  *
@@ -710,6 +720,104 @@ struct ExtendedIncompatibleQosSample : MonitorServiceSample
     }
 
     eprosima::fastdds::statistics::ExtendedIncompatibleQoSStatusSeq_s extended_incompatible_qos_status;
+};
+
+/**
+ * @struct AlertMessage
+ * Base class for all alert messages. It adds the alert kind and source timestamp to the message
+ */
+struct AlertMessage
+{
+    AlertMessage(
+            AlertKind sample_kind = AlertKind::NONE)
+        : kind(sample_kind)
+    {
+    }
+
+    virtual ~AlertMessage() = default;
+
+    AlertKind kind;
+    std::chrono::system_clock::time_point src_ts;
+};
+
+/**
+ * @struct NoDataAlertMessage
+ * Alert message for NO_DATA alert kind
+ */
+struct NoDataAlertMessage : AlertMessage
+{
+    NoDataAlertMessage()
+        : AlertMessage(AlertKind::NO_DATA)
+    {
+    }
+
+    virtual ~NoDataAlertMessage() = default;
+};
+
+/**
+ * @struct NewDataAlertMessage
+ * Alert message for NEW_DATA alert kind
+ */
+struct NewDataAlertMessage : AlertMessage
+{
+    NewDataAlertMessage()
+        : AlertMessage(AlertKind::NEW_DATA)
+    {
+    }
+
+    virtual ~NewDataAlertMessage() = default;
+};
+
+
+struct Alert
+{
+    // Dynamic identifiers
+    EntityId entity_id;
+    bool is_active;
+
+    // Static identifiers (should be able to build entity_id from them)
+    AlertKind data_kind;
+    // GUID entity_guid; cannot import atm
+    EntityKind entity_kind;
+    std::string topic_name;
+    std::string host_name;
+    std::string user_name;
+
+    // Maybe move to other structures
+    double threshold; // Used only for NO_DATA alerts to indicate the threshold in seconds
+
+
+    bool match(/*conditions*/)
+    {
+        // 1. Check GUID
+        // If found and not active, set entity_id and is_active accordingly
+        // If found and active, return true
+        // If not found, continue
+
+        // If false:
+        // Build alert_id from static identifiers
+        // <host>_<user>_<topic_name>_<alert_kind>_<params>
+        // and search in database alerts_map
+        // If found, set entity_id and is_active accordingly
+        // If not found, return false
+        return true;
+    }
+
+    bool send(AlertMessage& msg)
+    {
+        // Emit the alert message
+        return true;
+    }
+
+    bool match_and_send(AlertMessage& msg)
+    {
+        if (match(/*conditions*/))
+        {
+            send(msg);
+            return true;
+        }
+        return false;
+    }
 };
 
 } //namespace statistics_backend

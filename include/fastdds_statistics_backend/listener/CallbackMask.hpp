@@ -66,7 +66,10 @@ enum class CallbackKind : int32_t
     ON_DOMAIN_VIEW_GRAPH_UPDATE      = 1 << 9,
 
     /// Represents the on_status_reported() callback
-    ON_STATUS_REPORTED         = 1 << 10
+    ON_STATUS_REPORTED         = 1 << 10,
+
+    /// Represents the on_alert_reported() callback
+    ON_ALERT_REPORTED          = 1 << 11
 };
 
 /**

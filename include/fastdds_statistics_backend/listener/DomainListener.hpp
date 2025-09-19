@@ -213,6 +213,26 @@ public:
 
     }
 
+
+    /*!
+     * This function is called when a new alert must be reported.
+     *
+     * @param domain_id Entity ID of the domain to which the data belongs.
+     * @param entity_id Entity ID of the entity to which the data refers.
+     * @param alert_kind Alert kind of the received data.
+     */
+    virtual void on_alert_reported(
+            EntityId domain_id,
+            EntityId entity_id,
+            AlertKind alert_kind)
+    {
+        static_cast<void>(domain_id);
+        static_cast<void>(entity_id);
+        static_cast<void>(alert_kind);
+
+    }
+
+
 };
 
 } // namespace statistics_backend
