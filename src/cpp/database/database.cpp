@@ -31,6 +31,7 @@
 #include <fastdds_statistics_backend/types/types.hpp>
 #include <fastdds_statistics_backend/types/JSONTags.h>
 #include <fastdds_statistics_backend/types/app_names.h>
+#include <fastdds_statistics_backend/types/Alerts.hpp>
 #include <StatisticsBackendData.hpp>
 
 #include "database_queue.hpp"
@@ -2765,6 +2766,12 @@ std::string Database::get_ros2_type_idl_nts(
     {
         return get_type_idl_nts(type_name);
     }
+}
+
+
+std::map<AlertId, AlertInfo> Database::get_alerts() const
+{
+    return alerts_;
 }
 
 void Database::erase(
@@ -7955,6 +7962,36 @@ void Database::clear_internal_references_nts_()
         clear_inactive_entities_from_map_(it.second->participants);
     }
 }
+
+
+/**
+ * @brief Setter for entity alert.
+ *
+ * @param alert_info The new alert information.
+ * @return The AlertId of the alert.
+ */
+AlertId Database::insert_alert(const AlertInfo& alert_info)
+{
+    std::lock_guard<std::shared_timed_mutex> guard(mutex_);
+    return insert_alert_nts(alert_info);
+}
+
+/**
+ * @brief Setter for entity alert.
+ *
+ * @param alert_info The new alert information.
+ * @return The AlertId of the alert.
+ */
+AlertId Database::insert_alert_nts(const AlertInfo &alert_info)
+{
+    // store alert_info in the database
+    AlertId id = next_alert_id_++;
+    alerts_.emplace(id, alert_info);
+    return id;
+}
+
+
+
 
 } //namespace database
 } //namespace statistics_backend

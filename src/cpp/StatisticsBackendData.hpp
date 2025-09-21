@@ -241,7 +241,7 @@ public:
     void on_alert_reported(
         EntityId domain_id,
         EntityId entity_id,
-        AlertKind alert_kind);
+        AlertInfo alert);
 
     //////////////////////////////
     // STATISTICS BACKEND METHODS
