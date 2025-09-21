@@ -1079,6 +1079,20 @@ void StatisticsBackend::set_alias(
     StatisticsBackendData::get_instance()->database_->set_alias(entity_id, alias);
 }
 
+void StatisticsBackend::set_alert(
+    const std::string& alert_name,
+    const AlertKind& alert_kind,
+    const double& threshold)
+{
+
+    // At the moment, constant alert independent of arguments
+
+    std::cout << "set alert called from statistics backend" << std::endl;
+    NewDataAlertInfo alert_info;
+    alert_info.name = "test_alert";
+    AlertId id = StatisticsBackendData::get_instance()->database_->insert_alert(alert_info);
+}
+
 std::string StatisticsBackend::deserialize_guid(
         fastdds::statistics::detail::GUID_s data)
 {

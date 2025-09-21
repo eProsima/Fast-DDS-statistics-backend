@@ -163,7 +163,7 @@ void StatisticsBackendData::on_status_reported(
 void StatisticsBackendData::on_alert_reported(
         EntityId domain_id,
         EntityId entity_id,
-        AlertKind alert_kind)
+        AlertInfo alert)
 {
     auto monitor = monitors_by_entity_.find(domain_id);
     if (monitor == monitors_by_entity_.end())
@@ -174,11 +174,11 @@ void StatisticsBackendData::on_alert_reported(
 
     if (should_call_domain_listener(*monitor->second, CallbackKind::ON_ALERT_REPORTED))
     {
-        monitor->second->domain_listener->on_alert_reported(domain_id, entity_id, alert_kind);
+        monitor->second->domain_listener->on_alert_reported(domain_id, entity_id, alert.alert_kind);
     }
     else if (should_call_physical_listener(CallbackKind::ON_ALERT_REPORTED))
     {
-        physical_listener_->on_alert_reported(domain_id, entity_id, alert_kind);
+        physical_listener_->on_alert_reported(domain_id, entity_id, alert.alert_kind);
     }
 }
 

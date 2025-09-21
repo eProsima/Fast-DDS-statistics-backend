@@ -29,6 +29,7 @@
 
 #include <fastdds_statistics_backend/exception/Exception.hpp>
 #include <fastdds_statistics_backend/types/EntityId.hpp>
+#include <fastdds_statistics_backend/types/Alerts.hpp>
 #include <fastdds_statistics_backend/exception/Exception.hpp>
 
 #include <fastdds/rtps/common/Locator.hpp>
@@ -503,6 +504,13 @@ public:
     std::string get_ros2_type_idl(
             const std::string& type_name) const;
 
+
+    /**
+     * @brief Gets the lists of active alerts
+     */
+    std::map<AlertId, AlertInfo> get_alerts() const;
+
+
     /**
      * @brief Get the entity of a given EntityKind that matches with the requested GUID.
      *
@@ -698,6 +706,15 @@ public:
     void set_alias(
             const EntityId& entity_id,
             const std::string& alias);
+
+
+    /**
+     * @brief Setter for entity alert.
+     *
+     * @param alert_info The new alert information.
+     * @return The AlertId of the alert.
+     */
+    AlertId insert_alert(const AlertInfo& alert_info);
 
 
     /**
@@ -1559,6 +1576,14 @@ protected:
             const std::string& alias);
 
     /**
+     * @brief Setter for entity alert.
+     *
+     * @param alert_info The new alert information.
+     * @return The AlertId of the alert.
+     */
+    AlertId insert_alert_nts(const AlertInfo &alert_info);
+
+    /**
      * @brief Create the link between a participant and a process. This method is not thread safe.
      *
      * This operation entails:
@@ -1687,6 +1712,12 @@ protected:
     std::map<EntityId, std::map<EntityId, std::shared_ptr<Topic>>> topics_;
 
     /**
+     * Collection of Alerts, cannot be indexed by EntityId as they correlated entities
+     * may not exist yet in the time of creation
+     */
+    std::map<AlertId, AlertInfo> alerts_;
+
+    /**
      * Collection of topic IDLs sorted by topic data types, with which they are biunivocally identified.
      * This is used to store the IDLs of the discovered topics
      *
@@ -1715,6 +1746,12 @@ protected:
      * Used to guarantee a unique EntityId within the database instance
      */
     std::atomic<int64_t> next_id_{0};
+
+    /**
+     * The ID that will be assigned to the next alert.
+     * Used to guarantee a unique AlertId within the database instance
+     */
+    std::atomic<int64_t> next_alert_id_{0};
 
     //! Read-write synchronization mutex
     mutable std::shared_timed_mutex mutex_;

@@ -21,6 +21,7 @@
 
 #include <fastdds_statistics_backend/fastdds_statistics_backend_dll.h>
 #include <fastdds_statistics_backend/types/types.hpp>
+#include <fastdds_statistics_backend/types/Alerts.hpp>
 
 #include <cstdint>
 
