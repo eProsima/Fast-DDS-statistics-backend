@@ -715,6 +715,67 @@ if(GTEST_FOUND AND GMOCK_FOUND)
     endforeach()
 endif()
 
+# is_proxy_tests
+###############################################################################
+
+if(GTEST_FOUND AND GMOCK_FOUND)
+    find_package(Threads REQUIRED)
+
+    add_executable(is_proxy_tests IsProxyTests.cpp
+        ${PROJECT_SOURCE_DIR}/src/cpp/database/data.cpp
+        ${PROJECT_SOURCE_DIR}/src/cpp/database/database_queue.cpp
+        ${PROJECT_SOURCE_DIR}/src/cpp/database/database.cpp
+        ${PROJECT_SOURCE_DIR}/src/cpp/database/entities.cpp
+        ${PROJECT_SOURCE_DIR}/src/cpp/database/samples.cpp
+        ${PROJECT_SOURCE_DIR}/src/cpp/exception/Exception.cpp
+        ${PROJECT_SOURCE_DIR}/src/cpp/StatisticsBackend.cpp
+        ${PROJECT_SOURCE_DIR}/src/cpp/StatisticsBackendData.cpp
+        ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/QosSerializer.cpp
+        ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/ProxyDiscoveryInfo.cpp
+        ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsParticipantListener.cpp
+        ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsReaderListener.cpp
+        ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesTypeObjectSupport.cxx
+        ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesPubSubTypes.cxx
+        ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/typesPubSubTypes.cxx
+        ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/typesTypeObjectSupport.cxx
+        ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp
+        ${PROJECT_SOURCE_DIR}/src/cpp/types/types.cpp)
+
+    if(MSVC)
+        target_compile_definitions(is_proxy_tests
+            PRIVATE _CRT_DECLARE_NONSTDC_NAMES=0 FASTDDS_STATISTICS_BACKEND_SOURCE)
+    endif(MSVC)
+
+    target_include_directories(is_proxy_tests PRIVATE
+        ${GTEST_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIRS}
+        ${PROJECT_SOURCE_DIR}/include
+        ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}
+        ${PROJECT_BINARY_DIR}/include
+        ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME}
+        ${PROJECT_SOURCE_DIR}/src/cpp
+        ${TINYXML2_INCLUDE_DIR})
+
+    target_link_libraries(is_proxy_tests PUBLIC
+        ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastdds fastcdr ${TINYXML2_LIBRARY})
+
+    get_win32_path_dependencies(is_proxy_tests TEST_FRIENDLY_PATH)
+
+    set(IS_proxy_TEST_LIST
+        is_proxy_entity
+        is_not_proxy_entity
+    )
+
+    foreach(test_name ${IS_proxy_TEST_LIST})
+        add_test(NAME is_proxy_tests.${test_name}
+                COMMAND is_proxy_tests
+                --gtest_filter=is_proxy_tests.${test_name}:*/is_proxy_tests.${test_name}/*)
+
+        if(TEST_FRIENDLY_PATH)
+            set_tests_properties(is_proxy_tests.${test_name} PROPERTIES ENVIRONMENT "PATH=${TEST_FRIENDLY_PATH}")
+        endif(TEST_FRIENDLY_PATH)
+    endforeach()
+endif()
+
 # load_database and dump_database
 ##################################################################
 

@@ -397,6 +397,8 @@ set(DATABASE_TEST_LIST
     get_entity_by_guid_other_kind
     # ros2_demangling
     check_ros2_demangler
+    #update discovery info
+    update_participant_discovery_info
     )
 
 foreach(test_name ${DATABASE_TEST_LIST})
