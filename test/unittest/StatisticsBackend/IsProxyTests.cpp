@@ -34,24 +34,24 @@ using namespace eprosima::statistics_backend;
 using namespace eprosima::statistics_backend::database;
 
 Qos test_qos = {
-        {"available_builtin_endpoints", 3135},
-        {"lease_duration", {
-             {"nanoseconds", 0},
-             {"seconds", 3}
-         }},
-        {"properties", {
-             {
-                 {"name", "PARTICIPANT_TYPE"},
-                 {"value", "CLIENT"}
-             },
-             {
-                 {"name", "DS_VERSION"},
-                 {"value", "2.0"}
-             }
-         }},
-        {"user_data", "656e636c6176653d2f3b00"},
-        {"vendor_id", "010f"}
-    };
+    {"available_builtin_endpoints", 3135},
+    {"lease_duration", {
+         {"nanoseconds", 0},
+         {"seconds", 3}
+     }},
+    {"properties", {
+         {
+             {"name", "PARTICIPANT_TYPE"},
+             {"value", "CLIENT"}
+         },
+         {
+             {"name", "DS_VERSION"},
+             {"value", "2.0"}
+         }
+     }},
+    {"user_data", "656e636c6176653d2f3b00"},
+    {"vendor_id", "010f"}
+};
 
 // Test proxy member of proxy participant
 TEST(is_proxy_tests, is_proxy_entity)
@@ -84,7 +84,7 @@ TEST(is_proxy_tests, is_proxy_entity)
 // Test proxy member of non-proxy participant
 TEST(is_proxy_tests, is_not_proxy_entity)
 {
-        /* Insert a host, user, and process */
+    /* Insert a host, user, and process */
     DataBaseTest db;
     auto host = std::make_shared<Host>("test_host");
     details::StatisticsBackendData::get_instance()->database_->insert(host);

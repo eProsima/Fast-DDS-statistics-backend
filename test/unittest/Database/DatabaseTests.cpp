@@ -5211,7 +5211,7 @@ TEST_F(database_tests, check_ros2_demangler)
 
 TEST_F(database_tests, update_participant_discovery_info)
 {
-/* Insert a host, user, and process */
+    /* Insert a host, user, and process */
     DataBaseTest db;
     auto host = std::make_shared<Host>("test_host");
     db.insert(host);
@@ -5247,19 +5247,19 @@ TEST_F(database_tests, update_participant_discovery_info)
 
     /* Update the participant discovery info */
     db.update_participant_discovery_info(
-            participant_id,
-            "new_host",
-            "new_user",
-            "new_process",
-            "new_name",
-            participants[domain_id][participant_id]->qos,
-            participants[domain_id][participant_id]->guid,
-            participants[domain_id][participant_id]->domain->id,
-            participants[domain_id][participant_id]->status,
-            participants[domain_id][participant_id]->app_id,
-            participants[domain_id][participant_id]->app_metadata,
-            participants[domain_id][participant_id]->discovery_source,
-            participants[domain_id][participant_id]->original_domain);
+        participant_id,
+        "new_host",
+        "new_user",
+        "new_process",
+        "new_name",
+        participants[domain_id][participant_id]->qos,
+        participants[domain_id][participant_id]->guid,
+        participants[domain_id][participant_id]->domain->id,
+        participants[domain_id][participant_id]->status,
+        participants[domain_id][participant_id]->app_id,
+        participants[domain_id][participant_id]->app_metadata,
+        participants[domain_id][participant_id]->discovery_source,
+        participants[domain_id][participant_id]->original_domain);
 
     /* Check that the participant is correctly updated in participants_ */
     ASSERT_EQ("new_host", participants[domain_id][participant_id]->process->user->host->name);
