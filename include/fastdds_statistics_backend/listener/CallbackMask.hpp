@@ -68,8 +68,8 @@ enum class CallbackKind : int32_t
     /// Represents the on_status_reported() callback
     ON_STATUS_REPORTED         = 1 << 10,
 
-    /// Represents the on_alert_reported() callback
-    ON_ALERT_REPORTED          = 1 << 11
+    /// Represents the on_alert_triggered() callback
+    on_alert_triggered          = 1 << 11
 };
 
 /**

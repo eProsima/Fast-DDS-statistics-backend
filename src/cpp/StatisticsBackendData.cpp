@@ -160,7 +160,7 @@ void StatisticsBackendData::on_status_reported(
     }
 }
 
-void StatisticsBackendData::on_alert_reported(
+void StatisticsBackendData::on_alert_triggered(
         EntityId domain_id,
         EntityId entity_id,
         AlertInfo alert)
@@ -172,13 +172,13 @@ void StatisticsBackendData::on_alert_reported(
         return;
     }
 
-    if (should_call_domain_listener(*monitor->second, CallbackKind::ON_ALERT_REPORTED))
+    if (should_call_domain_listener(*monitor->second, CallbackKind::on_alert_triggered))
     {
-        monitor->second->domain_listener->on_alert_reported(domain_id, entity_id, alert.alert_kind);
+        monitor->second->domain_listener->on_alert_triggered(domain_id, entity_id, alert.alert_kind);
     }
-    else if (should_call_physical_listener(CallbackKind::ON_ALERT_REPORTED))
+    else if (should_call_physical_listener(CallbackKind::on_alert_triggered))
     {
-        physical_listener_->on_alert_reported(domain_id, entity_id, alert.alert_kind);
+        physical_listener_->on_alert_triggered(domain_id, entity_id, alert.alert_kind);
     }
 }
 

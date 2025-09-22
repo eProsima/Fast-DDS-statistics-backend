@@ -238,7 +238,7 @@ public:
      * @param entity_id The entity for which the alert is reported
      * @param alert_kind The AlertKind of the reported alert
      */
-    void on_alert_reported(
+    void on_alert_triggered(
         EntityId domain_id,
         EntityId entity_id,
         AlertInfo alert);

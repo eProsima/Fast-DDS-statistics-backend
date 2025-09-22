@@ -1195,6 +1195,20 @@ void Database::insert_nts(
                     }
 
                     reader->second->data.subscription_throughput.push_back(subscription_throughput);
+
+                    // Trigger corresponding alerts
+                    for(auto& [alert_id, alert_info] : get_alerts())
+                    {
+                        if (alert_info.alert_kind == AlertKind::NO_DATA && alert_info.triggers(subscription_throughput.data))
+                        {
+                            details::StatisticsBackendData::get_instance()->on_alert_triggered(
+                                domain_id,
+                                entity_id,
+                                alert_info);
+                        }
+
+                    }
+
                     break;
                 }
             }
@@ -1729,6 +1743,19 @@ void Database::insert_nts(
                             data_count - writer->second->data.last_reported_data_count);
                         // Update last report
                         writer->second->data.last_reported_data_count = data_count;
+                    }
+
+                    // Trigger corresponding alerts
+                    for(auto& [alert_id, alert_info] : get_alerts())
+                    {
+                        if (alert_info.alert_kind == AlertKind::NEW_DATA && alert_info.triggers(writer->second->data.data_count.back().count))
+                        {
+                            details::StatisticsBackendData::get_instance()->on_alert_triggered(
+                                domain_id,
+                                entity_id,
+                                alert_info);
+                        }
+
                     }
 
                     break;
@@ -3118,6 +3145,7 @@ std::vector<const StatisticsSample*> Database::select(
                     break;
                 }
             }
+
             break;
         }
         case DataKind::RESENT_DATA:

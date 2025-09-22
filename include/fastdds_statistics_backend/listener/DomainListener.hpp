@@ -222,7 +222,7 @@ public:
      * @param entity_id Entity ID of the entity to which the data refers.
      * @param alert_kind Alert kind of the received data.
      */
-    virtual void on_alert_reported(
+    virtual void on_alert_triggered(
             EntityId domain_id,
             EntityId entity_id,
             AlertKind alert_kind)
