@@ -241,8 +241,8 @@ public:
                 const StatusLevel& status,
                 const AppId& app_id,
                 const std::string& app_metadata,
-                const DiscoverySource& discovery_source,
-                const DomainId& original_domain), ());
+                DiscoverySource discovery_source,
+                DomainId original_domain), ());
 
     int64_t next_id_{0};
 };

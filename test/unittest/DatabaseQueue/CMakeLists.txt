@@ -106,6 +106,7 @@ if(GTEST_FOUND AND GMOCK_FOUND)
         push_sample_datas_no_writer
         push_monitor_proxy
         push_monitor_proxy_no_entity
+        push_monitor_proxy_discovery_endpoint_before_participant
         push_monitor_connection_list
         push_monitor_connection_list_no_entity
         push_monitor_incompatible_qos
