@@ -1352,20 +1352,6 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample()
                         item.second->entity_count());
                 database_->insert(domain, entity, sample);
                 details::StatisticsBackendData::get_instance()->on_data_available(domain, entity, DataKind::DATA_COUNT);
-
-                /*if (conditions) */
-                // TODO: POINT THAT YOU NEVER FOUND
-                    for(auto& [alert_id, alert_info] : database_->get_alerts())
-                {
-                    if (alert_info.alert_kind == AlertKind::NEW_DATA && alert_info.triggers(sample.count))
-                    {
-                        details::StatisticsBackendData::get_instance()->on_alert_reported(
-                            domain,
-                            entity,
-                            alert_info);
-                    }
-
-                }
             }
             catch (const eprosima::statistics_backend::Exception& e)
             {
