@@ -269,6 +269,16 @@ public:
             EntityId entity_id);
 
     /**
+     * @brief Returns whether the entity was discovered using a proxy message
+     *
+     * @param entity_id The ID of the entity whose proxy attribute is requested.
+     * @return true if proxy, false otherwise.
+     */
+    FASTDDS_STATISTICS_BACKEND_DllAPI
+    static bool is_proxy(
+            EntityId entity_id);
+
+    /**
      * @brief Returns the entity kind of a given id.
      *
      * @param entity_id The ID of the entity whose type is requested.

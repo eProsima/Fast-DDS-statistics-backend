@@ -62,6 +62,7 @@
             "name":"datareader_1",
             "alias":"datareader_1",
             "metatraffic":false,
+            "discovery_source":"unknown",
             "alive":true,
             "status": 0,
             "participant":"15",
@@ -131,6 +132,7 @@
             "name":"datareader_2",
             "alias":"datareader_2",
             "metatraffic":false,
+            "discovery_source":"unknown",
             "alive":true,
             "status": 0,
             "participant":"24",
@@ -200,6 +202,7 @@
             "name":"datareader_0",
             "alias":"datareader_0",
             "metatraffic":false,
+            "discovery_source":"unknown",
             "alive":true,
             "status": 0,
             "participant":"6",
@@ -332,6 +335,7 @@
             "name":"datawriter_1",
             "alias":"datawriter_1",
             "metatraffic":false,
+            "discovery_source":"unknown",
             "alive":true,
             "status": 0,
             "participant":"15",
@@ -462,6 +466,7 @@
             "name":"datawriter_2",
             "alias":"datawriter_2",
             "metatraffic":false,
+            "discovery_source":"unknown",
             "alive":true,
             "status": 0,
             "participant":"24",
@@ -592,6 +597,7 @@
             "name":"datawriter_0",
             "alias":"datawriter_0",
             "metatraffic":false,
+            "discovery_source":"unknown",
             "alive":true,
             "status": 0,
             "participant":"6",
@@ -608,6 +614,7 @@
             "alias":"domain_1",
             "domain_id": 121,
             "metatraffic":false,
+            "discovery_source":"unknown",
             "alive":true,
             "status": 0,
             "participants":[
@@ -622,6 +629,7 @@
             "alias":"domain_2",
             "domain_id": 122,
             "metatraffic":false,
+            "discovery_source":"unknown",
             "alive":true,
             "status": 0,
             "participants":[
@@ -636,6 +644,7 @@
             "alias":"domain_0",
             "domain_id": 120,
             "metatraffic":false,
+            "discovery_source":"unknown",
             "alive":true,
             "status": 0,
             "participants":[
@@ -651,6 +660,7 @@
             "name":"host_0",
             "alias":"host_0",
             "metatraffic":false,
+            "discovery_source":"unknown",
             "alive":true,
             "status": 0,
             "users":[
@@ -661,6 +671,7 @@
             "name":"host_1",
             "alias":"host_1",
             "metatraffic":false,
+            "discovery_source":"unknown",
             "alive":true,
             "status": 0,
             "users":[
@@ -679,6 +690,7 @@
             "name":"locator_0",
             "alias":"locator_0",
             "metatraffic":false,
+            "discovery_source":"unknown",
             "alive":true,
             "status": 0
         },
@@ -692,6 +704,7 @@
             "name":"locator_2",
             "alias":"locator_2",
             "metatraffic":false,
+            "discovery_source":"unknown",
             "alive":true,
             "status": 0
         },
@@ -705,6 +718,7 @@
             "name":"locator_1",
             "alias":"locator_1",
             "metatraffic":false,
+            "discovery_source":"unknown",
             "alive":true,
             "status": 0
         }
@@ -894,6 +908,7 @@
             "name":"participant_1",
             "alias":"participant_1",
             "metatraffic":false,
+            "discovery_source":"unknown",
             "alive":true,
             "status": 0,
             "process":"12",
@@ -1085,6 +1100,7 @@
             "name":"participant_2",
             "alias":"participant_2",
             "metatraffic":false,
+            "discovery_source":"unknown",
             "alive":true,
             "status": 0,
             "process":"3",
@@ -1276,6 +1292,7 @@
             "name":"participant_0",
             "alias":"participant_0",
             "metatraffic":false,
+            "discovery_source":"unknown",
             "alive":true,
             "status": 0,
             "process":"3",
@@ -1289,6 +1306,7 @@
             "name":"process_1",
             "alias":"process_1",
             "metatraffic":false,
+            "discovery_source":"unknown",
             "alive":true,
             "status": 0,
             "participants":[
@@ -1301,6 +1319,7 @@
             "name":"process_0",
             "alias":"process_0",
             "metatraffic":false,
+            "discovery_source":"unknown",
             "alive":true,
             "status": 0,
             "participants":[
@@ -1324,6 +1343,7 @@
             "name":"topic_1",
             "alias":"topic_1",
             "metatraffic":false,
+            "discovery_source":"unknown",
             "alive":true,
             "status": 0
         },
@@ -1339,6 +1359,7 @@
             "name":"topic_2",
             "alias":"topic_2",
             "metatraffic":false,
+            "discovery_source":"unknown",
             "alive":true,
             "status": 0
         },
@@ -1354,6 +1375,7 @@
             "name":"topic_0",
             "alias":"topic_0",
             "metatraffic":false,
+            "discovery_source":"unknown",
             "alive":true,
             "status": 0
         }
@@ -1364,6 +1386,7 @@
             "name":"user_1",
             "alias":"user_1",
             "metatraffic":false,
+            "discovery_source":"unknown",
             "alive":true,
             "status": 0,
             "processes":[
@@ -1375,6 +1398,7 @@
             "name":"user_0",
             "alias":"user_0",
             "metatraffic":false,
+            "discovery_source":"unknown",
             "alive":true,
             "status": 0,
             "processes":[

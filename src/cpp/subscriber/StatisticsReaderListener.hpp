@@ -61,6 +61,7 @@ public:
      * @brief Constructor
      */
     StatisticsReaderListener(
+            EntityId domain_id,
             database::DatabaseDataQueue<eprosima::fastdds::statistics::Data>* data_queue,
             database::DatabaseDataQueue<database::ExtendedMonitorServiceStatusData>* monitor_service_status_data_queue,
             const database::Database* db)
@@ -82,18 +83,20 @@ protected:
             std::chrono::system_clock::time_point& timestamp);
 
     /**
-     * @brief Extracts the optional QoS information (in database format) from a MonitorService proxy sample.
+     * @brief Deserializes the proxy sample and extracts the optional QoS information (in database format) from
+     * a MonitorService proxy sample storing everything in the ExtendedMonitorServiceStatusData object.
      *
      * @param participant Reference to the DomainParticipant used to deserialize the proxy data.
      * @param data The monitor service status data containing the proxy sample.
-     * @param qos The database Qos object to be filled with the optional QoS information.
+     * @param extended_data The ExtendedMonitorServiceStatusData object where the deserialized QoS information
+     * will be stored.
      *
      * @return true if the QoS object was successfully filled, false otherwise.
      */
-    bool get_optional_qos_from_proxy_sample(
+    bool deserialize_proxy_data(
             eprosima::fastdds::statistics::dds::DomainParticipant* participant,
             const eprosima::fastdds::statistics::MonitorServiceStatusData& data,
-            database::Qos& qos);
+            database::ExtendedMonitorServiceStatusData& extended_data);
 
     //! Reference to the database queues
     database::DatabaseDataQueue<eprosima::fastdds::statistics::Data>* data_queue_;
@@ -102,6 +105,9 @@ protected:
 
     //! Const reference to the database
     const database::Database* db_;
+
+    // Database Domain ID to which this listener belongs
+    const EntityId domain_id_;
 };
 
 } //namespace database

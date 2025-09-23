@@ -99,6 +99,8 @@ public:
      * @param status The status of the DomainParticipant.
      * @param app_id The AppId of the DomainParticipant.
      * @param app_metadata The App metadata of the DomainParticipant.
+     * @param discovery_source The DiscoverySource of the DomainParticipant.
+     * @param original_domain The original DomainId of the DomainParticipant, UNKNOWN_DOMAIN_ID if not specified.
      *
      * @return EntityId of the DomainParticipant once inserted.
      */
@@ -109,7 +111,9 @@ public:
             const EntityId& domain_id,
             const StatusLevel& status,
             const AppId& app_id,
-            const std::string& app_metadata);
+            const std::string& app_metadata,
+            DiscoverySource discovery_source,
+            DomainId original_domain = UNKNOWN_DOMAIN_ID);
 
     /**
      * @brief Process Host-User-Process entities and insert them in database.
@@ -117,6 +121,7 @@ public:
      * @param user_name The name of the user.
      * @param process_name The name of the process.
      * @param process_pid The pid of the process.
+     * @param discovery_source The discovery source of the physical entities.
      * @param should_link_process_participant If true, try to link process to participant.
      * @param participant_id The EntityId of the participant that the process might be linked to.
      * @param physical_entities_ids Map where host-user-process EntityIds are stored when inserted in database.
@@ -126,6 +131,7 @@ public:
             const std::string& user_name,
             const std::string& process_name,
             const std::string& process_pid,
+            DiscoverySource discovery_source,
             bool& should_link_process_participant,
             const EntityId& participant_id,
             std::map<std::string, EntityId>& physical_entities_ids);
@@ -187,6 +193,8 @@ public:
      * @param participant_id The EntityId of the Participant related to the Endpoint.
      * @param topic_id The EntityId of the Topic related to the Endpoint.
      * @param app_data The AppId and app metadata related to the Endpoint.
+     * @param discovery_source The DiscoverySource of the Endpoint.
+     * @param original_domain The original DomainId of the Endpoint, UNKNOWN_DOMAIN_ID if not specified.
      *
      * @return EntityId of the Endpoint once inserted.
      */
@@ -200,7 +208,9 @@ public:
             const EntityKind& kind,
             const EntityId& participant_id,
             const EntityId& topic_id,
-            const std::pair<AppId, std::string>& app_data);
+            const std::pair<AppId, std::string>& app_data,
+            DiscoverySource discovery_source,
+            DomainId original_domain);
 
     /**
      * @brief Insert a new entity into the database.
@@ -570,6 +580,37 @@ public:
             const Qos& received_qos);
 
     /**
+     * @brief Update participant discovery information.
+     * @param participant_id The EntityId of the participant to be updated.
+     * @param host The name of the host.
+     * @param user The name of the user.
+     * @param process The name of the process.
+     * @param name The name of the participant.
+     * @param qos The QoS of the participant.
+     * @param guid The GUID of the participant.
+     * @param domain_id The EntityId of the domain to which the participant corresponds.
+     * @param status The status of the participant.
+     * @param app_id The AppId of the participant.
+     * @param app_metadata The App metadata of the participant.
+     * @param discovery_source The DiscoverySource of the participant.
+     * @param original_domain The original DomainId of the participant, UNKNOWN_DOMAIN_ID if not
+     */
+    bool update_participant_discovery_info(
+            const EntityId& participant_id,
+            const std::string& host,
+            const std::string& user,
+            const std::string& process,
+            const std::string& name,
+            const Qos& qos,
+            const std::string& guid,
+            const EntityId& domain_id,
+            const StatusLevel& status,
+            const AppId& app_id,
+            const std::string& app_metadata,
+            DiscoverySource discovery_source,
+            DomainId original_domain);
+
+    /**
      * @brief Get the specified domain view graph from database.
      *
      * @param domain Domain from which graph is delivered.
@@ -723,6 +764,16 @@ public:
      * @return True if metatraffic, false otherwise.
      */
     bool is_metatraffic(
+            const EntityId& entity_id);
+
+    /**
+     * @brief Returns whether the entity was discovered using a proxy message
+     *
+     * @param entity_id The ID of the entity whose proxy attribute is requested.
+     *
+     * @return True if proxy, false otherwise.
+     */
+    bool is_proxy(
             const EntityId& entity_id);
 
     /**
@@ -1163,6 +1214,28 @@ protected:
             const std::shared_ptr<Entity>& entity,
             EntityId& entity_id);
 
+
+    /**
+     * @brief Process physical entities (Host, User, Process) related to a newly discovered participant. This method is not thread safe.
+     * @param host_name The name of the host.
+     * @param user_name The name of the user.
+     * @param process_name The name of the process.
+     * @param process_pid The PID of the process.
+     * @param discovery_source The DiscoverySource of the participant.
+     * @param should_link_process_participant Set to true if the process must be linked to the participant.
+     * @param participant_id The EntityId of the participant.
+     * @param physical_entities_ids Map where host-user-process EntityIds are stored when inserted in database.
+     */
+    void process_physical_entities_nts(
+            const std::string& host_name,
+            const std::string& user_name,
+            const std::string& process_name,
+            const std::string& process_pid,
+            DiscoverySource discovery_source,
+            bool& should_link_process_participant,
+            const EntityId& participant_id,
+            std::map<std::string, EntityId>& physical_entities_ids);
+
     /**
      * @brief Create new Endpoint. This method is not thread safe.
      * @param endpoint_guid The GUID of the Endpoint.
@@ -1172,6 +1245,8 @@ protected:
      * @param topic The Topic related to the Endpoint.
      * @param app_id The AppId related to the Endpoint.
      * @param app_metadata The app metadata related to the Endpoint.
+     * @param discovery_source The DiscoverySource related to the Endpoint.
+     * @param original_domain The DomainId of the original domain where the Endpoint has been discovered.
      *
      * @return EntityId of the Endpoint once inserted.
      */
@@ -1183,7 +1258,9 @@ protected:
             const std::shared_ptr<DomainParticipant>& participant,
             const std::shared_ptr<Topic>& topic,
             const AppId& app_id,
-            const std::string& app_metadata);
+            const std::string& app_metadata,
+            DiscoverySource discovery_source,
+            DomainId original_domain);
 
     /**
      * @brief Get the locator with id \c entity_id. This method is not thread safe.
@@ -1347,6 +1424,22 @@ protected:
             const EntityId& entity,
             const Qos& received_qos);
 
+
+    bool update_participant_discovery_info_nts(
+            const EntityId& participant_id,
+            const std::string& host,
+            const std::string& user,
+            const std::string& process,
+            const std::string& name,
+            const Qos& qos,
+            const std::string& guid,
+            const EntityId& domain_id,
+            const StatusLevel& status,
+            const AppId& app_id,
+            const std::string& app_metadata,
+            DiscoverySource discovery_source,
+            DomainId original_domain);
+
     /**
      * Get an entity given its EntityId. This method is not thread safe.
      *
@@ -1356,6 +1449,15 @@ protected:
      */
     const std::shared_ptr<const Entity> get_entity_nts(
             const EntityId& entity_id) const;
+
+    /**
+     * @brief Get a mutable entity given its EntityId. This method is not thread safe.
+     * @param entity_id constant reference to the EntityId of the retrieved entity.
+     * @throws eprosima::statistics_backend::BadParameter if there is no entity with the given ID.
+     * @return A shared pointer to the Entity.
+     */
+    const std::shared_ptr<Entity> get_mutable_entity_nts(
+            const EntityId& entity_id);
 
     /**
      * @brief Get the specified domain view graph from database. This method is not thread safe.

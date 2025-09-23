@@ -106,7 +106,9 @@ EntityId DatabaseEntityQueue::process_participant(
                 info.domain_id,
                 status,
                 info.app_id,
-                info.app_metadata);
+                info.app_metadata,
+                info.discovery_source,
+                info.original_domain_id);
 
             should_link_process_participant = true;
         }
@@ -142,6 +144,7 @@ EntityId DatabaseEntityQueue::process_participant(
             info.user,
             process_name,
             process_pid,
+            info.discovery_source,
             should_link_process_participant,
             participant_id,
             physical_entities_ids);
@@ -404,7 +407,9 @@ EntityId DatabaseEntityQueue::process_endpoint_discovery(
         info.kind(),
         participant_id.second,
         topic_id,
-        app_data);
+        app_data,
+        info.discovery_source,
+        info.original_domain_id);
 
     // Force the refresh of the parent entities' status
     database_->change_entity_status(endpoint_id, true);
@@ -1059,7 +1064,8 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample()
             catch (const eprosima::statistics_backend::Exception& e)
             {
                 EPROSIMA_LOG_WARNING(BACKEND_DATABASE_QUEUE,
-                        "Error processing HISTORY2HISTORY_LATENCY event. Data was not added to the statistics collection: " + std::string(
+                        "Error processing HISTORY2HISTORY_LATENCY event. Data was not added to the statistics collection: "
+                        + std::string(
                             e.what()));
             }
             break;
@@ -1470,19 +1476,98 @@ void DatabaseDataQueue<ExtendedMonitorServiceStatusData>::process_sample()
             sample.src_ts = item.first;
             try
             {
-                process_sample_type(domain, entity, item.second->data.local_entity(), sample,
+                auto source_guid = item.second->data.local_entity();
+
+                process_sample_type(domain, entity, source_guid, sample,
                         item.second->data.value().entity_proxy());
 
                 updated_entity = database_->insert(domain, entity, sample);
                 database_->update_entity_qos(entity, item.second->optional_qos);
+
+                if (item.second->entity_discovery_info.kind() == EntityKind::PARTICIPANT)
+                {
+                    database_->update_participant_discovery_info(entity,
+                            item.second->entity_discovery_info.host,
+                            item.second->entity_discovery_info.user,
+                            item.second->entity_discovery_info.process,
+                            item.second->entity_discovery_info.participant_name,
+                            item.second->entity_discovery_info.qos,
+                            to_string(item.second->entity_discovery_info.guid),
+                            item.second->entity_discovery_info.domain_id,
+                            item.second->entity_discovery_info.entity_status,
+                            item.second->entity_discovery_info.app_id,
+                            item.second->entity_discovery_info.app_metadata,
+                            item.second->entity_discovery_info.discovery_source,
+                            item.second->entity_discovery_info.original_domain_id);
+                }
+
                 details::StatisticsBackendData::get_instance()->on_status_reported(domain, entity, StatusKind::PROXY);
             }
-            catch (const eprosima::statistics_backend::Exception& e)
+            catch (const eprosima::statistics_backend::Exception&)
             {
-                EPROSIMA_LOG_WARNING(BACKEND_DATABASE_QUEUE,
-                        "Error processing PROXY status data. Data was not added to the statistics collection: "
-                        + std::string(
-                            e.what()));
+                std::chrono::system_clock::time_point timestamp;
+                if (item.second->entity_discovery_info.kind() == EntityKind::PARTICIPANT)
+                {
+                    // The received PROXY is from a PARTICIPANT and contains relevant information, it is always enqueued
+                    // and will be used either to create the participant or to update it if it was already created
+                    timestamp = now();
+                    details::StatisticsBackendData::get_instance()->get_entity_queue()->push(timestamp,
+                            item.second->entity_discovery_info);
+                    // Mark the participant as enqueued to avoid creating more participant placeholders
+                    participant_enqueued[item.second->entity_discovery_info.guid] = true;
+                }
+                else if (participant_enqueued.find(item.second->entity_discovery_info.participant_guid) ==
+                        participant_enqueued.end())
+                {
+                    // Sometimes, PROXY messages from endpoints arrive before the participant's message.
+                    // To avoid database inconsistencies, we enqueue an incomplete participant discovery
+                    // information that will be updated when the real participant proxy message arrives.
+
+                    // If the entity is not found, it might be because it is a PROXY discovery and the participant
+                    // has not been created yet. We create it now and enqueue the discovery info to be processed later.
+                    EntityDiscoveryInfo participant_discovery_info(EntityKind::PARTICIPANT);
+                    participant_discovery_info.discovery_status =
+                            details::StatisticsBackendData::DiscoveryStatus::DISCOVERY;
+                    participant_discovery_info.domain_id = item.second->entity_discovery_info.domain_id;
+                    participant_discovery_info.guid = item.second->entity_discovery_info.participant_guid;
+                    participant_discovery_info.qos = item.second->entity_discovery_info.qos;
+                    participant_discovery_info.participant_guid = item.second->entity_discovery_info.participant_guid;
+                    participant_discovery_info.participant_name = "Unknown participant";
+                    participant_discovery_info.app_id = AppId::UNKNOWN;
+                    participant_discovery_info.host =
+                            item.second->entity_discovery_info.host.empty()? "Unknown" :
+                            item.second->entity_discovery_info.host;
+                    participant_discovery_info.user =
+                            item.second->entity_discovery_info.user.empty()? "Unknown" :
+                            item.second->entity_discovery_info.user;
+                    participant_discovery_info.process =
+                            item.second->entity_discovery_info.process.empty()? "Unknown" :
+                            item.second->entity_discovery_info.process;
+
+                    participant_discovery_info.entity_status = item.second->entity_discovery_info.entity_status;
+                    participant_discovery_info.discovery_source = DiscoverySource::PROXY;
+                    participant_discovery_info.original_domain_id =
+                            item.second->entity_discovery_info.original_domain_id;
+
+                    // Adding template of participant entity
+                    timestamp = now();
+                    details::StatisticsBackendData::get_instance()->get_entity_queue()->push(timestamp,
+                            participant_discovery_info);
+                    // Mark the participant as enqueued to avoid creating more participant placeholders
+                    participant_enqueued[item.second->entity_discovery_info.participant_guid] = true;
+                    // Adding endpoint entity
+                    timestamp = now();
+                    details::StatisticsBackendData::get_instance()->get_entity_queue()->push(timestamp,
+                            item.second->entity_discovery_info);
+                }
+                else
+                {
+                    // If PROXY is from an ENDPOINT and its PARTICIPANT has been enqueued, it is enough to enqueue the endpoint as
+                    // it will always be dequeued after the participant
+                    timestamp = now();
+                    details::StatisticsBackendData::get_instance()->get_entity_queue()->push(timestamp,
+                            item.second->entity_discovery_info);
+                }
             }
             break;
         }

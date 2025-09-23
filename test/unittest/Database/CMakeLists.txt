@@ -23,6 +23,7 @@ set(LIBRARY_SOURCES
     ${PROJECT_SOURCE_DIR}/src/cpp/StatisticsBackend.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/StatisticsBackendData.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/QosSerializer.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/ProxyDiscoveryInfo.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsParticipantListener.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsReaderListener.cpp
     ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesTypeObjectSupport.cxx
@@ -396,6 +397,8 @@ set(DATABASE_TEST_LIST
     get_entity_by_guid_other_kind
     # ros2_demangling
     check_ros2_demangler
+    #update discovery info
+    update_participant_discovery_info
     )
 
 foreach(test_name ${DATABASE_TEST_LIST})

@@ -56,13 +56,15 @@ struct Entity
             std::string entity_name = "INVALID",
             bool entity_metatraffic = false,
             bool entity_active = true,
-            StatusLevel entity_status = StatusLevel::OK_STATUS) noexcept
+            StatusLevel entity_status = StatusLevel::OK_STATUS,
+            DiscoverySource entity_discovery_source = DiscoverySource::UNKNOWN) noexcept
         : kind(entity_kind)
         , name(normalize_entity_name(entity_name))
         , alias(normalize_entity_name(entity_name))
         , metatraffic(entity_metatraffic)
         , active(entity_active)
         , status(entity_status)
+        , discovery_source(entity_discovery_source)
     {
     }
 
@@ -123,6 +125,9 @@ struct Entity
 
     //! The status of entity
     StatusLevel status;
+
+    //! The source of discovery for this entity
+    DiscoverySource discovery_source;
 };
 
 /*
@@ -260,8 +265,9 @@ struct DDSEntity : Entity
             std::string dds_entity_guid = "|GUID UNKNOWN|",
             StatusLevel status = StatusLevel::OK_STATUS,
             AppId dds_entity_app_id = AppId::UNKNOWN,
-            std::string dds_entity_app_metadata = "") noexcept
-        : Entity(entity_kind, dds_entity_name, false, true, status)
+            std::string dds_entity_app_metadata = "",
+            DiscoverySource dds_entity_discovery_source = DiscoverySource::UNKNOWN) noexcept
+        : Entity(entity_kind, dds_entity_name, false, true, status, dds_entity_discovery_source)
         , qos(dds_entity_qos)
         , guid(dds_entity_guid)
         , app_id(dds_entity_app_id)
@@ -307,7 +313,9 @@ struct DDSEndpoint : DDSEntity
             details::fragile_ptr<Topic> endpoint_topic = nullptr,
             StatusLevel status = StatusLevel::OK_STATUS,
             AppId endpoint_app_id = AppId::UNKNOWN,
-            std::string endpoint_app_metadata = "") noexcept;
+            std::string endpoint_app_metadata = "",
+            DiscoverySource endpoint_discovery_source = DiscoverySource::UNKNOWN,
+            DomainId original_domain = UNKNOWN_DOMAIN_ID) noexcept;
 
     //! Reference to the DomainParticipant in which this Endpoint runs.
     details::fragile_ptr<DomainParticipant> participant;
@@ -323,6 +331,9 @@ struct DDSEndpoint : DDSEntity
      * The collection is ordered by the EntityId of the Locator nodes.
      */
     std::map<EntityId, details::fragile_ptr<Locator>> locators;
+
+    //! The original domain of the participant, UNKNOWN if not specified
+    DomainId original_domain;
 };
 
 /*
@@ -338,11 +349,14 @@ struct DomainParticipant : DDSEntity
             details::fragile_ptr<Domain> participant_domain,
             StatusLevel status = StatusLevel::OK_STATUS,
             AppId participant_app_id = AppId::UNKNOWN,
-            std::string participant_app_metadata = "") noexcept
+            std::string participant_app_metadata = "",
+            DiscoverySource participant_discovery_source = DiscoverySource::UNKNOWN,
+            DomainId original_domain = UNKNOWN_DOMAIN_ID) noexcept
         : DDSEntity(EntityKind::PARTICIPANT, participant_name, participant_qos, participant_guid, status,
-                participant_app_id, participant_app_metadata)
+                participant_app_id, participant_app_metadata, participant_discovery_source)
         , process(participant_process)
         , domain(participant_domain)
+        , original_domain(original_domain)
     {
     }
 
@@ -380,6 +394,9 @@ struct DomainParticipant : DDSEntity
 
     //! Actual monitor service data reported by Fast DDS Statistics Module regarding this DomainParticipant.
     DomainParticipantMonitorServiceData monitor_service_data;
+
+    //! The original domain of the participant, UNKNOWN if not specified
+    DomainId original_domain;
 };
 
 
@@ -439,9 +456,12 @@ struct DataReader : DDSEndpoint
             details::fragile_ptr<Topic> datareader_topic,
             StatusLevel status = StatusLevel::OK_STATUS,
             AppId datareader_app_id = AppId::UNKNOWN,
-            std::string datareader_app_metadata = "") noexcept
+            std::string datareader_app_metadata = "",
+            DiscoverySource datareader_discovery_source = DiscoverySource::UNKNOWN,
+            DomainId original_domain = UNKNOWN_DOMAIN_ID) noexcept
         : DDSEndpoint(EntityKind::DATAREADER, datareader_name, datareader_qos, datareader_guid, datareader_participant,
-                datareader_topic, status, datareader_app_id, datareader_app_metadata)
+                datareader_topic, status, datareader_app_id, datareader_app_metadata, datareader_discovery_source,
+                original_domain)
     {
     }
 
@@ -471,9 +491,12 @@ struct DataWriter : DDSEndpoint
             details::fragile_ptr<Topic> datawriter_topic,
             StatusLevel status = StatusLevel::OK_STATUS,
             AppId datawriter_app_id = AppId::UNKNOWN,
-            std::string datawriter_app_metadata = "") noexcept
+            std::string datawriter_app_metadata = "",
+            DiscoverySource datawriter_discovery_source = DiscoverySource::UNKNOWN,
+            DomainId original_domain = UNKNOWN_DOMAIN_ID) noexcept
         : DDSEndpoint(EntityKind::DATAWRITER, datawriter_name, datawriter_qos, datawriter_guid, datawriter_participant,
-                datawriter_topic, status, datawriter_app_id, datawriter_app_metadata)
+                datawriter_topic, status, datawriter_app_id, datawriter_app_metadata, datawriter_discovery_source,
+                original_domain)
     {
     }
 

@@ -108,6 +108,8 @@ TEST_F(statistics_backend_tests, get_info)
         info.erase(ALIVE_TAG);
         EXPECT_EQ(entity->metatraffic, info[METATRAFFIC_TAG]);
         info.erase(METATRAFFIC_TAG);
+        EXPECT_EQ(discovery_source_str[(int)entity->discovery_source], info[DISCOVERY_SOURCE_TAG]);
+        info.erase(DISCOVERY_SOURCE_TAG);
         EXPECT_EQ(status_level_str[(int)entity->status], info[STATUS_TAG]);
         info.erase(STATUS_TAG);
 
@@ -144,6 +146,8 @@ TEST_F(statistics_backend_tests, get_info)
                 info.erase(APP_METADATA_TAG);
                 EXPECT_EQ(participant->dds_vendor, info[DDS_VENDOR_TAG]);
                 info.erase(DDS_VENDOR_TAG);
+                EXPECT_EQ(participant->original_domain, info[ORIGINAL_DOMAIN_TAG]);
+                info.erase(ORIGINAL_DOMAIN_TAG);
 
                 // Obtain the locators list associated to the participant's endpoints
                 std::vector<std::string> locators;

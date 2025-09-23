@@ -234,6 +234,7 @@ EntityId create_and_register_monitor(
     auto se_participant_listener_ = EPROSIMA_BACKEND_MAKE_SCOPE_EXIT(delete monitor->participant_listener);
 
     monitor->reader_listener = new subscriber::StatisticsReaderListener(
+        domain->id,
         backend_data->data_queue_,
         backend_data->monitor_service_status_data_queue_,
         backend_data->database_.get());
@@ -583,6 +584,12 @@ bool StatisticsBackend::is_metatraffic(
         EntityId entity_id)
 {
     return StatisticsBackendData::get_instance()->database_->is_metatraffic(entity_id);
+}
+
+bool StatisticsBackend::is_proxy(
+        EntityId entity_id)
+{
+    return StatisticsBackendData::get_instance()->database_->is_proxy(entity_id);
 }
 
 EntityKind StatisticsBackend::get_type(

@@ -363,6 +363,7 @@ struct EntityDiscoveryInfo
     database::Qos qos;
 
     // Participant data
+    fastdds::rtps::GUID_t participant_guid;
     std::string address;
     std::string participant_name;
     AppId app_id;
@@ -386,6 +387,17 @@ struct EntityDiscoveryInfo
     // Status
     StatusLevel entity_status;
 
+    // Discovery source information
+    DiscoverySource discovery_source;
+    // Original domain id where the entity was discovered,
+    // useful when discovery_source is PROXY
+    DomainId original_domain_id;
+
+    EntityDiscoveryInfo()
+        : EntityDiscoveryInfo(EntityKind::INVALID)
+    {
+    }
+
     EntityDiscoveryInfo(
             EntityKind kind)
         : entity_kind(kind)
@@ -407,6 +419,9 @@ struct ExtendedMonitorServiceStatusData
 {
     // Deserialized data received through MonitorService topic
     eprosima::fastdds::statistics::MonitorServiceStatusData data;
+
+    // Entity discovery related information
+    EntityDiscoveryInfo entity_discovery_info;
 
     // Deserialized entity optional QoS information received through Monitor Service's proxy samples
     database::Qos optional_qos;
@@ -646,6 +661,8 @@ protected:
     // Database
     Database* database_;
 
+    // Structure to keep if the discovery of a participant has already been enqueued
+    std::map<eprosima::fastdds::rtps::GUID_t, bool> participant_enqueued;
 };
 
 template<>

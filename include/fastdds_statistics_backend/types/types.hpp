@@ -44,6 +44,7 @@ using Graph = nlohmann::json;
  * Type DDS Domain IDs
  */
 using DomainId = uint32_t;
+constexpr DomainId UNKNOWN_DOMAIN_ID = 233;
 
 /**
  * Type used to represent time points
@@ -383,6 +384,20 @@ enum class StatisticKind
     SUM
 };
 
+/**
+ * Types of discovery sources of an entity.
+ */
+enum class DiscoverySource
+{
+    /// Unknown discovery source
+    UNKNOWN,
+
+    /// Any FastDDS discovery protocol
+    DISCOVERY,
+
+    /// Discovered because their data reached the backend by other means
+    PROXY
+};
 
 /** @struct MonitorServiceSample
  * Base class for all monitor service status samples. It adds the timepoint and status level to the sample
