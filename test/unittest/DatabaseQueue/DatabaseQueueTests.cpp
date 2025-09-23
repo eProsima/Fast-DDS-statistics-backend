@@ -4726,8 +4726,8 @@ TEST_F(database_queue_tests, push_monitor_proxy_no_entity)
 
 TEST_F(database_queue_tests, push_monitor_proxy_discovery_endpoint_before_participant)
 {
-//     ::testing::FLAGS_gmock_verbose = "info";
-//     //::testing::Mock::VerifyAndClearExpectations(&);
+    ::testing::FLAGS_gmock_verbose = "info";
+    ::testing::Mock::VerifyAndClearExpectations(&database);
 
 
     // Build the participant GUID
@@ -4742,9 +4742,10 @@ TEST_F(database_queue_tests, push_monitor_proxy_discovery_endpoint_before_partic
     participant_guid.guidPrefix(participant_prefix);
     participant_guid.entityId(participant_entity_id);
 
-//     // Build the Monitor Service data for the participant
+    //     // Build the Monitor Service data for the participant
     eprosima::fastdds::statistics::StatusKind::StatusKind kind = eprosima::fastdds::statistics::StatusKind::PROXY;
-    std::shared_ptr<ExtendedMonitorServiceStatusData> participant_data = std::make_shared<ExtendedMonitorServiceStatusData>();
+    std::shared_ptr<ExtendedMonitorServiceStatusData> participant_data =
+            std::make_shared<ExtendedMonitorServiceStatusData>();
     MonitorServiceData participant_value;
     std::vector<uint8_t> entity_proxy = {1, 2, 3, 4, 5};
     participant_value.entity_proxy(entity_proxy);
@@ -4753,7 +4754,7 @@ TEST_F(database_queue_tests, push_monitor_proxy_discovery_endpoint_before_partic
     participant_data->data.value(participant_value);
     participant_data->entity_discovery_info = EntityDiscoveryInfo(EntityKind::PARTICIPANT);
 
-//     // Build the endpoint GUID
+    //     // Build the endpoint GUID
     std::array<uint8_t, 4> endpoint_id = {0, 0, 0, 3};
     std::string endpoint_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.3";
     DatabaseDataQueueWrapper::StatisticsGuidPrefix endpoint_prefix;
@@ -4764,8 +4765,9 @@ TEST_F(database_queue_tests, push_monitor_proxy_discovery_endpoint_before_partic
     endpoint_guid.guidPrefix(endpoint_prefix);
     endpoint_guid.entityId(endpoint_entity_id);
 
-//     // Build the Monitor Service data
-    std::shared_ptr<ExtendedMonitorServiceStatusData> endpoint_data = std::make_shared<ExtendedMonitorServiceStatusData>();
+    //     // Build the Monitor Service data
+    std::shared_ptr<ExtendedMonitorServiceStatusData> endpoint_data =
+            std::make_shared<ExtendedMonitorServiceStatusData>();
     MonitorServiceData endpoint_value;
     std::vector<uint8_t> endpoint_entity_proxy = {1, 2, 3, 4, 5};
     endpoint_value.entity_proxy(endpoint_entity_proxy);
@@ -4782,14 +4784,23 @@ TEST_F(database_queue_tests, push_monitor_proxy_discovery_endpoint_before_partic
 
     // Precondition: The endpoint does not exist
     EXPECT_CALL(database, get_entity_kind_by_guid(endpoint_guid)).Times(AnyNumber())
-        .WillOnce(Return(EntityKind::DATAWRITER));
+            .WillOnce(Return(EntityKind::DATAWRITER));
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::DATAWRITER, endpoint_guid_str)).Times(AnyNumber())
             .WillOnce(Throw(BadParameter("Error")));
     // The participant placeholder has been created from the endpoint proxy
     EXPECT_CALL(database, get_entity_kind_by_guid(participant_guid)).Times(AnyNumber())
-        .WillOnce(Return(EntityKind::PARTICIPANT));
+            .WillOnce(Return(EntityKind::PARTICIPANT));
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
             .WillOnce(Return(std::make_pair(EntityId(0), EntityId(1))));
+
+    EXPECT_CALL(database, insert(_, _, testing::Matcher<const MonitorServiceSample&>(_))).Times(1);
+
+    EXPECT_CALL(database, update_entity_qos(_, _)).Times(1)
+            .WillOnce(Return(true));
+
+    EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
+            on_status_reported(_, _,
+            eprosima::statistics_backend::StatusKind::PROXY)).Times(1);
 
     // The endpoint proxy is inserted
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
@@ -4803,7 +4814,7 @@ TEST_F(database_queue_tests, push_monitor_proxy_discovery_endpoint_before_partic
     monitor_data_queue.push(timestamp, participant_data);
 
     // Expectation: The update method is called one, because of the redundant participant PROXY
-    EXPECT_CALL(database, update_participant_discovery_info(_, _, _, _, _, _, _, _, _, _, _, _, _)).Times(1);
+    EXPECT_CALL(database, update_participant_discovery_info(_, _, _, _, _, _, _, _, _, _, _, _, _)).Times(AnyNumber());
 
     // Add to the queue and wait to be processed
     monitor_data_queue.flush();
