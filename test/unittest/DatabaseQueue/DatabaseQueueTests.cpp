@@ -4729,7 +4729,6 @@ TEST_F(database_queue_tests, push_monitor_proxy_discovery_endpoint_before_partic
     ::testing::FLAGS_gmock_verbose = "info";
     ::testing::Mock::VerifyAndClearExpectations(&database);
 
-
     // Build the participant GUID
     std::array<uint8_t, 12> prefix = {1, 15, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::array<uint8_t, 4> participant_id = {0, 0, 0, 0};
@@ -4742,7 +4741,7 @@ TEST_F(database_queue_tests, push_monitor_proxy_discovery_endpoint_before_partic
     participant_guid.guidPrefix(participant_prefix);
     participant_guid.entityId(participant_entity_id);
 
-    //     // Build the Monitor Service data for the participant
+    // Build the Monitor Service data for the participant
     eprosima::fastdds::statistics::StatusKind::StatusKind kind = eprosima::fastdds::statistics::StatusKind::PROXY;
     std::shared_ptr<ExtendedMonitorServiceStatusData> participant_data =
             std::make_shared<ExtendedMonitorServiceStatusData>();
@@ -4754,7 +4753,7 @@ TEST_F(database_queue_tests, push_monitor_proxy_discovery_endpoint_before_partic
     participant_data->data.value(participant_value);
     participant_data->entity_discovery_info = EntityDiscoveryInfo(EntityKind::PARTICIPANT);
 
-    //     // Build the endpoint GUID
+    // Build the endpoint GUID
     std::array<uint8_t, 4> endpoint_id = {0, 0, 0, 3};
     std::string endpoint_guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.3";
     DatabaseDataQueueWrapper::StatisticsGuidPrefix endpoint_prefix;
@@ -4765,7 +4764,7 @@ TEST_F(database_queue_tests, push_monitor_proxy_discovery_endpoint_before_partic
     endpoint_guid.guidPrefix(endpoint_prefix);
     endpoint_guid.entityId(endpoint_entity_id);
 
-    //     // Build the Monitor Service data
+    // Build the Monitor Service data
     std::shared_ptr<ExtendedMonitorServiceStatusData> endpoint_data =
             std::make_shared<ExtendedMonitorServiceStatusData>();
     MonitorServiceData endpoint_value;
@@ -4793,29 +4792,27 @@ TEST_F(database_queue_tests, push_monitor_proxy_discovery_endpoint_before_partic
     EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
             .WillOnce(Return(std::make_pair(EntityId(0), EntityId(1))));
 
+    // Other expects required to avoid StrickMock failure
     EXPECT_CALL(database, insert(_, _, testing::Matcher<const MonitorServiceSample&>(_))).Times(1);
-
     EXPECT_CALL(database, update_entity_qos(_, _)).Times(1)
             .WillOnce(Return(true));
-
     EXPECT_CALL(*details::StatisticsBackendData::get_instance(),
             on_status_reported(_, _,
             eprosima::statistics_backend::StatusKind::PROXY)).Times(1);
 
+
+    // Proper test below:
+
     // The endpoint proxy is inserted
     std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
     monitor_data_queue.push(timestamp, endpoint_data);
-
     // The queue is flushed so the endpoint is guaranteed to be processed
     monitor_data_queue.flush();
-
     // Then, the participant proxy is inserted
     timestamp = std::chrono::system_clock::now();
     monitor_data_queue.push(timestamp, participant_data);
-
     // Expectation: The update method is called one, because of the redundant participant PROXY
     EXPECT_CALL(database, update_participant_discovery_info(_, _, _, _, _, _, _, _, _, _, _, _, _)).Times(AnyNumber());
-
     // Add to the queue and wait to be processed
     monitor_data_queue.flush();
 }
