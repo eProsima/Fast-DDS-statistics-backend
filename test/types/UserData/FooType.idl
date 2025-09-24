@@ -1,0 +1,5 @@
+struct FooType
+{
+    long num;
+    string msg;
+};
