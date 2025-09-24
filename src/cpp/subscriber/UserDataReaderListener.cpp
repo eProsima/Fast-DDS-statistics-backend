@@ -56,6 +56,7 @@ void UserDataReaderListener::on_data_available(
     // Type is required to deserialize the data
     if (!type)
     {
+        EPROSIMA_LOG_WARNING(USER_DATA_READER_LISTENER, "Unable to process user data. Topic type is unknown.");
         return;
     }
 
@@ -74,6 +75,8 @@ void UserDataReaderListener::on_data_available(
             }
         }
     }
+
+    DynamicDataFactory::get_instance()->delete_data(data);
 }
 
 std::string UserDataReaderListener::serialize_user_data(
