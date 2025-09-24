@@ -186,7 +186,7 @@ public:
                     .WillByDefault(Return(nullptr));
 
             data_readers_[topic_type.first] = DataReader();
-            ON_CALL(subscriber_, create_datareader(&topics_[topic_type.first], _, _, _))
+            ON_CALL(subscriber_, create_datareader_mock_method(&topics_[topic_type.first], _, _, _, _))
                     .WillByDefault(Return(&data_readers_[topic_type.first]));
         }
 
@@ -201,7 +201,7 @@ public:
         EXPECT_CALL(domain_participant_, create_topic(_, _, _)).Times(AnyNumber());
         EXPECT_CALL(domain_participant_, lookup_topicdescription(_)).Times(AnyNumber());
         EXPECT_CALL(domain_participant_, register_type(_, _)).Times(AnyNumber());
-        EXPECT_CALL(subscriber_, create_datareader(_, _, _, _)).Times(AnyNumber());
+        EXPECT_CALL(subscriber_, create_datareader_mock_method(_, _, _, _, _)).Times(AnyNumber());
     }
 
     void check_init_monitor_failure()
@@ -286,7 +286,7 @@ TEST_F(init_monitor_factory_fails_tests, init_monitor_subscriber_creation_fails)
 TEST_F(init_monitor_factory_fails_tests, init_monitor_datareader_creation_fails)
 {
     // Expect failure on the datareader creation
-    EXPECT_CALL(subscriber_, create_datareader(_, _, _, _)).Times(3)
+    EXPECT_CALL(subscriber_, create_datareader_mock_method(_, _, _, _, _)).Times(3)
             .WillRepeatedly(Return(nullptr));
 
     check_init_monitor_failure();

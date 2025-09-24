@@ -28,6 +28,7 @@
 #include <fastdds_statistics_backend/types/Alerts.hpp>
 
 #include <chrono>
+#include <functional>
 #include <string>
 
 namespace eprosima {
@@ -92,6 +93,15 @@ public:
     MOCK_METHOD2(on_alert_unmatched, void(
                 EntityId domain_id,
                 AlertInfo & alert));
+
+    MOCK_METHOD3(start_topic_spy, void(
+                EntityId monitor_id,
+                const std::string& topic_name,
+                std::function<void(const std::string& data)> on_data_received));
+
+    MOCK_METHOD2(stop_topic_spy, void(
+                EntityId monitor_id,
+                const std::string& topic_name));
 
     static StatisticsBackendData* get_instance()
     {
