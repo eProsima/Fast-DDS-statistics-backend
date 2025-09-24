@@ -292,8 +292,8 @@ public:
 
         for (auto topic : topic_types_)
         {
-            EXPECT_NE(nullptr, monitor->topics[topic.first]);
-            EXPECT_NE(nullptr, monitor->readers[topic.first]);
+            EXPECT_NE(nullptr, monitor->statistics_topics[topic.first]);
+            EXPECT_NE(nullptr, monitor->statistics_readers[topic.first]);
         }
     }
 
