@@ -1070,6 +1070,34 @@ void Database::notify_locator_discovery (
         details::StatisticsBackendData::DiscoveryStatus::DISCOVERY);
 }
 
+
+void Database::trigger_alerts_of_kind(const EntityId& domain_id,
+                                    const EntityId& entity_id,
+                                    const std::shared_ptr<DDSEndpoint> &endpoint,
+                                    const AlertKind alert_kind,
+                                    const double &data){
+
+    for(auto& [alert_id, alert_info] : get_alerts())
+    {
+        if (alert_info.get_alert_kind() == alert_kind)
+        {
+            // Get the metadata from the entity that sent the stats
+            std::string topic_name = endpoint->topic->name;
+            std::string user_name  = endpoint->participant->process->user->name;
+            std::string host_name  = endpoint->participant->process->user->host->name;
+            if(alert_info.check_trigger_conditions(host_name, user_name, topic_name, data))
+            {
+                alert_info.reset_trigger_time();
+                details::StatisticsBackendData::get_instance()->on_alert_triggered(
+                    domain_id,
+                    entity_id,
+                    alert_info,
+                    data);
+            }
+        }
+    }
+}
+
 void Database::insert_nts(
         const EntityId& domain_id,
         const EntityId& entity_id,
@@ -1197,18 +1225,7 @@ void Database::insert_nts(
                     reader->second->data.subscription_throughput.push_back(subscription_throughput);
 
                     // Trigger corresponding alerts
-                    for(auto& [alert_id, alert_info] : get_alerts())
-                    {
-                        if (alert_info.alert_kind == AlertKind::NO_DATA && alert_info.triggers(subscription_throughput.data))
-                        {
-                            details::StatisticsBackendData::get_instance()->on_alert_triggered(
-                                domain_id,
-                                entity_id,
-                                alert_info);
-                        }
-
-                    }
-
+                    trigger_alerts_of_kind(domain_id, entity_id, reader->second, AlertKind::NO_DATA, subscription_throughput.data);
                     break;
                 }
             }
@@ -1746,17 +1763,7 @@ void Database::insert_nts(
                     }
 
                     // Trigger corresponding alerts
-                    for(auto& [alert_id, alert_info] : get_alerts())
-                    {
-                        if (alert_info.alert_kind == AlertKind::NEW_DATA && alert_info.triggers(writer->second->data.data_count.back().count))
-                        {
-                            details::StatisticsBackendData::get_instance()->on_alert_triggered(
-                                domain_id,
-                                entity_id,
-                                alert_info);
-                        }
-
-                    }
+                    trigger_alerts_of_kind(domain_id, entity_id, writer->second, AlertKind::NEW_DATA, writer->second->data.data_count.back().count);
 
                     break;
                 }
