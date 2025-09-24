@@ -24,6 +24,8 @@ set(LIBRARY_SOURCES
     ${PROJECT_SOURCE_DIR}/src/cpp/StatisticsBackendData.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/QosSerializer.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/ProxyDiscoveryInfo.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/UserDataContext.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/UserDataReaderListener.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsParticipantListener.cpp
     ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsReaderListener.cpp
     ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesTypeObjectSupport.cxx

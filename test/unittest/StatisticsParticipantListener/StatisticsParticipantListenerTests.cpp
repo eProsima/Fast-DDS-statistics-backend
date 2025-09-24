@@ -18,6 +18,7 @@
 #include <database/database_queue.hpp>
 #include <database/database.hpp>
 #include <subscriber/StatisticsParticipantListener.hpp>
+#include <subscriber/UserDataContext.hpp>
 
 #include <fastdds_statistics_backend/topic_types/monitorservice_types.hpp>
 #include <fastdds_statistics_backend/topic_types/types.hpp>
@@ -319,6 +320,9 @@ public:
     // Listener under tests. Will receive a pointer to statistics_participant
     StatisticsParticipantListener participant_listener;
 
+    // The user data context used by the listener
+    UserDataContext user_data_ctx;
+
     /*
      * Most of the tests require some existing entities to be created and available
      * in the database beforehand.
@@ -398,7 +402,7 @@ public:
         : entity_queue(&database)
         , data_queue(&database)
         , monitor_service_data_queue(&database)
-        , participant_listener(0, &database, &entity_queue, &data_queue, &monitor_service_data_queue)
+        , participant_listener(0, &database, &entity_queue, &data_queue, &monitor_service_data_queue, &user_data_ctx)
     {
         //statistics_participant.domain_id_ = 0;
 
