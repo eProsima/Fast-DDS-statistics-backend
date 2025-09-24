@@ -1081,16 +1081,32 @@ void StatisticsBackend::set_alias(
 
 void StatisticsBackend::set_alert(
     const std::string& alert_name,
+    const std::string& alert_description,
     const AlertKind& alert_kind,
     const double& threshold)
 {
-
-    // At the moment, constant alert independent of arguments
-
-    std::cout << "set alert called from statistics backend" << std::endl;
-    NewDataAlertInfo alert_info;
-    alert_info.name = "test_alert";
-    AlertId id = StatisticsBackendData::get_instance()->database_->insert_alert(alert_info);
+    std::cout << "Setting alert call from statistics backend" << std::endl;
+    std::chrono::milliseconds threshold_ms(5000);
+    AlertId alert_id;
+    switch (alert_kind)
+    {
+        case AlertKind::NEW_DATA:
+            {
+                NewDataAlertInfo new_data_alert(alert_name, "", "", "", threshold_ms);
+                alert_id = StatisticsBackendData::get_instance()->database_->insert_alert(new_data_alert);
+            }
+            break;
+        case AlertKind::NO_DATA:
+            {
+                NoDataAlertInfo no_data_alert(alert_name, "", "", "", 3.0, threshold_ms);
+                alert_id = StatisticsBackendData::get_instance()->database_->insert_alert(no_data_alert);
+            }
+            break;
+        // Handle other alert kinds as needed
+        case AlertKind::NONE:
+        default:
+            std::cout << "Unsupported alert kind " << static_cast<int>(alert_kind) << std::endl;
+    }
 }
 
 std::string StatisticsBackend::deserialize_guid(

@@ -1,4 +1,4 @@
-/* Copyright 2021 Proyectos y Sistemas de Mantenimiento SL (eProsima).
+/* Copyright 2025 Proyectos y Sistemas de Mantenimiento SL (eProsima).
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,10 +21,13 @@
 #define FASTDDS_STATISTICS_BACKEND_TYPES__ALERTS_HPP
 
 #include <fastdds_statistics_backend/types/types.hpp>
+#include <fastdds/rtps/common/Guid.hpp>
 
 namespace eprosima {
 namespace statistics_backend {
 
+
+using GUID_t = fastdds::rtps::GUID_t;
 typedef uint32_t AlertId;
 
 /*
@@ -37,91 +40,118 @@ enum class AlertKind
     NO_DATA
 };
 
-/**
- * @struct AlertMessage
- * Base class for all alert messages. It adds the alert kind and source timestamp to the message
- */
-struct AlertMessage
+enum class AlertComparison
 {
-    AlertMessage(
-            AlertKind sample_kind = AlertKind::NONE)
-        : kind(sample_kind)
-    {
-    }
-
-    virtual ~AlertMessage() = default;
-
-    AlertKind kind;
-    std::chrono::system_clock::time_point src_ts;
+    INVALID,
+    GT,
+    LT,
 };
 
-/**
- * @struct NoDataAlertMessage
- * Alert message for NO_DATA alert kind
- */
-struct NoDataAlertMessage : AlertMessage
+class AlertInfo
 {
-    NoDataAlertMessage()
-        : AlertMessage(AlertKind::NO_DATA)
+    private:
+        // Kind of alert
+        AlertKind alert_kind;
+        // String name of alert
+        std::string name;
+        // These names are kept to be able to locate entities even if the alert
+        // is created before the entity is discovered
+        std::string host_name;
+        std::string user_name;
+        std::string topic_name;
+        // std::string alias;        // ALIAS alerts are defined by <alias>
+        // TODO: Additionally, the GUID can be used to match the alert
+        // GUID_t entity_guid;
+        // Entity to which the alert applies, if known
+        // Structure that contains the subentitiesto which the alert applies
+        // std::map<EntityId, bool> subentities_trigger;
+        // EntityId entity_id;
+        // Conditions for triggering
+        AlertComparison cmp;
+        double trigger_threshold;
+        // Last trigger
+        std::chrono::system_clock::time_point last_trigger;
+        std::chrono::milliseconds time_between_triggers;
+
+    public:
+
+    AlertInfo(AlertKind alert_kind, std::string name, std::string host_name, std::string user_name, std::string topic_name, AlertComparison cmp, double trigger_threshold, std::chrono::milliseconds time_between_triggers)
+        : alert_kind(alert_kind)
+        , name(name)
+        , host_name(host_name)
+        , user_name(user_name)
+        , topic_name(topic_name)
+        , cmp(cmp)
+        , trigger_threshold(trigger_threshold)
+        , time_between_triggers(time_between_triggers)
     {
+        reset_trigger_time();
     }
 
-    virtual ~NoDataAlertMessage() = default;
-};
-
-/**
- * @struct NewDataAlertMessage
- * Alert message for NEW_DATA alert kind
- */
-struct NewDataAlertMessage : AlertMessage
-{
-    NewDataAlertMessage()
-        : AlertMessage(AlertKind::NEW_DATA)
+    void reset_trigger_time()
     {
+        last_trigger = std::chrono::system_clock::now();
     }
 
-    virtual ~NewDataAlertMessage() = default;
-};
-
-
-struct AlertInfo
-{
-    // Identifier
-    std::string id;
-    // String name of alert
-    std::string name;
-    // Entity to which the alert applies
-    EntityKind entity_kind;
-    EntityId entity;
-    // The name as plain text is kept to be able to set alerts before the entity id is created
-    std::string entity_name;
-    // Kind of alert
-    AlertKind alert_kind;
-
-    // Conditions for triggering
-    bool gt_or_lt;
-    double threshold;
-
-    bool triggers(double value)
+    bool entity_matches(std::string stat_host, std::string stat_user, std::string stat_topic) const
     {
-        if (gt_or_lt)
+        bool match = true;
+        if (!(host_name.empty()))
         {
-            return value > threshold;
+            match &= (host_name == stat_host);
         }
-        else
+        if (match && !(user_name.empty()))
         {
-            return value < threshold;
+            match &= (user_name == stat_user);
         }
+        if (match && !(topic_name.empty()))
+        {
+            match &= (topic_name == stat_topic);
+        }
+        return match;
+    }
+
+    bool value_triggers(double value) const
+    {
+        switch (cmp)
+        {
+        case AlertComparison::GT:
+            return value > trigger_threshold;
+        case AlertComparison::LT:
+            return value < trigger_threshold;
+        default:
+            return false;
+        }
+    }
+
+    bool check_trigger_conditions(
+            std::string host,
+            std::string user,
+            std::string entity,
+            double value) const
+    {
+        return entity_matches(host, user, entity) && value_triggers(value);
+    }
+
+    AlertKind get_alert_kind() const
+    {
+        return alert_kind;
     }
 };
 
 struct NewDataAlertInfo : AlertInfo
 {
-    NewDataAlertInfo()
+    NewDataAlertInfo(std::string name, std::string host_name, std::string user_name, std::string topic_name, std::chrono::milliseconds time_between_triggers)
+        : AlertInfo(AlertKind::NEW_DATA, name, host_name, user_name, topic_name, AlertComparison::GT, 0.0, time_between_triggers)
     {
-        alert_kind = AlertKind::NEW_DATA;
-        threshold = 0.0;
-        gt_or_lt = true; // gt than 0
+    }
+};
+
+struct NoDataAlertInfo : AlertInfo
+{
+    NoDataAlertInfo(std::string name, std::string host_name, std::string user_name, std::string topic_name, double threshold, std::chrono::milliseconds time_between_triggers)
+    : AlertInfo(AlertKind::NO_DATA, name, host_name, user_name, topic_name, AlertComparison::LT, threshold, time_between_triggers)
+    {
     }
 };
 

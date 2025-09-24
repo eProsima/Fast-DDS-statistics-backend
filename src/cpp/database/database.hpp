@@ -1319,6 +1319,22 @@ protected:
             const bool last_reported = false);
 
     /**
+     * @brief Triggers all the alerts of a specific kind if the entity and the data
+     * meet the conditions
+     *
+     * @param domain_id The EntityId of the domain that contains the triggerer entity.
+     * @param entity_id The EntityId of the entity for which to trigger the alerts.
+     * @param endpoint The DDSEndpoint for which to trigger the alerts
+     * @param alert_kind The kind of alert to trigger.
+     * @param data The value that might trigger the alert
+     */
+    void trigger_alerts_of_kind(const EntityId& domain_id,
+                                const EntityId& entity_id,
+                                const std::shared_ptr<DDSEndpoint> &endpoint,
+                                const AlertKind alert_kind,
+                                const double &data);
+
+    /**
      * @brief Insert a new monitor service sample into the database. This method is not thread safe.
      *
      * @param domain_id The EntityId of the domain that contains the entity.

@@ -220,16 +220,19 @@ public:
      *
      * @param domain_id Entity ID of the domain to which the data belongs.
      * @param entity_id Entity ID of the entity to which the data refers.
-     * @param alert_kind Alert kind of the received data.
+     * @param alert Information about the alert being triggered.
+     * @param data The data that has triggered the alert.
      */
     virtual void on_alert_triggered(
             EntityId domain_id,
             EntityId entity_id,
-            AlertKind alert_kind)
+            const AlertInfo& alert,
+            const double& data)
     {
         static_cast<void>(domain_id);
         static_cast<void>(entity_id);
-        static_cast<void>(alert_kind);
+        static_cast<void>(alert);
+        static_cast<void>(data);
 
     }
 
