@@ -1485,21 +1485,21 @@ void DatabaseDataQueue<ExtendedMonitorServiceStatusData>::process_sample()
                 database_->update_entity_qos(entity, item.second->optional_qos);
 
                 if (item.second->entity_discovery_info.kind() == EntityKind::PARTICIPANT &&
-                    database_->get_entity(entity)->discovery_source != DiscoverySource::DISCOVERY)
+                        database_->get_entity(entity)->discovery_source != DiscoverySource::DISCOVERY)
                 {
                     database_->update_participant_discovery_info(entity,
-                        item.second->entity_discovery_info.host,
-                        item.second->entity_discovery_info.user,
-                        item.second->entity_discovery_info.process,
-                        item.second->entity_discovery_info.participant_name,
-                        item.second->entity_discovery_info.qos,
-                        to_string(item.second->entity_discovery_info.guid),
-                        item.second->entity_discovery_info.domain_id,
-                        item.second->entity_discovery_info.entity_status,
-                        item.second->entity_discovery_info.app_id,
-                        item.second->entity_discovery_info.app_metadata,
-                        item.second->entity_discovery_info.discovery_source,
-                        item.second->entity_discovery_info.original_domain_id);
+                            item.second->entity_discovery_info.host,
+                            item.second->entity_discovery_info.user,
+                            item.second->entity_discovery_info.process,
+                            item.second->entity_discovery_info.participant_name,
+                            item.second->entity_discovery_info.qos,
+                            to_string(item.second->entity_discovery_info.guid),
+                            item.second->entity_discovery_info.domain_id,
+                            item.second->entity_discovery_info.entity_status,
+                            item.second->entity_discovery_info.app_id,
+                            item.second->entity_discovery_info.app_metadata,
+                            item.second->entity_discovery_info.discovery_source,
+                            item.second->entity_discovery_info.original_domain_id);
                 }
 
                 details::StatisticsBackendData::get_instance()->on_status_reported(domain, entity, StatusKind::PROXY);
