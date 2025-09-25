@@ -1484,7 +1484,8 @@ void DatabaseDataQueue<ExtendedMonitorServiceStatusData>::process_sample()
                 updated_entity = database_->insert(domain, entity, sample);
                 database_->update_entity_qos(entity, item.second->optional_qos);
 
-                if (item.second->entity_discovery_info.kind() == EntityKind::PARTICIPANT)
+                if (item.second->entity_discovery_info.kind() == EntityKind::PARTICIPANT &&
+                        database_->get_entity(entity)->discovery_source != DiscoverySource::DISCOVERY)
                 {
                     database_->update_participant_discovery_info(entity,
                             item.second->entity_discovery_info.host,

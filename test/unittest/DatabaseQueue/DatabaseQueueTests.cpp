@@ -4780,6 +4780,10 @@ TEST_F(database_queue_tests, push_monitor_proxy_discovery_endpoint_before_partic
     std::copy(participant_id.begin(), participant_id.end(), p_guid.entityId.value);
     endpoint_data->entity_discovery_info.participant_guid = p_guid;
 
+    // Fake entity to allow triggering data
+    Entity fakeEntity;
+    fakeEntity.discovery_source = DiscoverySource::DISCOVERY;
+    EXPECT_CALL(database, get_entity(_)).WillOnce(::testing::Return(std::make_shared<Entity>(fakeEntity)));
 
     // Precondition: The endpoint does not exist
     EXPECT_CALL(database, get_entity_kind_by_guid(endpoint_guid)).Times(AnyNumber())
