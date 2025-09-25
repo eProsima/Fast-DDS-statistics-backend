@@ -75,6 +75,8 @@ class AlertInfo
 
     public:
 
+    AlertInfo() = default;
+
     AlertInfo(AlertKind alert_kind, std::string name, std::string host_name, std::string user_name, std::string topic_name, AlertComparison cmp, double trigger_threshold, std::chrono::milliseconds time_between_triggers)
         : alert_kind(alert_kind)
         , name(name)
@@ -124,13 +126,19 @@ class AlertInfo
         }
     }
 
+    bool time_allows_trigger() const
+    {
+        auto now = std::chrono::system_clock::now();
+        return (now - last_trigger) > time_between_triggers;
+    }
+
     bool check_trigger_conditions(
             std::string host,
             std::string user,
             std::string entity,
             double value) const
     {
-        return entity_matches(host, user, entity) && value_triggers(value);
+        return entity_matches(host, user, entity) && value_triggers(value) && time_allows_trigger();
     }
 
     AlertKind get_alert_kind() const

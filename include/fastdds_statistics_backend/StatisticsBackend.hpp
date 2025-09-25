@@ -675,10 +675,13 @@ public:
     // TODO Comment
     FASTDDS_STATISTICS_BACKEND_DllAPI
     static void set_alert(
-        const std::string& alert_name,
-        const std::string& alert_info,
-        const AlertKind& alert_kind,
-        const double& threshold);
+            const std::string& alert_name,
+            const std::string& host_name,
+            const std::string& user_name,
+            const std::string& topic_name,
+            const AlertKind& alert_kind,
+            const double& threshold,
+            const std::chrono::milliseconds& t_between_triggers);
     /**
      * @brief Deserialize entity guid to string format.
      * @param data Entity guid.

@@ -1764,7 +1764,6 @@ void Database::insert_nts(
 
                     // Trigger corresponding alerts
                     trigger_alerts_of_kind(domain_id, entity_id, writer->second, AlertKind::NEW_DATA, writer->second->data.data_count.back().count);
-
                     break;
                 }
             }

@@ -1081,25 +1081,26 @@ void StatisticsBackend::set_alias(
 
 void StatisticsBackend::set_alert(
     const std::string& alert_name,
-    const std::string& alert_description,
+    const std::string& host_name,
+    const std::string& user_name,
+    const std::string& topic_name,
     const AlertKind& alert_kind,
-    const double& threshold)
+    const double& threshold,
+    const std::chrono::milliseconds& t_between_triggers)
 {
     std::cout << "Setting alert call from statistics backend" << std::endl;
-    std::chrono::milliseconds threshold_ms(5000);
-    AlertId alert_id;
     switch (alert_kind)
     {
         case AlertKind::NEW_DATA:
             {
-                NewDataAlertInfo new_data_alert(alert_name, "", "", "", threshold_ms);
-                alert_id = StatisticsBackendData::get_instance()->database_->insert_alert(new_data_alert);
+                NewDataAlertInfo new_data_alert(alert_name, host_name, user_name, topic_name, t_between_triggers);
+                StatisticsBackendData::get_instance()->database_->insert_alert(new_data_alert);
             }
             break;
         case AlertKind::NO_DATA:
             {
-                NoDataAlertInfo no_data_alert(alert_name, "", "", "", 3.0, threshold_ms);
-                alert_id = StatisticsBackendData::get_instance()->database_->insert_alert(no_data_alert);
+                NoDataAlertInfo no_data_alert(alert_name, host_name, user_name, topic_name, threshold, t_between_triggers);
+                StatisticsBackendData::get_instance()->database_->insert_alert(no_data_alert);
             }
             break;
         // Handle other alert kinds as needed
