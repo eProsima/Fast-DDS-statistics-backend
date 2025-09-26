@@ -141,9 +141,20 @@ class AlertInfo
         return entity_matches(host, user, entity) && value_triggers(value) && time_allows_trigger();
     }
 
+    bool trigger()
+    {
+        reset_trigger_time();
+        return true;
+    }
+
     AlertKind get_alert_kind() const
     {
         return alert_kind;
+    }
+
+    std::string get_alert_name() const
+    {
+        return name;
     }
 };
 

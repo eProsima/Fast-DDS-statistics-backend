@@ -508,7 +508,7 @@ public:
     /**
      * @brief Gets the lists of active alerts
      */
-    std::map<AlertId, AlertInfo> get_alerts() const;
+    std::map<AlertId, AlertInfo>& get_alerts();
 
 
     /**
