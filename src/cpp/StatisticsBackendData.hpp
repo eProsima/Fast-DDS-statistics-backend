@@ -242,7 +242,7 @@ public:
     void on_alert_triggered(
         EntityId domain_id,
         EntityId entity_id,
-        const AlertInfo& alert,
+        AlertInfo &alert,
         const double& data);
 
     //////////////////////////////

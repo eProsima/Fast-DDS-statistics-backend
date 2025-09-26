@@ -1087,7 +1087,9 @@ void Database::trigger_alerts_of_kind(const EntityId& domain_id,
             std::string host_name  = endpoint->participant->process->user->host->name;
             if(alert_info.check_trigger_conditions(host_name, user_name, topic_name, data))
             {
-                alert_info.reset_trigger_time();
+                // Update trigger info such as last trigger timestamp
+                alert_info.trigger();
+                // Notify the alert has been triggered
                 details::StatisticsBackendData::get_instance()->on_alert_triggered(
                     domain_id,
                     entity_id,
@@ -2802,7 +2804,7 @@ std::string Database::get_ros2_type_idl_nts(
 }
 
 
-std::map<AlertId, AlertInfo> Database::get_alerts() const
+std::map<AlertId, AlertInfo>& Database::get_alerts()
 {
     return alerts_;
 }
