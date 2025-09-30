@@ -229,6 +229,13 @@ public:
             EntityKind entity_type,
             EntityId entity_id = EntityId::all());
 
+
+    /**
+     * @brief Get all the alert ids from the backend.
+     */
+    FASTDDS_STATISTICS_BACKEND_DllAPI
+    static std::vector<AlertId> get_alerts();
+
     /**
      * @brief Get the EntityId for a given GUID in string format.
      *
@@ -309,6 +316,16 @@ public:
     FASTDDS_STATISTICS_BACKEND_DllAPI
     static Info get_info(
             EntityId entity_id);
+
+    /**
+     * @brief Get the meta information of a given alert.
+     *
+     * @param alert_id The alert for which the meta information is retrieved.
+     * @return Info object describing the alert's meta information.
+     */
+    FASTDDS_STATISTICS_BACKEND_DllAPI
+    static Info get_info(
+            AlertId alert_id);
 
     /**
      * @brief Get the IDL representation of a data type in string format for a given topic entity.
@@ -681,7 +698,9 @@ public:
             const std::string& topic_name,
             const AlertKind& alert_kind,
             const double& threshold,
-            const std::chrono::milliseconds& t_between_triggers);
+            const std::chrono::milliseconds& t_between_triggers,
+            const std::string& contact_info = "");
+
     /**
      * @brief Deserialize entity guid to string format.
      * @param data Entity guid.

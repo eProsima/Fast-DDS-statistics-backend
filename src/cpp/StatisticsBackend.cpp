@@ -574,6 +574,11 @@ EntityId StatisticsBackend::get_entity_by_guid(
         guid).second;
 }
 
+std::vector<AlertId> StatisticsBackend::get_alerts()
+{
+    return StatisticsBackendData::get_instance()->database_->get_alerts_ids();
+}
+
 bool StatisticsBackend::is_active(
         EntityId entity_id)
 {
@@ -608,6 +613,12 @@ Info StatisticsBackend::get_info(
         EntityId entity_id)
 {
     return StatisticsBackendData::get_instance()->database_->get_info(entity_id);
+}
+
+Info StatisticsBackend::get_info(
+        AlertId alert_id)
+{
+    return StatisticsBackendData::get_instance()->database_->get_info(alert_id);
 }
 
 std::string StatisticsBackend::get_type_idl(
@@ -1086,27 +1097,27 @@ void StatisticsBackend::set_alert(
     const std::string& topic_name,
     const AlertKind& alert_kind,
     const double& threshold,
-    const std::chrono::milliseconds& t_between_triggers)
+    const std::chrono::milliseconds& t_between_triggers,
+    const std::string& contact_info)
 {
-    std::cout << "Setting alert call from statistics backend" << std::endl;
     switch (alert_kind)
     {
         case AlertKind::NEW_DATA:
             {
-                NewDataAlertInfo new_data_alert(alert_name, host_name, user_name, topic_name, t_between_triggers);
+                NewDataAlertInfo new_data_alert(alert_name, host_name, user_name, topic_name, t_between_triggers, contact_info);
                 StatisticsBackendData::get_instance()->database_->insert_alert(new_data_alert);
             }
             break;
         case AlertKind::NO_DATA:
             {
-                NoDataAlertInfo no_data_alert(alert_name, host_name, user_name, topic_name, threshold, t_between_triggers);
+                NoDataAlertInfo no_data_alert(alert_name, host_name, user_name, topic_name, threshold, t_between_triggers, contact_info);
                 StatisticsBackendData::get_instance()->database_->insert_alert(no_data_alert);
             }
             break;
         // Handle other alert kinds as needed
-        case AlertKind::NONE:
+        case AlertKind::INVALID:
         default:
-            std::cout << "Unsupported alert kind " << static_cast<int>(alert_kind) << std::endl;
+            throw BadParameter("Unsupported alert kind " << static_cast<int>(alert_kind));
     }
 }
 

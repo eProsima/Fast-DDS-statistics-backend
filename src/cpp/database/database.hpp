@@ -504,12 +504,10 @@ public:
     std::string get_ros2_type_idl(
             const std::string& type_name) const;
 
-
     /**
      * @brief Gets the lists of active alerts
      */
-    std::map<AlertId, AlertInfo>& get_alerts();
-
+    std::vector<AlertId> get_alerts_ids() const;
 
     /**
      * @brief Get the entity of a given EntityKind that matches with the requested GUID.
@@ -714,7 +712,7 @@ public:
      * @param alert_info The new alert information.
      * @return The AlertId of the alert.
      */
-    AlertId insert_alert(const AlertInfo& alert_info);
+    AlertId insert_alert(AlertInfo& alert_info);
 
 
     /**
@@ -802,6 +800,16 @@ public:
      */
     Info get_info(
             const EntityId& entity_id);
+
+    /**
+     * @brief Get the meta information of a given alert.
+     *
+     * @param alert_id The alert for which the meta information is retrieved.
+     *
+     * @return Info object describing the alert's meta information.
+     */
+    Info get_info(
+            const AlertId& alert_id);
 
     /**
      * @brief Returns the id of the topic associated to an endpoint.
@@ -1367,6 +1375,12 @@ protected:
             const std::string& name) const;
 
     /**
+     * @brief Get the alert entity with the given ID. This method is not thread safe.
+     */
+    const std::shared_ptr<const AlertInfo> get_alert_nts(
+        const AlertId& alert_id) const;
+
+    /**
      * @brief Get the type IDL of a given type name, if it exists. This method is not thread safe.
      *
      * @param type_name The name of the data type for which to search.
@@ -1597,7 +1611,7 @@ protected:
      * @param alert_info The new alert information.
      * @return The AlertId of the alert.
      */
-    AlertId insert_alert_nts(const AlertInfo &alert_info);
+    AlertId insert_alert_nts(AlertInfo &alert_info);
 
     /**
      * @brief Create the link between a participant and a process. This method is not thread safe.

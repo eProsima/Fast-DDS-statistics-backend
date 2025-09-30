@@ -1077,7 +1077,7 @@ void Database::trigger_alerts_of_kind(const EntityId& domain_id,
                                     const AlertKind alert_kind,
                                     const double &data){
 
-    for(auto& [alert_id, alert_info] : get_alerts())
+    for(auto& [alert_id, alert_info] : alerts_)
     {
         if (alert_info.get_alert_kind() == alert_kind)
         {
@@ -2736,6 +2736,20 @@ std::vector<std::pair<EntityId, EntityId>> Database::get_entities_by_name_nts(
     return entities;
 }
 
+const std::shared_ptr<const AlertInfo> Database::get_alert_nts(
+        const AlertId& alert_id) const
+{
+    /* Iterate over all the collections looking for the entity */
+    for (const auto& alert : alerts_)
+    {
+       if (alert.second.get_alert_id() == alert_id)
+       {
+           return std::make_shared<AlertInfo>(alert.second);
+       }
+    }
+    return nullptr;
+}
+
 std::string Database::get_type_idl(
         const std::string& type_name) const
 {
@@ -2801,12 +2815,6 @@ std::string Database::get_ros2_type_idl_nts(
     {
         return get_type_idl_nts(type_name);
     }
-}
-
-
-std::map<AlertId, AlertInfo>& Database::get_alerts()
-{
-    return alerts_;
 }
 
 void Database::erase(
@@ -4757,6 +4765,20 @@ std::vector<EntityId> Database::get_entity_ids(
     return entitiesIds;
 }
 
+std::vector<AlertId> Database::get_alerts_ids() const
+{
+    std::vector<AlertId> alertsIds;
+
+    std::shared_lock<std::shared_timed_mutex> lock(mutex_);
+
+    for (const auto& alert : alerts_)
+    {
+        alertsIds.push_back(alert.first);
+    }
+
+    return alertsIds;
+}
+
 // Auxiliar function to convert a map to a vector
 template<typename T>
 void map_to_vector(
@@ -6284,6 +6306,25 @@ Info Database::get_info(
             break;
         }
     }
+
+    return info;
+}
+
+Info Database::get_info(
+        const AlertId& alert_id)
+{
+    Info info = Info::object();
+
+    std::shared_lock<std::shared_timed_mutex> lock(mutex_);
+
+    std::shared_ptr<const AlertInfo> alert = get_alert_nts(alert_id);
+    if(alert == nullptr)
+    {
+        throw BadParameter("Error: Alert ID does not exist");
+    }
+
+    info[KIND_TAG] = alert_kind_str[(int)alert->get_alert_kind()];
+    info[NAME_TAG] = alert->get_alert_name();
 
     return info;
 }
@@ -8006,7 +8047,7 @@ void Database::clear_internal_references_nts_()
  * @param alert_info The new alert information.
  * @return The AlertId of the alert.
  */
-AlertId Database::insert_alert(const AlertInfo& alert_info)
+AlertId Database::insert_alert(AlertInfo& alert_info)
 {
     std::lock_guard<std::shared_timed_mutex> guard(mutex_);
     return insert_alert_nts(alert_info);
@@ -8018,10 +8059,11 @@ AlertId Database::insert_alert(const AlertInfo& alert_info)
  * @param alert_info The new alert information.
  * @return The AlertId of the alert.
  */
-AlertId Database::insert_alert_nts(const AlertInfo &alert_info)
+AlertId Database::insert_alert_nts(AlertInfo &alert_info)
 {
     // store alert_info in the database
     AlertId id = next_alert_id_++;
+    alert_info.set_id(id);
     alerts_.emplace(id, alert_info);
     return id;
 }

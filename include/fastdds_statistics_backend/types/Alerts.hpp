@@ -35,7 +35,7 @@ typedef uint32_t AlertId;
  */
 enum class AlertKind
 {
-    NONE,
+    INVALID,
     NEW_DATA,
     NO_DATA
 };
@@ -50,6 +50,8 @@ enum class AlertComparison
 class AlertInfo
 {
     private:
+        // Unique identifier for the alert
+        AlertId id;
         // Kind of alert
         AlertKind alert_kind;
         // String name of alert
@@ -59,25 +61,20 @@ class AlertInfo
         std::string host_name;
         std::string user_name;
         std::string topic_name;
-        // std::string alias;        // ALIAS alerts are defined by <alias>
-        // TODO: Additionally, the GUID can be used to match the alert
-        // GUID_t entity_guid;
-        // Entity to which the alert applies, if known
-        // Structure that contains the subentitiesto which the alert applies
-        // std::map<EntityId, bool> subentities_trigger;
-        // EntityId entity_id;
         // Conditions for triggering
         AlertComparison cmp;
         double trigger_threshold;
         // Last trigger
         std::chrono::system_clock::time_point last_trigger;
         std::chrono::milliseconds time_between_triggers;
+        // Information for contacting the user
+        std::string contact_info;
 
     public:
 
     AlertInfo() = default;
 
-    AlertInfo(AlertKind alert_kind, std::string name, std::string host_name, std::string user_name, std::string topic_name, AlertComparison cmp, double trigger_threshold, std::chrono::milliseconds time_between_triggers)
+    AlertInfo(AlertKind alert_kind, std::string name, std::string host_name, std::string user_name, std::string topic_name, AlertComparison cmp, double trigger_threshold, std::chrono::milliseconds time_between_triggers, const std::string& contact_info = "")
         : alert_kind(alert_kind)
         , name(name)
         , host_name(host_name)
@@ -86,6 +83,7 @@ class AlertInfo
         , cmp(cmp)
         , trigger_threshold(trigger_threshold)
         , time_between_triggers(time_between_triggers)
+        , contact_info(contact_info)
     {
         reset_trigger_time();
     }
@@ -147,6 +145,16 @@ class AlertInfo
         return true;
     }
 
+    void set_id(AlertId alert_id)
+    {
+        id = alert_id;
+    }
+
+    AlertId get_alert_id() const
+    {
+        return id;
+    }
+
     AlertKind get_alert_kind() const
     {
         return alert_kind;
@@ -160,16 +168,16 @@ class AlertInfo
 
 struct NewDataAlertInfo : AlertInfo
 {
-    NewDataAlertInfo(std::string name, std::string host_name, std::string user_name, std::string topic_name, std::chrono::milliseconds time_between_triggers)
-        : AlertInfo(AlertKind::NEW_DATA, name, host_name, user_name, topic_name, AlertComparison::GT, 0.0, time_between_triggers)
+    NewDataAlertInfo(std::string name, std::string host_name, std::string user_name, std::string topic_name, std::chrono::milliseconds time_between_triggers, const std::string& contact_info = "")
+        : AlertInfo(AlertKind::NEW_DATA, name, host_name, user_name, topic_name, AlertComparison::GT, 0.0, time_between_triggers, contact_info)
     {
     }
 };
 
 struct NoDataAlertInfo : AlertInfo
 {
-    NoDataAlertInfo(std::string name, std::string host_name, std::string user_name, std::string topic_name, double threshold, std::chrono::milliseconds time_between_triggers)
-    : AlertInfo(AlertKind::NO_DATA, name, host_name, user_name, topic_name, AlertComparison::LT, threshold, time_between_triggers)
+    NoDataAlertInfo(std::string name, std::string host_name, std::string user_name, std::string topic_name, double threshold, std::chrono::milliseconds time_between_triggers, const std::string& contact_info = "")
+    : AlertInfo(AlertKind::NO_DATA, name, host_name, user_name, topic_name, AlertComparison::LT, threshold, time_between_triggers, contact_info)
     {
     }
 };

@@ -85,6 +85,14 @@ constexpr const char* DATAREADER_ENTITY_TAG         = "datareader";
 constexpr const char* LOCATOR_ENTITY_TAG            = "locator";
 
 /////
+// Alert kind
+
+//! Key Tag for a single no_data alert
+constexpr const char* NO_DATA_TAG                    = "no_data";
+//! Key Tag for a single new_data alert
+constexpr const char* NEW_DATA_TAG                   = "new_data";
+
+/////
 // Status Level
 
 //! OK status
@@ -140,6 +148,9 @@ constexpr const char* ORIGINAL_DOMAIN_TAG          = "original_domain";
 constexpr const char* entity_kind_str[] =
 {"invalid", HOST_ENTITY_TAG, USER_ENTITY_TAG, PROCESS_ENTITY_TAG, DOMAIN_ENTITY_TAG, TOPIC_ENTITY_TAG,
  PARTICIPANT_ENTITY_TAG, DATAWRITER_ENTITY_TAG, DATAREADER_ENTITY_TAG, LOCATOR_ENTITY_TAG};
+ //! Conversion from AlertKind to string
+constexpr const char* alert_kind_str[] =
+{"invalid", NEW_DATA_TAG, NO_DATA_TAG};
 //! Conversion from StatusLevel to string
 constexpr const char* status_level_str[] =
 {OK_STATUS, WARNING_STATUS, ERROR_STATUS};
