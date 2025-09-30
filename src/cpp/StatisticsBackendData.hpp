@@ -240,10 +240,10 @@ public:
      * @param data the data that has triggered the alert
      */
     void on_alert_triggered(
-        EntityId domain_id,
-        EntityId entity_id,
-        AlertInfo &alert,
-        const double& data);
+            EntityId domain_id,
+            EntityId entity_id,
+            AlertInfo& alert,
+            const double& data);
 
     //////////////////////////////
     // STATISTICS BACKEND METHODS

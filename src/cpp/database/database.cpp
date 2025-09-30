@@ -1070,14 +1070,15 @@ void Database::notify_locator_discovery (
         details::StatisticsBackendData::DiscoveryStatus::DISCOVERY);
 }
 
+void Database::trigger_alerts_of_kind(
+        const EntityId& domain_id,
+        const EntityId& entity_id,
+        const std::shared_ptr<DDSEndpoint>& endpoint,
+        const AlertKind alert_kind,
+        const double& data)
+{
 
-void Database::trigger_alerts_of_kind(const EntityId& domain_id,
-                                    const EntityId& entity_id,
-                                    const std::shared_ptr<DDSEndpoint> &endpoint,
-                                    const AlertKind alert_kind,
-                                    const double &data){
-
-    for(auto& [alert_id, alert_info] : alerts_)
+    for (auto& [alert_id, alert_info] : alerts_)
     {
         if (alert_info.get_alert_kind() == alert_kind)
         {
@@ -1085,7 +1086,7 @@ void Database::trigger_alerts_of_kind(const EntityId& domain_id,
             std::string topic_name = endpoint->topic->name;
             std::string user_name  = endpoint->participant->process->user->name;
             std::string host_name  = endpoint->participant->process->user->host->name;
-            if(alert_info.check_trigger_conditions(host_name, user_name, topic_name, data))
+            if (alert_info.check_trigger_conditions(host_name, user_name, topic_name, data))
             {
                 // Update trigger info such as last trigger timestamp
                 alert_info.trigger();
@@ -1227,7 +1228,8 @@ void Database::insert_nts(
                     reader->second->data.subscription_throughput.push_back(subscription_throughput);
 
                     // Trigger corresponding alerts
-                    trigger_alerts_of_kind(domain_id, entity_id, reader->second, AlertKind::NO_DATA, subscription_throughput.data);
+                    trigger_alerts_of_kind(domain_id, entity_id, reader->second, AlertKind::NO_DATA,
+                            subscription_throughput.data);
                     break;
                 }
             }
@@ -1765,7 +1767,8 @@ void Database::insert_nts(
                     }
 
                     // Trigger corresponding alerts
-                    trigger_alerts_of_kind(domain_id, entity_id, writer->second, AlertKind::NEW_DATA, writer->second->data.data_count.back().count);
+                    trigger_alerts_of_kind(domain_id, entity_id, writer->second, AlertKind::NEW_DATA,
+                            writer->second->data.data_count.back().count);
                     break;
                 }
             }
@@ -2742,10 +2745,10 @@ const std::shared_ptr<const AlertInfo> Database::get_alert_nts(
     /* Iterate over all the collections looking for the entity */
     for (const auto& alert : alerts_)
     {
-       if (alert.second.get_alert_id() == alert_id)
-       {
-           return std::make_shared<AlertInfo>(alert.second);
-       }
+        if (alert.second.get_alert_id() == alert_id)
+        {
+            return std::make_shared<AlertInfo>(alert.second);
+        }
     }
     return nullptr;
 }
@@ -6318,7 +6321,7 @@ Info Database::get_info(
     std::shared_lock<std::shared_timed_mutex> lock(mutex_);
 
     std::shared_ptr<const AlertInfo> alert = get_alert_nts(alert_id);
-    if(alert == nullptr)
+    if (alert == nullptr)
     {
         throw BadParameter("Error: Alert ID does not exist");
     }
@@ -8040,14 +8043,14 @@ void Database::clear_internal_references_nts_()
     }
 }
 
-
 /**
  * @brief Setter for entity alert.
  *
  * @param alert_info The new alert information.
  * @return The AlertId of the alert.
  */
-AlertId Database::insert_alert(AlertInfo& alert_info)
+AlertId Database::insert_alert(
+        AlertInfo& alert_info)
 {
     std::lock_guard<std::shared_timed_mutex> guard(mutex_);
     return insert_alert_nts(alert_info);
@@ -8059,7 +8062,8 @@ AlertId Database::insert_alert(AlertInfo& alert_info)
  * @param alert_info The new alert information.
  * @return The AlertId of the alert.
  */
-AlertId Database::insert_alert_nts(AlertInfo &alert_info)
+AlertId Database::insert_alert_nts(
+        AlertInfo& alert_info)
 {
     // store alert_info in the database
     AlertId id = next_alert_id_++;
@@ -8067,9 +8071,6 @@ AlertId Database::insert_alert_nts(AlertInfo &alert_info)
     alerts_.emplace(id, alert_info);
     return id;
 }
-
-
-
 
 } //namespace database
 } //namespace statistics_backend

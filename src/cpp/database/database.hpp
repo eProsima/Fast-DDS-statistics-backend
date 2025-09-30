@@ -712,7 +712,8 @@ public:
      * @param alert_info The new alert information.
      * @return The AlertId of the alert.
      */
-    AlertId insert_alert(AlertInfo& alert_info);
+    AlertId insert_alert(
+            AlertInfo& alert_info);
 
 
     /**
@@ -1336,11 +1337,12 @@ protected:
      * @param alert_kind The kind of alert to trigger.
      * @param data The value that might trigger the alert
      */
-    void trigger_alerts_of_kind(const EntityId& domain_id,
-                                const EntityId& entity_id,
-                                const std::shared_ptr<DDSEndpoint> &endpoint,
-                                const AlertKind alert_kind,
-                                const double &data);
+    void trigger_alerts_of_kind(
+            const EntityId& domain_id,
+            const EntityId& entity_id,
+            const std::shared_ptr<DDSEndpoint>& endpoint,
+            const AlertKind alert_kind,
+            const double& data);
 
     /**
      * @brief Insert a new monitor service sample into the database. This method is not thread safe.
@@ -1378,7 +1380,7 @@ protected:
      * @brief Get the alert entity with the given ID. This method is not thread safe.
      */
     const std::shared_ptr<const AlertInfo> get_alert_nts(
-        const AlertId& alert_id) const;
+            const AlertId& alert_id) const;
 
     /**
      * @brief Get the type IDL of a given type name, if it exists. This method is not thread safe.
@@ -1611,7 +1613,8 @@ protected:
      * @param alert_info The new alert information.
      * @return The AlertId of the alert.
      */
-    AlertId insert_alert_nts(AlertInfo &alert_info);
+    AlertId insert_alert_nts(
+            AlertInfo& alert_info);
 
     /**
      * @brief Create the link between a participant and a process. This method is not thread safe.
