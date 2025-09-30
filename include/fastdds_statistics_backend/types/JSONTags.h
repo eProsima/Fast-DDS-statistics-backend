@@ -148,7 +148,7 @@ constexpr const char* ORIGINAL_DOMAIN_TAG          = "original_domain";
 constexpr const char* entity_kind_str[] =
 {"invalid", HOST_ENTITY_TAG, USER_ENTITY_TAG, PROCESS_ENTITY_TAG, DOMAIN_ENTITY_TAG, TOPIC_ENTITY_TAG,
  PARTICIPANT_ENTITY_TAG, DATAWRITER_ENTITY_TAG, DATAREADER_ENTITY_TAG, LOCATOR_ENTITY_TAG};
- //! Conversion from AlertKind to string
+//! Conversion from AlertKind to string
 constexpr const char* alert_kind_str[] =
 {"invalid", NEW_DATA_TAG, NO_DATA_TAG};
 //! Conversion from StatusLevel to string

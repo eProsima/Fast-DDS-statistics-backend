@@ -1091,29 +1091,31 @@ void StatisticsBackend::set_alias(
 }
 
 void StatisticsBackend::set_alert(
-    const std::string& alert_name,
-    const std::string& host_name,
-    const std::string& user_name,
-    const std::string& topic_name,
-    const AlertKind& alert_kind,
-    const double& threshold,
-    const std::chrono::milliseconds& t_between_triggers,
-    const std::string& contact_info)
+        const std::string& alert_name,
+        const std::string& host_name,
+        const std::string& user_name,
+        const std::string& topic_name,
+        const AlertKind& alert_kind,
+        const double& threshold,
+        const std::chrono::milliseconds& t_between_triggers,
+        const std::string& contact_info)
 {
     switch (alert_kind)
     {
         case AlertKind::NEW_DATA:
-            {
-                NewDataAlertInfo new_data_alert(alert_name, host_name, user_name, topic_name, t_between_triggers, contact_info);
-                StatisticsBackendData::get_instance()->database_->insert_alert(new_data_alert);
-            }
-            break;
+        {
+            NewDataAlertInfo new_data_alert(alert_name, host_name, user_name, topic_name, t_between_triggers,
+                    contact_info);
+            StatisticsBackendData::get_instance()->database_->insert_alert(new_data_alert);
+        }
+        break;
         case AlertKind::NO_DATA:
-            {
-                NoDataAlertInfo no_data_alert(alert_name, host_name, user_name, topic_name, threshold, t_between_triggers, contact_info);
-                StatisticsBackendData::get_instance()->database_->insert_alert(no_data_alert);
-            }
-            break;
+        {
+            NoDataAlertInfo no_data_alert(alert_name, host_name, user_name, topic_name, threshold, t_between_triggers,
+                    contact_info);
+            StatisticsBackendData::get_instance()->database_->insert_alert(no_data_alert);
+        }
+        break;
         // Handle other alert kinds as needed
         case AlertKind::INVALID:
         default:

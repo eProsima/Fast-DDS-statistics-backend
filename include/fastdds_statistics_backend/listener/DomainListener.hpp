@@ -214,7 +214,6 @@ public:
 
     }
 
-
     /*!
      * This function is called when a new alert must be reported.
      *
@@ -235,7 +234,6 @@ public:
         static_cast<void>(data);
 
     }
-
 
 };
 
