@@ -189,7 +189,7 @@ void StatisticsParticipantListener::update_user_data_context(
             remote_type_object)->build();
 
         // Add the topic to the discovered topics if not already present
-        ctx_->register_user_data_topic(info.type_name.to_string(), remote_type);
+        ctx_->register_user_data_topic(info.topic_name.to_string(), remote_type);
     }
 }
 
@@ -214,7 +214,7 @@ void StatisticsParticipantListener::update_user_data_context(
             remote_type_object)->build();
 
         // Add the topic to the discovered topics if not already present
-        ctx_->register_user_data_topic(info.type_name.to_string(), remote_type);
+        ctx_->register_user_data_topic(info.topic_name.to_string(), remote_type);
     }
 }
 
