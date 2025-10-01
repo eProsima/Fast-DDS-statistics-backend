@@ -26,8 +26,6 @@
 namespace eprosima {
 namespace statistics_backend {
 
-
-using GUID_t = fastdds::rtps::GUID_t;
 typedef uint32_t AlertId;
 
 /*
