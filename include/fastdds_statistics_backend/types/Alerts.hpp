@@ -180,6 +180,37 @@ public:
         return name;
     }
 
+    std::string get_host_name() const
+    {
+        return host_name;
+    }
+
+    std::string get_user_name() const
+    {
+        return user_name;
+    }
+
+    std::string get_topic_name() const
+    {
+        return topic_name;
+    }
+
+    double get_trigger_threshold() const
+    {
+        return trigger_threshold;
+    }
+
+    std::string get_contact_info() const
+    {
+        return contact_info;
+    }
+
+    std::chrono::milliseconds get_time_between_triggers() const
+    {
+        return time_between_triggers;
+    }
+
+
 };
 
 struct NewDataAlertInfo : AlertInfo

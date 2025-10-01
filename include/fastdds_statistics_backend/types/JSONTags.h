@@ -143,6 +143,16 @@ constexpr const char* DOMAIN_NAME_TAG                = "domain_name";
 constexpr const char* DISCOVERY_SOURCE_TAG          = "discovery_source";
 //! Key tag for original domain of a participant entity
 constexpr const char* ORIGINAL_DOMAIN_TAG          = "original_domain";
+//! Key tags for alerts
+constexpr const char* ALERT_KIND_TAG                  = "kind";
+constexpr const char* ALERT_NAME_TAG                  = "name";
+constexpr const char* ALERT_HOST_TAG                  = "host";
+constexpr const char* ALERT_USER_TAG                  = "user";
+constexpr const char* ALERT_TOPIC_TAG                 = "topic";
+constexpr const char* ALERT_THRESHOLD_TAG             = "threshold";
+constexpr const char* ALERT_CONTACT_INFO_TAG          = "contact_info";
+constexpr const char* ALERT_TIME_BETWEEN_TRIGGERS_TAG = "time_between_triggers";
+
 
 //! Conversion from EntityKind to string
 constexpr const char* entity_kind_str[] =

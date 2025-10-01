@@ -6326,8 +6326,22 @@ Info Database::get_info(
         throw BadParameter("Error: Alert ID does not exist");
     }
 
-    info[KIND_TAG] = alert_kind_str[(int)alert->get_alert_kind()];
-    info[NAME_TAG] = alert->get_alert_name();
+    info[ID_TAG]   = std::to_string(alert_id);
+    info[ALERT_KIND_TAG] = alert_kind_str[(int)alert->get_alert_kind()];
+    info[ALERT_NAME_TAG] = alert->get_alert_name();
+    info[ALERT_HOST_TAG] = alert->get_host_name();
+    info[ALERT_USER_TAG] = alert->get_user_name();
+    info[ALERT_TOPIC_TAG] = alert->get_topic_name();
+
+    if(alert->get_alert_kind() != AlertKind::NEW_DATA)
+    {
+        info[ALERT_THRESHOLD_TAG] = std::to_string(alert->get_trigger_threshold());
+    }
+
+    if (!alert->get_contact_info().empty())
+    {
+        info[ALERT_CONTACT_INFO_TAG] = alert->get_contact_info();
+    }
 
     return info;
 }

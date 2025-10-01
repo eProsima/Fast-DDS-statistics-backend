@@ -1119,7 +1119,7 @@ void StatisticsBackend::set_alert(
         // Handle other alert kinds as needed
         case AlertKind::INVALID:
         default:
-            throw BadParameter("Unsupported alert kind " << static_cast<int>(alert_kind));
+            throw BadParameter("Unsupported alert kind");
     }
 }
 
