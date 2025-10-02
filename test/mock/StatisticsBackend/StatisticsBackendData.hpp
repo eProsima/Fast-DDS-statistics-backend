@@ -25,6 +25,7 @@
 
 #include <fastdds_statistics_backend/types/types.hpp>
 #include <fastdds_statistics_backend/types/EntityId.hpp>
+#include <fastdds_statistics_backend/types/Alerts.hpp>
 
 #include <chrono>
 #include <string>
@@ -81,6 +82,12 @@ public:
                 EntityId domain_id,
                 EntityId entity_id,
                 StatusKind status_kind));
+
+    MOCK_METHOD4(on_alert_triggered, void(
+            EntityId domain_id,
+            EntityId entity_id,
+            AlertInfo& alert,
+            const double& data));
 
     static StatisticsBackendData* get_instance()
     {
