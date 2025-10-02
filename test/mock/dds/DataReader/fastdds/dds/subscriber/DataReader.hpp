@@ -24,6 +24,7 @@
 
 #include <fastdds/dds/subscriber/Subscriber.hpp>
 #include <fastdds/dds/subscriber/SampleInfo.hpp>
+#include <fastdds/dds/xtypes/dynamic_types/DynamicData.hpp>
 #include <fastdds/rtps/common/Guid.hpp>
 #include <fastdds_statistics_backend/topic_types/types.hpp>
 
@@ -41,8 +42,10 @@ protected:
 
     using StatisticsData = eprosima::fastdds::statistics::Data;
     using MonitorData = eprosima::fastdds::statistics::MonitorServiceStatusData;
+    using UserData = eprosima::fastdds::dds::DynamicData::_ref_type;
     using StatisticsSample = std::pair<std::shared_ptr<StatisticsData>, std::shared_ptr<SampleInfo>>;
     using MonitorSample = std::pair<std::shared_ptr<MonitorData>, std::shared_ptr<SampleInfo>>;
+    using UserDataSample = std::pair<UserData, std::shared_ptr<SampleInfo>>;
 
     using StatisticsWriterReaderData = eprosima::fastdds::statistics::WriterReaderData;
     using StatisticsLocator2LocatorData = eprosima::fastdds::statistics::Locator2LocatorData;
@@ -132,6 +135,12 @@ public:
             *info = *(monitor_history_.front().second.get());
             monitor_history_.pop();
         }
+        else if (!user_data_history_.empty())
+        {
+            *static_cast<UserData*>(data) = user_data_history_.front().first->clone();
+            *info = *(user_data_history_.front().second.get());
+            user_data_history_.pop();
+        }
         else
         {
             return RETCODE_NO_DATA;
@@ -166,6 +175,13 @@ public:
         monitor_history_.push(std::make_pair(data, info));
     }
 
+    void add_user_data_sample(
+            UserData data,
+            std::shared_ptr<SampleInfo> info)
+    {
+        user_data_history_.push(std::make_pair(data, info));
+    }
+
     void set_guid(
             fastdds::rtps::GUID_t guid)
     {
@@ -193,6 +209,7 @@ protected:
     fastdds::rtps::GUID_t guid_;
     std::queue<StatisticsSample> history_;
     std::queue<MonitorSample> monitor_history_;
+    std::queue<UserDataSample> user_data_history_;
     TopicDescription topic_description_;
     std::unique_ptr<Subscriber> subscriber_;
 };

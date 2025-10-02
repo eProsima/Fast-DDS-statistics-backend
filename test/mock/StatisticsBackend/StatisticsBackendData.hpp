@@ -27,6 +27,7 @@
 #include <fastdds_statistics_backend/types/EntityId.hpp>
 
 #include <chrono>
+#include <functional>
 #include <string>
 
 namespace eprosima {
@@ -81,6 +82,15 @@ public:
                 EntityId domain_id,
                 EntityId entity_id,
                 StatusKind status_kind));
+
+    MOCK_METHOD3(start_topic_spy, void(
+                EntityId monitor_id,
+                const std::string& topic_name,
+                std::function<void(const std::string& data)> on_data_received));
+
+    MOCK_METHOD2(stop_topic_spy, void(
+                EntityId monitor_id,
+                const std::string& topic_name));
 
     static StatisticsBackendData* get_instance()
     {
