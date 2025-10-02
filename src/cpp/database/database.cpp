@@ -31,6 +31,7 @@
 #include <fastdds_statistics_backend/types/types.hpp>
 #include <fastdds_statistics_backend/types/JSONTags.h>
 #include <fastdds_statistics_backend/types/app_names.h>
+#include <fastdds_statistics_backend/types/Alerts.hpp>
 #include <StatisticsBackendData.hpp>
 
 #include "database_queue.hpp"
@@ -1069,6 +1070,65 @@ void Database::notify_locator_discovery (
         details::StatisticsBackendData::DiscoveryStatus::DISCOVERY);
 }
 
+void Database::trigger_alerts_of_kind(
+        const EntityId& domain_id,
+        const EntityId& entity_id,
+        const std::shared_ptr<DDSEndpoint>& endpoint,
+        const AlertKind alert_kind,
+        const double& data)
+{
+    std::lock_guard<std::shared_timed_mutex> guard(mutex_);
+
+    // NOTE: At the moment, alerts are defined for all domains, so we ignore domain_id
+    // There should be an option to get the active domains when setting the alert
+    // and that is the value that should be used here. The static cast is just to avoid
+    // the warning
+    static_cast<void>(domain_id);
+
+    trigger_alerts_of_kind_nts(
+        domain_id,
+        entity_id,
+        endpoint,
+        alert_kind,
+        data);
+}
+
+void Database::trigger_alerts_of_kind_nts(
+        const EntityId& domain_id,
+        const EntityId& entity_id,
+        const std::shared_ptr<DDSEndpoint>& endpoint,
+        const AlertKind alert_kind,
+        const double& data)
+{
+    // NOTE: At the moment, alerts are defined for all domains, so we ignore domain_id
+    // There should be an option to get the active domains when setting the alert
+    // and that is the value that should be used here. The static cast is just to avoid
+    // the warning
+    static_cast<void>(domain_id);
+
+    for (auto& [alert_id, alert_info] : alerts_)
+    {
+        if (alert_info->get_alert_kind() == alert_kind)
+        {
+            // Get the metadata from the entity that sent the stats
+            std::string topic_name = endpoint->topic->name;
+            std::string user_name  = endpoint->participant->process->user->name;
+            std::string host_name  = endpoint->participant->process->user->host->name;
+            if (alert_info->check_trigger_conditions(host_name, user_name, topic_name, data))
+            {
+                // Update trigger info such as last trigger timestamp
+                alert_info->trigger();
+                // Notify the alert has been triggered
+                details::StatisticsBackendData::get_instance()->on_alert_triggered(
+                    domain_id,
+                    entity_id,
+                    *alert_info,
+                    data);
+            }
+        }
+    }
+}
+
 void Database::insert_nts(
         const EntityId& domain_id,
         const EntityId& entity_id,
@@ -1194,6 +1254,10 @@ void Database::insert_nts(
                     }
 
                     reader->second->data.subscription_throughput.push_back(subscription_throughput);
+
+                    // Trigger corresponding alerts
+                    trigger_alerts_of_kind_nts(domain_id, entity_id, reader->second, AlertKind::NO_DATA,
+                            subscription_throughput.data);
                     break;
                 }
             }
@@ -1730,6 +1794,9 @@ void Database::insert_nts(
                         writer->second->data.last_reported_data_count = data_count;
                     }
 
+                    // Trigger corresponding alerts
+                    trigger_alerts_of_kind_nts(domain_id, entity_id, writer->second, AlertKind::NEW_DATA,
+                            writer->second->data.data_count.back().count);
                     break;
                 }
             }
@@ -2700,6 +2767,21 @@ std::vector<std::pair<EntityId, EntityId>> Database::get_entities_by_name_nts(
     return entities;
 }
 
+const std::shared_ptr<const AlertInfo> Database::get_alert_nts(
+        const AlertId& alert_id) const
+{
+    /* Iterate over all the collections looking for the entity */
+    for (const auto& alert_it : alerts_)
+    {
+        if (alert_it.second->get_alert_id() == alert_id)
+        {
+            return alert_it.second;
+        }
+    }
+
+    return nullptr;
+}
+
 std::string Database::get_type_idl(
         const std::string& type_name) const
 {
@@ -3111,6 +3193,7 @@ std::vector<const StatisticsSample*> Database::select(
                     break;
                 }
             }
+
             break;
         }
         case DataKind::RESENT_DATA:
@@ -4714,6 +4797,19 @@ std::vector<EntityId> Database::get_entity_ids(
     return entitiesIds;
 }
 
+std::vector<AlertId> Database::get_alerts_ids() const
+{
+    std::shared_lock<std::shared_timed_mutex> lock(mutex_);
+    std::vector<AlertId> alertsIds;
+
+    for (const auto& alert_it : alerts_)
+    {
+        alertsIds.push_back(alert_it.first);
+    }
+
+    return alertsIds;
+}
+
 // Auxiliar function to convert a map to a vector
 template<typename T>
 void map_to_vector(
@@ -6240,6 +6336,39 @@ Info Database::get_info(
         {
             break;
         }
+    }
+
+    return info;
+}
+
+Info Database::get_info(
+        const AlertId& alert_id)
+{
+    Info info = Info::object();
+
+    std::shared_lock<std::shared_timed_mutex> lock(mutex_);
+
+    std::shared_ptr<const AlertInfo> alert = get_alert_nts(alert_id);
+    if (alert == nullptr)
+    {
+        throw BadParameter("Error: Alert ID does not exist");
+    }
+
+    info[ID_TAG]   = std::to_string(alert_id);
+    info[ALERT_KIND_TAG] = alert_kind_str[(int)alert->get_alert_kind()];
+    info[ALERT_NAME_TAG] = alert->get_alert_name();
+    info[ALERT_HOST_TAG] = alert->get_host_name();
+    info[ALERT_USER_TAG] = alert->get_user_name();
+    info[ALERT_TOPIC_TAG] = alert->get_topic_name();
+
+    if(alert->get_alert_kind() != AlertKind::NEW_DATA)
+    {
+        info[ALERT_THRESHOLD_TAG] = std::to_string(alert->get_trigger_threshold());
+    }
+
+    if (!alert->get_contact_info().empty())
+    {
+        info[ALERT_CONTACT_INFO_TAG] = alert->get_contact_info();
     }
 
     return info;
@@ -7954,6 +8083,35 @@ void Database::clear_internal_references_nts_()
         clear_inactive_entities_from_map_(it.second->topics);
         clear_inactive_entities_from_map_(it.second->participants);
     }
+}
+
+/**
+ * @brief Setter for entity alert.
+ *
+ * @param alert_info The new alert information.
+ * @return The AlertId of the alert.
+ */
+AlertId Database::insert_alert(
+        AlertInfo& alert_info)
+{
+    std::lock_guard<std::shared_timed_mutex> guard(mutex_);
+    return insert_alert_nts(alert_info);
+}
+
+/**
+ * @brief Setter for entity alert.
+ *
+ * @param alert_info The new alert information.
+ * @return The AlertId of the alert.
+ */
+AlertId Database::insert_alert_nts(
+        AlertInfo& alert_info)
+{
+    // store alert_info in the database
+    AlertId id = next_alert_id_++;
+    alert_info.set_id(id);
+    alerts_.emplace(id, std::make_shared<AlertInfo>(alert_info));
+    return id;
 }
 
 } //namespace database

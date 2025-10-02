@@ -29,6 +29,7 @@
 
 #include <fastdds_statistics_backend/exception/Exception.hpp>
 #include <fastdds_statistics_backend/types/EntityId.hpp>
+#include <fastdds_statistics_backend/types/Alerts.hpp>
 #include <fastdds_statistics_backend/exception/Exception.hpp>
 
 #include <fastdds/rtps/common/Locator.hpp>
@@ -260,6 +261,23 @@ public:
             const EntityId& domain_id,
             const EntityId& entity_id,
             const MonitorServiceSample& sample);
+
+    /**
+     * @brief Triggers all the alerts of a specific kind if the entity and the data
+     * meet the conditions
+     *
+     * @param domain_id The EntityId of the domain that contains the triggerer entity.
+     * @param entity_id The EntityId of the entity for which to trigger the alerts.
+     * @param endpoint The DDSEndpoint for which to trigger the alerts
+     * @param alert_kind The kind of alert to trigger.
+     * @param data The value that might trigger the alert
+     */
+    void trigger_alerts_of_kind(
+            const EntityId& domain_id,
+            const EntityId& entity_id,
+            const std::shared_ptr<DDSEndpoint>& endpoint,
+            const AlertKind alert_kind,
+            const double& data);
 
     /**
      * @brief Create the link between a participant and a process.
@@ -504,6 +522,11 @@ public:
             const std::string& type_name) const;
 
     /**
+     * @brief Gets the lists of active alerts
+     */
+    std::vector<AlertId> get_alerts_ids() const;
+
+    /**
      * @brief Get the entity of a given EntityKind that matches with the requested GUID.
      *
      * @param entity_kind The EntityKind of the fetched entities.
@@ -701,6 +724,16 @@ public:
 
 
     /**
+     * @brief Setter for entity alert.
+     *
+     * @param alert_info The new alert information.
+     * @return The AlertId of the alert.
+     */
+    AlertId insert_alert(
+            AlertInfo& alert_info);
+
+
+    /**
      * @brief Get a dump of the database.
      *
      * @param clear If true, remove the statistics data of the database. This not include the info or discovery data.
@@ -785,6 +818,16 @@ public:
      */
     Info get_info(
             const EntityId& entity_id);
+
+    /**
+     * @brief Get the meta information of a given alert.
+     *
+     * @param alert_id The alert for which the meta information is retrieved.
+     *
+     * @return Info object describing the alert's meta information.
+     */
+    Info get_info(
+            const AlertId& alert_id);
 
     /**
      * @brief Returns the id of the topic associated to an endpoint.
@@ -1302,6 +1345,23 @@ protected:
             const bool last_reported = false);
 
     /**
+     * @brief Triggers all the alerts of a specific kind if the entity and the data
+     * meet the conditions. This method is not thread safe.
+     *
+     * @param domain_id The EntityId of the domain that contains the triggerer entity.
+     * @param entity_id The EntityId of the entity for which to trigger the alerts.
+     * @param endpoint The DDSEndpoint for which to trigger the alerts
+     * @param alert_kind The kind of alert to trigger.
+     * @param data The value that might trigger the alert
+     */
+    void trigger_alerts_of_kind_nts(
+            const EntityId& domain_id,
+            const EntityId& entity_id,
+            const std::shared_ptr<DDSEndpoint>& endpoint,
+            const AlertKind alert_kind,
+            const double& data);
+
+    /**
      * @brief Insert a new monitor service sample into the database. This method is not thread safe.
      *
      * @param domain_id The EntityId of the domain that contains the entity.
@@ -1332,6 +1392,12 @@ protected:
     std::vector<std::pair<EntityId, EntityId>> get_entities_by_name_nts(
             EntityKind entity_kind,
             const std::string& name) const;
+
+    /**
+     * @brief Get the alert entity with the given ID. This method is not thread safe.
+     */
+    const std::shared_ptr<const AlertInfo> get_alert_nts(
+            const AlertId& alert_id) const;
 
     /**
      * @brief Get the type IDL of a given type name, if it exists. This method is not thread safe.
@@ -1559,6 +1625,15 @@ protected:
             const std::string& alias);
 
     /**
+     * @brief Setter for entity alert.
+     *
+     * @param alert_info The new alert information.
+     * @return The AlertId of the alert.
+     */
+    AlertId insert_alert_nts(
+            AlertInfo& alert_info);
+
+    /**
      * @brief Create the link between a participant and a process. This method is not thread safe.
      *
      * This operation entails:
@@ -1687,6 +1762,14 @@ protected:
     std::map<EntityId, std::map<EntityId, std::shared_ptr<Topic>>> topics_;
 
     /**
+     * Collection of Alerts, cannot be indexed by EntityId as they correlated entities
+     * may not exist yet in the time of creation
+     */
+    //std::map<EntityId, std::map<AlertId, std::shared_ptr<AlertInfo>>> alerts_;
+    std::map<AlertId, std::shared_ptr<AlertInfo>> alerts_;
+
+
+    /**
      * Collection of topic IDLs sorted by topic data types, with which they are biunivocally identified.
      * This is used to store the IDLs of the discovered topics
      *
@@ -1715,6 +1798,12 @@ protected:
      * Used to guarantee a unique EntityId within the database instance
      */
     std::atomic<int64_t> next_id_{0};
+
+    /**
+     * The ID that will be assigned to the next alert.
+     * Used to guarantee a unique AlertId within the database instance
+     */
+    std::atomic<int64_t> next_alert_id_{0};
 
     //! Read-write synchronization mutex
     mutable std::shared_timed_mutex mutex_;
