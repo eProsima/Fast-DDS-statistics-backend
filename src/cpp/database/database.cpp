@@ -1085,6 +1085,27 @@ void Database::trigger_alerts_of_kind(
     // the warning
     static_cast<void>(domain_id);
 
+    trigger_alerts_of_kind_nts(
+        domain_id,
+        entity_id,
+        endpoint,
+        alert_kind,
+        data);
+}
+
+void Database::trigger_alerts_of_kind_nts(
+        const EntityId& domain_id,
+        const EntityId& entity_id,
+        const std::shared_ptr<DDSEndpoint>& endpoint,
+        const AlertKind alert_kind,
+        const double& data)
+{
+    // NOTE: At the moment, alerts are defined for all domains, so we ignore domain_id
+    // There should be an option to get the active domains when setting the alert
+    // and that is the value that should be used here. The static cast is just to avoid
+    // the warning
+    static_cast<void>(domain_id);
+
     for (auto& [alert_id, alert_info] : alerts_)
     {
         if (alert_info->get_alert_kind() == alert_kind)
@@ -1235,7 +1256,7 @@ void Database::insert_nts(
                     reader->second->data.subscription_throughput.push_back(subscription_throughput);
 
                     // Trigger corresponding alerts
-                    trigger_alerts_of_kind(domain_id, entity_id, reader->second, AlertKind::NO_DATA,
+                    trigger_alerts_of_kind_nts(domain_id, entity_id, reader->second, AlertKind::NO_DATA,
                             subscription_throughput.data);
                     break;
                 }
@@ -1774,7 +1795,7 @@ void Database::insert_nts(
                     }
 
                     // Trigger corresponding alerts
-                    trigger_alerts_of_kind(domain_id, entity_id, writer->second, AlertKind::NEW_DATA,
+                    trigger_alerts_of_kind_nts(domain_id, entity_id, writer->second, AlertKind::NEW_DATA,
                             writer->second->data.data_count.back().count);
                     break;
                 }
