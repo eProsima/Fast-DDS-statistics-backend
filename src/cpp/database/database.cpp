@@ -1129,6 +1129,54 @@ void Database::trigger_alerts_of_kind_nts(
     }
 }
 
+void Database::check_alerts_matching_entities()
+{
+    std::lock_guard<std::shared_timed_mutex> guard(mutex_);
+    for (auto& [domain_id, _] : domains_)
+    {
+        for (auto& [alert_id, alert_info] : alerts_)
+        {
+            bool match = false;
+            auto datawriters_it = datawriters_.find(domain_id);
+            for (auto& [endpoint_id, endpoint] : datawriters_it->second)
+            {
+                // Get the metadata from the entity that sent the stats
+                std::string topic_name = endpoint->topic->name;
+                std::string user_name  = endpoint->participant->process->user->name;
+                std::string host_name  = endpoint->participant->process->user->host->name;
+                if(alert_info->entity_matches(host_name, user_name, topic_name))
+                {
+                    match = true;
+                    break;
+                }
+            }
+            if (!match)
+            {
+                auto datareaders_it = datareaders_.find(domain_id);
+                for (auto& [endpoint_id, endpoint] : datareaders_it->second)
+                {
+                    // Get the metadata from the entity that sent the stats
+                    std::string topic_name = endpoint->topic->name;
+                    std::string user_name  = endpoint->participant->process->user->name;
+                    std::string host_name  = endpoint->participant->process->user->host->name;
+                    if(alert_info->entity_matches(host_name, user_name, topic_name))
+                    {
+                        match = true;
+                        break;
+                    }
+                }
+            }
+            if (!match)
+            {
+                // Notify the alert has been triggered
+                details::StatisticsBackendData::get_instance()->on_alert_unmatched(
+                    domain_id,
+                    *alert_info);
+            }
+        }
+    }
+}
+
 void Database::insert_nts(
         const EntityId& domain_id,
         const EntityId& entity_id,
@@ -6357,6 +6405,7 @@ Info Database::get_info(
     info[ID_TAG]   = std::to_string(alert_id);
     info[ALERT_KIND_TAG] = alert_kind_str[(int)alert->get_alert_kind()];
     info[ALERT_NAME_TAG] = alert->get_alert_name();
+    info[DOMAIN_ID_TAG] = alert->get_domain_id().value();
     info[ALERT_HOST_TAG] = alert->get_host_name();
     info[ALERT_USER_TAG] = alert->get_user_name();
     info[ALERT_TOPIC_TAG] = alert->get_topic_name();
@@ -6364,11 +6413,6 @@ Info Database::get_info(
     if(alert->get_alert_kind() != AlertKind::NEW_DATA)
     {
         info[ALERT_THRESHOLD_TAG] = std::to_string(alert->get_trigger_threshold());
-    }
-
-    if (!alert->get_contact_info().empty())
-    {
-        info[ALERT_CONTACT_INFO_TAG] = alert->get_contact_info();
     }
 
     return info;

@@ -150,7 +150,6 @@ constexpr const char* ALERT_HOST_TAG                  = "host";
 constexpr const char* ALERT_USER_TAG                  = "user";
 constexpr const char* ALERT_TOPIC_TAG                 = "topic";
 constexpr const char* ALERT_THRESHOLD_TAG             = "threshold";
-constexpr const char* ALERT_CONTACT_INFO_TAG          = "contact_info";
 constexpr const char* ALERT_TIME_BETWEEN_TRIGGERS_TAG = "time_between_triggers";
 
 

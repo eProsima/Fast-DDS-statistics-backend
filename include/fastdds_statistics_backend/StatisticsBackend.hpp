@@ -693,13 +693,13 @@ public:
     FASTDDS_STATISTICS_BACKEND_DllAPI
     static void set_alert(
             const std::string& alert_name,
+            const EntityId& domain_id,
             const std::string& host_name,
             const std::string& user_name,
             const std::string& topic_name,
             const AlertKind& alert_kind,
             const double& threshold,
-            const std::chrono::milliseconds& t_between_triggers,
-            const std::string& contact_info = "");
+            const std::chrono::milliseconds& t_between_triggers);
 
     /**
      * @brief Deserialize entity guid to string format.

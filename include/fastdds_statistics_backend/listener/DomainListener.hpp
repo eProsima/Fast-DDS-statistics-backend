@@ -235,6 +235,20 @@ public:
 
     }
 
+    /*!
+     * This function is called when a an alert does not have any matching entity.
+     *
+     * @param domain_id Entity ID of the domain to which the alert belongs.
+     * @param alert Information about the alert being triggered.
+     */
+    virtual void on_alert_unmatched(
+            EntityId domain_id,
+            const AlertInfo& alert)
+    {
+        static_cast<void>(domain_id);
+        static_cast<void>(alert);
+    }
+
 };
 
 } // namespace statistics_backend

@@ -280,6 +280,12 @@ public:
             const double& data);
 
     /**
+     * For all alerts in the database, check if they have matching entities.
+     * If they don't, they are triggered with an appropriate message
+     */
+    void check_alerts_matching_entities();
+
+    /**
      * @brief Create the link between a participant and a process.
      *
      * This operation entails:

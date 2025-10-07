@@ -89,6 +89,10 @@ public:
             AlertInfo& alert,
             const double& data));
 
+    MOCK_METHOD2(on_alert_unmatched, void(
+            EntityId domain_id,
+            AlertInfo& alert));
+
     static StatisticsBackendData* get_instance()
     {
         static StatisticsBackendData instance;

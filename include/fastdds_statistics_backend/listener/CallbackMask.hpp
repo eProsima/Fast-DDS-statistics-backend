@@ -69,7 +69,10 @@ enum class CallbackKind : int32_t
     ON_STATUS_REPORTED         = 1 << 10,
 
     /// Represents the on_alert_triggered() callback
-    ON_ALERT_TRIGGERED          = 1 << 11
+    ON_ALERT_TRIGGERED          = 1 << 11,
+
+    /// Represents the on_alert_unmatched() callback
+    ON_ALERT_UNMATCHED          = 1 << 12
 };
 
 /**

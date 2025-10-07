@@ -55,6 +55,8 @@ private:
     AlertKind alert_kind;
     // String name of alert
     std::string name;
+    // Domain id
+    EntityId domain_id;
     // These names are kept to be able to locate entities even if the alert
     // is created before the entity is discovered
     std::string host_name;
@@ -66,8 +68,6 @@ private:
     // Last trigger
     std::chrono::system_clock::time_point last_trigger;
     std::chrono::milliseconds time_between_triggers;
-    // Information for contacting the user
-    std::string contact_info;
 
 public:
 
@@ -76,22 +76,22 @@ public:
     AlertInfo(
             AlertKind alert_kind,
             std::string name,
+            EntityId domain_id,
             std::string host_name,
             std::string user_name,
             std::string topic_name,
             AlertComparison cmp,
             double trigger_threshold,
-            std::chrono::milliseconds time_between_triggers,
-            const std::string& contact_info = "")
+            std::chrono::milliseconds time_between_triggers)
         : alert_kind(alert_kind)
         , name(name)
+        , domain_id(domain_id)
         , host_name(host_name)
         , user_name(user_name)
         , topic_name(topic_name)
         , cmp(cmp)
         , trigger_threshold(trigger_threshold)
         , time_between_triggers(time_between_triggers)
-        , contact_info(contact_info)
     {
         reset_trigger_time();
     }
@@ -173,6 +173,11 @@ public:
         return alert_kind;
     }
 
+    EntityId get_domain_id() const
+    {
+        return domain_id;
+    }
+
     std::string get_alert_name() const
     {
         return name;
@@ -198,11 +203,6 @@ public:
         return trigger_threshold;
     }
 
-    std::string get_contact_info() const
-    {
-        return contact_info;
-    }
-
     std::chrono::milliseconds get_time_between_triggers() const
     {
         return time_between_triggers;
@@ -215,13 +215,13 @@ struct NewDataAlertInfo : AlertInfo
 {
     NewDataAlertInfo(
             std::string name,
+            EntityId domain_id,
             std::string host_name,
             std::string user_name,
             std::string topic_name,
-            std::chrono::milliseconds time_between_triggers,
-            const std::string& contact_info = "")
-        : AlertInfo(AlertKind::NEW_DATA, name, host_name, user_name, topic_name, AlertComparison::GT, 0.0,
-                time_between_triggers, contact_info)
+            std::chrono::milliseconds time_between_triggers)
+        : AlertInfo(AlertKind::NEW_DATA, name, domain_id, host_name, user_name, topic_name, AlertComparison::GT, 0.0,
+                time_between_triggers)
     {
     }
 
@@ -231,14 +231,14 @@ struct NoDataAlertInfo : AlertInfo
 {
     NoDataAlertInfo(
             std::string name,
+            EntityId domain_id,
             std::string host_name,
             std::string user_name,
             std::string topic_name,
             double threshold,
-            std::chrono::milliseconds time_between_triggers,
-            const std::string& contact_info = "")
-        : AlertInfo(AlertKind::NO_DATA, name, host_name, user_name, topic_name, AlertComparison::LT, threshold,
-                time_between_triggers, contact_info)
+            std::chrono::milliseconds time_between_triggers)
+        : AlertInfo(AlertKind::NO_DATA, name, domain_id, host_name, user_name, topic_name, AlertComparison::LT, threshold,
+                time_between_triggers)
     {
     }
 
