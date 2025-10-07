@@ -1130,24 +1130,12 @@ void Database::check_alerts_matching_entities()
     {
         for (auto& [alert_id, alert_info] : alerts_[domain_id])
         {
-            bool match = false;
-            auto datawriters_it = datawriters_.find(alert_info->get_domain_id());
-            for (auto& [endpoint_id, endpoint] : datawriters_it->second)
+            if (alert_info->time_allows_trigger())
             {
-                // Get the metadata from the entity that sent the stats
-                std::string topic_name = endpoint->topic->name;
-                std::string user_name  = endpoint->participant->process->user->name;
-                std::string host_name  = endpoint->participant->process->user->host->name;
-                if(alert_info->entity_matches(host_name, user_name, topic_name))
-                {
-                    match = true;
-                    break;
-                }
-            }
-            if (!match)
-            {
-                auto datareaders_it = datareaders_.find(alert_info->get_domain_id());
-                for (auto& [endpoint_id, endpoint] : datareaders_it->second)
+                bool match = false;
+                std::cout << "Alert domain is " << alert_info->get_domain_id().value() << std::endl;
+                auto datawriters_it = datawriters_.find(alert_info->get_domain_id());
+                for (auto& [endpoint_id, endpoint] : datawriters_it->second)
                 {
                     // Get the metadata from the entity that sent the stats
                     std::string topic_name = endpoint->topic->name;
@@ -1159,13 +1147,30 @@ void Database::check_alerts_matching_entities()
                         break;
                     }
                 }
-            }
-            if (!match)
-            {
-                // Notify the alert has been triggered
-                details::StatisticsBackendData::get_instance()->on_alert_unmatched(
-                    domain_id,
-                    *alert_info);
+                if (!match)
+                {
+                    auto datareaders_it = datareaders_.find(alert_info->get_domain_id());
+                    for (auto& [endpoint_id, endpoint] : datareaders_it->second)
+                    {
+                        // Get the metadata from the entity that sent the stats
+                        std::string topic_name = endpoint->topic->name;
+                        std::string user_name  = endpoint->participant->process->user->name;
+                        std::string host_name  = endpoint->participant->process->user->host->name;
+                        if(alert_info->entity_matches(host_name, user_name, topic_name))
+                        {
+                            match = true;
+                            break;
+                        }
+                    }
+                }
+                if (!match)
+                {
+                    alert_info->trigger();
+                    // Notify the alert has been triggered
+                    details::StatisticsBackendData::get_instance()->on_alert_unmatched(
+                        domain_id,
+                        *alert_info);
+                }
             }
         }
     }

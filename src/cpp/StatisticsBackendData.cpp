@@ -187,10 +187,19 @@ void StatisticsBackendData::on_alert_unmatched(EntityId domain_id, AlertInfo& al
 {
     // Get monitor for alert id
     auto monitor = monitors_by_entity_.find(domain_id);
+    if (monitor == monitors_by_entity_.end())
+    {
+        logWarning(STATISTICS_BACKEND_DATA, "Monitor not found for domain " << domain_id);
+        return;
+    }
 
     if (should_call_domain_listener(*monitor->second, CallbackKind::ON_ALERT_UNMATCHED))
     {
         monitor->second->domain_listener->on_alert_unmatched(domain_id, alert);
+    }
+    else if (should_call_physical_listener(CallbackKind::ON_ALERT_UNMATCHED))
+    {
+        physical_listener_->on_alert_unmatched(domain_id, alert);
     }
 }
 
@@ -500,7 +509,7 @@ void StatisticsBackendData::alert_watcher()
 {
     while (!stop_alert_watcher_)
     {
-        std::this_thread::sleep_for(std::chrono::seconds(2));
+        // std::this_thread::sleep_for(std::chrono::seconds(2));
         if (database_)
         {
             database_->check_alerts_matching_entities();
