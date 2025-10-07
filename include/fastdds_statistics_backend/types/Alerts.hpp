@@ -208,7 +208,6 @@ public:
         return time_between_triggers;
     }
 
-
 };
 
 struct NewDataAlertInfo : AlertInfo
@@ -237,7 +236,8 @@ struct NoDataAlertInfo : AlertInfo
             std::string topic_name,
             double threshold,
             std::chrono::milliseconds time_between_triggers)
-        : AlertInfo(AlertKind::NO_DATA, name, domain_id, host_name, user_name, topic_name, AlertComparison::LT, threshold,
+        : AlertInfo(AlertKind::NO_DATA, name, domain_id, host_name, user_name, topic_name, AlertComparison::LT,
+                threshold,
                 time_between_triggers)
     {
     }

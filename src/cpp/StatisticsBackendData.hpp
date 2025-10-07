@@ -258,7 +258,9 @@ public:
      * @param domain_id The domain where the alert is reported
      * @param alert the alert with no matching entities
      */
-    void on_alert_unmatched(EntityId domain_id, AlertInfo& alert);
+    void on_alert_unmatched(
+            EntityId domain_id,
+            AlertInfo& alert);
 
     //////////////////////////////
     // STATISTICS BACKEND METHODS

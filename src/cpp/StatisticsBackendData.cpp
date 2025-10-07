@@ -183,7 +183,9 @@ void StatisticsBackendData::on_alert_triggered(
     }
 }
 
-void StatisticsBackendData::on_alert_unmatched(EntityId domain_id, AlertInfo& alert)
+void StatisticsBackendData::on_alert_unmatched(
+        EntityId domain_id,
+        AlertInfo& alert)
 {
     // Get monitor for alert id
     auto monitor = monitors_by_entity_.find(domain_id);
@@ -504,7 +506,6 @@ database::DatabaseEntityQueue* StatisticsBackendData::get_entity_queue()
     return entity_queue_;
 }
 
-
 void StatisticsBackendData::alert_watcher()
 {
     while (!stop_alert_watcher_)
@@ -516,7 +517,6 @@ void StatisticsBackendData::alert_watcher()
         }
     }
 }
-
 
 void StatisticsBackendData::start_alert_watcher()
 {

@@ -84,14 +84,14 @@ public:
                 StatusKind status_kind));
 
     MOCK_METHOD4(on_alert_triggered, void(
-            EntityId domain_id,
-            EntityId entity_id,
-            AlertInfo& alert,
-            const double& data));
+                EntityId domain_id,
+                EntityId entity_id,
+                AlertInfo & alert,
+                const double& data));
 
     MOCK_METHOD2(on_alert_unmatched, void(
-            EntityId domain_id,
-            AlertInfo& alert));
+                EntityId domain_id,
+                AlertInfo & alert));
 
     static StatisticsBackendData* get_instance()
     {

@@ -1141,7 +1141,7 @@ void Database::check_alerts_matching_entities()
                     std::string topic_name = endpoint->topic->name;
                     std::string user_name  = endpoint->participant->process->user->name;
                     std::string host_name  = endpoint->participant->process->user->host->name;
-                    if(alert_info->entity_matches(host_name, user_name, topic_name))
+                    if (alert_info->entity_matches(host_name, user_name, topic_name))
                     {
                         match = true;
                         break;
@@ -1156,7 +1156,7 @@ void Database::check_alerts_matching_entities()
                         std::string topic_name = endpoint->topic->name;
                         std::string user_name  = endpoint->participant->process->user->name;
                         std::string host_name  = endpoint->participant->process->user->host->name;
-                        if(alert_info->entity_matches(host_name, user_name, topic_name))
+                        if (alert_info->entity_matches(host_name, user_name, topic_name))
                         {
                             match = true;
                             break;
@@ -2818,7 +2818,7 @@ const std::shared_ptr<const AlertInfo> Database::get_alert_nts(
         const AlertId& alert_id) const
 {
     /* Iterate over all the collections looking for the entity */
-    for(const auto& domain_it : alerts_)
+    for (const auto& domain_it : alerts_)
     {
         for (const auto& alert_it : domain_it.second)
         {
@@ -6415,7 +6415,7 @@ Info Database::get_info(
     info[ALERT_USER_TAG] = alert->get_user_name();
     info[ALERT_TOPIC_TAG] = alert->get_topic_name();
 
-    if(alert->get_alert_kind() != AlertKind::NEW_DATA)
+    if (alert->get_alert_kind() != AlertKind::NEW_DATA)
     {
         info[ALERT_THRESHOLD_TAG] = std::to_string(alert->get_trigger_threshold());
     }

@@ -1107,13 +1107,15 @@ void StatisticsBackend::set_alert(
     {
         case AlertKind::NEW_DATA:
         {
-            NewDataAlertInfo new_data_alert(alert_name, domain_id, host_name, user_name, topic_name, t_between_triggers);
+            NewDataAlertInfo new_data_alert(alert_name, domain_id, host_name, user_name, topic_name,
+                    t_between_triggers);
             StatisticsBackendData::get_instance()->database_->insert_alert(new_data_alert);
         }
         break;
         case AlertKind::NO_DATA:
         {
-            NoDataAlertInfo no_data_alert(alert_name, domain_id, host_name, user_name, topic_name, threshold, t_between_triggers);
+            NoDataAlertInfo no_data_alert(alert_name, domain_id, host_name, user_name, topic_name, threshold,
+                    t_between_triggers);
             StatisticsBackendData::get_instance()->database_->insert_alert(no_data_alert);
         }
         break;
