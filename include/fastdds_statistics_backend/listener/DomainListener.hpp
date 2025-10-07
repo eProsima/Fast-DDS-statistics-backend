@@ -225,7 +225,7 @@ public:
     virtual void on_alert_triggered(
             EntityId domain_id,
             EntityId entity_id,
-            const AlertInfo& alert,
+            AlertInfo& alert,
             const double& data)
     {
         static_cast<void>(domain_id);
@@ -243,7 +243,7 @@ public:
      */
     virtual void on_alert_unmatched(
             EntityId domain_id,
-            const AlertInfo& alert)
+            AlertInfo& alert)
     {
         static_cast<void>(domain_id);
         static_cast<void>(alert);
