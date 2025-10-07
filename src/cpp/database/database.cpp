@@ -1077,14 +1077,6 @@ void Database::trigger_alerts_of_kind(
         const AlertKind alert_kind,
         const double& data)
 {
-    std::lock_guard<std::shared_timed_mutex> guard(mutex_);
-
-    // NOTE: At the moment, alerts are defined for all domains, so we ignore domain_id
-    // There should be an option to get the active domains when setting the alert
-    // and that is the value that should be used here. The static cast is just to avoid
-    // the warning
-    static_cast<void>(domain_id);
-
     trigger_alerts_of_kind_nts(
         domain_id,
         entity_id,
@@ -1133,7 +1125,6 @@ void Database::check_alerts_matching_entities()
             if (alert_info->time_allows_trigger())
             {
                 bool match = false;
-                std::cout << "Alert domain is " << alert_info->get_domain_id().value() << std::endl;
                 auto datawriters_it = datawriters_.find(alert_info->get_domain_id());
                 for (auto& [endpoint_id, endpoint] : datawriters_it->second)
                 {

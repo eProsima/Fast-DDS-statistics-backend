@@ -689,7 +689,18 @@ public:
             EntityId entity_id,
             const std::string& alias);
 
-    // TODO Comment
+    /**
+     * @brief Set an alert in the backend.
+     *
+     * @param alert_name Name of the alert.
+     * @param domain_id Domain where the alert will monitor data
+     * @param host_name Host string used to match an entity with the alert
+     * @param user_name User string used to match an entity with the alert
+     * @param topic_name Topic string used to match an entity with the alert
+     * @param alert_kind Kind of alert.
+     * @param threshold Threshold to trigger the alert.
+     * @param t_between_triggers Minimum time between two consecutive triggers of the alert.
+     */
     FASTDDS_STATISTICS_BACKEND_DllAPI
     static void set_alert(
             const std::string& alert_name,

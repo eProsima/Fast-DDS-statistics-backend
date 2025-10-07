@@ -333,9 +333,6 @@ EntityId create_and_register_monitor(
     se_subscriber_.cancel();
     se_topics_datareaders_.cancel();
 
-    // Start thread to check if alerts have matching entities
-    backend_data->start_alert_watcher();
-
     return domain->id;
 }
 

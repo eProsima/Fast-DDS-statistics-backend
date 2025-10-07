@@ -54,7 +54,8 @@ StatisticsBackendData::StatisticsBackendData()
     , lock_(mutex_, std::defer_lock)
     , participant_factory_instance_(eprosima::fastdds::dds::DomainParticipantFactory::get_shared_instance())
 {
-    // Do nothing
+    // Start thread to check if alerts have matching entities
+    start_alert_watcher();
 }
 
 StatisticsBackendData::~StatisticsBackendData()
@@ -67,6 +68,9 @@ StatisticsBackendData::~StatisticsBackendData()
         const auto& monitor = monitors_by_entity_.begin()->second;
         stop_monitor(monitor->id);
     }
+
+    // Stopping recurrent watcher
+    stop_alert_watcher();
 
     if (entity_queue_)
     {
