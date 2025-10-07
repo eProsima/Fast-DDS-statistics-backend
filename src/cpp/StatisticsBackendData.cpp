@@ -514,7 +514,7 @@ void StatisticsBackendData::alert_watcher()
 {
     while (!stop_alert_watcher_)
     {
-        // std::this_thread::sleep_for(std::chrono::seconds(2));
+        std::this_thread::sleep_for(std::chrono::seconds(2));
         if (database_)
         {
             database_->check_alerts_matching_entities();

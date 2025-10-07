@@ -1158,9 +1158,16 @@ void Database::check_alerts_matching_entities()
                 {
                     alert_info->trigger();
                     // Notify the alert has been triggered
-                    details::StatisticsBackendData::get_instance()->on_alert_unmatched(
-                        domain_id,
-                        *alert_info);
+                    // TODO (eProsima) Workaround to avoid deadlock if callback implementation requires taking the database
+                    // mutex (e.g. by calling get_info). A refactor for not calling on_domain_view_graph_update from within
+                    // this function would be required.
+                    execute_without_lock([&]()
+                    {
+                        details::StatisticsBackendData::get_instance()->on_alert_unmatched(
+                            domain_id,
+                            *alert_info);
+                    });
+
                 }
             }
         }
