@@ -1100,13 +1100,7 @@ void Database::trigger_alerts_of_kind_nts(
         const AlertKind alert_kind,
         const double& data)
 {
-    // NOTE: At the moment, alerts are defined for all domains, so we ignore domain_id
-    // There should be an option to get the active domains when setting the alert
-    // and that is the value that should be used here. The static cast is just to avoid
-    // the warning
-    static_cast<void>(domain_id);
-
-    for (auto& [alert_id, alert_info] : alerts_)
+    for (auto& [alert_id, alert_info] : alerts_[domain_id])
     {
         if (alert_info->get_alert_kind() == alert_kind)
         {
@@ -1134,10 +1128,10 @@ void Database::check_alerts_matching_entities()
     std::lock_guard<std::shared_timed_mutex> guard(mutex_);
     for (auto& [domain_id, _] : domains_)
     {
-        for (auto& [alert_id, alert_info] : alerts_)
+        for (auto& [alert_id, alert_info] : alerts_[domain_id])
         {
             bool match = false;
-            auto datawriters_it = datawriters_.find(domain_id);
+            auto datawriters_it = datawriters_.find(alert_info->get_domain_id());
             for (auto& [endpoint_id, endpoint] : datawriters_it->second)
             {
                 // Get the metadata from the entity that sent the stats
@@ -1152,7 +1146,7 @@ void Database::check_alerts_matching_entities()
             }
             if (!match)
             {
-                auto datareaders_it = datareaders_.find(domain_id);
+                auto datareaders_it = datareaders_.find(alert_info->get_domain_id());
                 for (auto& [endpoint_id, endpoint] : datareaders_it->second)
                 {
                     // Get the metadata from the entity that sent the stats
@@ -2819,11 +2813,14 @@ const std::shared_ptr<const AlertInfo> Database::get_alert_nts(
         const AlertId& alert_id) const
 {
     /* Iterate over all the collections looking for the entity */
-    for (const auto& alert_it : alerts_)
+    for(const auto& domain_it : alerts_)
     {
-        if (alert_it.second->get_alert_id() == alert_id)
+        for (const auto& alert_it : domain_it.second)
         {
-            return alert_it.second;
+            if (alert_it.second->get_alert_id() == alert_id)
+            {
+                return alert_it.second;
+            }
         }
     }
 
@@ -4850,9 +4847,12 @@ std::vector<AlertId> Database::get_alerts_ids() const
     std::shared_lock<std::shared_timed_mutex> lock(mutex_);
     std::vector<AlertId> alertsIds;
 
-    for (const auto& alert_it : alerts_)
+    for (const auto& domain_it: alerts_)
     {
-        alertsIds.push_back(alert_it.first);
+        for (const auto& alert_it : domain_it.second)
+        {
+            alertsIds.push_back(alert_it.first);
+        }
     }
 
     return alertsIds;
@@ -8154,7 +8154,7 @@ AlertId Database::insert_alert_nts(
     // store alert_info in the database
     AlertId id = next_alert_id_++;
     alert_info.set_id(id);
-    alerts_.emplace(id, std::make_shared<AlertInfo>(alert_info));
+    alerts_[alert_info.get_domain_id()].emplace(id, std::make_shared<AlertInfo>(alert_info));
     return id;
 }
 

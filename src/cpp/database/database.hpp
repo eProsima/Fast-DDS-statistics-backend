@@ -1771,9 +1771,7 @@ protected:
      * Collection of Alerts, cannot be indexed by EntityId as they correlated entities
      * may not exist yet in the time of creation
      */
-    //std::map<EntityId, std::map<AlertId, std::shared_ptr<AlertInfo>>> alerts_;
-    std::map<AlertId, std::shared_ptr<AlertInfo>> alerts_;
-
+    std::map<EntityId, std::map<AlertId, std::shared_ptr<AlertInfo>>> alerts_;
 
     /**
      * Collection of topic IDLs sorted by topic data types, with which they are biunivocally identified.
