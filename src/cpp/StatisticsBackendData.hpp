@@ -250,7 +250,7 @@ public:
             EntityId domain_id,
             EntityId entity_id,
             AlertInfo& alert,
-            const double& data);
+            const long double& data);
 
     /**
      * @brief Notify the user about an alert that has no matching entity

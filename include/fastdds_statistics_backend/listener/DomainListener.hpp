@@ -226,7 +226,7 @@ public:
             EntityId domain_id,
             EntityId entity_id,
             AlertInfo& alert,
-            const double& data)
+            const long double& data)
     {
         static_cast<void>(domain_id);
         static_cast<void>(entity_id);

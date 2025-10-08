@@ -168,7 +168,7 @@ void StatisticsBackendData::on_alert_triggered(
         EntityId domain_id,
         EntityId entity_id,
         AlertInfo& alert,
-        const double& data)
+        const long double& data)
 {
     auto monitor = monitors_by_entity_.find(domain_id);
     if (monitor == monitors_by_entity_.end())

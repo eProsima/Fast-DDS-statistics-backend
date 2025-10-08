@@ -87,7 +87,7 @@ public:
                 EntityId domain_id,
                 EntityId entity_id,
                 AlertInfo & alert,
-                const double& data));
+                const long double& data));
 
     MOCK_METHOD2(on_alert_unmatched, void(
                 EntityId domain_id,

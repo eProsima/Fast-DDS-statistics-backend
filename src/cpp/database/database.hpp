@@ -277,7 +277,7 @@ public:
             const EntityId& entity_id,
             const std::shared_ptr<DDSEndpoint>& endpoint,
             const AlertKind alert_kind,
-            const double& data);
+            const long double& data);
 
     /**
      * For all alerts in the database, check if they have matching entities.
@@ -1365,7 +1365,7 @@ protected:
             const EntityId& entity_id,
             const std::shared_ptr<DDSEndpoint>& endpoint,
             const AlertKind alert_kind,
-            const double& data);
+            const long double& data);
 
     /**
      * @brief Insert a new monitor service sample into the database. This method is not thread safe.

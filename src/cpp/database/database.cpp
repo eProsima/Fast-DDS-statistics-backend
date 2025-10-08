@@ -1075,7 +1075,7 @@ void Database::trigger_alerts_of_kind(
         const EntityId& entity_id,
         const std::shared_ptr<DDSEndpoint>& endpoint,
         const AlertKind alert_kind,
-        const double& data)
+        const long double& data)
 {
     trigger_alerts_of_kind_nts(
         domain_id,
@@ -1090,7 +1090,7 @@ void Database::trigger_alerts_of_kind_nts(
         const EntityId& entity_id,
         const std::shared_ptr<DDSEndpoint>& endpoint,
         const AlertKind alert_kind,
-        const double& data)
+        const long double& data)
 {
     for (auto alert_it : alerts_[domain_id])
     {
