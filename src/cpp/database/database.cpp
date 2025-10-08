@@ -1129,8 +1129,9 @@ void Database::check_alerts_matching_entities()
             {
                 bool match = false;
                 auto datawriters_it = datawriters_.find(alert_info->get_domain_id());
-                for (auto& [endpoint_id, endpoint] : datawriters_it->second)
+                for (auto& endpoint_it : datawriters_it->second)
                 {
+                    auto& endpoint = endpoint_it.second;
                     // Get the metadata from the entity that sent the stats
                     std::string topic_name = endpoint->topic->name;
                     std::string user_name  = endpoint->participant->process->user->name;
@@ -1144,8 +1145,9 @@ void Database::check_alerts_matching_entities()
                 if (!match)
                 {
                     auto datareaders_it = datareaders_.find(alert_info->get_domain_id());
-                    for (auto& [endpoint_id, endpoint] : datareaders_it->second)
+                    for (auto& endpoint_it : datareaders_it->second)
                     {
+                        auto& endpoint = endpoint_it.second;
                         // Get the metadata from the entity that sent the stats
                         std::string topic_name = endpoint->topic->name;
                         std::string user_name  = endpoint->participant->process->user->name;
