@@ -88,9 +88,9 @@ constexpr const char* LOCATOR_ENTITY_TAG            = "locator";
 // Alert kind
 
 //! Key Tag for a single no_data alert
-constexpr const char* NO_DATA_TAG                    = "no_data";
+constexpr const char* NO_DATA_TAG                   = "no_data";
 //! Key Tag for a single new_data alert
-constexpr const char* NEW_DATA_TAG                   = "new_data";
+constexpr const char* NEW_DATA_TAG                  = "new_data";
 
 /////
 // Status Level

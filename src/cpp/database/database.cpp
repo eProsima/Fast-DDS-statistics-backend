@@ -3255,7 +3255,6 @@ std::vector<const StatisticsSample*> Database::select(
                     break;
                 }
             }
-
             break;
         }
         case DataKind::RESENT_DATA:
@@ -6419,7 +6418,7 @@ Info Database::get_info(
         throw BadParameter("Error: Alert ID does not exist");
     }
 
-    info[ID_TAG]   = std::to_string(alert_id);
+    info[ID_TAG] = std::to_string(alert_id);
     info[ALERT_KIND_TAG] = alert_kind_str[(int)alert->get_alert_kind()];
     info[ALERT_NAME_TAG] = alert->get_alert_name();
     info[DOMAIN_ID_TAG] = alert->get_domain_id().value();
@@ -8159,6 +8158,22 @@ AlertId Database::insert_alert(
     return insert_alert_nts(alert_info);
 }
 
+/**
+ * @brief Setter for entity alert.
+ *
+ * @param alert_info The new alert information.
+ * @return The AlertId of the alert.
+ */
+AlertId Database::insert_alert_nts(
+        AlertInfo& alert_info)
+{
+    // store alert_info in the database
+    AlertId id = next_alert_id_++;
+    alert_info.set_id(id);
+    alerts_[alert_info.get_domain_id()].emplace(id, std::make_shared<AlertInfo>(alert_info));
+    return id;
+}
+
 void Database::remove_alert(
         const AlertId& alert_id)
 {
@@ -8174,22 +8189,6 @@ void Database::remove_alert(
             return;
         }
     }
-}
-
-/**
- * @brief Setter for entity alert.
- *
- * @param alert_info The new alert information.
- * @return The AlertId of the alert.
- */
-AlertId Database::insert_alert_nts(
-        AlertInfo& alert_info)
-{
-    // store alert_info in the database
-    AlertId id = next_alert_id_++;
-    alert_info.set_id(id);
-    alerts_[alert_info.get_domain_id()].emplace(id, std::make_shared<AlertInfo>(alert_info));
-    return id;
 }
 
 } //namespace database

@@ -42,7 +42,7 @@ enum class AlertComparison
 {
     INVALID,
     GT,
-    LT,
+    LT
 };
 
 class AlertInfo

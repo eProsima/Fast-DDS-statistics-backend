@@ -728,7 +728,6 @@ public:
             const EntityId& entity_id,
             const std::string& alias);
 
-
     /**
      * @brief Setter for entity alert.
      *

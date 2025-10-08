@@ -712,7 +712,7 @@ struct ExtendedIncompatibleQosSample : MonitorServiceSample
     eprosima::fastdds::statistics::ExtendedIncompatibleQoSStatusSeq_s extended_incompatible_qos_status;
 };
 
-}//namespace statistics_backend
+} //namespace statistics_backend
 } //namespace eprosima
 
 #endif // FASTDDS_STATISTICS_BACKEND_TYPES__TYPES_HPP

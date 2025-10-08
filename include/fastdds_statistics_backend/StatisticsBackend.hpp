@@ -229,7 +229,6 @@ public:
             EntityKind entity_type,
             EntityId entity_id = EntityId::all());
 
-
     /**
      * @brief Get all the alert ids from the backend.
      */
