@@ -8159,6 +8159,24 @@ AlertId Database::insert_alert(
     return insert_alert_nts(alert_info);
 }
 
+void Database::remove_alert(
+        const AlertId& alert_id)
+{
+    std::lock_guard<std::shared_timed_mutex> guard(mutex_);
+    // Iterate over all domains as ID is unique but domain is not known
+    for(auto& domain_it : alerts_)
+    {
+        auto alert_it = domain_it.second.find(alert_id);
+        if (alert_it != domain_it.second.end())
+        {
+            // If alert is found in this domain, it is removed
+            domain_it.second.erase(alert_it);
+            return;
+        }
+    }
+}
+
+
 /**
  * @brief Setter for entity alert.
  *

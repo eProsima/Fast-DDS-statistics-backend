@@ -1123,6 +1123,12 @@ void StatisticsBackend::set_alert(
     }
 }
 
+void StatisticsBackend::remove_alert(
+        const AlertId& alert_id)
+{
+    StatisticsBackendData::get_instance()->database_->remove_alert(alert_id);
+}
+
 std::string StatisticsBackend::deserialize_guid(
         fastdds::statistics::detail::GUID_s data)
 {

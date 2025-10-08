@@ -738,6 +738,13 @@ public:
     AlertId insert_alert(
             AlertInfo& alert_info);
 
+    /**
+     * @brief Remove an alert from the database.
+     *
+     * @param alert_info The alert id
+     */
+    void remove_alert(
+            const AlertId& alert_id);
 
     /**
      * @brief Get a dump of the database.

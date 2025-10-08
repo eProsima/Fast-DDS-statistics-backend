@@ -713,6 +713,15 @@ public:
             const std::chrono::milliseconds& t_between_triggers);
 
     /**
+     * @brief Remove an alert from the backend.
+     *
+     * @param alert_id The AlertId of the alert to remove.
+     */
+    FASTDDS_STATISTICS_BACKEND_DllAPI
+    static void remove_alert(
+            const AlertId& alert_id);
+
+    /**
      * @brief Deserialize entity guid to string format.
      * @param data Entity guid.
      */
