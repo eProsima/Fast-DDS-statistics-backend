@@ -1123,7 +1123,7 @@ void Database::check_alerts_matching_entities()
     {
         EntityId domainId = domain_it.first;
         auto alerts_in_domain = alerts_.find(domainId);
-        if(alerts_in_domain != alerts_.end())
+        if (alerts_in_domain != alerts_.end())
         {
             for (auto& alert_it : alerts_in_domain->second)
             {
@@ -8164,7 +8164,7 @@ void Database::remove_alert(
 {
     std::lock_guard<std::shared_timed_mutex> guard(mutex_);
     // Iterate over all domains as ID is unique but domain is not known
-    for(auto& domain_it : alerts_)
+    for (auto& domain_it : alerts_)
     {
         auto alert_it = domain_it.second.find(alert_id);
         if (alert_it != domain_it.second.end())
@@ -8175,7 +8175,6 @@ void Database::remove_alert(
         }
     }
 }
-
 
 /**
  * @brief Setter for entity alert.
