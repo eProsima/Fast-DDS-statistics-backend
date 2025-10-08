@@ -1092,8 +1092,9 @@ void Database::trigger_alerts_of_kind_nts(
         const AlertKind alert_kind,
         const double& data)
 {
-    for (auto& [alert_id, alert_info] : alerts_[domain_id])
+    for (auto alert_it : alerts_[domain_id])
     {
+        std::shared_ptr<AlertInfo> alert_info = alert_it.second;
         if (alert_info->get_alert_kind() == alert_kind)
         {
             // Get the metadata from the entity that sent the stats
@@ -1118,10 +1119,12 @@ void Database::trigger_alerts_of_kind_nts(
 void Database::check_alerts_matching_entities()
 {
     std::lock_guard<std::shared_timed_mutex> guard(mutex_);
-    for (auto& [domain_id, _] : domains_)
+    for (auto& domain_it : domains_)
     {
-        for (auto& [alert_id, alert_info] : alerts_[domain_id])
+        EntityId domainId = domain_it.first;
+        for (auto& alert_it : alerts_[domainId])
         {
+            std::shared_ptr<AlertInfo> alert_info = alert_it.second;
             if (alert_info->time_allows_trigger())
             {
                 bool match = false;
@@ -1164,10 +1167,9 @@ void Database::check_alerts_matching_entities()
                     execute_without_lock([&]()
                     {
                         details::StatisticsBackendData::get_instance()->on_alert_unmatched(
-                            domain_id,
+                            domainId,
                             *alert_info);
                     });
-
                 }
             }
         }

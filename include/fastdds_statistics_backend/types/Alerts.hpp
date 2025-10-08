@@ -138,8 +138,8 @@ public:
 
     bool time_allows_trigger() const
     {
-        auto now = std::chrono::system_clock::now();
-        return (now - last_trigger) > time_between_triggers;
+        auto now_ts = std::chrono::system_clock::now();
+        return (now_ts - last_trigger) > time_between_triggers;
     }
 
     bool check_trigger_conditions(
