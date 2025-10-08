@@ -16,6 +16,7 @@ Types
     /rst/types/json_tags
     /rst/types/alert_kind
     /rst/types/alert_id
+    /rst/types/alert_info
 
 .. todo::
     .. /rst/types/database_dumps

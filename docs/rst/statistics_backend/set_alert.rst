@@ -5,7 +5,7 @@
 Set entity alert
 ----------------
 
-Function |StatisticsBackend-set_alert| allows the user to set an alert on a specific entity.
+Function |set_alert-api| allows the user to set an alert on a specific entity.
 When the alert is triggered, the listener callback *on_alert_triggered* will be called with the corresponding parameters.
 In addition, if no entity matches the alert, the listener callback *on_alert_unmatched* will be called periodically
 
