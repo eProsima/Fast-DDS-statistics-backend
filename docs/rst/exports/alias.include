@@ -21,6 +21,7 @@
 .. |get_status-api| replace:: :cpp:func:`get_status()<eprosima::statistics_backend::StatisticsBackend::get_status>`
 .. |set_alias-api| replace:: :cpp:func:`set_alias()<eprosima::statistics_backend::StatisticsBackend::set_alias>`
 .. |set_alert-api| replace:: :cpp:func:`set_alert()<eprosima::statistics_backend::StatisticsBackend::set_alert>`
+.. |remove_alert-api| replace:: :cpp:func:`remove_alert()<eprosima::statistics_backend::StatisticsBackend::remove_alert>`
 .. |clear_statistics_data-api| replace:: :cpp:func:`clear_statistics_data()<eprosima::statistics_backend::StatisticsBackend::clear_statistics_data>`
 .. |clear_inactive_entities-api| replace:: :cpp:func:`clear_inactive_entities()<eprosima::statistics_backend::StatisticsBackend::clear_inactive_entities>`
 

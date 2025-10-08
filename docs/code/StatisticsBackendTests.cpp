@@ -598,6 +598,16 @@ void set_alert_example()
     }
 }
 
+void remove_alert_example()
+{
+    {
+        AlertId alert_id;
+        //CONF-REMOVE-ALERT-EXAMPLE
+        StatisticsBackend::remove_alert(alert_id);
+        //!--
+    }
+}
+
 void is_active_example()
 {
     {
