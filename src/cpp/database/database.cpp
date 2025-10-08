@@ -1165,11 +1165,11 @@ void Database::check_alerts_matching_entities()
                     // mutex (e.g. by calling get_info). A refactor for not calling on_domain_view_graph_update from within
                     // this function would be required.
                     execute_without_lock([&]()
-                    {
-                        details::StatisticsBackendData::get_instance()->on_alert_unmatched(
-                            domainId,
-                            *alert_info);
-                    });
+                            {
+                                details::StatisticsBackendData::get_instance()->on_alert_unmatched(
+                                    domainId,
+                                    *alert_info);
+                            });
                 }
             }
         }
