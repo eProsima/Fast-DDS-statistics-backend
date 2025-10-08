@@ -601,7 +601,7 @@ void set_alert_example()
 void remove_alert_example()
 {
     {
-        AlertId alert_id;
+        AlertId alert_id = 0;
         //CONF-REMOVE-ALERT-EXAMPLE
         StatisticsBackend::remove_alert(alert_id);
         //!--
