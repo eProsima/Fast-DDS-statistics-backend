@@ -32,3 +32,4 @@ contain a set of callbacks that the application implements.
     /rst/statistics_backend/is_active
     /rst/statistics_backend/is_metatraffic
     /rst/statistics_backend/dump_load
+    /rst/statistics_backend/set_alert
