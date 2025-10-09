@@ -4309,7 +4309,7 @@ Graph Database::get_entity_subgraph_nts(
     entity_graph[KIND_TAG] =  entity_kind_str[(int)entity->kind];
     entity_graph[DISCOVERY_SOURCE_TAG] =  discovery_source_str[(int)entity->discovery_source];
 
-    if ( entity_graph[DISCOVERY_SOURCE_TAG] != entity->discovery_source)
+    if (entity_graph[DISCOVERY_SOURCE_TAG] != entity->discovery_source)
     {
         entity_graph[DISCOVERY_SOURCE_TAG] =  discovery_source_str[(int)entity->discovery_source];
         entity_graph_updated = true;
@@ -4323,10 +4323,17 @@ Graph Database::get_entity_subgraph_nts(
 
     entity_graph[METATRAFFIC_TAG] =  entity->metatraffic;
 
-    if (entity->kind != EntityKind::TOPIC && entity_graph[STATUS_TAG] != status_level_str[(int)entity->status])
+    if (entity->kind != EntityKind::TOPIC)
     {
-        entity_graph[STATUS_TAG] = status_level_str[(int)entity->status];
-        entity_graph_updated = true;
+        int st_idx = static_cast<int>(entity->status);
+        const int st_count = static_cast<int>(sizeof(status_level_str) / sizeof(status_level_str[0]));
+        const char* st_cstr = (st_idx >= 0 && st_idx < st_count) ? status_level_str[st_idx] : nullptr;
+        std::string st_str = (st_cstr != nullptr) ? std::string(st_cstr) : std::string();
+        if (entity_graph.value(STATUS_TAG, std::string()) != st_str)
+        {
+            entity_graph[STATUS_TAG] = st_str;
+            entity_graph_updated = true;
+        }
     }
 
     switch (entity->kind)
