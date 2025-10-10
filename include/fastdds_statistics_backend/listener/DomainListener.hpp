@@ -21,6 +21,7 @@
 
 #include <fastdds_statistics_backend/fastdds_statistics_backend_dll.h>
 #include <fastdds_statistics_backend/types/types.hpp>
+#include <fastdds_statistics_backend/types/Alerts.hpp>
 
 #include <cstdint>
 
@@ -211,6 +212,40 @@ public:
         static_cast<void>(entity_id);
         static_cast<void>(status_kind);
 
+    }
+
+    /*!
+     * This function is called when a new alert must be reported.
+     *
+     * @param domain_id Entity ID of the domain to which the data belongs.
+     * @param entity_id Entity ID of the entity to which the data refers.
+     * @param alert Information about the alert being triggered.
+     * @param data The data that has triggered the alert.
+     */
+    virtual void on_alert_triggered(
+            EntityId domain_id,
+            EntityId entity_id,
+            AlertInfo& alert,
+            const std::string& data)
+    {
+        static_cast<void>(domain_id);
+        static_cast<void>(entity_id);
+        static_cast<void>(alert);
+        static_cast<void>(data);
+    }
+
+    /*!
+     * This function is called when a an alert does not have any matching entity.
+     *
+     * @param domain_id Entity ID of the domain to which the alert belongs.
+     * @param alert Information about the alert being triggered.
+     */
+    virtual void on_alert_unmatched(
+            EntityId domain_id,
+            AlertInfo& alert)
+    {
+        static_cast<void>(domain_id);
+        static_cast<void>(alert);
     }
 
 };

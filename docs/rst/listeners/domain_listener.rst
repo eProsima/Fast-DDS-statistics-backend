@@ -57,3 +57,12 @@ DomainListener defines the following callbacks:
 * |DomainListener::on_status_reported-api|:
   New status data has been received from the backend.
   The arguments in the callback specify the status kind of the received data and the entity to which this data refers.
+
+* |DomainListener::on_alert_triggered-api|:
+  An alert has been triggered in the monitored domain.
+  The arguments in the callback contain information of the alert and the domain
+  to which it belongs, as well as the data that caused the alert to be triggered.
+
+* |DomainListener::on_alert_unmatched-api|:
+  An alert has been unmatched or created without having any matching entities in the monitored domain.
+  The arguments in the callback contain information of the alert and the domain to which it belongs.

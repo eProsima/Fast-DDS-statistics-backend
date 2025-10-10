@@ -579,6 +579,35 @@ void set_alias_example()
     }
 }
 
+void set_alert_example()
+{
+    {
+        EntityId domain_id;
+        //CONF-SET-ALERT-EXAMPLE
+        StatisticsBackend::set_alert(
+            "NewDataAlert",                   // Alert name
+            domain_id,                        // Domain ID to monitor
+            "my_host",                        // Host name to monitor
+            "my_user",                        // User name to monitor
+            "my_topic",                       // Topic name to monitor
+            AlertKind::NEW_DATA,              // Kind of alert
+            0.0,                              // Threshold (Ignored for new data)
+            std::chrono::milliseconds(500)    // Minimum time between two consecutive triggers (in ms)
+            );
+        //!--
+    }
+}
+
+void remove_alert_example()
+{
+    {
+        AlertId alert_id = 0;
+        //CONF-REMOVE-ALERT-EXAMPLE
+        StatisticsBackend::remove_alert(alert_id);
+        //!--
+    }
+}
+
 void is_active_example()
 {
     {

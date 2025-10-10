@@ -54,7 +54,8 @@ StatisticsBackendData::StatisticsBackendData()
     , lock_(mutex_, std::defer_lock)
     , participant_factory_instance_(eprosima::fastdds::dds::DomainParticipantFactory::get_shared_instance())
 {
-    // Do nothing
+    // Start thread to check if alerts have matching entities
+    start_alert_watcher();
 }
 
 StatisticsBackendData::~StatisticsBackendData()
@@ -67,6 +68,9 @@ StatisticsBackendData::~StatisticsBackendData()
         const auto& monitor = monitors_by_entity_.begin()->second;
         stop_monitor(monitor->id);
     }
+
+    // Stopping recurrent watcher
+    stop_alert_watcher();
 
     if (entity_queue_)
     {
@@ -157,6 +161,51 @@ void StatisticsBackendData::on_status_reported(
     else if (should_call_physical_listener(CallbackKind::ON_STATUS_REPORTED))
     {
         physical_listener_->on_status_reported(domain_id, entity_id, status_kind);
+    }
+}
+
+void StatisticsBackendData::on_alert_triggered(
+        EntityId domain_id,
+        EntityId entity_id,
+        AlertInfo& alert,
+        const std::string& data)
+{
+    auto monitor = monitors_by_entity_.find(domain_id);
+    if (monitor == monitors_by_entity_.end())
+    {
+        logWarning(STATISTICS_BACKEND_DATA, "Monitor not found for domain " << domain_id);
+        return;
+    }
+
+    if (should_call_domain_listener(*monitor->second, CallbackKind::ON_ALERT_TRIGGERED))
+    {
+        monitor->second->domain_listener->on_alert_triggered(domain_id, entity_id, alert, data);
+    }
+    else if (should_call_physical_listener(CallbackKind::ON_ALERT_TRIGGERED))
+    {
+        physical_listener_->on_alert_triggered(domain_id, entity_id, alert, data);
+    }
+}
+
+void StatisticsBackendData::on_alert_unmatched(
+        EntityId domain_id,
+        AlertInfo& alert)
+{
+    // Get monitor for alert id
+    auto monitor = monitors_by_entity_.find(domain_id);
+    if (monitor == monitors_by_entity_.end())
+    {
+        logWarning(STATISTICS_BACKEND_DATA, "Monitor not found for domain " << domain_id);
+        return;
+    }
+
+    if (should_call_domain_listener(*monitor->second, CallbackKind::ON_ALERT_UNMATCHED))
+    {
+        monitor->second->domain_listener->on_alert_unmatched(domain_id, alert);
+    }
+    else if (should_call_physical_listener(CallbackKind::ON_ALERT_UNMATCHED))
+    {
+        physical_listener_->on_alert_unmatched(domain_id, alert);
     }
 }
 
@@ -459,6 +508,33 @@ void StatisticsBackendData::stop_monitor(
 database::DatabaseEntityQueue* StatisticsBackendData::get_entity_queue()
 {
     return entity_queue_;
+}
+
+void StatisticsBackendData::alert_watcher()
+{
+    while (!stop_alert_watcher_)
+    {
+        std::this_thread::sleep_for(std::chrono::seconds(2));
+        if (database_)
+        {
+            database_->check_alerts_matching_entities();
+        }
+    }
+}
+
+void StatisticsBackendData::start_alert_watcher()
+{
+    stop_alert_watcher_ = false;
+    alert_watcher_thread_ = std::thread(&StatisticsBackendData::alert_watcher, this);
+}
+
+void StatisticsBackendData::stop_alert_watcher()
+{
+    stop_alert_watcher_ = true;
+    if (alert_watcher_thread_.joinable())
+    {
+        alert_watcher_thread_.join();
+    }
 }
 
 } // namespace details

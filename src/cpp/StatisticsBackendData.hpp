@@ -24,6 +24,7 @@
 #include <memory>
 #include <mutex>
 #include <string>
+#include <thread>
 
 #include <fastdds/dds/domain/DomainParticipantFactory.hpp>
 
@@ -125,6 +126,12 @@ public:
 
     //! Synchronization lock
     std::unique_lock<std::mutex> lock_;
+
+    //! Thread to periodically check if alerts have matching entities
+    std::thread alert_watcher_thread_;
+
+    //! Flag to stop the alert watcher thread
+    std::atomic_bool stop_alert_watcher_ = false;
 
     //////////////////////////////
     // SINGLETON METHODS
@@ -231,6 +238,29 @@ public:
             EntityId entity_id,
             StatusKind status_kind);
 
+    /**
+     * @brief Notify the user about a new alert
+     *
+     * @param domain_id The domain where the alert is reported
+     * @param entity_id The entity for which the alert is reported
+     * @param alert the alert being triggered
+     * @param data the data that has triggered the alert
+     */
+    void on_alert_triggered(
+            EntityId domain_id,
+            EntityId entity_id,
+            AlertInfo& alert,
+            const std::string& data);
+
+    /**
+     * @brief Notify the user about an alert that has no matching entity
+     *
+     * @param domain_id The domain where the alert is reported
+     * @param alert the alert with no matching entities
+     */
+    void on_alert_unmatched(
+            EntityId domain_id,
+            AlertInfo& alert);
 
     //////////////////////////////
     // STATISTICS BACKEND METHODS
@@ -254,6 +284,29 @@ public:
      * @return A pointer to the entity queue
      */
     database::DatabaseEntityQueue* get_entity_queue();
+
+
+    /**
+     * @brief Starts a thread to periodically check if alerts have matching entities
+     * TODO: This method and the corresponding thread should be removed when a proper
+     * undiscovery of proxy entities is implemented
+     * @return void
+     */
+    void start_alert_watcher();
+
+    /**
+     * @brief Stops the thread that periodically checks if alerts have matching entities
+     * TODO: This method and the corresponding thread should be removed when a proper
+     * undiscovery of proxy entities is implemented
+     * @return void
+     */
+    void stop_alert_watcher();
+
+
+    /**
+     * @brief Method executed by the alert watcher thread
+     */
+    void alert_watcher();
 
 protected:
 

@@ -230,6 +230,12 @@ public:
             EntityId entity_id = EntityId::all());
 
     /**
+     * @brief Get all the alert ids from the backend.
+     */
+    FASTDDS_STATISTICS_BACKEND_DllAPI
+    static std::vector<AlertId> get_alerts();
+
+    /**
      * @brief Get the EntityId for a given GUID in string format.
      *
      * @param guid The GUID in string format.
@@ -309,6 +315,16 @@ public:
     FASTDDS_STATISTICS_BACKEND_DllAPI
     static Info get_info(
             EntityId entity_id);
+
+    /**
+     * @brief Get the meta information of a given alert.
+     *
+     * @param alert_id The alert for which the meta information is retrieved.
+     * @return Info object describing the alert's meta information.
+     */
+    FASTDDS_STATISTICS_BACKEND_DllAPI
+    static Info get_info(
+            AlertId alert_id);
 
     /**
      * @brief Get the IDL representation of a data type in string format for a given topic entity.
@@ -671,6 +687,38 @@ public:
     static void set_alias(
             EntityId entity_id,
             const std::string& alias);
+
+    /**
+     * @brief Set an alert in the backend.
+     *
+     * @param alert_name Name of the alert.
+     * @param domain_id Domain where the alert will monitor data
+     * @param host_name Host string used to match an entity with the alert
+     * @param user_name User string used to match an entity with the alert
+     * @param topic_name Topic string used to match an entity with the alert
+     * @param alert_kind Kind of alert.
+     * @param threshold Threshold to trigger the alert.
+     * @param t_between_triggers Minimum time between two consecutive triggers of the alert.
+     */
+    FASTDDS_STATISTICS_BACKEND_DllAPI
+    static void set_alert(
+            const std::string& alert_name,
+            const EntityId& domain_id,
+            const std::string& host_name,
+            const std::string& user_name,
+            const std::string& topic_name,
+            const AlertKind& alert_kind,
+            const double& threshold,
+            const std::chrono::milliseconds& t_between_triggers);
+
+    /**
+     * @brief Remove an alert from the backend.
+     *
+     * @param alert_id The AlertId of the alert to remove.
+     */
+    FASTDDS_STATISTICS_BACKEND_DllAPI
+    static void remove_alert(
+            const AlertId& alert_id);
 
     /**
      * @brief Deserialize entity guid to string format.

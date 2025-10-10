@@ -31,6 +31,7 @@
 #include <fastdds_statistics_backend/types/types.hpp>
 #include <fastdds_statistics_backend/types/JSONTags.h>
 #include <fastdds_statistics_backend/types/app_names.h>
+#include <fastdds_statistics_backend/types/Alerts.hpp>
 #include <StatisticsBackendData.hpp>
 
 #include "database_queue.hpp"
@@ -1069,6 +1070,235 @@ void Database::notify_locator_discovery (
         details::StatisticsBackendData::DiscoveryStatus::DISCOVERY);
 }
 
+std::string Database::convert_stat_to_string(
+        const StatisticsSample& sample) const
+{
+    std::ostringstream oss;
+    switch (sample.kind)
+    {
+        // double based stats
+        case DataKind::FASTDDS_LATENCY:
+        case DataKind::NETWORK_LATENCY:
+        case DataKind::PUBLICATION_THROUGHPUT:
+        case DataKind::SUBSCRIPTION_THROUGHPUT:
+        {
+            auto& s = static_cast<const EntityDataSample&>(sample);
+            oss << std::fixed << std::setprecision(6) << s.data;
+            break;
+        }
+
+        // uint based stats
+        case DataKind::RTPS_PACKETS_SENT:
+        case DataKind::RTPS_PACKETS_LOST:
+        case DataKind::RESENT_DATA:
+        case DataKind::HEARTBEAT_COUNT:
+        case DataKind::ACKNACK_COUNT:
+        case DataKind::NACKFRAG_COUNT:
+        case DataKind::GAP_COUNT:
+        case DataKind::DATA_COUNT:
+        case DataKind::PDP_PACKETS:
+        case DataKind::EDP_PACKETS:
+        case DataKind::SAMPLE_DATAS:
+        {
+            auto& s = static_cast<const EntityCountSample&>(sample);
+            oss << s.count;
+            break;
+        }
+
+        // byte based stats
+        case DataKind::RTPS_BYTES_SENT:
+        case DataKind::RTPS_BYTES_LOST:
+        {
+            auto& s = static_cast<const ByteCountSample&>(sample);
+            oss << s.count << " × 10^" << s.magnitude_order;
+            break;
+        }
+
+        // timestamp based stats
+        case DataKind::DISCOVERY_TIME:
+        {
+            auto& s = static_cast<const TimepointSample&>(sample);
+            auto millis = std::chrono::duration_cast<std::chrono::milliseconds>(
+                s.time.time_since_epoch()).count();
+            oss << millis << " ms";
+            break;
+        }
+
+        default:
+            break;
+    }
+
+    return oss.str();
+}
+
+void Database::trigger_alerts_of_kind(
+        const EntityId& domain_id,
+        const EntityId& entity_id,
+        const std::shared_ptr<DDSEndpoint>& endpoint,
+        const AlertKind alert_kind,
+        const EntityCountSample& data)
+{
+    trigger_alerts_of_kind_nts(
+        domain_id,
+        entity_id,
+        endpoint,
+        alert_kind,
+        data);
+}
+
+void Database::trigger_alerts_of_kind_nts(
+        const EntityId& domain_id,
+        const EntityId& entity_id,
+        const std::shared_ptr<DDSEndpoint>& endpoint,
+        const AlertKind alert_kind,
+        const EntityCountSample& data)
+{
+    for (auto alert_it : alerts_[domain_id])
+    {
+        std::shared_ptr<AlertInfo> alert_info = alert_it.second;
+        if (alert_info->get_alert_kind() == alert_kind)
+        {
+            // Get the metadata from the entity that sent the stats
+            std::string topic_name = endpoint->topic->name;
+            std::string user_name  = endpoint->participant->process->user->name;
+            std::string host_name  = endpoint->participant->process->user->host->name;
+
+            if (alert_info->check_trigger_conditions(host_name, user_name, topic_name, data.count))
+            {
+                // Update trigger info such as last trigger timestamp
+                alert_info->trigger();
+                // Convert the data to str and notify the alert has been triggered
+                std::string data_str = convert_stat_to_string(data);
+                details::StatisticsBackendData::get_instance()->on_alert_triggered(
+                    domain_id,
+                    entity_id,
+                    *alert_info,
+                    data_str);
+            }
+        }
+    }
+}
+
+void Database::trigger_alerts_of_kind(
+        const EntityId& domain_id,
+        const EntityId& entity_id,
+        const std::shared_ptr<DDSEndpoint>& endpoint,
+        const AlertKind alert_kind,
+        const EntityDataSample& data)
+{
+    trigger_alerts_of_kind_nts(
+        domain_id,
+        entity_id,
+        endpoint,
+        alert_kind,
+        data);
+}
+
+void Database::trigger_alerts_of_kind_nts(
+        const EntityId& domain_id,
+        const EntityId& entity_id,
+        const std::shared_ptr<DDSEndpoint>& endpoint,
+        const AlertKind alert_kind,
+        const EntityDataSample& data)
+{
+    for (auto alert_it : alerts_[domain_id])
+    {
+        std::shared_ptr<AlertInfo> alert_info = alert_it.second;
+        if (alert_info->get_alert_kind() == alert_kind)
+        {
+            // Get the metadata from the entity that sent the stats
+            std::string topic_name = endpoint->topic->name;
+            std::string user_name  = endpoint->participant->process->user->name;
+            std::string host_name  = endpoint->participant->process->user->host->name;
+
+            if (alert_info->check_trigger_conditions(host_name, user_name, topic_name, data.data))
+            {
+                // Update trigger info such as last trigger timestamp
+                alert_info->trigger();
+                // Convert the data to str and notify the alert has been triggered
+                std::string data_str = convert_stat_to_string(data);
+                details::StatisticsBackendData::get_instance()->on_alert_triggered(
+                    domain_id,
+                    entity_id,
+                    *alert_info,
+                    data_str);
+            }
+        }
+    }
+}
+
+void Database::check_alerts_matching_entities()
+{
+    std::lock_guard<std::shared_timed_mutex> guard(mutex_);
+    for (auto& domain_it : domains_)
+    {
+        EntityId domainId = domain_it.first;
+        auto alerts_in_domain = alerts_.find(domainId);
+        if (alerts_in_domain != alerts_.end())
+        {
+            for (auto& alert_it : alerts_in_domain->second)
+            {
+                std::shared_ptr<AlertInfo> alert_info = alert_it.second;
+                if (alert_info->time_allows_trigger())
+                {
+                    bool match = false;
+                    auto datawriters_it = datawriters_.find(alert_info->get_domain_id());
+                    if (datawriters_it != datawriters_.end())
+                    {
+                        for (auto& endpoint_it : datawriters_it->second)
+                        {
+                            auto& endpoint = endpoint_it.second;
+                            // Get the metadata from the entity that sent the stats
+                            std::string topic_name = endpoint->topic->name;
+                            std::string user_name  = endpoint->participant->process->user->name;
+                            std::string host_name  = endpoint->participant->process->user->host->name;
+                            if (alert_info->entity_matches(host_name, user_name, topic_name))
+                            {
+                                match = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (!match)
+                    {
+                        auto datareaders_it = datareaders_.find(alert_info->get_domain_id());
+                        if (datareaders_it != datareaders_.end())
+                        {
+                            for (auto& endpoint_it : datareaders_it->second)
+                            {
+                                auto& endpoint = endpoint_it.second;
+                                // Get the metadata from the entity that sent the stats
+                                std::string topic_name = endpoint->topic->name;
+                                std::string user_name  = endpoint->participant->process->user->name;
+                                std::string host_name  = endpoint->participant->process->user->host->name;
+                                if (alert_info->entity_matches(host_name, user_name, topic_name))
+                                {
+                                    match = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    if (!match)
+                    {
+                        alert_info->trigger();
+                        // Notify the alert has been triggered
+                        // TODO (eProsima) Workaround to avoid deadlock if callback implementation requires taking the database
+                        // mutex (e.g. by calling get_info). A refactor for not calling on_domain_view_graph_update from within
+                        // this function would be required.
+                        execute_without_lock([&]()
+                                {
+                                    details::StatisticsBackendData::get_instance()->on_alert_unmatched(
+                                        domainId,
+                                        *alert_info);
+                                });
+                    }
+                }
+            }
+        }
+    }
+}
+
 void Database::insert_nts(
         const EntityId& domain_id,
         const EntityId& entity_id,
@@ -1194,6 +1424,10 @@ void Database::insert_nts(
                     }
 
                     reader->second->data.subscription_throughput.push_back(subscription_throughput);
+
+                    // Trigger corresponding alerts
+                    trigger_alerts_of_kind_nts(domain_id, entity_id, reader->second, AlertKind::NO_DATA,
+                            subscription_throughput);
                     break;
                 }
             }
@@ -1730,6 +1964,8 @@ void Database::insert_nts(
                         writer->second->data.last_reported_data_count = data_count;
                     }
 
+                    // Trigger corresponding alerts
+                    trigger_alerts_of_kind_nts(domain_id, entity_id, writer->second, AlertKind::NEW_DATA, data_count);
                     break;
                 }
             }
@@ -2698,6 +2934,24 @@ std::vector<std::pair<EntityId, EntityId>> Database::get_entities_by_name_nts(
         }
     }
     return entities;
+}
+
+const std::shared_ptr<const AlertInfo> Database::get_alert_nts(
+        const AlertId& alert_id) const
+{
+    /* Iterate over all the collections looking for the entity */
+    for (const auto& domain_it : alerts_)
+    {
+        for (const auto& alert_it : domain_it.second)
+        {
+            if (alert_it.second->get_alert_id() == alert_id)
+            {
+                return alert_it.second;
+            }
+        }
+    }
+
+    return nullptr;
 }
 
 std::string Database::get_type_idl(
@@ -4714,6 +4968,22 @@ std::vector<EntityId> Database::get_entity_ids(
     return entitiesIds;
 }
 
+std::vector<AlertId> Database::get_alerts_ids() const
+{
+    std::shared_lock<std::shared_timed_mutex> lock(mutex_);
+    std::vector<AlertId> alertsIds;
+
+    for (const auto& domain_it: alerts_)
+    {
+        for (const auto& alert_it : domain_it.second)
+        {
+            alertsIds.push_back(alert_it.first);
+        }
+    }
+
+    return alertsIds;
+}
+
 // Auxiliar function to convert a map to a vector
 template<typename T>
 void map_to_vector(
@@ -6240,6 +6510,35 @@ Info Database::get_info(
         {
             break;
         }
+    }
+
+    return info;
+}
+
+Info Database::get_info(
+        const AlertId& alert_id)
+{
+    Info info = Info::object();
+
+    std::shared_lock<std::shared_timed_mutex> lock(mutex_);
+
+    std::shared_ptr<const AlertInfo> alert = get_alert_nts(alert_id);
+    if (alert == nullptr)
+    {
+        throw BadParameter("Error: Alert ID does not exist");
+    }
+
+    info[ID_TAG] = std::to_string(alert_id);
+    info[ALERT_KIND_TAG] = alert_kind_str[(int)alert->get_alert_kind()];
+    info[ALERT_NAME_TAG] = alert->get_alert_name();
+    info[DOMAIN_ID_TAG] = alert->get_domain_id().value();
+    info[ALERT_HOST_TAG] = alert->get_host_name();
+    info[ALERT_USER_TAG] = alert->get_user_name();
+    info[ALERT_TOPIC_TAG] = alert->get_topic_name();
+
+    if (alert->get_alert_kind() != AlertKind::NEW_DATA)
+    {
+        info[ALERT_THRESHOLD_TAG] = std::to_string(alert->get_trigger_threshold());
     }
 
     return info;
@@ -7953,6 +8252,52 @@ void Database::clear_internal_references_nts_()
     {
         clear_inactive_entities_from_map_(it.second->topics);
         clear_inactive_entities_from_map_(it.second->participants);
+    }
+}
+
+/**
+ * @brief Setter for entity alert.
+ *
+ * @param alert_info The new alert information.
+ * @return The AlertId of the alert.
+ */
+AlertId Database::insert_alert(
+        AlertInfo& alert_info)
+{
+    std::lock_guard<std::shared_timed_mutex> guard(mutex_);
+    return insert_alert_nts(alert_info);
+}
+
+/**
+ * @brief Setter for entity alert.
+ *
+ * @param alert_info The new alert information.
+ * @return The AlertId of the alert.
+ */
+AlertId Database::insert_alert_nts(
+        AlertInfo& alert_info)
+{
+    // store alert_info in the database
+    AlertId id = next_alert_id_++;
+    alert_info.set_id(id);
+    alerts_[alert_info.get_domain_id()].emplace(id, std::make_shared<AlertInfo>(alert_info));
+    return id;
+}
+
+void Database::remove_alert(
+        const AlertId& alert_id)
+{
+    std::lock_guard<std::shared_timed_mutex> guard(mutex_);
+    // Iterate over all domains as ID is unique but domain is not known
+    for (auto& domain_it : alerts_)
+    {
+        auto alert_it = domain_it.second.find(alert_id);
+        if (alert_it != domain_it.second.end())
+        {
+            // If alert is found in this domain, it is removed
+            domain_it.second.erase(alert_it);
+            return;
+        }
     }
 }
 

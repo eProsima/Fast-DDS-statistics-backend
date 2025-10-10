@@ -20,6 +20,8 @@
 .. |get_type-api| replace:: :cpp:func:`get_type()<eprosima::statistics_backend::StatisticsBackend::get_type>`
 .. |get_status-api| replace:: :cpp:func:`get_status()<eprosima::statistics_backend::StatisticsBackend::get_status>`
 .. |set_alias-api| replace:: :cpp:func:`set_alias()<eprosima::statistics_backend::StatisticsBackend::set_alias>`
+.. |set_alert-api| replace:: :cpp:func:`set_alert()<eprosima::statistics_backend::StatisticsBackend::set_alert>`
+.. |remove_alert-api| replace:: :cpp:func:`remove_alert()<eprosima::statistics_backend::StatisticsBackend::remove_alert>`
 .. |clear_statistics_data-api| replace:: :cpp:func:`clear_statistics_data()<eprosima::statistics_backend::StatisticsBackend::clear_statistics_data>`
 .. |clear_inactive_entities-api| replace:: :cpp:func:`clear_inactive_entities()<eprosima::statistics_backend::StatisticsBackend::clear_inactive_entities>`
 
@@ -31,6 +33,8 @@
 .. |DomainListener::on_datawriter_discovery-api| replace:: :cpp:func:`on_datawriter_discovery()<eprosima::statistics_backend::DomainListener::on_datawriter_discovery>`
 .. |DomainListener::on_domain_view_graph_update-api| replace:: :cpp:func:`on_domain_view_graph_update()<eprosima::statistics_backend::DomainListener::on_domain_view_graph_update>`
 .. |DomainListener::on_status_reported-api| replace:: :cpp:func:`on_status_reported()<eprosima::statistics_backend::DomainListener::on_status_reported>`
+.. |DomainListener::on_alert_triggered-api| replace:: :cpp:func:`on_alert_triggered()<eprosima::statistics_backend::DomainListener::on_alert_triggered>`
+.. |DomainListener::on_alert_unmatched-api| replace:: :cpp:func:`on_alert_unmatched()<eprosima::statistics_backend::DomainListener::on_alert_unmatched>`
 .. |PhysicalListener-api| replace:: :cpp:class:`PhysicalListener<eprosima::statistics_backend::PhysicalListener>`
 .. |PhysicalListener::on_host_discovery-api| replace:: :cpp:func:`on_host_discovery()<eprosima::statistics_backend::PhysicalListener::on_host_discovery>`
 .. |PhysicalListener::on_user_discovery-api| replace:: :cpp:func:`on_user_discovery()<eprosima::statistics_backend::PhysicalListener::on_user_discovery>`
@@ -97,6 +101,10 @@
 .. |DATAWRITER-api| replace:: :cpp:enumerator:`DATAWRITER<eprosima::statistics_backend::EntityKind::DATAWRITER>`
 .. |DATAREADER-api| replace:: :cpp:enumerator:`DATAREADER<eprosima::statistics_backend::EntityKind::DATAREADER>`
 .. |LOCATOR-api| replace:: :cpp:enumerator:`LOCATOR<eprosima::statistics_backend::EntityKind::LOCATOR>`
+
+.. |AlertKind::INVALID-api| replace:: :cpp:enumerator:`INVALID<eprosima::statistics_backend::AlertKind::INVALID>`
+.. |AlertKind::NEW_DATA-api| replace:: :cpp:enumerator:`NEW_DATA<eprosima::statistics_backend::AlertKind::NEW_DATA>`
+.. |AlertKind::NO_DATA-api| replace:: :cpp:enumerator:`NO_DATA<eprosima::statistics_backend::AlertKind::NO_DATA>`
 
 .. |StatusLevel-api| replace:: :cpp:type:`StatusLevel<eprosima::statistics_backend::StatusLevel>`
 .. |OK-api| replace:: :cpp:enumerator:`OK<eprosima::statistics_backend::StatusLevel::OK_STATUS>`

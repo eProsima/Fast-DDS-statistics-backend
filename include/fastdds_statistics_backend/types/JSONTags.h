@@ -85,6 +85,14 @@ constexpr const char* DATAREADER_ENTITY_TAG         = "datareader";
 constexpr const char* LOCATOR_ENTITY_TAG            = "locator";
 
 /////
+// Alert kind
+
+//! Key Tag for a single no_data alert
+constexpr const char* NO_DATA_TAG                   = "no_data";
+//! Key Tag for a single new_data alert
+constexpr const char* NEW_DATA_TAG                  = "new_data";
+
+/////
 // Status Level
 
 //! OK status
@@ -135,11 +143,23 @@ constexpr const char* DOMAIN_NAME_TAG                = "domain_name";
 constexpr const char* DISCOVERY_SOURCE_TAG          = "discovery_source";
 //! Key tag for original domain of a participant entity
 constexpr const char* ORIGINAL_DOMAIN_TAG          = "original_domain";
+//! Key tags for alerts
+constexpr const char* ALERT_KIND_TAG                  = "kind";
+constexpr const char* ALERT_NAME_TAG                  = "name";
+constexpr const char* ALERT_HOST_TAG                  = "host";
+constexpr const char* ALERT_USER_TAG                  = "user";
+constexpr const char* ALERT_TOPIC_TAG                 = "topic";
+constexpr const char* ALERT_THRESHOLD_TAG             = "threshold";
+constexpr const char* ALERT_TIME_BETWEEN_TRIGGERS_TAG = "time_between_triggers";
+
 
 //! Conversion from EntityKind to string
 constexpr const char* entity_kind_str[] =
 {"invalid", HOST_ENTITY_TAG, USER_ENTITY_TAG, PROCESS_ENTITY_TAG, DOMAIN_ENTITY_TAG, TOPIC_ENTITY_TAG,
  PARTICIPANT_ENTITY_TAG, DATAWRITER_ENTITY_TAG, DATAREADER_ENTITY_TAG, LOCATOR_ENTITY_TAG};
+//! Conversion from AlertKind to string
+constexpr const char* alert_kind_str[] =
+{"invalid", NEW_DATA_TAG, NO_DATA_TAG};
 //! Conversion from StatusLevel to string
 constexpr const char* status_level_str[] =
 {OK_STATUS, WARNING_STATUS, ERROR_STATUS};
