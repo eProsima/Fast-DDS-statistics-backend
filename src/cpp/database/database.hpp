@@ -1856,7 +1856,7 @@ protected:
      * The ID that will be assigned to the next alert.
      * Used to guarantee a unique AlertId within the database instance
      */
-    std::atomic<int64_t> next_alert_id_{0};
+    std::atomic<uint32_t> next_alert_id_{0};
 
     //! Read-write synchronization mutex
     mutable std::shared_timed_mutex mutex_;
