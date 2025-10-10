@@ -136,6 +136,20 @@ public:
         }
     }
 
+    bool value_triggers(
+            uint64_t value) const
+    {
+        switch (cmp)
+        {
+            case AlertComparison::GT:
+                return value > trigger_threshold;
+            case AlertComparison::LT:
+                return value < trigger_threshold;
+            default:
+                return false;
+        }
+    }
+
     bool time_allows_trigger() const
     {
         auto now_ts = std::chrono::system_clock::now();
@@ -145,10 +159,19 @@ public:
     bool check_trigger_conditions(
             std::string host,
             std::string user,
-            std::string entity,
+            std::string topic,
             double value) const
     {
-        return entity_matches(host, user, entity) && value_triggers(value) && time_allows_trigger();
+        return entity_matches(host, user, topic) && value_triggers(value) && time_allows_trigger();
+    }
+
+    bool check_trigger_conditions(
+            std::string host,
+            std::string user,
+            std::string topic,
+            uint64_t value) const
+    {
+        return entity_matches(host, user, topic) && value_triggers(value) && time_allows_trigger();
     }
 
     bool trigger()

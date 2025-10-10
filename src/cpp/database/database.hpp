@@ -277,7 +277,24 @@ public:
             const EntityId& entity_id,
             const std::shared_ptr<DDSEndpoint>& endpoint,
             const AlertKind alert_kind,
-            const long double& data);
+            const EntityCountSample& data);
+
+    /**
+     * @brief Triggers all the alerts of a specific kind if the entity and the data
+     * meet the conditions
+     *
+     * @param domain_id The EntityId of the domain that contains the triggerer entity.
+     * @param entity_id The EntityId of the entity for which to trigger the alerts.
+     * @param endpoint The DDSEndpoint for which to trigger the alerts
+     * @param alert_kind The kind of alert to trigger.
+     * @param data The value that might trigger the alert
+     */
+    void trigger_alerts_of_kind(
+            const EntityId& domain_id,
+            const EntityId& entity_id,
+            const std::shared_ptr<DDSEndpoint>& endpoint,
+            const AlertKind alert_kind,
+            const EntityDataSample& data);
 
     /**
      * For all alerts in the database, check if they have matching entities.
@@ -1371,7 +1388,24 @@ protected:
             const EntityId& entity_id,
             const std::shared_ptr<DDSEndpoint>& endpoint,
             const AlertKind alert_kind,
-            const long double& data);
+            const EntityCountSample& data);
+
+    /**
+     * @brief Triggers all the alerts of a specific kind if the entity and the data
+     * meet the conditions. This method is not thread safe.
+     *
+     * @param domain_id The EntityId of the domain that contains the triggerer entity.
+     * @param entity_id The EntityId of the entity for which to trigger the alerts.
+     * @param endpoint The DDSEndpoint for which to trigger the alerts
+     * @param alert_kind The kind of alert to trigger.
+     * @param data The value that might trigger the alert
+     */
+    void trigger_alerts_of_kind_nts(
+            const EntityId& domain_id,
+            const EntityId& entity_id,
+            const std::shared_ptr<DDSEndpoint>& endpoint,
+            const AlertKind alert_kind,
+            const EntityDataSample& data);
 
     /**
      * @brief Insert a new monitor service sample into the database. This method is not thread safe.
@@ -1729,6 +1763,15 @@ protected:
      * @warning This method does not guard a mutex, as it is expected to be called with mutex already taken.
      */
     void clear_internal_references_nts_();
+
+    /**
+     * @brief Convert a StatisticsSample to a string representation.
+     *
+     * @param sample The StatisticsSample to convert.
+     * @return The string representation of the sample.
+     */
+    std::string convert_stat_to_string(
+            const StatisticsSample& sample) const;
 
     //! Collection of Hosts sorted by EntityId
     std::map<EntityId, std::shared_ptr<Host>> hosts_;

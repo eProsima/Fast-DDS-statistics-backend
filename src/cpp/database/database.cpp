@@ -1070,12 +1070,73 @@ void Database::notify_locator_discovery (
         details::StatisticsBackendData::DiscoveryStatus::DISCOVERY);
 }
 
+std::string Database::convert_stat_to_string(
+        const StatisticsSample& sample) const
+{
+    std::ostringstream oss;
+    switch (sample.kind)
+    {
+        // double based stats
+        case DataKind::FASTDDS_LATENCY:
+        case DataKind::NETWORK_LATENCY:
+        case DataKind::PUBLICATION_THROUGHPUT:
+        case DataKind::SUBSCRIPTION_THROUGHPUT:
+        {
+            auto& s = static_cast<const EntityDataSample&>(sample);
+            oss << std::fixed << std::setprecision(6) << s.data;
+            break;
+        }
+
+        // uint based stats
+        case DataKind::RTPS_PACKETS_SENT:
+        case DataKind::RTPS_PACKETS_LOST:
+        case DataKind::RESENT_DATA:
+        case DataKind::HEARTBEAT_COUNT:
+        case DataKind::ACKNACK_COUNT:
+        case DataKind::NACKFRAG_COUNT:
+        case DataKind::GAP_COUNT:
+        case DataKind::DATA_COUNT:
+        case DataKind::PDP_PACKETS:
+        case DataKind::EDP_PACKETS:
+        case DataKind::SAMPLE_DATAS:
+        {
+            auto& s = static_cast<const EntityCountSample&>(sample);
+            oss << s.count;
+            break;
+        }
+
+        // byte based stats
+        case DataKind::RTPS_BYTES_SENT:
+        case DataKind::RTPS_BYTES_LOST:
+        {
+            auto& s = static_cast<const ByteCountSample&>(sample);
+            oss << s.count << " × 10^" << s.magnitude_order;
+            break;
+        }
+
+        // timestamp based stats
+        case DataKind::DISCOVERY_TIME:
+        {
+            auto& s = static_cast<const TimepointSample&>(sample);
+            auto millis = std::chrono::duration_cast<std::chrono::milliseconds>(
+                s.time.time_since_epoch()).count();
+            oss << millis << " ms";
+            break;
+        }
+
+        default:
+            break;
+    }
+
+    return oss.str();
+}
+
 void Database::trigger_alerts_of_kind(
         const EntityId& domain_id,
         const EntityId& entity_id,
         const std::shared_ptr<DDSEndpoint>& endpoint,
         const AlertKind alert_kind,
-        const long double& data)
+        const EntityCountSample& data)
 {
     trigger_alerts_of_kind_nts(
         domain_id,
@@ -1090,7 +1151,7 @@ void Database::trigger_alerts_of_kind_nts(
         const EntityId& entity_id,
         const std::shared_ptr<DDSEndpoint>& endpoint,
         const AlertKind alert_kind,
-        const long double& data)
+        const EntityCountSample& data)
 {
     for (auto alert_it : alerts_[domain_id])
     {
@@ -1101,16 +1162,66 @@ void Database::trigger_alerts_of_kind_nts(
             std::string topic_name = endpoint->topic->name;
             std::string user_name  = endpoint->participant->process->user->name;
             std::string host_name  = endpoint->participant->process->user->host->name;
-            if (alert_info->check_trigger_conditions(host_name, user_name, topic_name, data))
+
+            if (alert_info->check_trigger_conditions(host_name, user_name, topic_name, data.count))
             {
                 // Update trigger info such as last trigger timestamp
                 alert_info->trigger();
-                // Notify the alert has been triggered
+                // Convert the data to str and notify the alert has been triggered
+                std::string data_str = convert_stat_to_string(data);
                 details::StatisticsBackendData::get_instance()->on_alert_triggered(
                     domain_id,
                     entity_id,
                     *alert_info,
-                    data);
+                    data_str);
+            }
+        }
+    }
+}
+
+void Database::trigger_alerts_of_kind(
+        const EntityId& domain_id,
+        const EntityId& entity_id,
+        const std::shared_ptr<DDSEndpoint>& endpoint,
+        const AlertKind alert_kind,
+        const EntityDataSample& data)
+{
+    trigger_alerts_of_kind_nts(
+        domain_id,
+        entity_id,
+        endpoint,
+        alert_kind,
+        data);
+}
+
+void Database::trigger_alerts_of_kind_nts(
+        const EntityId& domain_id,
+        const EntityId& entity_id,
+        const std::shared_ptr<DDSEndpoint>& endpoint,
+        const AlertKind alert_kind,
+        const EntityDataSample& data)
+{
+    for (auto alert_it : alerts_[domain_id])
+    {
+        std::shared_ptr<AlertInfo> alert_info = alert_it.second;
+        if (alert_info->get_alert_kind() == alert_kind)
+        {
+            // Get the metadata from the entity that sent the stats
+            std::string topic_name = endpoint->topic->name;
+            std::string user_name  = endpoint->participant->process->user->name;
+            std::string host_name  = endpoint->participant->process->user->host->name;
+
+            if (alert_info->check_trigger_conditions(host_name, user_name, topic_name, data.data))
+            {
+                // Update trigger info such as last trigger timestamp
+                alert_info->trigger();
+                // Convert the data to str and notify the alert has been triggered
+                std::string data_str = convert_stat_to_string(data);
+                details::StatisticsBackendData::get_instance()->on_alert_triggered(
+                    domain_id,
+                    entity_id,
+                    *alert_info,
+                    data_str);
             }
         }
     }
@@ -1316,7 +1427,7 @@ void Database::insert_nts(
 
                     // Trigger corresponding alerts
                     trigger_alerts_of_kind_nts(domain_id, entity_id, reader->second, AlertKind::NO_DATA,
-                            subscription_throughput.data);
+                            subscription_throughput);
                     break;
                 }
             }
@@ -1854,8 +1965,7 @@ void Database::insert_nts(
                     }
 
                     // Trigger corresponding alerts
-                    trigger_alerts_of_kind_nts(domain_id, entity_id, writer->second, AlertKind::NEW_DATA,
-                            writer->second->data.data_count.back().count);
+                    trigger_alerts_of_kind_nts(domain_id, entity_id, writer->second, AlertKind::NEW_DATA, data_count);
                     break;
                 }
             }
