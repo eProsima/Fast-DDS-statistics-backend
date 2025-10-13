@@ -33,7 +33,6 @@ set(${PROJECT_NAME}_DESCRIPTION_SUMMARY "C++ library for bridging Fast DDS stati
 
 message(STATUS "Configuring ${PROJECT_NAME_LARGE}")
 message(STATUS "Version: ${PROJECT_VERSION}")
-message(STATUS "USING MY OWN SUPERCOOL BRANCH?")
 
 ###############################################################################
 # Load CMake modules

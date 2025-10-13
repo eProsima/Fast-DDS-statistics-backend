@@ -102,9 +102,9 @@
 .. |DATAREADER-api| replace:: :cpp:enumerator:`DATAREADER<eprosima::statistics_backend::EntityKind::DATAREADER>`
 .. |LOCATOR-api| replace:: :cpp:enumerator:`LOCATOR<eprosima::statistics_backend::EntityKind::LOCATOR>`
 
-.. |AlertKind::INVALID-api| replace:: :cpp:enumerator:`INVALID<eprosima::statistics_backend::AlertKind::INVALID>`
-.. |AlertKind::NEW_DATA-api| replace:: :cpp:enumerator:`NEW_DATA<eprosima::statistics_backend::AlertKind::NEW_DATA>`
-.. |AlertKind::NO_DATA-api| replace:: :cpp:enumerator:`NO_DATA<eprosima::statistics_backend::AlertKind::NO_DATA>`
+.. |AlertKind::INVALID-api| replace:: :cpp:enumerator:`INVALID<eprosima::statistics_backend::AlertKind::INVALID_ALERT>`
+.. |AlertKind::NEW_DATA-api| replace:: :cpp:enumerator:`NEW_DATA<eprosima::statistics_backend::AlertKind::NEW_DATA_ALERT>`
+.. |AlertKind::NO_DATA-api| replace:: :cpp:enumerator:`NO_DATA<eprosima::statistics_backend::AlertKind::NO_DATA_ALERT>`
 
 .. |StatusLevel-api| replace:: :cpp:type:`StatusLevel<eprosima::statistics_backend::StatusLevel>`
 .. |OK-api| replace:: :cpp:enumerator:`OK<eprosima::statistics_backend::StatusLevel::OK_STATUS>`

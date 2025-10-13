@@ -1426,7 +1426,7 @@ void Database::insert_nts(
                     reader->second->data.subscription_throughput.push_back(subscription_throughput);
 
                     // Trigger corresponding alerts
-                    trigger_alerts_of_kind_nts(domain_id, entity_id, reader->second, AlertKind::NO_DATA,
+                    trigger_alerts_of_kind_nts(domain_id, entity_id, reader->second, AlertKind::NO_DATA_ALERT,
                             subscription_throughput);
                     break;
                 }
@@ -1965,7 +1965,7 @@ void Database::insert_nts(
                     }
 
                     // Trigger corresponding alerts
-                    trigger_alerts_of_kind_nts(domain_id, entity_id, writer->second, AlertKind::NEW_DATA, data_count);
+                    trigger_alerts_of_kind_nts(domain_id, entity_id, writer->second, AlertKind::NEW_DATA_ALERT, data_count);
                     break;
                 }
             }
@@ -6536,7 +6536,7 @@ Info Database::get_info(
     info[ALERT_USER_TAG] = alert->get_user_name();
     info[ALERT_TOPIC_TAG] = alert->get_topic_name();
 
-    if (alert->get_alert_kind() != AlertKind::NEW_DATA)
+    if (alert->get_alert_kind() != AlertKind::NEW_DATA_ALERT)
     {
         info[ALERT_THRESHOLD_TAG] = std::to_string(alert->get_trigger_threshold());
     }
