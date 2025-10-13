@@ -36,40 +36,6 @@ enum class NotifierKind
     SCRIPT
 };
 
-class NotifierManager{
-
-public:
-    NotifierId add_notifier(const Notifier &notifier)
-    {
-        NotifierId id = next_id++;
-        m_notifiers[id] = std::make_shared<Notifier>(notifier);
-        return id;
-    }
-
-    void remove_notifier(NotifierId notifier)
-    {
-        auto it = m_notifiers.find(notifier);
-        if (it != m_notifiers.end())
-        {
-            m_notifiers.erase(it);
-        }
-    }
-
-    void notify(const NotifierId &id, const std::string& message)
-    {
-        auto it = m_notifiers.find(id);
-        if (it != m_notifiers.end())
-        {
-            it->second->notify(message);
-        }
-    }
-
-private:
-    std::map<NotifierId, std::shared_ptr<Notifier>> m_notifiers;
-    NotifierId next_id{0};
-};
-
-
 class Notifier
 {
 public:
@@ -77,6 +43,9 @@ public:
 
     // Pure virtual function for sending notifications
     virtual void notify(const std::string& message) = 0;
+
+    // This function allows clean polymorphism
+    virtual std::shared_ptr<Notifier> clone() const = 0;
 
 protected:
 
@@ -121,11 +90,50 @@ public:
         execute_async(command.c_str());
     }
 
+    std::shared_ptr<Notifier> clone() const override
+    {
+        return std::make_shared<ScriptNotifier>(static_cast<const ScriptNotifier&>(*this));
+    }
+
 private:
     std::string m_scriptPath;
 };
 
-//NOTE: Other notifiers shall be added here, like email specific, webhooks. etc.
+// NOTE: Other notifiers shall be added here, like email specific, webhooks. etc.
+
+class NotifierManager{
+
+public:
+    NotifierId add_notifier(const Notifier &notifier)
+    {
+        NotifierId id = next_id++;
+        // Making use of clone function so that each derived notifier is copied correctly
+        m_notifiers[id] = notifier.clone();
+        return id;
+    }
+
+    void remove_notifier(NotifierId notifier)
+    {
+        auto it = m_notifiers.find(notifier);
+        if (it != m_notifiers.end())
+        {
+            m_notifiers.erase(it);
+        }
+    }
+
+    void notify(const NotifierId &id, const std::string& message)
+    {
+        auto it = m_notifiers.find(id);
+        if (it != m_notifiers.end())
+        {
+            it->second->notify(message);
+        }
+    }
+
+private:
+    std::map<NotifierId, std::shared_ptr<Notifier>> m_notifiers;
+    NotifierId next_id{0};
+};
 
 } // namespace statistics_backend
 } // namespace eprosima
