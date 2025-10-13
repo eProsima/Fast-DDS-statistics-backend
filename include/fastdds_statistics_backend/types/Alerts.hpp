@@ -33,16 +33,16 @@ typedef uint32_t AlertId;
  */
 enum class AlertKind
 {
-    INVALID,
+    INVALID_DATA,
     NEW_DATA,
     NO_DATA
 };
 
 enum class AlertComparison
 {
-    INVALID,
-    GT,
-    LT
+    INVALID_CMP,
+    GREATER_THAN,
+    LOWER_THAN
 };
 
 class AlertInfo
@@ -127,9 +127,9 @@ public:
     {
         switch (cmp)
         {
-            case AlertComparison::GT:
+            case AlertComparison::GREATER_THAN:
                 return value > trigger_threshold;
-            case AlertComparison::LT:
+            case AlertComparison::LOWER_THAN:
                 return value < trigger_threshold;
             default:
                 return false;
@@ -141,9 +141,9 @@ public:
     {
         switch (cmp)
         {
-            case AlertComparison::GT:
+            case AlertComparison::GREATER_THAN:
                 return value > trigger_threshold;
-            case AlertComparison::LT:
+            case AlertComparison::LOWER_THAN:
                 return value < trigger_threshold;
             default:
                 return false;
@@ -242,7 +242,7 @@ struct NewDataAlertInfo : AlertInfo
             std::string user_name,
             std::string topic_name,
             std::chrono::milliseconds time_between_triggers)
-        : AlertInfo(AlertKind::NEW_DATA, name, domain_id, host_name, user_name, topic_name, AlertComparison::GT, 0.0,
+        : AlertInfo(AlertKind::NEW_DATA, name, domain_id, host_name, user_name, topic_name, AlertComparison::GREATER_THAN, 0.0,
                 time_between_triggers)
     {
     }
@@ -259,7 +259,7 @@ struct NoDataAlertInfo : AlertInfo
             std::string topic_name,
             double threshold,
             std::chrono::milliseconds time_between_triggers)
-        : AlertInfo(AlertKind::NO_DATA, name, domain_id, host_name, user_name, topic_name, AlertComparison::LT,
+        : AlertInfo(AlertKind::NO_DATA, name, domain_id, host_name, user_name, topic_name, AlertComparison::LOWER_THAN,
                 threshold,
                 time_between_triggers)
     {
