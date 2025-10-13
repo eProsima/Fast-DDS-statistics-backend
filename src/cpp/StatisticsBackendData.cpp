@@ -177,6 +177,12 @@ void StatisticsBackendData::on_alert_triggered(
         return;
     }
 
+    // Call the notifier
+    for (const auto& notifier_id : alert.get_notifiers())
+    {
+        StatisticsBackendData::get_instance()->database_->trigger_notifier(notifier_id, "Monitor alert triggered!!!");
+    }
+
     if (should_call_domain_listener(*monitor->second, CallbackKind::ON_ALERT_TRIGGERED))
     {
         monitor->second->domain_listener->on_alert_triggered(domain_id, entity_id, alert, data);
@@ -197,6 +203,12 @@ void StatisticsBackendData::on_alert_unmatched(
     {
         logWarning(STATISTICS_BACKEND_DATA, "Monitor not found for domain " << domain_id);
         return;
+    }
+
+    // Call the notifiers
+    for (const auto& notifier_id : alert.get_notifiers())
+    {
+        StatisticsBackendData::get_instance()->database_->trigger_notifier(notifier_id, "Monitor alert unmatched!!!");
     }
 
     if (should_call_domain_listener(*monitor->second, CallbackKind::ON_ALERT_UNMATCHED))

@@ -8302,6 +8302,27 @@ void Database::remove_alert(
     }
 }
 
+NotifierId Database::insert_notifier(
+        Notifier& notifier)
+{
+    std::lock_guard<std::shared_timed_mutex> guard(mutex_);
+    return notifiers_.add_notifier(notifier);
+}
+
+void Database::trigger_notifier(
+        const NotifierId& notifier_id, std::string message)
+{
+    std::lock_guard<std::shared_timed_mutex> guard(mutex_);
+    notifiers_.notify(notifier_id, message);
+}
+
+void Database::remove_notifier(
+        const NotifierId& notifier_id)
+{
+    std::lock_guard<std::shared_timed_mutex> guard(mutex_);
+    notifiers_.remove_notifier(notifier_id);
+}
+
 } //namespace database
 } //namespace statistics_backend
 } //namespace eprosima

@@ -20,6 +20,7 @@
 #ifndef FASTDDS_STATISTICS_BACKEND_TYPES__ALERTS_HPP
 #define FASTDDS_STATISTICS_BACKEND_TYPES__ALERTS_HPP
 
+#include <fastdds_statistics_backend/types/Notifiers.hpp>
 #include <fastdds_statistics_backend/types/types.hpp>
 #include <fastdds/rtps/common/Guid.hpp>
 
@@ -68,6 +69,8 @@ private:
     // Last trigger
     std::chrono::system_clock::time_point last_trigger;
     std::chrono::milliseconds time_between_triggers;
+    // List of notifiers
+    std::vector<NotifierId> notifiers;
 
 public:
 
@@ -229,6 +232,23 @@ public:
     std::chrono::milliseconds get_time_between_triggers() const
     {
         return time_between_triggers;
+    }
+
+    void add_notifier(
+            NotifierId notifier_id)
+    {
+        notifiers.push_back(notifier_id);
+    }
+
+    void remove_notifier(
+            NotifierId notifier_id)
+    {
+        notifiers.erase(std::remove(notifiers.begin(), notifiers.end(), notifier_id), notifiers.end());
+    }
+
+    const std::vector<NotifierId>& get_notifiers() const
+    {
+        return notifiers;
     }
 
 };
