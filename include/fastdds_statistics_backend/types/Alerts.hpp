@@ -242,7 +242,8 @@ struct NewDataAlertInfo : AlertInfo
             std::string user_name,
             std::string topic_name,
             std::chrono::milliseconds time_between_triggers)
-        : AlertInfo(AlertKind::NEW_DATA_ALERT, name, domain_id, host_name, user_name, topic_name, AlertComparison::GT_ALERT_CMP, 0.0,
+        : AlertInfo(AlertKind::NEW_DATA_ALERT, name, domain_id, host_name, user_name, topic_name,
+                AlertComparison::GT_ALERT_CMP, 0.0,
                 time_between_triggers)
     {
     }
@@ -259,7 +260,8 @@ struct NoDataAlertInfo : AlertInfo
             std::string topic_name,
             double threshold,
             std::chrono::milliseconds time_between_triggers)
-        : AlertInfo(AlertKind::NO_DATA_ALERT, name, domain_id, host_name, user_name, topic_name, AlertComparison::LT_ALERT_CMP,
+        : AlertInfo(AlertKind::NO_DATA_ALERT, name, domain_id, host_name, user_name, topic_name,
+                AlertComparison::LT_ALERT_CMP,
                 threshold,
                 time_between_triggers)
     {

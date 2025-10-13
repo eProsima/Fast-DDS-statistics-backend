@@ -1965,7 +1965,8 @@ void Database::insert_nts(
                     }
 
                     // Trigger corresponding alerts
-                    trigger_alerts_of_kind_nts(domain_id, entity_id, writer->second, AlertKind::NEW_DATA_ALERT, data_count);
+                    trigger_alerts_of_kind_nts(domain_id, entity_id, writer->second, AlertKind::NEW_DATA_ALERT,
+                            data_count);
                     break;
                 }
             }
