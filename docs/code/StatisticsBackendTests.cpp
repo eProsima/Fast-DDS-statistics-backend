@@ -590,7 +590,7 @@ void set_alert_example()
             "my_host",                        // Host name to monitor
             "my_user",                        // User name to monitor
             "my_topic",                       // Topic name to monitor
-            AlertKind::NEW_DATA,              // Kind of alert
+            AlertKind::NEW_DATA_ALERT,        // Kind of alert
             0.0,                              // Threshold (Ignored for new data)
             std::chrono::milliseconds(500)    // Minimum time between two consecutive triggers (in ms)
             );

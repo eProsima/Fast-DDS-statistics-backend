@@ -33,16 +33,16 @@ typedef uint32_t AlertId;
  */
 enum class AlertKind
 {
-    INVALID,
-    NEW_DATA,
-    NO_DATA
+    INVALID_ALERT,
+    NEW_DATA_ALERT,
+    NO_DATA_ALERT
 };
 
 enum class AlertComparison
 {
-    INVALID,
-    GT,
-    LT
+    INVALID_ALERT_CMP,
+    GT_ALERT_CMP,
+    LT_ALERT_CMP
 };
 
 class AlertInfo
@@ -127,9 +127,9 @@ public:
     {
         switch (cmp)
         {
-            case AlertComparison::GT:
+            case AlertComparison::GT_ALERT_CMP:
                 return value > trigger_threshold;
-            case AlertComparison::LT:
+            case AlertComparison::LT_ALERT_CMP:
                 return value < trigger_threshold;
             default:
                 return false;
@@ -141,9 +141,9 @@ public:
     {
         switch (cmp)
         {
-            case AlertComparison::GT:
+            case AlertComparison::GT_ALERT_CMP:
                 return value > trigger_threshold;
-            case AlertComparison::LT:
+            case AlertComparison::LT_ALERT_CMP:
                 return value < trigger_threshold;
             default:
                 return false;
@@ -242,7 +242,8 @@ struct NewDataAlertInfo : AlertInfo
             std::string user_name,
             std::string topic_name,
             std::chrono::milliseconds time_between_triggers)
-        : AlertInfo(AlertKind::NEW_DATA, name, domain_id, host_name, user_name, topic_name, AlertComparison::GT, 0.0,
+        : AlertInfo(AlertKind::NEW_DATA_ALERT, name, domain_id, host_name, user_name, topic_name,
+                AlertComparison::GT_ALERT_CMP, 0.0,
                 time_between_triggers)
     {
     }
@@ -259,7 +260,8 @@ struct NoDataAlertInfo : AlertInfo
             std::string topic_name,
             double threshold,
             std::chrono::milliseconds time_between_triggers)
-        : AlertInfo(AlertKind::NO_DATA, name, domain_id, host_name, user_name, topic_name, AlertComparison::LT,
+        : AlertInfo(AlertKind::NO_DATA_ALERT, name, domain_id, host_name, user_name, topic_name,
+                AlertComparison::LT_ALERT_CMP,
                 threshold,
                 time_between_triggers)
     {
