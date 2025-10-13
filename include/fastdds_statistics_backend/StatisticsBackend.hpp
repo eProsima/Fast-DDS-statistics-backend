@@ -709,7 +709,8 @@ public:
             const std::string& topic_name,
             const AlertKind& alert_kind,
             const double& threshold,
-            const std::chrono::milliseconds& t_between_triggers);
+            const std::chrono::milliseconds& t_between_triggers,
+            const std::string& script_path);
 
     /**
      * @brief Remove an alert from the backend.
