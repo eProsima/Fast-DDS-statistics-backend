@@ -1104,7 +1104,6 @@ bool is_runnable_script(
     return true;
 }
 
-
 void StatisticsBackend::set_alert(
     const std::string& alert_name,
     const EntityId& domain_id,
@@ -1117,7 +1116,7 @@ void StatisticsBackend::set_alert(
     const std::string& script_path)
 {
     // Creating notifiers if needed
-    NotifierId notifier_id = 0;
+    NotifierId notifier_id = INVALID_NOTIFIER_ID;
     if(is_runnable_script(script_path))
     {
         ScriptNotifier script_notifier(script_path);
@@ -1131,7 +1130,7 @@ void StatisticsBackend::set_alert(
             NewDataAlertInfo new_data_alert(alert_name, domain_id, host_name, user_name, topic_name,
                     t_between_triggers);
 
-            if(notifier_id != 0)
+            if(notifier_id != INVALID_NOTIFIER_ID)
             {
                 // Setting notifier to the alert
                 new_data_alert.add_notifier(notifier_id);
@@ -1145,7 +1144,7 @@ void StatisticsBackend::set_alert(
             NoDataAlertInfo no_data_alert(alert_name, domain_id, host_name, user_name, topic_name, threshold,
                     t_between_triggers);
 
-            if(notifier_id != 0)
+            if(notifier_id != INVALID_NOTIFIER_ID)
             {
                 // Setting notifier to the alert
                 no_data_alert.add_notifier(notifier_id);

@@ -766,11 +766,11 @@ public:
     /**
      * @brief Insert a notifier into the database.
      *
-     * @param notifier_info The new notifier.
+     * @param notifier The new notifier.
      * @return The NotifierId of the added notifier.
      */
     NotifierId insert_notifier(
-            Notifier& notifier_info);
+            Notifier& notifier);
 
     /**
      * @brief Trigger a notifier.

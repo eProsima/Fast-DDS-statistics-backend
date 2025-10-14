@@ -8312,7 +8312,7 @@ NotifierId Database::insert_notifier(
 void Database::trigger_notifier(
         const NotifierId& notifier_id, std::string message)
 {
-    std::lock_guard<std::shared_timed_mutex> guard(mutex_);
+    std::shared_lock<std::shared_timed_mutex> guard(mutex_);
     notifiers_.notify(notifier_id, message);
 }
 

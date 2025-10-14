@@ -30,6 +30,7 @@ namespace eprosima {
 namespace statistics_backend {
 
 typedef uint32_t NotifierId;
+#define INVALID_NOTIFIER_ID (std::numeric_limits<uint32_t>::max())
 
 enum class NotifierKind
 {
