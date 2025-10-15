@@ -551,6 +551,18 @@ public:
     std::vector<AlertId> get_alerts_ids() const;
 
     /**
+     * @brief Get alert information given its AlertId.
+     */
+    const std::shared_ptr<const AlertInfo> get_alert(
+            const AlertId& alert_id) const;
+
+    /**
+     * @brief Get notifier information given its NotifierId.
+     */
+    const std::shared_ptr<const Notifier> get_notifier(
+            const NotifierId& notifier_id) const;
+
+    /**
      * @brief Get the entity of a given EntityKind that matches with the requested GUID.
      *
      * @param entity_kind The EntityKind of the fetched entities.
@@ -1472,6 +1484,12 @@ protected:
      */
     const std::shared_ptr<const AlertInfo> get_alert_nts(
             const AlertId& alert_id) const;
+
+    /**
+     * @brief Get the notifier with the given ID. This method is not thread safe.
+     */
+    const std::shared_ptr<const Notifier> get_notifier_nts(
+            const NotifierId& notifier_id) const;
 
     /**
      * @brief Get the type IDL of a given type name, if it exists. This method is not thread safe.

@@ -21,6 +21,8 @@ check_gmock()
 
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/profiles
     DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/scripts
+    DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 # statistics_backend_tests
 ##################################################################
@@ -74,6 +76,9 @@ set(BACKEND_TEST_LIST
     set_listener_non_existent_monitor
     get_domain_view_graph
     get_domain_view_graph_invalid_domain
+    alert_add_remove
+    alert_add_remove_with_script
+    alert_add_remove_with_invalid_script
     )
 
 foreach(test_name ${BACKEND_TEST_LIST})

@@ -2937,6 +2937,13 @@ std::vector<std::pair<EntityId, EntityId>> Database::get_entities_by_name_nts(
     return entities;
 }
 
+const std::shared_ptr<const AlertInfo> Database::get_alert(
+        const AlertId& alert_id) const
+{
+    std::shared_lock<std::shared_timed_mutex> lock(mutex_);
+    return get_alert_nts(alert_id);
+}
+
 const std::shared_ptr<const AlertInfo> Database::get_alert_nts(
         const AlertId& alert_id) const
 {
@@ -2953,6 +2960,19 @@ const std::shared_ptr<const AlertInfo> Database::get_alert_nts(
     }
 
     return nullptr;
+}
+
+const std::shared_ptr<const Notifier> Database::get_notifier(
+        const NotifierId& notifier_id) const
+{
+    std::shared_lock<std::shared_timed_mutex> lock(mutex_);
+    return get_notifier_nts(notifier_id);
+}
+
+const std::shared_ptr<const Notifier> Database::get_notifier_nts(
+        const NotifierId& notifier_id) const
+{
+    return notifiers_.get_notifier(notifier_id);
 }
 
 std::string Database::get_type_idl(

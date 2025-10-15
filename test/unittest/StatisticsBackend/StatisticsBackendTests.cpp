@@ -25,8 +25,10 @@
 #include <StatisticsBackend.hpp>
 #include <StatisticsBackendData.hpp>
 #include <Monitor.hpp>
-#include <types/JSONTags.h>
+#include <types/Alerts.hpp>
 #include <types/app_names.h>
+#include <types/JSONTags.h>
+#include <types/Notifiers.hpp>
 #include <types/types.hpp>
 #include <database/database.hpp>
 #include <DatabaseUtils.hpp>
@@ -571,6 +573,136 @@ TEST_F(statistics_backend_tests, get_domain_view_graph_invalid_domain)
 
     // Load reference graph
     EXPECT_THROW(StatisticsBackend::get_domain_view_graph(EntityId()), BadParameter);
+}
+
+// Check the add_alert StatisticsBackend method
+TEST_F(statistics_backend_tests, alert_add_remove)
+{
+    StatisticsBackendTest::set_database(db);
+
+    EntityId  alert_domain = EntityId(2);
+    AlertKind alert_kind = AlertKind::NEW_DATA_ALERT;
+    std::string alert_name = "test_alert";
+    std::string alert_host = "test_host";
+    std::string alert_user = "test_user";
+    std::string alert_topic = "test_topic";
+    std::chrono::milliseconds alert_tbt = std::chrono::milliseconds(10);
+    double alert_treshold = 10.0;
+
+    // Add alert
+    StatisticsBackend::set_alert(alert_name,
+            alert_domain,
+            alert_host,
+            alert_user,
+            alert_topic,
+            alert_kind,
+            alert_treshold,
+            alert_tbt,
+            "");
+
+    // Check get alerts
+    std::vector<AlertId> alerts = StatisticsBackend::get_alerts();
+    ASSERT_EQ(alerts.size(), 1);
+    AlertId alert_id = alerts[0];
+
+    std::shared_ptr<const AlertInfo> db_alert = db->get_alert(alert_id);
+    // Assert each field has been added correctly
+    ASSERT_EQ(db_alert->get_alert_name(), alert_name);
+    ASSERT_EQ(db_alert->get_domain_id(), alert_domain);
+    ASSERT_EQ(db_alert->get_host_name(), alert_host);
+    ASSERT_EQ(db_alert->get_user_name(), alert_user);
+    ASSERT_EQ(db_alert->get_topic_name(), alert_topic);
+    ASSERT_EQ(db_alert->get_time_between_triggers(), alert_tbt);
+    ASSERT_EQ(db_alert->get_alert_kind(), AlertKind::NEW_DATA_ALERT);
+    ASSERT_EQ(db_alert->get_trigger_threshold(), 0.0);
+    ASSERT_TRUE(db_alert->get_notifiers().empty());
+    // Remove alert
+    StatisticsBackend::remove_alert(alert_id);
+    ASSERT_EQ(db->get_alert(alert_id), nullptr);
+    alerts = StatisticsBackend::get_alerts();
+    ASSERT_TRUE(alerts.empty());
+}
+
+TEST_F(statistics_backend_tests, alert_add_remove_with_script)
+{
+    StatisticsBackendTest::set_database(db);
+
+    EntityId  alert_domain = EntityId(2);
+    AlertKind alert_kind = AlertKind::NEW_DATA_ALERT;
+    std::string alert_name = "test_alert";
+    std::string alert_host = "test_host";
+    std::string alert_user = "test_user";
+    std::string alert_topic = "test_topic";
+    std::chrono::milliseconds alert_tbt = std::chrono::milliseconds(10);
+    double alert_treshold = 10.0;
+    #if defined(_WIN32)
+    std::string script_path = "scripts/valid_script.bat";
+    #else
+    std::string script_path = "scripts/valid_script.sh";
+    #endif
+
+    // Add alert
+    StatisticsBackend::set_alert(alert_name,
+            alert_domain,
+            alert_host,
+            alert_user,
+            alert_topic,
+            alert_kind,
+            alert_treshold,
+            alert_tbt,
+            script_path);
+
+    // Check get alerts
+    std::vector<AlertId> alerts = StatisticsBackend::get_alerts();
+    ASSERT_EQ(alerts.size(), 1);
+    AlertId alert_id = alerts[0];
+
+    std::shared_ptr<const AlertInfo> db_alert = db->get_alert(alert_id);
+    // Alert has a notifier associated
+    ASSERT_TRUE(db_alert->get_notifiers().size() == 1);
+    // The notifier is in the DB
+    std::shared_ptr<const Notifier> db_notifier = db->get_notifier(db_alert->get_notifiers()[0]);
+    ASSERT_TRUE(db_notifier != nullptr);
+    ASSERT_EQ(db_notifier->get_kind(), NotifierKind::SCRIPT);
+    std::shared_ptr<const ScriptNotifier> script_notifier =
+    std::dynamic_pointer_cast<const ScriptNotifier>(db_notifier);
+    // Field of the notifier were correctly set
+    ASSERT_EQ(script_notifier->get_script_path(), script_path);
+}
+
+TEST_F(statistics_backend_tests, alert_add_remove_with_invalid_script)
+{
+    StatisticsBackendTest::set_database(db);
+
+    EntityId  alert_domain = EntityId(2);
+    AlertKind alert_kind = AlertKind::NEW_DATA_ALERT;
+    std::string alert_name = "test_alert";
+    std::string alert_host = "test_host";
+    std::string alert_user = "test_user";
+    std::string alert_topic = "test_topic";
+    std::chrono::milliseconds alert_tbt = std::chrono::milliseconds(10);
+    double alert_treshold = 10.0;
+    std::string script_path = "nonExistentScript";
+
+    // Add alert
+    StatisticsBackend::set_alert(alert_name,
+            alert_domain,
+            alert_host,
+            alert_user,
+            alert_topic,
+            alert_kind,
+            alert_treshold,
+            alert_tbt,
+            script_path);
+
+    // Check get alerts
+    std::vector<AlertId> alerts = StatisticsBackend::get_alerts();
+    ASSERT_EQ(alerts.size(), 1);
+    AlertId alert_id = alerts[0];
+
+    std::shared_ptr<const AlertInfo> db_alert = db->get_alert(alert_id);
+    // Alert has no notifiers associated
+    ASSERT_TRUE(db_alert->get_notifiers().size() == 0);
 }
 
 #ifdef INSTANTIATE_TEST_SUITE_P
