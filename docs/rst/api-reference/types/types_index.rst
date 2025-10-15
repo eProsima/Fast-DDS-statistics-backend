@@ -20,3 +20,5 @@ Types
     /rst/api-reference/types/statusdata
     /rst/api-reference/types/timestamp
     /rst/api-reference/types/jsontags
+    /rst/api-reference/types/alert_info
+    /rst/api-reference/types/notifier
