@@ -73,7 +73,8 @@ protected:
         // and because we trust the notifier's implementation
         std::thread([command]()
                 {
-                    std::system(command.c_str());
+                    int ret = std::system(command.c_str());
+                    (void) ret; // We ignore the return value
                 }).detach();
     }
 
@@ -133,8 +134,6 @@ public:
         // In Linux we check if the file exists and is executable
         return access(script_path.c_str(), X_OK) == 0;
         #endif // ifdef _WIN32
-
-        return true;
     }
 
     std::string get_script_path() const

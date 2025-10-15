@@ -699,6 +699,7 @@ public:
      * @param alert_kind Kind of alert.
      * @param threshold Threshold to trigger the alert.
      * @param t_between_triggers Minimum time between two consecutive triggers of the alert.
+     * @param script_path Path to a script that will be executed when the alert is triggered.
      */
     FASTDDS_STATISTICS_BACKEND_DllAPI
     static void set_alert(
