@@ -779,7 +779,8 @@ public:
      * @param message The message to send with the notifier.
      */
     void trigger_notifier(
-            const NotifierId& notifier_id, std::string message);
+            const NotifierId& notifier_id,
+            std::string message);
 
     /**
      * @brief Remove a notifier from the database.

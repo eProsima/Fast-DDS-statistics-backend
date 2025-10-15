@@ -151,6 +151,7 @@ constexpr const char* ALERT_USER_TAG                  = "user";
 constexpr const char* ALERT_TOPIC_TAG                 = "topic";
 constexpr const char* ALERT_THRESHOLD_TAG             = "threshold";
 constexpr const char* ALERT_TIME_BETWEEN_TRIGGERS_TAG = "time_between_triggers";
+constexpr const char* ALERT_NOTIFIER_SCRIPT_TAG       = "notification_script";
 
 
 //! Conversion from EntityKind to string

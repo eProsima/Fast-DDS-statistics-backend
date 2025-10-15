@@ -17,7 +17,6 @@
  */
 
 #include <algorithm>
-#include <filesystem>
 #include <fstream>
 #include <sstream>
 #include <stdlib.h>
@@ -1091,33 +1090,20 @@ void StatisticsBackend::set_alias(
     StatisticsBackendData::get_instance()->database_->set_alias(entity_id, alias);
 }
 
-bool is_runnable_script(
-        const std::string& script_path)
-{
-    if(script_path.empty() || !std::filesystem::exists(script_path) || !std::filesystem::is_regular_file(script_path))
-    {
-        return false;
-    }
-
-    // TODO (ecuestaf): Maybe we should add specific O.S. logic to check if the file is executable here
-
-    return true;
-}
-
 void StatisticsBackend::set_alert(
-    const std::string& alert_name,
-    const EntityId& domain_id,
-    const std::string& host_name,
-    const std::string& user_name,
-    const std::string& topic_name,
-    const AlertKind& alert_kind,
-    const double& threshold,
-    const std::chrono::milliseconds& t_between_triggers,
-    const std::string& script_path)
+        const std::string& alert_name,
+        const EntityId& domain_id,
+        const std::string& host_name,
+        const std::string& user_name,
+        const std::string& topic_name,
+        const AlertKind& alert_kind,
+        const double& threshold,
+        const std::chrono::milliseconds& t_between_triggers,
+        const std::string& script_path)
 {
     // Creating notifiers if needed
     NotifierId notifier_id = INVALID_NOTIFIER_ID;
-    if(is_runnable_script(script_path))
+    if (ScriptNotifier::is_valid_script(script_path))
     {
         ScriptNotifier script_notifier(script_path);
         notifier_id = StatisticsBackendData::get_instance()->database_->insert_notifier(script_notifier);
@@ -1130,7 +1116,7 @@ void StatisticsBackend::set_alert(
             NewDataAlertInfo new_data_alert(alert_name, domain_id, host_name, user_name, topic_name,
                     t_between_triggers);
 
-            if(notifier_id != INVALID_NOTIFIER_ID)
+            if (notifier_id != INVALID_NOTIFIER_ID)
             {
                 // Setting notifier to the alert
                 new_data_alert.add_notifier(notifier_id);
@@ -1144,7 +1130,7 @@ void StatisticsBackend::set_alert(
             NoDataAlertInfo no_data_alert(alert_name, domain_id, host_name, user_name, topic_name, threshold,
                     t_between_triggers);
 
-            if(notifier_id != INVALID_NOTIFIER_ID)
+            if (notifier_id != INVALID_NOTIFIER_ID)
             {
                 // Setting notifier to the alert
                 no_data_alert.add_notifier(notifier_id);

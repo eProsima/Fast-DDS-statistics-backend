@@ -6536,6 +6536,20 @@ Info Database::get_info(
     info[ALERT_HOST_TAG] = alert->get_host_name();
     info[ALERT_USER_TAG] = alert->get_user_name();
     info[ALERT_TOPIC_TAG] = alert->get_topic_name();
+    info[ALERT_TIME_BETWEEN_TRIGGERS_TAG] = std::to_string(alert->get_time_between_triggers().count()) + "ms";
+
+    for (const auto& notifier_id : alert->get_notifiers())
+    {
+        std::shared_ptr<Notifier> notifier = notifiers_.get_notifier(notifier_id);
+        switch (notifier->get_kind())
+        {
+            case NotifierKind::SCRIPT:
+                info[ALERT_NOTIFIER_SCRIPT_TAG] = static_cast<ScriptNotifier*>(notifier.get())->get_script_path();
+                break;
+            default:
+                break;
+        }
+    }
 
     if (alert->get_alert_kind() != AlertKind::NEW_DATA_ALERT)
     {
@@ -8310,7 +8324,8 @@ NotifierId Database::insert_notifier(
 }
 
 void Database::trigger_notifier(
-        const NotifierId& notifier_id, std::string message)
+        const NotifierId& notifier_id,
+        std::string message)
 {
     std::shared_lock<std::shared_timed_mutex> guard(mutex_);
     notifiers_.notify(notifier_id, message);

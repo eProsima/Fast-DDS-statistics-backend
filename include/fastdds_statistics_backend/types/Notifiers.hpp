@@ -26,6 +26,14 @@
 #include <string>
 #include <thread>
 
+// For script validation
+#ifdef _WIN32
+   #include <io.h>
+   #define access    _access_s
+#else
+   #include <unistd.h>
+#endif // ifdef _WIN32
+
 namespace eprosima {
 namespace statistics_backend {
 
@@ -40,27 +48,37 @@ enum class NotifierKind
 class Notifier
 {
 public:
+
     virtual ~Notifier() = default;
 
     // Pure virtual function for sending notifications
-    virtual void notify(const std::string& message) = 0;
+    virtual void notify(
+            const std::string& message) = 0;
 
     // This function allows clean polymorphism
     virtual std::shared_ptr<Notifier> clone() const = 0;
 
+    NotifierKind get_kind() const
+    {
+        return kind;
+    }
+
 protected:
 
     // Execute asynchronously if needed
-    void execute_async(const std::string& command)
+    void execute_async(
+            const std::string& command)
     {
         // We run the command in a detached thread to avoid blocking
         // and because we trust the notifier's implementation
-        std::thread([command]() {
-            std::system(command.c_str());
-            }).detach();
+        std::thread([command]()
+                {
+                    std::system(command.c_str());
+                }).detach();
     }
 
 public:
+
     NotifierKind kind;
 };
 
@@ -68,24 +86,27 @@ public:
 class ScriptNotifier : public Notifier
 {
 public:
-    explicit ScriptNotifier(const std::string& scriptPath)
+
+    explicit ScriptNotifier(
+            const std::string& scriptPath)
         : m_scriptPath(scriptPath)
     {
         kind = NotifierKind::SCRIPT;
     }
 
-    void notify(const std::string& message) override
+    void notify(
+            const std::string& message) override
     {
         // Command is script + message as argument
         std::string command;
 
         #if defined(_WIN32)
-            // Scripts in windows are called using cmd
-            command = "cmd /C \"" + m_scriptPath + " \"" + message + "\"";
+        // Scripts in windows are called using cmd
+        command = "cmd /C \"" + m_scriptPath + " \"" + message + "\"";
         #else
-            // Linux execution way
-            command = m_scriptPath + " \"" + message + "\"";
-        #endif
+        // Linux execution way
+        command = m_scriptPath + " \"" + message + "\"";
+        #endif // if defined(_WIN32)
 
         // Execute the script asynchronously and result is not checked
         execute_async(command.c_str());
@@ -96,16 +117,45 @@ public:
         return std::make_shared<ScriptNotifier>(static_cast<const ScriptNotifier&>(*this));
     }
 
+    static bool is_valid_script(
+            const std::string& script_path)
+    {
+        if (script_path.empty())
+        {
+            return false;
+        }
+
+        #ifdef _WIN32
+        // In Windows we dont check if the path is executable, only if it exists
+        // TODO (ecuesta): Implement a more robust check for script validity
+        return access(script_path.c_str(), 0) == 0;
+        #else
+        // In Linux we check if the file exists and is executable
+        return access(script_path.c_str(), X_OK) == 0;
+        #endif // ifdef _WIN32
+
+        return true;
+    }
+
+    std::string get_script_path() const
+    {
+        return m_scriptPath;
+    }
+
 private:
+
     std::string m_scriptPath;
 };
 
 // NOTE: Other notifiers shall be added here, like email specific, webhooks. etc.
 
-class NotifierManager{
+class NotifierManager
+{
 
 public:
-    NotifierId add_notifier(const Notifier &notifier)
+
+    NotifierId add_notifier(
+            const Notifier& notifier)
     {
         NotifierId id = next_id++;
         // Making use of clone function so that each derived notifier is copied correctly
@@ -113,7 +163,8 @@ public:
         return id;
     }
 
-    void remove_notifier(NotifierId notifier)
+    void remove_notifier(
+            NotifierId notifier)
     {
         auto it = m_notifiers.find(notifier);
         if (it != m_notifiers.end())
@@ -122,7 +173,9 @@ public:
         }
     }
 
-    void notify(const NotifierId &id, const std::string& message)
+    void notify(
+            const NotifierId& id,
+            const std::string& message)
     {
         auto it = m_notifiers.find(id);
         if (it != m_notifiers.end())
@@ -131,7 +184,19 @@ public:
         }
     }
 
+    std::shared_ptr<Notifier> get_notifier(
+            NotifierId id) const
+    {
+        auto it = m_notifiers.find(id);
+        if (it != m_notifiers.end())
+        {
+            return it->second;
+        }
+        return nullptr;
+    }
+
 private:
+
     std::map<NotifierId, std::shared_ptr<Notifier>> m_notifiers;
     NotifierId next_id{0};
 };
