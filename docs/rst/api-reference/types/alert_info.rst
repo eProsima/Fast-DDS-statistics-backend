@@ -1,4 +1,4 @@
-.. _api_types_bitmask:
+.. _api_alert_info:
 
 .. rst-class:: api-ref
 

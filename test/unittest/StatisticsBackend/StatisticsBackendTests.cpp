@@ -580,7 +580,7 @@ TEST_F(statistics_backend_tests, alert_add_remove)
 {
     StatisticsBackendTest::set_database(db);
 
-    EntityId  alert_domain = EntityId(2);
+    EntityId alert_domain = EntityId(2);
     AlertKind alert_kind = AlertKind::NEW_DATA_ALERT;
     std::string alert_name = "test_alert";
     std::string alert_host = "test_host";
@@ -627,7 +627,7 @@ TEST_F(statistics_backend_tests, alert_add_remove_with_script)
 {
     StatisticsBackendTest::set_database(db);
 
-    EntityId  alert_domain = EntityId(2);
+    EntityId alert_domain = EntityId(2);
     AlertKind alert_kind = AlertKind::NEW_DATA_ALERT;
     std::string alert_name = "test_alert";
     std::string alert_host = "test_host";
@@ -639,7 +639,7 @@ TEST_F(statistics_backend_tests, alert_add_remove_with_script)
     std::string script_path = "scripts/valid_script.bat";
     #else
     std::string script_path = "scripts/valid_script.sh";
-    #endif
+    #endif // if defined(_WIN32)
 
     // Add alert
     StatisticsBackend::set_alert(alert_name,
@@ -663,9 +663,9 @@ TEST_F(statistics_backend_tests, alert_add_remove_with_script)
     // The notifier is in the DB
     std::shared_ptr<const Notifier> db_notifier = db->get_notifier(db_alert->get_notifiers()[0]);
     ASSERT_TRUE(db_notifier != nullptr);
-    ASSERT_EQ(db_notifier->get_kind(), NotifierKind::SCRIPT);
+    ASSERT_EQ(db_notifier->get_kind(), NotifierKind::SCRIPT_NOTIFIER);
     std::shared_ptr<const ScriptNotifier> script_notifier =
-    std::dynamic_pointer_cast<const ScriptNotifier>(db_notifier);
+            std::dynamic_pointer_cast<const ScriptNotifier>(db_notifier);
     // Field of the notifier were correctly set
     ASSERT_EQ(script_notifier->get_script_path(), script_path);
 }
@@ -674,7 +674,7 @@ TEST_F(statistics_backend_tests, alert_add_remove_with_invalid_script)
 {
     StatisticsBackendTest::set_database(db);
 
-    EntityId  alert_domain = EntityId(2);
+    EntityId alert_domain = EntityId(2);
     AlertKind alert_kind = AlertKind::NEW_DATA_ALERT;
     std::string alert_name = "test_alert";
     std::string alert_host = "test_host";

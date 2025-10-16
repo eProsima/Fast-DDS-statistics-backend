@@ -34,15 +34,22 @@ typedef uint32_t AlertId;
  */
 enum class AlertKind
 {
+    // Invalid alert kind
     INVALID_ALERT,
+    // Alert triggered when new data is received
     NEW_DATA_ALERT,
+    // Alert triggered when no data is received for a certain time
     NO_DATA_ALERT
 };
 
+// Comparison kinds for alert triggering
 enum class AlertComparison
 {
+    // Invalid comparison
     INVALID_ALERT_CMP,
+    // Greater than
     GT_ALERT_CMP,
+    // Less than
     LT_ALERT_CMP
 };
 

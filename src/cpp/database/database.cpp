@@ -6563,7 +6563,7 @@ Info Database::get_info(
         std::shared_ptr<Notifier> notifier = notifiers_.get_notifier(notifier_id);
         switch (notifier->get_kind())
         {
-            case NotifierKind::SCRIPT:
+            case NotifierKind::SCRIPT_NOTIFIER:
                 info[ALERT_NOTIFIER_SCRIPT_TAG] = static_cast<ScriptNotifier*>(notifier.get())->get_script_path();
                 break;
             default:

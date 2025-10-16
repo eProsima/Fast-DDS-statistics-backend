@@ -40,11 +40,16 @@ namespace statistics_backend {
 typedef uint32_t NotifierId;
 #define INVALID_NOTIFIER_ID (std::numeric_limits<uint32_t>::max())
 
+// Available notifier kinds
 enum class NotifierKind
 {
-    SCRIPT
+    // Invalid notifier kind
+    INVALID_NOTIFIER,
+    // Script notifier
+    SCRIPT_NOTIFIER
 };
 
+// Base class for notifiers, elements triggered by alerts
 class Notifier
 {
 public:
@@ -84,6 +89,8 @@ public:
 };
 
 
+// Notifier implementation that calls a script with the message as argument
+// when an alert is triggered
 class ScriptNotifier : public Notifier
 {
 public:
@@ -92,7 +99,7 @@ public:
             const std::string& scriptPath)
         : m_scriptPath(scriptPath)
     {
-        kind = NotifierKind::SCRIPT;
+        kind = NotifierKind::SCRIPT_NOTIFIER;
     }
 
     void notify(
