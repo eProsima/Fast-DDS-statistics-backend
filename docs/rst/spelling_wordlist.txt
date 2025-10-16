@@ -28,12 +28,15 @@ metatraffic
 monitorization
 monitorizations
 namespace
+NewDataAlertInfo
+NoDataAlertInfo
 Ok
 ostream
 OStream
 preprocessed
 Qos
 QoS
+ScriptNotifier
 Subclassed
 timepoint
 Todo
