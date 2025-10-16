@@ -699,6 +699,7 @@ public:
      * @param alert_kind Kind of alert.
      * @param threshold Threshold to trigger the alert.
      * @param t_between_triggers Minimum time between two consecutive triggers of the alert.
+     * @param script_path Path to a script that will be executed when the alert is triggered.
      */
     FASTDDS_STATISTICS_BACKEND_DllAPI
     static void set_alert(
@@ -709,7 +710,8 @@ public:
             const std::string& topic_name,
             const AlertKind& alert_kind,
             const double& threshold,
-            const std::chrono::milliseconds& t_between_triggers);
+            const std::chrono::milliseconds& t_between_triggers,
+            const std::string& script_path);
 
     /**
      * @brief Remove an alert from the backend.

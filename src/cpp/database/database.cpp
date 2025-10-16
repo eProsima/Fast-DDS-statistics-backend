@@ -2937,6 +2937,13 @@ std::vector<std::pair<EntityId, EntityId>> Database::get_entities_by_name_nts(
     return entities;
 }
 
+const std::shared_ptr<const AlertInfo> Database::get_alert(
+        const AlertId& alert_id) const
+{
+    std::shared_lock<std::shared_timed_mutex> lock(mutex_);
+    return get_alert_nts(alert_id);
+}
+
 const std::shared_ptr<const AlertInfo> Database::get_alert_nts(
         const AlertId& alert_id) const
 {
@@ -2953,6 +2960,19 @@ const std::shared_ptr<const AlertInfo> Database::get_alert_nts(
     }
 
     return nullptr;
+}
+
+const std::shared_ptr<const Notifier> Database::get_notifier(
+        const NotifierId& notifier_id) const
+{
+    std::shared_lock<std::shared_timed_mutex> lock(mutex_);
+    return get_notifier_nts(notifier_id);
+}
+
+const std::shared_ptr<const Notifier> Database::get_notifier_nts(
+        const NotifierId& notifier_id) const
+{
+    return notifiers_.get_notifier(notifier_id);
 }
 
 std::string Database::get_type_idl(
@@ -6536,6 +6556,20 @@ Info Database::get_info(
     info[ALERT_HOST_TAG] = alert->get_host_name();
     info[ALERT_USER_TAG] = alert->get_user_name();
     info[ALERT_TOPIC_TAG] = alert->get_topic_name();
+    info[ALERT_TIME_BETWEEN_TRIGGERS_TAG] = std::to_string(alert->get_time_between_triggers().count()) + "ms";
+
+    for (const auto& notifier_id : alert->get_notifiers())
+    {
+        std::shared_ptr<Notifier> notifier = notifiers_.get_notifier(notifier_id);
+        switch (notifier->get_kind())
+        {
+            case NotifierKind::SCRIPT_NOTIFIER:
+                info[ALERT_NOTIFIER_SCRIPT_TAG] = static_cast<ScriptNotifier*>(notifier.get())->get_script_path();
+                break;
+            default:
+                break;
+        }
+    }
 
     if (alert->get_alert_kind() != AlertKind::NEW_DATA_ALERT)
     {
@@ -8300,6 +8334,28 @@ void Database::remove_alert(
             return;
         }
     }
+}
+
+NotifierId Database::insert_notifier(
+        Notifier& notifier)
+{
+    std::lock_guard<std::shared_timed_mutex> guard(mutex_);
+    return notifiers_.add_notifier(notifier);
+}
+
+void Database::trigger_notifier(
+        const NotifierId& notifier_id,
+        std::string message)
+{
+    std::shared_lock<std::shared_timed_mutex> guard(mutex_);
+    notifiers_.notify(notifier_id, message);
+}
+
+void Database::remove_notifier(
+        const NotifierId& notifier_id)
+{
+    std::lock_guard<std::shared_timed_mutex> guard(mutex_);
+    notifiers_.remove_notifier(notifier_id);
 }
 
 } //namespace database

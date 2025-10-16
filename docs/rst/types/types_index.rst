@@ -17,6 +17,7 @@ Types
     /rst/types/alert_kind
     /rst/types/alert_id
     /rst/types/alert_info
+    /rst/types/notifier
 
 .. todo::
     .. /rst/types/database_dumps

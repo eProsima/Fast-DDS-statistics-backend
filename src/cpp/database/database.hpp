@@ -31,6 +31,7 @@
 #include <fastdds_statistics_backend/types/EntityId.hpp>
 #include <fastdds_statistics_backend/types/Alerts.hpp>
 #include <fastdds_statistics_backend/exception/Exception.hpp>
+#include <fastdds_statistics_backend/types/Notifiers.hpp>
 
 #include <fastdds/rtps/common/Locator.hpp>
 #include <fastdds/rtps/common/RemoteLocators.hpp>
@@ -550,6 +551,18 @@ public:
     std::vector<AlertId> get_alerts_ids() const;
 
     /**
+     * @brief Get alert information given its AlertId.
+     */
+    const std::shared_ptr<const AlertInfo> get_alert(
+            const AlertId& alert_id) const;
+
+    /**
+     * @brief Get notifier information given its NotifierId.
+     */
+    const std::shared_ptr<const Notifier> get_notifier(
+            const NotifierId& notifier_id) const;
+
+    /**
      * @brief Get the entity of a given EntityKind that matches with the requested GUID.
      *
      * @param entity_kind The EntityKind of the fetched entities.
@@ -761,6 +774,33 @@ public:
      */
     void remove_alert(
             const AlertId& alert_id);
+
+    /**
+     * @brief Insert a notifier into the database.
+     *
+     * @param notifier The new notifier.
+     * @return The NotifierId of the added notifier.
+     */
+    NotifierId insert_notifier(
+            Notifier& notifier);
+
+    /**
+     * @brief Trigger a notifier.
+     *
+     * @param notifier_id The NotifierId of the notifier to trigger.
+     * @param message The message to send with the notifier.
+     */
+    void trigger_notifier(
+            const NotifierId& notifier_id,
+            std::string message);
+
+    /**
+     * @brief Remove a notifier from the database.
+     *
+     * @param notifier_id The NotifierId of the notifier to remove.
+     */
+    void remove_notifier(
+            const NotifierId& notifier_id);
 
     /**
      * @brief Get a dump of the database.
@@ -1446,6 +1486,12 @@ protected:
             const AlertId& alert_id) const;
 
     /**
+     * @brief Get the notifier with the given ID. This method is not thread safe.
+     */
+    const std::shared_ptr<const Notifier> get_notifier_nts(
+            const NotifierId& notifier_id) const;
+
+    /**
      * @brief Get the type IDL of a given type name, if it exists. This method is not thread safe.
      *
      * @param type_name The name of the data type for which to search.
@@ -1821,6 +1867,11 @@ protected:
      * may not exist yet in the time of creation
      */
     std::map<EntityId, std::map<AlertId, std::shared_ptr<AlertInfo>>> alerts_;
+
+    /**
+     * Collection of Notifiers sorted by NotifierId
+     */
+    NotifierManager notifiers_;
 
     /**
      * Collection of topic IDLs sorted by topic data types, with which they are biunivocally identified.
