@@ -81,8 +81,10 @@ private:
 
 public:
 
+    //! Default constructor
     AlertInfo() = default;
 
+    //! Constructor
     AlertInfo(
             AlertKind alert_kind,
             std::string name,
@@ -106,11 +108,13 @@ public:
         reset_trigger_time();
     }
 
+    //! Reset the last trigger time to now
     void reset_trigger_time()
     {
         last_trigger = std::chrono::system_clock::now();
     }
 
+    //! Check if the entity parameters match (empty parameters are wildcards)
     bool entity_matches(
             std::string stat_host,
             std::string stat_user,
@@ -132,6 +136,7 @@ public:
         return match;
     }
 
+    //! Check if the value triggers the alert based on the comparison and threshold
     bool value_triggers(
             double value) const
     {
@@ -146,6 +151,7 @@ public:
         }
     }
 
+    //! Check if the value triggers the alert based on the comparison and threshold
     bool value_triggers(
             uint64_t value) const
     {
@@ -160,12 +166,14 @@ public:
         }
     }
 
+    //! Check if enough time has passed since the last trigger
     bool time_allows_trigger() const
     {
         auto now_ts = std::chrono::system_clock::now();
         return (now_ts - last_trigger) > time_between_triggers;
     }
 
+    //! Check trigger conditions for a specific alert that uses a double value
     bool check_trigger_conditions(
             std::string host,
             std::string user,
@@ -175,6 +183,7 @@ public:
         return entity_matches(host, user, topic) && value_triggers(value) && time_allows_trigger();
     }
 
+    //! Check trigger conditions for a specific alert that uses an integer value
     bool check_trigger_conditions(
             std::string host,
             std::string user,
@@ -184,75 +193,89 @@ public:
         return entity_matches(host, user, topic) && value_triggers(value) && time_allows_trigger();
     }
 
+    //! Trigger the alert (reset time and return true)
     bool trigger()
     {
         reset_trigger_time();
         return true;
     }
 
+    //! Set the alert ID
     void set_id(
             AlertId alert_id)
     {
         id = alert_id;
     }
 
+    //! Get the alert ID
     AlertId get_alert_id() const
     {
         return id;
     }
 
+    //! Get the alert kind
     AlertKind get_alert_kind() const
     {
         return alert_kind;
     }
 
+    //! Get the domain id
     EntityId get_domain_id() const
     {
         return domain_id;
     }
 
+    //! Get the alert name
     std::string get_alert_name() const
     {
         return name;
     }
 
+    //! Get the host name
     std::string get_host_name() const
     {
         return host_name;
     }
 
+    //! Get the user name
     std::string get_user_name() const
     {
         return user_name;
     }
 
+    //! Get the topic name
     std::string get_topic_name() const
     {
         return topic_name;
     }
 
+    //! Get the trigger threshold
     double get_trigger_threshold() const
     {
         return trigger_threshold;
     }
 
+    //! Get the minimum time between triggers
     std::chrono::milliseconds get_time_between_triggers() const
     {
         return time_between_triggers;
     }
 
+    //! Add a notifier to the alert
     void add_notifier(
             NotifierId notifier_id)
     {
         notifiers.push_back(notifier_id);
     }
 
+    //! Remove a notifier from the alert
     void remove_notifier(
             NotifierId notifier_id)
     {
         notifiers.erase(std::remove(notifiers.begin(), notifiers.end(), notifier_id), notifiers.end());
     }
 
+    //! Get the list of notifiers
     const std::vector<NotifierId>& get_notifiers() const
     {
         return notifiers;
@@ -260,8 +283,11 @@ public:
 
 };
 
+//! Specialization for NewDataAlert
 struct NewDataAlertInfo : AlertInfo
 {
+
+    //! Constructor with default values for NewDataAlert
     NewDataAlertInfo(
             std::string name,
             EntityId domain_id,
@@ -277,8 +303,10 @@ struct NewDataAlertInfo : AlertInfo
 
 };
 
+//! Specialization for NoDataAlert
 struct NoDataAlertInfo : AlertInfo
 {
+    //! Constructor with default values for NoDataAlert
     NoDataAlertInfo(
             std::string name,
             EntityId domain_id,
