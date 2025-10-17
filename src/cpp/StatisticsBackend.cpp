@@ -30,6 +30,7 @@
 #include <fastdds/dds/domain/DomainParticipantFactory.hpp>
 #include <fastdds/dds/domain/qos/DomainParticipantQos.hpp>
 #include <fastdds/dds/domain/qos/DomainParticipantExtendedQos.hpp>
+#include <fastdds/dds/log/Log.hpp>
 #include <fastdds/dds/subscriber/DataReader.hpp>
 #include <fastdds/dds/subscriber/qos/DataReaderQos.hpp>
 #include <fastdds/dds/subscriber/qos/SubscriberQos.hpp>
@@ -1107,6 +1108,11 @@ void StatisticsBackend::set_alert(
     {
         ScriptNotifier script_notifier(script_path);
         notifier_id = StatisticsBackendData::get_instance()->database_->insert_notifier(script_notifier);
+    }
+    else if (!script_path.empty())
+    {
+        EPROSIMA_LOG_ERROR(STATISTICS_BACKEND, "Script " + script_path + " does not exist or is not executable. "
+                << "Alert will be created without notifier.");
     }
 
     switch (alert_kind)
