@@ -258,7 +258,7 @@ public:
      * @param domain_id The domain where the alert is reported
      * @param alert the alert with no matching entities
      */
-    void on_alert_unmatched(
+    void on_alert_timeout(
             EntityId domain_id,
             AlertInfo& alert);
 

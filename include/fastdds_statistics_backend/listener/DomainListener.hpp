@@ -240,7 +240,7 @@ public:
      * @param domain_id Entity ID of the domain to which the alert belongs.
      * @param alert Information about the alert being triggered.
      */
-    virtual void on_alert_unmatched(
+    virtual void on_alert_timeout(
             EntityId domain_id,
             AlertInfo& alert)
     {

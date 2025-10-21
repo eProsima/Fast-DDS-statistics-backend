@@ -63,6 +63,6 @@ DomainListener defines the following callbacks:
   The arguments in the callback contain information of the alert and the domain
   to which it belongs, as well as the data that caused the alert to be triggered.
 
-* |DomainListener::on_alert_unmatched-api|:
+* |DomainListener::on_alert_timeout-api|:
   An alert has been unmatched or created without having any matching entities in the monitored domain.
   The arguments in the callback contain information of the alert and the domain to which it belongs.

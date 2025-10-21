@@ -53,6 +53,17 @@ enum class AlertComparison
     LT_ALERT_CMP
 };
 
+// Trigger kinds for alerts
+enum class AlertTriggerCause
+{
+    // Did not trigger
+    NO_TRIGGER,
+    // Triggered by threshold value
+    THRESHOLD_TRIGGER,
+    // Triggered by timeout
+    TIMEOUT_TRIGGER
+};
+
 class AlertInfo
 {
 private:
@@ -65,6 +76,7 @@ private:
     std::string name;
     // Domain id
     EntityId domain_id;
+
     // These names are kept to be able to locate entities even if the alert
     // is created before the entity is discovered
     std::string host_name;
@@ -73,10 +85,21 @@ private:
     // Conditions for triggering
     AlertComparison cmp;
     double trigger_threshold;
-    // Last trigger
-    std::chrono::system_clock::time_point last_trigger;
+
+    // Timestamp of last real trigger
+    std::chrono::system_clock::time_point last_trigger_ts;
+    // Minimum time between 2 consecutive triggers (to avoid saturation)
     std::chrono::milliseconds time_between_triggers;
-    // List of notifiers
+
+    // Enable timeout
+    bool timeout_enabled;
+    // Minimum time period without data to consider timeout
+    std::chrono::milliseconds time_to_timeout;
+    // Last time the alert evaluated its trigger conditions
+    std::chrono::system_clock::time_point last_timeout_check_ts;
+
+    // List of notifiers, that are code extensions to be executed when
+    // the alert is triggered
     std::vector<NotifierId> notifiers;
 
 public:
@@ -94,7 +117,9 @@ public:
             std::string topic_name,
             AlertComparison cmp,
             double trigger_threshold,
-            std::chrono::milliseconds time_between_triggers)
+            std::chrono::milliseconds time_between_triggers,
+            bool timeout_enabled = false,
+            std::chrono::milliseconds time_to_timeout = std::chrono::milliseconds(0))
         : alert_kind(alert_kind)
         , name(name)
         , domain_id(domain_id)
@@ -104,14 +129,18 @@ public:
         , cmp(cmp)
         , trigger_threshold(trigger_threshold)
         , time_between_triggers(time_between_triggers)
+        , timeout_enabled(timeout_enabled)
+        , time_to_timeout(time_to_timeout)
     {
-        reset_trigger_time();
+        assert(time_to_timeout >= time_between_triggers);
+        reset();
     }
 
     //! Reset the last trigger time to now
-    void reset_trigger_time()
+    void reset()
     {
-        last_trigger = std::chrono::system_clock::now();
+        last_timeout_check_ts = std::chrono::system_clock::now();
+        last_trigger_ts = last_timeout_check_ts;
     }
 
     //! Check if the entity parameters match (empty parameters are wildcards)
@@ -170,7 +199,7 @@ public:
     bool time_allows_trigger() const
     {
         auto now_ts = std::chrono::system_clock::now();
-        return (now_ts - last_trigger) > time_between_triggers;
+        return (now_ts - last_trigger_ts) > time_between_triggers;
     }
 
     //! Check trigger conditions for a specific alert that uses a double value
@@ -178,8 +207,9 @@ public:
             std::string host,
             std::string user,
             std::string topic,
-            double value) const
+            double value)
     {
+        last_timeout_check_ts = std::chrono::system_clock::now();
         return entity_matches(host, user, topic) && value_triggers(value) && time_allows_trigger();
     }
 
@@ -188,15 +218,34 @@ public:
             std::string host,
             std::string user,
             std::string topic,
-            uint64_t value) const
+            uint64_t value)
     {
+        last_timeout_check_ts = std::chrono::system_clock::now();
         return entity_matches(host, user, topic) && value_triggers(value) && time_allows_trigger();
+    }
+
+    //! Check if a timeout has occurred
+    bool check_timeout()
+    {
+        if (!timeout_enabled)
+        {
+            return false;
+        }
+
+        // If the time since last evaluation is greater than the timeout duration, timeout occurred
+        if ((std::chrono::system_clock::now() - last_timeout_check_ts) > time_to_timeout)
+        {
+            last_timeout_check_ts = std::chrono::system_clock::now();
+            return true;
+        }
+
+        return false;
     }
 
     //! Trigger the alert (reset time and return true)
     bool trigger()
     {
-        reset_trigger_time();
+        reset();
         return true;
     }
 
@@ -281,6 +330,12 @@ public:
         return notifiers;
     }
 
+    // This function allows clean polymorphism
+    std::shared_ptr<AlertInfo> clone() const
+    {
+        return std::make_shared<AlertInfo>(*this);
+    }
+
 };
 
 //! Specialization for NewDataAlert
@@ -297,8 +352,14 @@ struct NewDataAlertInfo : AlertInfo
             std::chrono::milliseconds time_between_triggers)
         : AlertInfo(AlertKind::NEW_DATA_ALERT, name, domain_id, host_name, user_name, topic_name,
                 AlertComparison::GT_ALERT_CMP, 0.0,
-                time_between_triggers)
+                time_between_triggers, false, std::chrono::milliseconds(0))
     {
+    }
+
+    // This function allows clean polymorphism
+    std::shared_ptr<AlertInfo> clone() const
+    {
+        return std::make_shared<NewDataAlertInfo>(*this);
     }
 
 };
@@ -318,10 +379,56 @@ struct NoDataAlertInfo : AlertInfo
         : AlertInfo(AlertKind::NO_DATA_ALERT, name, domain_id, host_name, user_name, topic_name,
                 AlertComparison::LT_ALERT_CMP,
                 threshold,
-                time_between_triggers)
+                time_between_triggers, true, std::chrono::milliseconds(5000))
     {
+        // TODO (ecuesta): Make the timeout duration configurable
     }
 
+    // This function allows clean polymorphism
+    std::shared_ptr<AlertInfo> clone() const
+    {
+        return std::make_shared<NoDataAlertInfo>(*this);
+    }
+};
+
+class AlertManager
+{
+
+public:
+
+    AlertId add_alert(
+            const AlertInfo& alert)
+    {
+        AlertId id = next_id++;
+        m_alerts[id] = alert.clone();
+        return id;
+    }
+
+    void remove_alert(
+            AlertId alert_id)
+    {
+        auto it = m_alerts.find(alert_id);
+        if (it != m_alerts.end())
+        {
+            m_alerts.erase(it);
+        }
+    }
+
+    std::shared_ptr<AlertInfo> get_alert(
+            AlertId id) const
+    {
+        auto it = m_alerts.find(id);
+        if (it != m_alerts.end())
+        {
+            return it->second;
+        }
+        return nullptr;
+    }
+
+private:
+
+    std::map<AlertId, std::shared_ptr<AlertInfo>> m_alerts;
+    AlertId next_id{0};
 };
 
 } //namespace statistics_backend

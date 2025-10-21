@@ -298,10 +298,10 @@ public:
             const EntityDataSample& data);
 
     /**
-     * For all alerts in the database, check if they have matching entities.
-     * If they don't, they are triggered with an appropriate message
+     * For all alerts in the database, check if they have timed out.
+     * If they have, they are triggered with an appropriate message
      */
-    void check_alerts_matching_entities();
+    void check_alerts_timeouts();
 
     /**
      * @brief Create the link between a participant and a process.

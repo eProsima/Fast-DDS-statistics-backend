@@ -193,7 +193,7 @@ void StatisticsBackendData::on_alert_triggered(
     }
 }
 
-void StatisticsBackendData::on_alert_unmatched(
+void StatisticsBackendData::on_alert_timeout(
         EntityId domain_id,
         AlertInfo& alert)
 {
@@ -213,11 +213,11 @@ void StatisticsBackendData::on_alert_unmatched(
 
     if (should_call_domain_listener(*monitor->second, CallbackKind::ON_ALERT_UNMATCHED))
     {
-        monitor->second->domain_listener->on_alert_unmatched(domain_id, alert);
+        monitor->second->domain_listener->on_alert_timeout(domain_id, alert);
     }
     else if (should_call_physical_listener(CallbackKind::ON_ALERT_UNMATCHED))
     {
-        physical_listener_->on_alert_unmatched(domain_id, alert);
+        physical_listener_->on_alert_timeout(domain_id, alert);
     }
 }
 
@@ -529,7 +529,7 @@ void StatisticsBackendData::alert_watcher()
         std::this_thread::sleep_for(std::chrono::seconds(2));
         if (database_)
         {
-            database_->check_alerts_matching_entities();
+            database_->check_alerts_timeouts();
         }
     }
 }

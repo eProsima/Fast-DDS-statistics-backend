@@ -1227,9 +1227,9 @@ void Database::trigger_alerts_of_kind_nts(
     }
 }
 
-void Database::check_alerts_matching_entities()
+void Database::check_alerts_timeouts()
 {
-    std::lock_guard<std::shared_timed_mutex> guard(mutex_);
+    std::shared_lock<std::shared_timed_mutex> lock(mutex_);
     for (auto& domain_it : domains_)
     {
         EntityId domainId = domain_it.first;
@@ -1239,60 +1239,18 @@ void Database::check_alerts_matching_entities()
             for (auto& alert_it : alerts_in_domain->second)
             {
                 std::shared_ptr<AlertInfo> alert_info = alert_it.second;
-                if (alert_info->time_allows_trigger())
+                if (alert_info->check_timeout())
                 {
-                    bool match = false;
-                    auto datawriters_it = datawriters_.find(alert_info->get_domain_id());
-                    if (datawriters_it != datawriters_.end())
-                    {
-                        for (auto& endpoint_it : datawriters_it->second)
-                        {
-                            auto& endpoint = endpoint_it.second;
-                            // Get the metadata from the entity that sent the stats
-                            std::string topic_name = endpoint->topic->name;
-                            std::string user_name  = endpoint->participant->process->user->name;
-                            std::string host_name  = endpoint->participant->process->user->host->name;
-                            if (alert_info->entity_matches(host_name, user_name, topic_name))
+                    // Notify the alert has been triggered
+                    // TODO (eProsima) Workaround to avoid deadlock if callback implementation requires taking the database
+                    // mutex (e.g. by calling get_info). A refactor for not calling on_domain_view_graph_update from within
+                    // this function would be required.
+                    execute_without_lock([&]()
                             {
-                                match = true;
-                                break;
-                            }
-                        }
-                    }
-                    if (!match)
-                    {
-                        auto datareaders_it = datareaders_.find(alert_info->get_domain_id());
-                        if (datareaders_it != datareaders_.end())
-                        {
-                            for (auto& endpoint_it : datareaders_it->second)
-                            {
-                                auto& endpoint = endpoint_it.second;
-                                // Get the metadata from the entity that sent the stats
-                                std::string topic_name = endpoint->topic->name;
-                                std::string user_name  = endpoint->participant->process->user->name;
-                                std::string host_name  = endpoint->participant->process->user->host->name;
-                                if (alert_info->entity_matches(host_name, user_name, topic_name))
-                                {
-                                    match = true;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                    if (!match)
-                    {
-                        alert_info->trigger();
-                        // Notify the alert has been triggered
-                        // TODO (eProsima) Workaround to avoid deadlock if callback implementation requires taking the database
-                        // mutex (e.g. by calling get_info). A refactor for not calling on_domain_view_graph_update from within
-                        // this function would be required.
-                        execute_without_lock([&]()
-                                {
-                                    details::StatisticsBackendData::get_instance()->on_alert_unmatched(
-                                        domainId,
-                                        *alert_info);
-                                });
-                    }
+                                details::StatisticsBackendData::get_instance()->on_alert_timeout(
+                                    domainId,
+                                    *alert_info);
+                            });
                 }
             }
         }

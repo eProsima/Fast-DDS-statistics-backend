@@ -89,7 +89,7 @@ public:
                 AlertInfo & alert,
                 const std::string& data));
 
-    MOCK_METHOD2(on_alert_unmatched, void(
+    MOCK_METHOD2(on_alert_timeout, void(
                 EntityId domain_id,
                 AlertInfo & alert));
 
