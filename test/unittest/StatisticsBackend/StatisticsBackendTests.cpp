@@ -588,6 +588,7 @@ TEST_F(statistics_backend_tests, alert_add_remove)
     std::string alert_topic = "test_topic";
     std::chrono::milliseconds alert_tbt = std::chrono::milliseconds(10);
     double alert_treshold = 10.0;
+    std::chrono::milliseconds alert_timeout = std::chrono::milliseconds(10000);
 
     // Add alert
     StatisticsBackend::set_alert(alert_name,
@@ -598,6 +599,7 @@ TEST_F(statistics_backend_tests, alert_add_remove)
             alert_kind,
             alert_treshold,
             alert_tbt,
+            alert_timeout,
             "");
 
     // Check get alerts
@@ -634,6 +636,7 @@ TEST_F(statistics_backend_tests, alert_add_remove_with_script)
     std::string alert_user = "test_user";
     std::string alert_topic = "test_topic";
     std::chrono::milliseconds alert_tbt = std::chrono::milliseconds(10);
+    std::chrono::milliseconds alert_timeout = std::chrono::milliseconds(10000);
     double alert_treshold = 10.0;
     #if defined(_WIN32)
     std::string script_path = "scripts/valid_script.bat";
@@ -650,6 +653,7 @@ TEST_F(statistics_backend_tests, alert_add_remove_with_script)
             alert_kind,
             alert_treshold,
             alert_tbt,
+            alert_timeout,
             script_path);
 
     // Check get alerts
@@ -683,6 +687,7 @@ TEST_F(statistics_backend_tests, alert_add_remove_with_invalid_script)
     std::chrono::milliseconds alert_tbt = std::chrono::milliseconds(10);
     double alert_treshold = 10.0;
     std::string script_path = "nonExistentScript";
+    std::chrono::milliseconds alert_timeout = std::chrono::milliseconds(10000);
 
     // Add alert
     StatisticsBackend::set_alert(alert_name,
@@ -693,6 +698,7 @@ TEST_F(statistics_backend_tests, alert_add_remove_with_invalid_script)
             alert_kind,
             alert_treshold,
             alert_tbt,
+            alert_timeout,
             script_path);
 
     // Check get alerts

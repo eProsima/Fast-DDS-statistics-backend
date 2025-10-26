@@ -699,6 +699,7 @@ public:
      * @param alert_kind Kind of alert.
      * @param threshold Threshold to trigger the alert.
      * @param t_between_triggers Minimum time between two consecutive triggers of the alert.
+     * @param alert_timeout Time after which the alert submits a timeout message.
      * @param script_path Path to a script that will be executed when the alert is triggered.
      */
     FASTDDS_STATISTICS_BACKEND_DllAPI
@@ -711,6 +712,7 @@ public:
             const AlertKind& alert_kind,
             const double& threshold,
             const std::chrono::milliseconds& t_between_triggers,
+            const std::chrono::milliseconds& alert_timeout,
             const std::string& script_path);
 
     /**

@@ -349,10 +349,11 @@ struct NewDataAlertInfo : AlertInfo
             std::string host_name,
             std::string user_name,
             std::string topic_name,
-            std::chrono::milliseconds time_between_triggers)
+            std::chrono::milliseconds time_between_triggers,
+            std::chrono::milliseconds alert_timeout)
         : AlertInfo(AlertKind::NEW_DATA_ALERT, name, domain_id, host_name, user_name, topic_name,
                 AlertComparison::GT_ALERT_CMP, 0.0,
-                time_between_triggers, false, std::chrono::milliseconds(0))
+                time_between_triggers, false, alert_timeout)
     {
     }
 
@@ -375,11 +376,12 @@ struct NoDataAlertInfo : AlertInfo
             std::string user_name,
             std::string topic_name,
             double threshold,
-            std::chrono::milliseconds time_between_triggers)
+            std::chrono::milliseconds time_between_triggers,
+            std::chrono::milliseconds alert_timeout)
         : AlertInfo(AlertKind::NO_DATA_ALERT, name, domain_id, host_name, user_name, topic_name,
                 AlertComparison::LT_ALERT_CMP,
                 threshold,
-                time_between_triggers, true, std::chrono::milliseconds(5000))
+                time_between_triggers, true, alert_timeout)
     {
         // TODO (ecuesta): Make the timeout duration configurable
     }
