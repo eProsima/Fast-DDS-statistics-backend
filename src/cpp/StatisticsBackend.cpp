@@ -1159,6 +1159,12 @@ void StatisticsBackend::remove_alert(
     StatisticsBackendData::get_instance()->database_->remove_alert(alert_id);
 }
 
+void StatisticsBackend::set_alerts_polling_time(
+            const std::chrono::milliseconds& polling_time)
+{
+    StatisticsBackendData::get_instance()->set_alerts_polling_time(polling_time);
+}
+
 std::string StatisticsBackend::deserialize_guid(
         fastdds::statistics::detail::GUID_s data)
 {

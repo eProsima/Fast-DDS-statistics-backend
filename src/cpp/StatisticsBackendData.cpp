@@ -522,11 +522,17 @@ database::DatabaseEntityQueue* StatisticsBackendData::get_entity_queue()
     return entity_queue_;
 }
 
+void StatisticsBackendData::set_alerts_polling_time(
+        const  std::chrono::milliseconds& polling_time)
+{
+    alert_polling_time_ = polling_time;
+}
+
 void StatisticsBackendData::alert_watcher()
 {
     while (!stop_alert_watcher_)
     {
-        std::this_thread::sleep_for(std::chrono::seconds(2));
+        std::this_thread::sleep_for(alert_polling_time_);
         if (database_)
         {
             database_->check_alerts_timeouts();

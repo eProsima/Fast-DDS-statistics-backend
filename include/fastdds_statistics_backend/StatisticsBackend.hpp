@@ -725,6 +725,13 @@ public:
             const AlertId& alert_id);
 
     /**
+     * @brief Set the polling time for alerts evaluation.
+     */
+    FASTDDS_STATISTICS_BACKEND_DllAPI
+    static void set_alerts_polling_time(
+            const std::chrono::milliseconds& polling_time);
+
+    /**
      * @brief Deserialize entity guid to string format.
      * @param data Entity guid.
      */

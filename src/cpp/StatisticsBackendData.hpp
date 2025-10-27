@@ -133,6 +133,9 @@ public:
     //! Flag to stop the alert watcher thread
     std::atomic_bool stop_alert_watcher_ = false;
 
+    //! Alerts polling time
+    std::chrono::milliseconds alert_polling_time_ = std::chrono::seconds(2);
+
     //////////////////////////////
     // SINGLETON METHODS
 
@@ -285,6 +288,13 @@ public:
      */
     database::DatabaseEntityQueue* get_entity_queue();
 
+    /**
+     * @brief Set the alerts polling time
+     * @param polling_time The new polling time
+     * @return void
+     */
+    void set_alerts_polling_time(
+            const  std::chrono::milliseconds& polling_time);
 
     /**
      * @brief Starts a thread to periodically check if alerts have matching entities
