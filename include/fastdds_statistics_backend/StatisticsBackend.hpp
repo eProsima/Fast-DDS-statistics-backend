@@ -726,6 +726,7 @@ public:
 
     /**
      * @brief Set the polling time for alerts evaluation.
+     * @param polling_time New polling time.
      */
     FASTDDS_STATISTICS_BACKEND_DllAPI
     static void set_alerts_polling_time(
