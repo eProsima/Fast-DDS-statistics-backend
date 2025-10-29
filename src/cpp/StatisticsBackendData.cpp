@@ -566,6 +566,8 @@ void StatisticsBackendData::stop_alert_watcher()
     {
         alert_watcher_thread_.join();
     }
+}
+
 void StatisticsBackendData::start_topic_spy(
         EntityId monitor_id,
         const std::string& topic_name,
