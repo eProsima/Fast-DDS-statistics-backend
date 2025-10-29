@@ -523,7 +523,7 @@ database::DatabaseEntityQueue* StatisticsBackendData::get_entity_queue()
 }
 
 void StatisticsBackendData::set_alerts_polling_time(
-        const  std::chrono::milliseconds& polling_time)
+        const std::chrono::milliseconds& polling_time)
 {
     alert_polling_time_ = polling_time;
 }

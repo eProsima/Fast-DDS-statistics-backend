@@ -1160,7 +1160,7 @@ void StatisticsBackend::remove_alert(
 }
 
 void StatisticsBackend::set_alerts_polling_time(
-            const std::chrono::milliseconds& polling_time)
+        const std::chrono::milliseconds& polling_time)
 {
     StatisticsBackendData::get_instance()->set_alerts_polling_time(polling_time);
 }

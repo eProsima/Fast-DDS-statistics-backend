@@ -294,7 +294,7 @@ public:
      * @return void
      */
     void set_alerts_polling_time(
-            const  std::chrono::milliseconds& polling_time);
+            const std::chrono::milliseconds& polling_time);
 
     /**
      * @brief Starts a thread to periodically check if alerts have matching entities

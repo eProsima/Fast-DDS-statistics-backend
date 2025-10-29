@@ -391,6 +391,7 @@ struct NoDataAlertInfo : AlertInfo
     {
         return std::make_shared<NoDataAlertInfo>(*this);
     }
+
 };
 
 class AlertManager
