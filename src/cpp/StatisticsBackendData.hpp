@@ -19,6 +19,7 @@
 #ifndef FASTDDS_STATISTICS_BACKEND_SRC_CPP__STATISTICS_BACKEND_DATA_HPP
 #define FASTDDS_STATISTICS_BACKEND_SRC_CPP__STATISTICS_BACKEND_DATA_HPP
 
+#include <condition_variable>
 #include <functional>
 #include <map>
 #include <memory>
@@ -130,8 +131,10 @@ public:
     //! Thread to periodically check if alerts have matching entities
     std::thread alert_watcher_thread_;
 
-    //! Flag to stop the alert watcher thread
-    std::atomic_bool stop_alert_watcher_ = false;
+    //! Condition variable/mutex to stop the alert watcher thread
+    std::condition_variable alert_watcher_cv_;
+    std::mutex alert_watcher_mutex_;
+    std::atomic<bool> stop_alert_watcher_ {false};
 
     //! Alerts polling time
     std::chrono::milliseconds alert_polling_time_ = std::chrono::seconds(2);
@@ -311,7 +314,6 @@ public:
      * @return void
      */
     void stop_alert_watcher();
-
 
     /**
      * @brief Method executed by the alert watcher thread

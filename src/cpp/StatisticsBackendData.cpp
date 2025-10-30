@@ -70,7 +70,10 @@ StatisticsBackendData::~StatisticsBackendData()
     }
 
     // Stopping recurrent watcher
-    stop_alert_watcher();
+    if(stop_alert_watcher_ == false)
+    {
+        stop_alert_watcher();
+    }
 
     if (entity_queue_)
     {
@@ -107,6 +110,7 @@ const SingletonType& StatisticsBackendData::get_instance()
 
 void StatisticsBackendData::reset_instance()
 {
+    instance_->stop_alert_watcher();
     instance_.reset(new StatisticsBackendData());
 }
 
@@ -530,25 +534,36 @@ void StatisticsBackendData::set_alerts_polling_time(
 
 void StatisticsBackendData::alert_watcher()
 {
+    std::unique_lock<std::mutex> lock(alert_watcher_mutex_);
     while (!stop_alert_watcher_)
     {
-        std::this_thread::sleep_for(alert_polling_time_);
-        if (database_)
+        if(alert_watcher_cv_.wait_for(lock, alert_polling_time_) == std::cv_status::timeout)
         {
-            database_->check_alerts_timeouts();
+            // If cv timed out, it means the polling time is over so alerts are checked
+            if (database_)
+            {
+                database_->check_alerts_timeouts();
+            }
         }
     }
 }
 
 void StatisticsBackendData::start_alert_watcher()
 {
+    std::unique_lock<std::mutex> lock(alert_watcher_mutex_);
     stop_alert_watcher_ = false;
     alert_watcher_thread_ = std::thread(&StatisticsBackendData::alert_watcher, this);
 }
 
 void StatisticsBackendData::stop_alert_watcher()
 {
-    stop_alert_watcher_ = true;
+    {
+        std::lock_guard<std::mutex> lock(alert_watcher_mutex_);
+        stop_alert_watcher_ = true;
+    }
+
+    alert_watcher_cv_.notify_all();
+
     if (alert_watcher_thread_.joinable())
     {
         alert_watcher_thread_.join();
