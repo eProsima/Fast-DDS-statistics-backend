@@ -70,7 +70,7 @@ StatisticsBackendData::~StatisticsBackendData()
     }
 
     // Stopping recurrent watcher
-    if(stop_alert_watcher_ == false)
+    if (stop_alert_watcher_ == false)
     {
         stop_alert_watcher();
     }
@@ -212,7 +212,8 @@ void StatisticsBackendData::on_alert_timeout(
     // Call the notifiers
     for (const auto& notifier_id : alert.get_notifiers())
     {
-        StatisticsBackendData::get_instance()->database_->trigger_notifier(notifier_id, "Alert " + alert.get_alert_name() + " timed out!");
+        StatisticsBackendData::get_instance()->database_->trigger_notifier(notifier_id,
+                "Alert " + alert.get_alert_name() + " timed out!");
     }
 
     if (should_call_domain_listener(*monitor->second, CallbackKind::ON_ALERT_TIMEOUT))
@@ -537,7 +538,7 @@ void StatisticsBackendData::alert_watcher()
     std::unique_lock<std::mutex> lock(alert_watcher_mutex_);
     while (!stop_alert_watcher_)
     {
-        if(alert_watcher_cv_.wait_for(lock, alert_polling_time_) == std::cv_status::timeout)
+        if (alert_watcher_cv_.wait_for(lock, alert_polling_time_) == std::cv_status::timeout)
         {
             // If cv timed out, it means the polling time is over so alerts are checked
             if (database_)
