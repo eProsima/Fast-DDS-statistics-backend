@@ -132,7 +132,6 @@ public:
         , timeout_enabled(timeout_enabled)
         , time_to_timeout(time_to_timeout)
     {
-        assert(time_to_timeout >= time_between_triggers);
         reset();
     }
 

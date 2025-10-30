@@ -212,14 +212,14 @@ void StatisticsBackendData::on_alert_timeout(
     // Call the notifiers
     for (const auto& notifier_id : alert.get_notifiers())
     {
-        StatisticsBackendData::get_instance()->database_->trigger_notifier(notifier_id, "Monitor alert unmatched!!!");
+        StatisticsBackendData::get_instance()->database_->trigger_notifier(notifier_id, "Alert " + alert.get_alert_name() + " timed out!");
     }
 
-    if (should_call_domain_listener(*monitor->second, CallbackKind::ON_ALERT_UNMATCHED))
+    if (should_call_domain_listener(*monitor->second, CallbackKind::ON_ALERT_TIMEOUT))
     {
         monitor->second->domain_listener->on_alert_timeout(domain_id, alert);
     }
-    else if (should_call_physical_listener(CallbackKind::ON_ALERT_UNMATCHED))
+    else if (should_call_physical_listener(CallbackKind::ON_ALERT_TIMEOUT))
     {
         physical_listener_->on_alert_timeout(domain_id, alert);
     }

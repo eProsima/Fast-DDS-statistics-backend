@@ -72,7 +72,7 @@ enum class CallbackKind : int32_t
     ON_ALERT_TRIGGERED          = 1 << 11,
 
     /// Represents the on_alert_timeout() callback
-    ON_ALERT_UNMATCHED          = 1 << 12
+    ON_ALERT_TIMEOUT          = 1 << 12
 };
 
 /**
