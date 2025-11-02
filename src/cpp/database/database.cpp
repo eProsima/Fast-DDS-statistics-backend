@@ -4788,7 +4788,10 @@ bool Database::update_participant_discovery_info_nts(
     db_participant->app_metadata = app_metadata;
     db_participant->discovery_source = discovery_source;
     db_participant->original_domain = original_domain;
-    db_participant->alias = db_participant->name;
+    if (db_participant->alias.empty() || db_participant->alias == "INVALID")
+    {
+        db_participant->alias = Entity::normalize_entity_name(db_participant->name);
+    }
 
     // Update of other entities that are linked to the participant
     std::map<std::string, EntityId> physical_entities_ids;
@@ -4814,7 +4817,6 @@ bool Database::update_participant_discovery_info_nts(
             process_name = process.substr(0, separator_pos);
             process_pid = process.substr(separator_pos + 1);
         }
-
 
         db_participant->process->name = process_name;
         db_participant->process->pid = process_pid;
