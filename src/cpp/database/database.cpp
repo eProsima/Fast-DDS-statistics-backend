@@ -3979,7 +3979,8 @@ std::string Database::get_entity_guid_nts(
         throw BadParameter("Entity with id " + std::to_string(entity_id.value()) + " is not a DDS Entity");
     }
 
-    std::shared_ptr<DDSEntity> db_entity = std::const_pointer_cast<DDSEntity>(std::static_pointer_cast<const DDSEntity>(db_entity_const));
+    std::shared_ptr<DDSEntity> db_entity =
+            std::const_pointer_cast<DDSEntity>(std::static_pointer_cast<const DDSEntity>(db_entity_const));
     return db_entity->guid;
 }
 

@@ -196,7 +196,7 @@ void StatisticsBackendData::on_alert_triggered(
     // Call the notifier
     for (const auto& notifier_id : alert.get_notifiers())
     {
-        switch(alert.get_alert_kind())
+        switch (alert.get_alert_kind())
         {
             case AlertKind::NEW_DATA_ALERT:
                 StatisticsBackendData::get_instance()->database_->trigger_notifier(notifier_id, "[FAST DDS MONITOR INSTANCE] Alert " +
