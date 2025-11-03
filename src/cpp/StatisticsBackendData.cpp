@@ -71,11 +71,10 @@ StatisticsBackendData::~StatisticsBackendData()
     }
 
     // Stopping recurrent watcher
-    if (stop_alert_watcher_ == false)
+    if (!stop_alert_watcher_)
     {
         stop_alert_watcher();
     }
-
     if (entity_queue_)
     {
         entity_queue_->stop_consumer();

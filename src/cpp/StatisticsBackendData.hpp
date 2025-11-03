@@ -137,7 +137,7 @@ public:
     std::atomic<bool> stop_alert_watcher_ {false};
 
     //! Alerts polling time
-    std::chrono::milliseconds alert_polling_time_ = std::chrono::seconds(2);
+    std::chrono::milliseconds alert_polling_time_ = std::chrono::milliseconds(2000);
 
     //////////////////////////////
     // SINGLETON METHODS

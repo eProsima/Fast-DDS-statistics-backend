@@ -382,7 +382,6 @@ struct NoDataAlertInfo : AlertInfo
                 threshold,
                 time_between_triggers, true, alert_timeout)
     {
-        // TODO (ecuesta): Make the timeout duration configurable
     }
 
     // This function allows clean polymorphism
