@@ -608,6 +608,16 @@ public:
             EntityId entity_id) const;
 
     /**
+     * @brief Get GUID string given an EntityId.
+     *
+     * @param entity_id The EntityId of the entity.
+     * @throws eprosima::statistics_backend::BadParameter if there is no entity with the given ID.
+     * @return The GUID string of the given entity.
+     */
+    std::string get_entity_guid(
+            EntityId entity_id) const;
+
+    /**
      * Update entity status according to warnings and errors.
      *
      * @param entity_error Flag showing if there is any error status data in the entity.
@@ -1026,6 +1036,17 @@ protected:
     const std::vector<std::shared_ptr<const Entity>> get_entities_nts(
             EntityKind entity_kind,
             const std::shared_ptr<const Entity>& entity) const;
+
+    /**
+     * @brief Get GUID string given an EntityId. This method is not thread safe.
+     *
+     * @param entity_id The EntityId of the entity.
+     * @throws eprosima::statistics_backend::BadParameter if there is no entity with
+     * the given ID.
+     * @return The GUID string of the given entity.
+     */
+    std::string get_entity_guid_nts(
+            EntityId entity_id) const;
 
     /**
      * @brief Auxiliar function for boilerplate code to update a Locator with either a DataReader or a DataWriter using it. This method is not thread safe.

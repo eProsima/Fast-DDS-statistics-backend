@@ -226,12 +226,14 @@ public:
             EntityId domain_id,
             EntityId entity_id,
             AlertInfo& alert,
+            const std::string& entity_guid,
             const std::string& data)
     {
         static_cast<void>(domain_id);
         static_cast<void>(entity_id);
         static_cast<void>(alert);
         static_cast<void>(data);
+        static_cast<void>(entity_guid);
     }
 
     /*!

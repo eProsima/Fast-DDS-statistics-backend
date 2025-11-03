@@ -3953,6 +3953,26 @@ StatusLevel Database::get_entity_status(
     return get_entity_nts(entity_id)->status;
 }
 
+std::string Database::get_entity_guid(
+        EntityId entity_id) const
+{
+    std::shared_lock<std::shared_timed_mutex> lock(mutex_);
+    return get_entity_guid_nts(entity_id);
+}
+
+std::string Database::get_entity_guid_nts(
+        EntityId entity_id) const
+{
+    std::shared_ptr<const Entity> db_entity_const = get_entity_nts(entity_id);
+    if (!db_entity_const->is_dds_entity())
+    {
+        throw BadParameter("Entity with id " + std::to_string(entity_id.value()) + " is not a DDS Entity");
+    }
+
+    std::shared_ptr<DDSEntity> db_entity = std::const_pointer_cast<DDSEntity>(std::static_pointer_cast<const DDSEntity>(db_entity_const));
+    return db_entity->guid;
+}
+
 Graph Database::get_domain_view_graph(
         const EntityId& domain_id) const
 {

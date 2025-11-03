@@ -36,6 +36,7 @@
 #include "Monitor.hpp"
 #include <database/database_queue.hpp>
 #include <database/database.hpp>
+#include <database/entities.hpp>
 
 namespace eprosima {
 namespace statistics_backend {
@@ -181,19 +182,44 @@ void StatisticsBackendData::on_alert_triggered(
         return;
     }
 
+    // Get entity GUID
+    std::string entity_guid;
+    try
+    {
+        entity_guid = StatisticsBackendData::get_instance()->database_->get_entity_guid(entity_id);
+    }
+    catch (const eprosima::statistics_backend::BadParameter& )
+    {
+        logWarning(STATISTICS_BACKEND_DATA, "Entity " << entity_id << " not found in database");
+        return;
+    }
+
     // Call the notifier
     for (const auto& notifier_id : alert.get_notifiers())
     {
-        StatisticsBackendData::get_instance()->database_->trigger_notifier(notifier_id, "Monitor alert triggered!!!");
+        switch(alert.get_alert_kind())
+        {
+            case AlertKind::NEW_DATA_ALERT:
+                StatisticsBackendData::get_instance()->database_->trigger_notifier(notifier_id, "[FAST DDS MONITOR INSTANCE] Alert " +
+                        alert.get_alert_name() + " was triggered. Entity " + entity_guid +
+                        " emitted a DATA_COUNT sample of " + data);
+                break;
+            case AlertKind::NO_DATA_ALERT:
+                StatisticsBackendData::get_instance()->database_->trigger_notifier(notifier_id, "[FAST DDS MONITOR INSTANCE] Alert " +
+                        alert.get_alert_name() + " was triggered. Entity " + entity_guid +
+                        " emitted a SUBSCRIPTION_THROUGHPUT sample of " + data);
+            default:
+                break;
+        }
     }
 
     if (should_call_domain_listener(*monitor->second, CallbackKind::ON_ALERT_TRIGGERED))
     {
-        monitor->second->domain_listener->on_alert_triggered(domain_id, entity_id, alert, data);
+        monitor->second->domain_listener->on_alert_triggered(domain_id, entity_id, alert, entity_guid, data);
     }
     else if (should_call_physical_listener(CallbackKind::ON_ALERT_TRIGGERED))
     {
-        physical_listener_->on_alert_triggered(domain_id, entity_id, alert, data);
+        physical_listener_->on_alert_triggered(domain_id, entity_id, alert, entity_guid, data);
     }
 }
 
@@ -213,7 +239,7 @@ void StatisticsBackendData::on_alert_timeout(
     for (const auto& notifier_id : alert.get_notifiers())
     {
         StatisticsBackendData::get_instance()->database_->trigger_notifier(notifier_id,
-                "Alert " + alert.get_alert_name() + " timed out!");
+                "[FAST DDS MONITOR INSTANCE] Alert " + alert.get_alert_name() + " timed out");
     }
 
     if (should_call_domain_listener(*monitor->second, CallbackKind::ON_ALERT_TIMEOUT))
