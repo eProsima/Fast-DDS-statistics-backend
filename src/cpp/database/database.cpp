@@ -1167,13 +1167,18 @@ void Database::trigger_alerts_of_kind_nts(
             {
                 // Update trigger info such as last trigger timestamp
                 alert_info->trigger();
-                // Convert the data to str and notify the alert has been triggered
-                std::string data_str = convert_stat_to_string(data);
-                details::StatisticsBackendData::get_instance()->on_alert_triggered(
-                    domain_id,
-                    entity_id,
-                    *alert_info,
-                    data_str);
+                // Notify the alert has been triggered
+                // TODO (eProsima) Workaround to avoid deadlock if callback implementation requires taking the database
+                // mutex (e.g. by calling get_info). A refactor for not calling on_domain_view_graph_update from within
+                // this function would be required.
+                execute_without_lock([&]()
+                        {
+                            details::StatisticsBackendData::get_instance()->on_alert_triggered(
+                                domain_id,
+                                entity_id,
+                                *alert_info,
+                                convert_stat_to_string(data));
+                        });
             }
         }
     }
@@ -1215,13 +1220,18 @@ void Database::trigger_alerts_of_kind_nts(
             {
                 // Update trigger info such as last trigger timestamp
                 alert_info->trigger();
-                // Convert the data to str and notify the alert has been triggered
-                std::string data_str = convert_stat_to_string(data);
-                details::StatisticsBackendData::get_instance()->on_alert_triggered(
-                    domain_id,
-                    entity_id,
-                    *alert_info,
-                    data_str);
+                // Notify the alert has been triggered
+                // TODO (eProsima) Workaround to avoid deadlock if callback implementation requires taking the database
+                // mutex (e.g. by calling get_info). A refactor for not calling on_domain_view_graph_update from within
+                // this function would be required.
+                execute_without_lock([&]()
+                        {
+                            details::StatisticsBackendData::get_instance()->on_alert_triggered(
+                                domain_id,
+                                entity_id,
+                                *alert_info,
+                                convert_stat_to_string(data));
+                        });
             }
         }
     }
