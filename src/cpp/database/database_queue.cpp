@@ -372,8 +372,11 @@ EntityId DatabaseEntityQueue::process_endpoint_discovery(
             details::StatisticsBackendData::DiscoveryStatus::DISCOVERY);
     }
 
-    // Store type IDL in the database Ignore metatraffic topics
-    if (!info.is_virtual_metatraffic)
+    // Store type IDL in the database
+    // Ignore metatraffic topics
+    // Ignore proxy discovered topics as their associated writer in the router,
+    // that has the same type, will be discovered through the common mechanism
+    if (info.discovery_source == DiscoverySource::DISCOVERY && !info.is_virtual_metatraffic)
     {
         database_->insert_new_type_idl(info.type_name, info.type_idl);
     }
