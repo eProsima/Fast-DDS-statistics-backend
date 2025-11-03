@@ -149,15 +149,15 @@ public:
             std::string stat_topic) const
     {
         bool match = true;
-        if (!(host_name.empty()))
+        if (!(host_name.empty() || host_name == "ALL"))
         {
             match &= (host_name == stat_host);
         }
-        if (match && !(user_name.empty()))
+        if (match && (!(host_name.empty() || host_name == "ALL")))
         {
             match &= (user_name == stat_user);
         }
-        if (match && !(topic_name.empty()))
+        if (match && (!(host_name.empty() || host_name == "ALL")))
         {
             match &= (topic_name == stat_topic);
         }
