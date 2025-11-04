@@ -58,6 +58,8 @@ std::string get_participant_id(
 EntityId DatabaseEntityQueue::process_participant(
         const EntityDiscoveryInfo& info)
 {
+    std::cout << "Processing participant " << to_string(info.guid.guidPrefix) << " " << info.participant_name << std::endl;
+
     EntityId participant_id = EntityId::invalid();
 
     std::map<std::string, EntityId> physical_entities_ids;
@@ -1490,6 +1492,7 @@ void DatabaseDataQueue<ExtendedMonitorServiceStatusData>::process_sample()
                 if (item.second->entity_discovery_info.kind() == EntityKind::PARTICIPANT &&
                         database_->get_entity(entity)->discovery_source != DiscoverySource::DISCOVERY)
                 {
+                    std::cout << "Updating participant discovery info for entity " << to_string(item.second->entity_discovery_info.guid.guidPrefix) << std::endl;
                     database_->update_participant_discovery_info(entity,
                             item.second->entity_discovery_info.host,
                             item.second->entity_discovery_info.user,
@@ -1512,6 +1515,8 @@ void DatabaseDataQueue<ExtendedMonitorServiceStatusData>::process_sample()
                 std::chrono::system_clock::time_point timestamp;
                 if (item.second->entity_discovery_info.kind() == EntityKind::PARTICIPANT)
                 {
+                    std::cout << "Real participant enqueued " << to_string(item.second->entity_discovery_info.guid.guidPrefix) << " " << item.second->entity_discovery_info.topic_name << std::endl;
+
                     // The received PROXY is from a PARTICIPANT and contains relevant information, it is always enqueued
                     // and will be used either to create the participant or to update it if it was already created
                     timestamp = now();
@@ -1523,6 +1528,8 @@ void DatabaseDataQueue<ExtendedMonitorServiceStatusData>::process_sample()
                 else if (participant_enqueued.find(item.second->entity_discovery_info.participant_guid) ==
                         participant_enqueued.end())
                 {
+                    std::cout << "Participant placeholded " << to_string(item.second->entity_discovery_info.guid.guidPrefix) << std::endl;
+
                     // Sometimes, PROXY messages from endpoints arrive before the participant's message.
                     // To avoid database inconsistencies, we enqueue an incomplete participant discovery
                     // information that will be updated when the real participant proxy message arrives.
@@ -1536,7 +1543,7 @@ void DatabaseDataQueue<ExtendedMonitorServiceStatusData>::process_sample()
                     participant_discovery_info.guid = item.second->entity_discovery_info.participant_guid;
                     participant_discovery_info.qos = item.second->entity_discovery_info.qos;
                     participant_discovery_info.participant_guid = item.second->entity_discovery_info.participant_guid;
-                    participant_discovery_info.participant_name = "Unknown participant";
+                    participant_discovery_info.participant_name = "Unknown Proxy Participant";
                     participant_discovery_info.app_id = AppId::UNKNOWN;
                     participant_discovery_info.host =
                             item.second->entity_discovery_info.host.empty()? "Unknown" :
@@ -1561,11 +1568,13 @@ void DatabaseDataQueue<ExtendedMonitorServiceStatusData>::process_sample()
                     participant_enqueued[item.second->entity_discovery_info.participant_guid] = true;
                     // Adding endpoint entity
                     timestamp = now();
+                    std::cout << "Endpoint enqueued " << to_string(item.second->entity_discovery_info.guid) << " " << item.second->entity_discovery_info.topic_name << std::endl;
                     details::StatisticsBackendData::get_instance()->get_entity_queue()->push(timestamp,
                             item.second->entity_discovery_info);
                 }
                 else
                 {
+                    std::cout << "Endpoint enqueued " << to_string(item.second->entity_discovery_info.guid) << " " << item.second->entity_discovery_info.topic_name << std::endl;
                     // If PROXY is from an ENDPOINT and its PARTICIPANT has been enqueued, it is enough to enqueue the endpoint as
                     // it will always be dequeued after the participant
                     timestamp = now();
