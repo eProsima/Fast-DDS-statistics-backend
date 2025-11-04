@@ -4788,7 +4788,7 @@ bool Database::update_participant_discovery_info_nts(
     db_participant->app_metadata = app_metadata;
     db_participant->discovery_source = discovery_source;
     db_participant->original_domain = original_domain;
-    if (db_participant->alias.empty() || db_participant->alias == "Unknown participant")
+    if (db_participant->alias.empty() || db_participant->alias == "Unknown Proxy Participant")
     {
         db_participant->alias = Entity::normalize_entity_name(db_participant->name);
     }
@@ -4837,8 +4837,8 @@ bool Database::update_participant_discovery_info_nts(
                 process_entity->user->host->name == host)
             {
                 // Found matching physical entities chain
-                db_participant->process = process_entity;
-                process_entity->participants[participant_id] = db_participant;
+                db_participant->process.reset();
+                link_participant_with_process_nts(participant_id, process_entity->id);
                 physical_entities_found = true;
                 break;
             }
