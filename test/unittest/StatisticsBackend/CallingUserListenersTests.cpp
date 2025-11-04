@@ -1537,7 +1537,7 @@ public:
         // Get the participant listener of the created monitor
         monitor_ = details::StatisticsBackendData::get_instance()->monitors_by_entity_[monitor_id_].get();
         participant_listener_ = monitor_->participant_listener;
-        reader_listener_ = monitor_->reader_listener;
+        reader_listener_ = monitor_->statistics_reader_listener;
         participant_ = monitor_->participant;
 
         // Initialize other attributes

@@ -319,6 +319,29 @@ public:
      * @brief Method executed by the alert watcher thread
      */
     void alert_watcher();
+    /**
+     * @brief Starts a topic spy on a given topic.
+     *
+     * @param monitor_id The entity ID of the monitor.
+     * @param topic_name The name of the topic to spy on.
+     * @param on_data_received Callback function to be called when new data in the introspected topic is received.
+     * @throws eprosima::statistics_backend::BadParameter if the given monitor ID is not yet registered or topic name is invalid.
+     */
+    void start_topic_spy(
+            EntityId monitor_id,
+            const std::string& topic_name,
+            std::function<void(const std::string& data)> on_data_received);
+
+    /**
+     * @brief Stops a topic spy on a given topic.
+     *
+     * @param monitor_id The entity ID of the monitor.
+     * @param topic_name The name of the topic to stop spying on.
+     * @throws eprosima::statistics_backend::BadParameter if the given monitor ID is not yet registered or topic name is invalid.
+     */
+    void stop_topic_spy(
+            EntityId monitor_id,
+            const std::string& topic_name);
 
 protected:
 

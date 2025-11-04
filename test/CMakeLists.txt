@@ -16,3 +16,9 @@ add_subdirectory(unittest)
 
 # TODO: Uncomment when the test is fixed
 # add_subdirectory(dds/communication)
+
+add_custom_target(copy_idl_files ALL
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+            ${CMAKE_CURRENT_SOURCE_DIR}/types
+            ${CMAKE_BINARY_DIR}/test/types
+)
