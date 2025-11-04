@@ -36,6 +36,7 @@
 #include "Monitor.hpp"
 #include <database/database_queue.hpp>
 #include <database/database.hpp>
+#include <database/entities.hpp>
 
 namespace eprosima {
 namespace statistics_backend {
@@ -70,8 +71,10 @@ StatisticsBackendData::~StatisticsBackendData()
     }
 
     // Stopping recurrent watcher
-    stop_alert_watcher();
-
+    if (!stop_alert_watcher_)
+    {
+        stop_alert_watcher();
+    }
     if (entity_queue_)
     {
         entity_queue_->stop_consumer();
@@ -107,6 +110,7 @@ const SingletonType& StatisticsBackendData::get_instance()
 
 void StatisticsBackendData::reset_instance()
 {
+    instance_->stop_alert_watcher();
     instance_.reset(new StatisticsBackendData());
 }
 
@@ -177,23 +181,48 @@ void StatisticsBackendData::on_alert_triggered(
         return;
     }
 
+    // Get entity GUID
+    std::string entity_guid;
+    try
+    {
+        entity_guid = StatisticsBackendData::get_instance()->database_->get_entity_guid(entity_id);
+    }
+    catch (const eprosima::statistics_backend::BadParameter& )
+    {
+        logWarning(STATISTICS_BACKEND_DATA, "Entity " << entity_id << " not found in database");
+        return;
+    }
+
     // Call the notifier
     for (const auto& notifier_id : alert.get_notifiers())
     {
-        StatisticsBackendData::get_instance()->database_->trigger_notifier(notifier_id, "Monitor alert triggered!!!");
+        switch (alert.get_alert_kind())
+        {
+            case AlertKind::NEW_DATA_ALERT:
+                StatisticsBackendData::get_instance()->database_->trigger_notifier(notifier_id, "[FAST DDS MONITOR INSTANCE] Alert " +
+                        alert.get_alert_name() + " was triggered. Entity " + entity_guid +
+                        " emitted a DATA_COUNT sample of " + data);
+                break;
+            case AlertKind::NO_DATA_ALERT:
+                StatisticsBackendData::get_instance()->database_->trigger_notifier(notifier_id, "[FAST DDS MONITOR INSTANCE] Alert " +
+                        alert.get_alert_name() + " was triggered. Entity " + entity_guid +
+                        " emitted a SUBSCRIPTION_THROUGHPUT sample of " + data);
+            default:
+                break;
+        }
     }
 
     if (should_call_domain_listener(*monitor->second, CallbackKind::ON_ALERT_TRIGGERED))
     {
-        monitor->second->domain_listener->on_alert_triggered(domain_id, entity_id, alert, data);
+        monitor->second->domain_listener->on_alert_triggered(domain_id, entity_id, alert, entity_guid, data);
     }
     else if (should_call_physical_listener(CallbackKind::ON_ALERT_TRIGGERED))
     {
-        physical_listener_->on_alert_triggered(domain_id, entity_id, alert, data);
+        physical_listener_->on_alert_triggered(domain_id, entity_id, alert, entity_guid, data);
     }
 }
 
-void StatisticsBackendData::on_alert_unmatched(
+void StatisticsBackendData::on_alert_timeout(
         EntityId domain_id,
         AlertInfo& alert)
 {
@@ -208,16 +237,17 @@ void StatisticsBackendData::on_alert_unmatched(
     // Call the notifiers
     for (const auto& notifier_id : alert.get_notifiers())
     {
-        StatisticsBackendData::get_instance()->database_->trigger_notifier(notifier_id, "Monitor alert unmatched!!!");
+        StatisticsBackendData::get_instance()->database_->trigger_notifier(notifier_id,
+                "[FAST DDS MONITOR INSTANCE] Alert " + alert.get_alert_name() + " timed out");
     }
 
-    if (should_call_domain_listener(*monitor->second, CallbackKind::ON_ALERT_UNMATCHED))
+    if (should_call_domain_listener(*monitor->second, CallbackKind::ON_ALERT_TIMEOUT))
     {
-        monitor->second->domain_listener->on_alert_unmatched(domain_id, alert);
+        monitor->second->domain_listener->on_alert_timeout(domain_id, alert);
     }
-    else if (should_call_physical_listener(CallbackKind::ON_ALERT_UNMATCHED))
+    else if (should_call_physical_listener(CallbackKind::ON_ALERT_TIMEOUT))
     {
-        physical_listener_->on_alert_unmatched(domain_id, alert);
+        physical_listener_->on_alert_timeout(domain_id, alert);
     }
 }
 
@@ -522,27 +552,44 @@ database::DatabaseEntityQueue* StatisticsBackendData::get_entity_queue()
     return entity_queue_;
 }
 
+void StatisticsBackendData::set_alerts_polling_time(
+        const std::chrono::milliseconds& polling_time)
+{
+    alert_polling_time_ = polling_time;
+}
+
 void StatisticsBackendData::alert_watcher()
 {
+    std::unique_lock<std::mutex> lock(alert_watcher_mutex_);
     while (!stop_alert_watcher_)
     {
-        std::this_thread::sleep_for(std::chrono::seconds(2));
-        if (database_)
+        if (alert_watcher_cv_.wait_for(lock, alert_polling_time_) == std::cv_status::timeout)
         {
-            database_->check_alerts_matching_entities();
+            // If cv timed out, it means the polling time is over so alerts are checked
+            if (database_)
+            {
+                database_->check_alerts_timeouts();
+            }
         }
     }
 }
 
 void StatisticsBackendData::start_alert_watcher()
 {
+    std::unique_lock<std::mutex> lock(alert_watcher_mutex_);
     stop_alert_watcher_ = false;
     alert_watcher_thread_ = std::thread(&StatisticsBackendData::alert_watcher, this);
 }
 
 void StatisticsBackendData::stop_alert_watcher()
 {
-    stop_alert_watcher_ = true;
+    {
+        std::lock_guard<std::mutex> lock(alert_watcher_mutex_);
+        stop_alert_watcher_ = true;
+    }
+
+    alert_watcher_cv_.notify_all();
+
     if (alert_watcher_thread_.joinable())
     {
         alert_watcher_thread_.join();

@@ -1167,13 +1167,18 @@ void Database::trigger_alerts_of_kind_nts(
             {
                 // Update trigger info such as last trigger timestamp
                 alert_info->trigger();
-                // Convert the data to str and notify the alert has been triggered
-                std::string data_str = convert_stat_to_string(data);
-                details::StatisticsBackendData::get_instance()->on_alert_triggered(
-                    domain_id,
-                    entity_id,
-                    *alert_info,
-                    data_str);
+                // Notify the alert has been triggered
+                // TODO (eProsima) Workaround to avoid deadlock if callback implementation requires taking the database
+                // mutex (e.g. by calling get_info). A refactor for not calling on_domain_view_graph_update from within
+                // this function would be required.
+                execute_without_lock([&]()
+                        {
+                            details::StatisticsBackendData::get_instance()->on_alert_triggered(
+                                domain_id,
+                                entity_id,
+                                *alert_info,
+                                convert_stat_to_string(data));
+                        });
             }
         }
     }
@@ -1215,21 +1220,26 @@ void Database::trigger_alerts_of_kind_nts(
             {
                 // Update trigger info such as last trigger timestamp
                 alert_info->trigger();
-                // Convert the data to str and notify the alert has been triggered
-                std::string data_str = convert_stat_to_string(data);
-                details::StatisticsBackendData::get_instance()->on_alert_triggered(
-                    domain_id,
-                    entity_id,
-                    *alert_info,
-                    data_str);
+                // Notify the alert has been triggered
+                // TODO (eProsima) Workaround to avoid deadlock if callback implementation requires taking the database
+                // mutex (e.g. by calling get_info). A refactor for not calling on_domain_view_graph_update from within
+                // this function would be required.
+                execute_without_lock([&]()
+                        {
+                            details::StatisticsBackendData::get_instance()->on_alert_triggered(
+                                domain_id,
+                                entity_id,
+                                *alert_info,
+                                convert_stat_to_string(data));
+                        });
             }
         }
     }
 }
 
-void Database::check_alerts_matching_entities()
+void Database::check_alerts_timeouts()
 {
-    std::lock_guard<std::shared_timed_mutex> guard(mutex_);
+    std::shared_lock<std::shared_timed_mutex> lock(mutex_);
     for (auto& domain_it : domains_)
     {
         EntityId domainId = domain_it.first;
@@ -1239,60 +1249,18 @@ void Database::check_alerts_matching_entities()
             for (auto& alert_it : alerts_in_domain->second)
             {
                 std::shared_ptr<AlertInfo> alert_info = alert_it.second;
-                if (alert_info->time_allows_trigger())
+                if (alert_info->check_timeout())
                 {
-                    bool match = false;
-                    auto datawriters_it = datawriters_.find(alert_info->get_domain_id());
-                    if (datawriters_it != datawriters_.end())
-                    {
-                        for (auto& endpoint_it : datawriters_it->second)
-                        {
-                            auto& endpoint = endpoint_it.second;
-                            // Get the metadata from the entity that sent the stats
-                            std::string topic_name = endpoint->topic->name;
-                            std::string user_name  = endpoint->participant->process->user->name;
-                            std::string host_name  = endpoint->participant->process->user->host->name;
-                            if (alert_info->entity_matches(host_name, user_name, topic_name))
+                    // Notify the alert has been triggered
+                    // TODO (eProsima) Workaround to avoid deadlock if callback implementation requires taking the database
+                    // mutex (e.g. by calling get_info). A refactor for not calling on_domain_view_graph_update from within
+                    // this function would be required.
+                    execute_without_lock([&]()
                             {
-                                match = true;
-                                break;
-                            }
-                        }
-                    }
-                    if (!match)
-                    {
-                        auto datareaders_it = datareaders_.find(alert_info->get_domain_id());
-                        if (datareaders_it != datareaders_.end())
-                        {
-                            for (auto& endpoint_it : datareaders_it->second)
-                            {
-                                auto& endpoint = endpoint_it.second;
-                                // Get the metadata from the entity that sent the stats
-                                std::string topic_name = endpoint->topic->name;
-                                std::string user_name  = endpoint->participant->process->user->name;
-                                std::string host_name  = endpoint->participant->process->user->host->name;
-                                if (alert_info->entity_matches(host_name, user_name, topic_name))
-                                {
-                                    match = true;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                    if (!match)
-                    {
-                        alert_info->trigger();
-                        // Notify the alert has been triggered
-                        // TODO (eProsima) Workaround to avoid deadlock if callback implementation requires taking the database
-                        // mutex (e.g. by calling get_info). A refactor for not calling on_domain_view_graph_update from within
-                        // this function would be required.
-                        execute_without_lock([&]()
-                                {
-                                    details::StatisticsBackendData::get_instance()->on_alert_unmatched(
-                                        domainId,
-                                        *alert_info);
-                                });
-                    }
+                                details::StatisticsBackendData::get_instance()->on_alert_timeout(
+                                    domainId,
+                                    *alert_info);
+                            });
                 }
             }
         }
@@ -3993,6 +3961,27 @@ StatusLevel Database::get_entity_status(
 {
     std::shared_lock<std::shared_timed_mutex> lock(mutex_);
     return get_entity_nts(entity_id)->status;
+}
+
+std::string Database::get_entity_guid(
+        EntityId entity_id) const
+{
+    std::shared_lock<std::shared_timed_mutex> lock(mutex_);
+    return get_entity_guid_nts(entity_id);
+}
+
+std::string Database::get_entity_guid_nts(
+        EntityId entity_id) const
+{
+    std::shared_ptr<const Entity> db_entity_const = get_entity_nts(entity_id);
+    if (!db_entity_const->is_dds_entity())
+    {
+        throw BadParameter("Entity with id " + std::to_string(entity_id.value()) + " is not a DDS Entity");
+    }
+
+    std::shared_ptr<DDSEntity> db_entity =
+            std::const_pointer_cast<DDSEntity>(std::static_pointer_cast<const DDSEntity>(db_entity_const));
+    return db_entity->guid;
 }
 
 Graph Database::get_domain_view_graph(
