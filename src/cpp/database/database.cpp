@@ -4788,7 +4788,7 @@ bool Database::update_participant_discovery_info_nts(
     db_participant->app_metadata = app_metadata;
     db_participant->discovery_source = discovery_source;
     db_participant->original_domain = original_domain;
-    if (db_participant->alias.empty() || db_participant->alias == "Unknown Proxy Participant")
+    if (db_participant->alias.empty() || db_participant->alias == "Inferred Participant")
     {
         db_participant->alias = Entity::normalize_entity_name(db_participant->name);
     }
@@ -4819,10 +4819,9 @@ bool Database::update_participant_discovery_info_nts(
 
         // There are 4 possibilities respect to participants + physical entities:
         // 1. The real participant already existed in the db (And thus its physical entities too)
-        // NOTE: I think this should not happen
         // 2. The process existed, but not the participant (user and host must exist too).
         // 3. The user existed, but not the process nor the participant (host must too)
-        // 4. None of them existed, so we can reuse the whole placeholder participant and its physical entities
+        // 4. None of them existed, so we can reuse the whole inferred participant and its physical entities
         bool physical_entities_found = false;
         auto process_entities = get_entities_by_name_nts(EntityKind::PROCESS, process_name);
         for (const auto &process_entity_pair : process_entities)
@@ -4850,6 +4849,7 @@ bool Database::update_participant_discovery_info_nts(
             db_participant->process->name = process_name;
             db_participant->process->alias = process_name;
             db_participant->process->pid = process_pid;
+            db_participant->process->discovery_source = discovery_source;
 
             auto user_entities = get_entities_by_name_nts(EntityKind::USER, user);
             for(const auto& user_entity_pair : user_entities)
@@ -4862,6 +4862,8 @@ bool Database::update_participant_discovery_info_nts(
                     // Found matching physical entities
                     db_participant->process->user = user_entity;
                     user_entity->processes[db_participant->process->id] = db_participant->process;
+                    db_participant->process->user->discovery_source = discovery_source;
+                    db_participant->process->user->host->discovery_source = discovery_source;
                     physical_entities_found = true;
                     break;
                 }
@@ -4870,9 +4872,11 @@ bool Database::update_participant_discovery_info_nts(
 
         if(!physical_entities_found)
         {
-            // CASE 3: User information must be updated in the placedholder struct
+            // CASE 3: User information must be updated in the placeholder struct
             db_participant->process->user->name = user;
             db_participant->process->user->alias = user;
+            db_participant->process->user->discovery_source = discovery_source;
+
             auto hosts = get_entities_by_name_nts(EntityKind::HOST, host);
             for(const auto& host_entity_pair : hosts)
             {
@@ -4882,6 +4886,7 @@ bool Database::update_participant_discovery_info_nts(
                 // Found matching host
                 db_participant->process->user->host = host_entity;
                 host_entity->users[db_participant->process->user->id] = db_participant->process->user;
+                db_participant->process->user->host->discovery_source = discovery_source;
                 physical_entities_found = true;
                 break;
             }
@@ -4892,6 +4897,7 @@ bool Database::update_participant_discovery_info_nts(
             // CASE 4: Host information must be updated in the placeholder struct
             db_participant->process->user->host->name = host;
             db_participant->process->user->host->alias = host;
+            db_participant->process->user->host->discovery_source = discovery_source;
         }
 
         physical_entities_ids[PROCESS_ENTITY_TAG] = db_participant->process->id;
@@ -6494,7 +6500,8 @@ bool Database::is_proxy(
         const EntityId& entity_id)
 {
     std::shared_lock<std::shared_timed_mutex> lock(mutex_);
-    return (get_entity_nts(entity_id)->discovery_source == DiscoverySource::PROXY);
+    return (get_entity_nts(entity_id)->discovery_source == DiscoverySource::PROXY ||
+            get_entity_nts(entity_id)->discovery_source == DiscoverySource::INFERRED);
 }
 
 Info Database::get_info(

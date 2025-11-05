@@ -166,7 +166,7 @@ constexpr const char* status_level_str[] =
 {OK_STATUS, WARNING_STATUS, ERROR_STATUS};
 //! Conversion from DiscoverySource to string
 constexpr const char* discovery_source_str[] =
-{"unknown", "discovery", "proxy"};
+{"unknown", "discovery", "proxy", "inferred"};
 
 /////
 // Data container
