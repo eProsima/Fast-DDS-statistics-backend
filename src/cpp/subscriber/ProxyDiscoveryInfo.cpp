@@ -230,7 +230,8 @@ database::EntityDiscoveryInfo get_discovery_info(
     }
 
     // In case of a new data reader discovered, add type info if available
-    if (ReaderDiscoveryStatus::DISCOVERED_READER == reason && discovery_source == DiscoverySource::DISCOVERY && reader_data.type_information.assigned())
+    if (ReaderDiscoveryStatus::DISCOVERED_READER == reason && discovery_source == DiscoverySource::DISCOVERY &&
+            reader_data.type_information.assigned())
     {
         // Create IDL representation of the discovered type
         // Get remote type information
@@ -305,7 +306,8 @@ database::EntityDiscoveryInfo get_discovery_info(
     }
 
     // In case of a new data writer discovered, add type info if available
-    if (WriterDiscoveryStatus::DISCOVERED_WRITER == reason && discovery_source == DiscoverySource::DISCOVERY && writer_data.type_information.assigned())
+    if (WriterDiscoveryStatus::DISCOVERED_WRITER == reason && discovery_source == DiscoverySource::DISCOVERY &&
+            writer_data.type_information.assigned())
     {
         // Create IDL representation of the discovered type
         // Get remote type information

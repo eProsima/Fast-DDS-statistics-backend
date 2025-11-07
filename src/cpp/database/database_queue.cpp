@@ -83,18 +83,18 @@ EntityId DatabaseEntityQueue::process_participant(
         if (info.discovery_status == details::StatisticsBackendData::DiscoveryStatus::UPDATE)
         {
             database_->update_participant_discovery_info(participant_id,
-                info.host,
-                info.user,
-                info.process,
-                info.participant_name,
-                info.qos,
-                to_string(info.guid),
-                info.domain_id,
-                info.entity_status,
-                info.app_id,
-                info.app_metadata,
-                info.discovery_source,
-                info.original_domain_id);
+                    info.host,
+                    info.user,
+                    info.process,
+                    info.participant_name,
+                    info.qos,
+                    to_string(info.guid),
+                    info.domain_id,
+                    info.entity_status,
+                    info.app_id,
+                    info.app_metadata,
+                    info.discovery_source,
+                    info.original_domain_id);
         }
     }
     catch (BadParameter&)
@@ -1533,11 +1533,12 @@ void DatabaseDataQueue<ExtendedMonitorServiceStatusData>::process_sample()
                 {
                     // The received PROXY is from a PARTICIPANT and contains relevant information, it is always enqueued
                     // and will be used either to create the participant or to update it if it was already created
-                    if (participant_enqueued.find(item.second->entity_discovery_info.participant_guid) == participant_enqueued.end())
+                    if (participant_enqueued.find(item.second->entity_discovery_info.participant_guid) ==
+                            participant_enqueued.end())
                     {
                         // No endpoint PROXY arrived first, this is a discovery
                         item.second->entity_discovery_info.discovery_status =
-                            details::StatisticsBackendData::DiscoveryStatus::DISCOVERY;
+                                details::StatisticsBackendData::DiscoveryStatus::DISCOVERY;
                         // Mark the participant as enqueued to avoid creating more participant placeholders
                         participant_enqueued[item.second->entity_discovery_info.guid] = true;
                     }
@@ -1545,7 +1546,7 @@ void DatabaseDataQueue<ExtendedMonitorServiceStatusData>::process_sample()
                     {
                         // Some endpoint PROXY arrived first, this is an update
                         item.second->entity_discovery_info.discovery_status =
-                            details::StatisticsBackendData::DiscoveryStatus::UPDATE;
+                                details::StatisticsBackendData::DiscoveryStatus::UPDATE;
                     }
 
                     timestamp = now();

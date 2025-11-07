@@ -4757,9 +4757,11 @@ bool Database::update_participant_discovery_info(
                    status, app_id, app_metadata, discovery_source, original_domain);
 }
 
-bool update_enabled(DiscoverySource current_source, DiscoverySource new_source)
+bool update_enabled(
+        DiscoverySource current_source,
+        DiscoverySource new_source)
 {
-    switch(current_source)
+    switch (current_source)
     {
         case DiscoverySource::DISCOVERY:
             // Discovery can only be updated by Discovery
@@ -4804,13 +4806,13 @@ bool Database::update_participant_discovery_info_nts(
     std::shared_ptr<DomainParticipant> db_participant = std::static_pointer_cast<DomainParticipant>(db_entity);
 
     // Not all updates are allowed, it depends on both the current and the new discovery sources
-    if(!update_enabled(db_participant->discovery_source, discovery_source))
+    if (!update_enabled(db_participant->discovery_source, discovery_source))
     {
         EPROSIMA_LOG_WARNING(BACKEND_DATABASE,
                 "Participant discovery info update not allowed. Current source was " +
                 std::string(discovery_source_str[static_cast<int>(db_participant->discovery_source)]) +
                 " but new source is " +
-                std::string(discovery_source_str[static_cast<int>(discovery_source)]););
+                std::string(discovery_source_str[static_cast<int>(discovery_source)]); );
         return false;
     }
 
@@ -4859,16 +4861,16 @@ bool Database::update_participant_discovery_info_nts(
         // 4. None of them existed, so we can reuse the whole inferred participant and its physical entities
         bool physical_entities_found = false;
         auto process_entities = get_entities_by_name_nts(EntityKind::PROCESS, process_name);
-        for (const auto &process_entity_pair : process_entities)
+        for (const auto& process_entity_pair : process_entities)
         {
             // CASE 1: No physical from placeholder is reused
             // Domain must not be checked since physical devices can be shared among domains
             std::shared_ptr<Entity> entity = get_mutable_entity_nts(process_entity_pair.second);
             std::shared_ptr<Process> process_entity = std::dynamic_pointer_cast<Process>(entity);
-            if(process_entity->user != nullptr &&
-                process_entity->user->name == user &&
-                process_entity->user->host != nullptr &&
-                process_entity->user->host->name == host)
+            if (process_entity->user != nullptr &&
+                    process_entity->user->name == user &&
+                    process_entity->user->host != nullptr &&
+                    process_entity->user->host->name == host)
             {
                 // Found matching physical entities chain
                 db_participant->process.reset();
@@ -4878,7 +4880,7 @@ bool Database::update_participant_discovery_info_nts(
             }
         }
 
-        if(!physical_entities_found)
+        if (!physical_entities_found)
         {
             // CASE 2: Process information must be updated in the placeholder struct
             db_participant->process->name = process_name;
@@ -4887,12 +4889,12 @@ bool Database::update_participant_discovery_info_nts(
             db_participant->process->discovery_source = discovery_source;
 
             auto user_entities = get_entities_by_name_nts(EntityKind::USER, user);
-            for(const auto& user_entity_pair : user_entities)
+            for (const auto& user_entity_pair : user_entities)
             {
                 // Domain must not be checked since physical devices can be shared among domains
                 std::shared_ptr<Entity> entity = get_mutable_entity_nts(user_entity_pair.second);
                 std::shared_ptr<User> user_entity = std::dynamic_pointer_cast<User>(entity);
-                if(user_entity->host != nullptr && user_entity->host->name == host)
+                if (user_entity->host != nullptr && user_entity->host->name == host)
                 {
                     // Found matching physical entities
                     db_participant->process->user = user_entity;
@@ -4905,7 +4907,7 @@ bool Database::update_participant_discovery_info_nts(
             }
         }
 
-        if(!physical_entities_found)
+        if (!physical_entities_found)
         {
             // CASE 3: User information must be updated in the placeholder struct
             db_participant->process->user->name = user;
@@ -4913,7 +4915,7 @@ bool Database::update_participant_discovery_info_nts(
             db_participant->process->user->discovery_source = discovery_source;
 
             auto hosts = get_entities_by_name_nts(EntityKind::HOST, host);
-            for(const auto& host_entity_pair : hosts)
+            for (const auto& host_entity_pair : hosts)
             {
                 // Domain must not be checked since physical devices can be shared among domains
                 std::shared_ptr<Entity> entity = get_mutable_entity_nts(host_entity_pair.second);
@@ -4927,7 +4929,7 @@ bool Database::update_participant_discovery_info_nts(
             }
         }
 
-        if(!physical_entities_found)
+        if (!physical_entities_found)
         {
             // CASE 4: Host information must be updated in the placeholder struct
             db_participant->process->user->host->name = host;
@@ -6536,7 +6538,7 @@ bool Database::is_proxy(
 {
     std::shared_lock<std::shared_timed_mutex> lock(mutex_);
     return (get_entity_nts(entity_id)->discovery_source == DiscoverySource::PROXY ||
-            get_entity_nts(entity_id)->discovery_source == DiscoverySource::INFERRED);
+           get_entity_nts(entity_id)->discovery_source == DiscoverySource::INFERRED);
 }
 
 Info Database::get_info(
