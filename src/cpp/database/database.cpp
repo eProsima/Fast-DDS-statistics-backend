@@ -4757,6 +4757,29 @@ bool Database::update_participant_discovery_info(
                    status, app_id, app_metadata, discovery_source, original_domain);
 }
 
+bool update_enabled(DiscoverySource current_source, DiscoverySource new_source)
+{
+    switch(current_source)
+    {
+        case DiscoverySource::DISCOVERY:
+            // Discovery can only be updated by Discovery
+            return (new_source == DiscoverySource::DISCOVERY);
+        case DiscoverySource::PROXY:
+            // Proxy can be updated by Discovery or Proxy
+            return (new_source == DiscoverySource::DISCOVERY ||
+                   new_source == DiscoverySource::PROXY);
+        case DiscoverySource::INFERRED:
+            // Inferred can be updated by anything except unknown
+            return (new_source == DiscoverySource::DISCOVERY ||
+                   new_source == DiscoverySource::PROXY ||
+                   new_source == DiscoverySource::INFERRED);
+        case DiscoverySource::UNKNOWN:
+        default:
+            // Anything can update unknown sources
+            return true;
+    }
+}
+
 bool Database::update_participant_discovery_info_nts(
         const EntityId& participant_id,
         const std::string& host,
@@ -4778,8 +4801,20 @@ bool Database::update_participant_discovery_info_nts(
         throw BadParameter("Entity with id " + std::to_string(participant_id.value()) + " is not a Participant");
     }
 
-    // Update of the participant inner information
     std::shared_ptr<DomainParticipant> db_participant = std::static_pointer_cast<DomainParticipant>(db_entity);
+
+    // Not all updates are allowed, it depends on both the current and the new discovery sources
+    if(!update_enabled(db_participant->discovery_source, discovery_source))
+    {
+        EPROSIMA_LOG_WARNING(BACKEND_DATABASE,
+                "Participant discovery info update not allowed. Current source was " +
+                std::string(discovery_source_str[static_cast<int>(db_participant->discovery_source)]) +
+                " but new source is " +
+                std::string(discovery_source_str[static_cast<int>(discovery_source)]););
+        return false;
+    }
+
+    // Participant information update
     db_participant->name = name;
     db_participant->qos = qos;
     db_participant->guid = guid;

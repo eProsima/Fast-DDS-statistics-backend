@@ -80,8 +80,7 @@ EntityId DatabaseEntityQueue::process_participant(
                 details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY);
 
         // Update rest of attributes if the discovery source is trusted
-        if (info.discovery_source != DiscoverySource::INFERRED &&
-            info.discovery_source != DiscoverySource::UNKNOWN)
+        if (info.discovery_status == details::StatisticsBackendData::DiscoveryStatus::UPDATE)
         {
             database_->update_participant_discovery_info(participant_id,
                 info.host,
@@ -1506,9 +1505,10 @@ void DatabaseDataQueue<ExtendedMonitorServiceStatusData>::process_sample()
                 database_->update_entity_qos(entity, item.second->optional_qos);
 
                 if (item.second->entity_discovery_info.kind() == EntityKind::PARTICIPANT &&
-                        database_->get_entity(entity)->discovery_source == DiscoverySource::INFERRED)
+                        database_->get_entity(entity)->discovery_source != DiscoverySource::DISCOVERY)
                 {
-                    // Filling previously inferred participant info with real data
+                    // NOTE: Proxy can only update unknown, proxy or inferred participants, not discovered ones
+                    // as they usually contain more complete information
                     database_->update_participant_discovery_info(entity,
                             item.second->entity_discovery_info.host,
                             item.second->entity_discovery_info.user,
@@ -1533,11 +1533,24 @@ void DatabaseDataQueue<ExtendedMonitorServiceStatusData>::process_sample()
                 {
                     // The received PROXY is from a PARTICIPANT and contains relevant information, it is always enqueued
                     // and will be used either to create the participant or to update it if it was already created
+                    if (participant_enqueued.find(item.second->entity_discovery_info.participant_guid) == participant_enqueued.end())
+                    {
+                        // No endpoint PROXY arrived first, this is a discovery
+                        item.second->entity_discovery_info.discovery_status =
+                            details::StatisticsBackendData::DiscoveryStatus::DISCOVERY;
+                        // Mark the participant as enqueued to avoid creating more participant placeholders
+                        participant_enqueued[item.second->entity_discovery_info.guid] = true;
+                    }
+                    else
+                    {
+                        // Some endpoint PROXY arrived first, this is an update
+                        item.second->entity_discovery_info.discovery_status =
+                            details::StatisticsBackendData::DiscoveryStatus::UPDATE;
+                    }
+
                     timestamp = now();
                     details::StatisticsBackendData::get_instance()->get_entity_queue()->push(timestamp,
                             item.second->entity_discovery_info);
-                    // Mark the participant as enqueued to avoid creating more participant placeholders
-                    participant_enqueued[item.second->entity_discovery_info.guid] = true;
                 }
                 else if (participant_enqueued.find(item.second->entity_discovery_info.participant_guid) ==
                         participant_enqueued.end())
