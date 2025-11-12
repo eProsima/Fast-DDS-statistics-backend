@@ -4915,17 +4915,18 @@ bool Database::update_participant_discovery_info_nts(
             db_participant->process->user->discovery_source = discovery_source;
 
             auto hosts = get_entities_by_name_nts(EntityKind::HOST, host);
-            for (const auto& host_entity_pair : hosts)
+            if (!hosts.empty())
             {
+                // Only one host per name is allowed
+                auto host_entity_pair = hosts.begin();
                 // Domain must not be checked since physical devices can be shared among domains
-                std::shared_ptr<Entity> entity = get_mutable_entity_nts(host_entity_pair.second);
+                std::shared_ptr<Entity> entity = get_mutable_entity_nts(host_entity_pair->second);
                 std::shared_ptr<Host> host_entity = std::dynamic_pointer_cast<Host>(entity);
                 // Found matching host
                 db_participant->process->user->host = host_entity;
                 host_entity->users[db_participant->process->user->id] = db_participant->process->user;
                 db_participant->process->user->host->discovery_source = discovery_source;
                 physical_entities_found = true;
-                break;
             }
         }
 
