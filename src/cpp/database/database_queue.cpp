@@ -1497,7 +1497,6 @@ void DatabaseDataQueue<ExtendedMonitorServiceStatusData>::process_sample()
             try
             {
                 auto source_guid = item.second->data.local_entity();
-
                 process_sample_type(domain, entity, source_guid, sample,
                         item.second->data.value().entity_proxy());
 
