@@ -648,13 +648,14 @@ TEST_F(database_queue_tests, push_participant)
     info.discovery_source = discoverysource;
     info.original_domain_id = original_domain_id;
 
-    // Participant undiscovery: FAILURE
+    // Participant undiscovery: FAILURE because participant does not exist
     {
         // Precondition: The participant does not exist
         EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
                 .WillOnce(Throw(BadParameter("Error")));
 
         EXPECT_CALL(database, insert_new_participant(_, _, _, _, _, _, _, _, _)).Times(0);
+        EXPECT_CALL(database, update_participant_discovery_info(_, _, _, _, _, _, _, _, _, _, _, _, _)).Times(0);
 
         // Expectations: The status will throw an exception because the participant is not in the database
         EXPECT_CALL(database, change_entity_status(_, false)).Times(AnyNumber())
@@ -668,13 +669,14 @@ TEST_F(database_queue_tests, push_participant)
         entity_queue.push(timestamp, info);
         entity_queue.flush();
     }
-    // Participant update: FAILURE
+    // Participant update: FAILURE because participant does not exist
     {
         // Precondition: The participant does not exist
         EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
                 .WillOnce(Throw(BadParameter("Error")));
 
         EXPECT_CALL(database, insert_new_participant(_, _, _, _, _, _, _, _, _)).Times(0);
+        EXPECT_CALL(database, update_participant_discovery_info(_, _, _, _, _, _, _, _, _, _, _, _, _)).Times(0);
 
         // Expectations: The status will throw an exception because the participant is not in the database
         EXPECT_CALL(database, change_entity_status(_, true)).Times(AnyNumber())
@@ -693,6 +695,9 @@ TEST_F(database_queue_tests, push_participant)
         // Precondition: The participant does not exist
         EXPECT_CALL(database, get_entity_by_guid(EntityKind::PARTICIPANT, participant_guid_str)).Times(AnyNumber())
                 .WillOnce(Throw(BadParameter("Error")));
+
+        // Update is not called because this is a normal discovery (not an update)
+        EXPECT_CALL(database, update_participant_discovery_info(_, _, _, _, _, _, _, _, _, _, _, _, _)).Times(0);
 
         // Expectation: The participant is created and given ID 1
         InsertParticipantArgs insert_args([&](
@@ -776,6 +781,8 @@ TEST_F(database_queue_tests, push_participant)
 
         // Expectations: The status will be updated
         EXPECT_CALL(database, change_entity_status(EntityId(1), true)).Times(1);
+        // Update discovery info called because info.discovery_status == UPDATE
+        EXPECT_CALL(database, update_participant_discovery_info(_, _, _, _, _, _, _, _, _, _, _, _, _)).Times(1);
 
         // Precondition: Host-user-process exist
         ProcessPhysicalArgs process_physical_args([&](
@@ -799,7 +806,6 @@ TEST_F(database_queue_tests, push_participant)
                     physical_entities_ids[HOST_ENTITY_TAG] = EntityId(2);
                     physical_entities_ids[USER_ENTITY_TAG] = EntityId(3);
                     physical_entities_ids[PROCESS_ENTITY_TAG] = EntityId(4);
-
                 });
 
         EXPECT_CALL(database, process_physical_entities(_, _, _, _, _, _, _, _)).Times(1)
@@ -831,6 +837,8 @@ TEST_F(database_queue_tests, push_participant)
 
         // Expectations: The status will be updated
         EXPECT_CALL(database, change_entity_status(EntityId(1), false)).Times(1);
+        // Undiscovery does not update discovery info (it just change status)
+        EXPECT_CALL(database, update_participant_discovery_info(_, _, _, _, _, _, _, _, _, _, _, _, _)).Times(0);
 
         // Precondition: Host-user-process exist
         ProcessPhysicalArgs process_physical_args([&](
