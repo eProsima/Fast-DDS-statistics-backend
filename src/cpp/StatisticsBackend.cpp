@@ -1116,6 +1116,7 @@ void StatisticsBackend::set_alert(
         const AlertKind& alert_kind,
         const double& threshold,
         const std::chrono::milliseconds& t_between_triggers,
+        const std::chrono::milliseconds& alert_timeout,
         const std::string& script_path)
 {
     // Creating notifiers if needed
@@ -1136,7 +1137,7 @@ void StatisticsBackend::set_alert(
         case AlertKind::NEW_DATA_ALERT:
         {
             NewDataAlertInfo new_data_alert(alert_name, domain_id, host_name, user_name, topic_name,
-                    t_between_triggers);
+                    t_between_triggers, alert_timeout);
 
             if (notifier_id != INVALID_NOTIFIER_ID)
             {
@@ -1150,7 +1151,7 @@ void StatisticsBackend::set_alert(
         case AlertKind::NO_DATA_ALERT:
         {
             NoDataAlertInfo no_data_alert(alert_name, domain_id, host_name, user_name, topic_name, threshold,
-                    t_between_triggers);
+                    t_between_triggers, alert_timeout);
 
             if (notifier_id != INVALID_NOTIFIER_ID)
             {
@@ -1172,6 +1173,12 @@ void StatisticsBackend::remove_alert(
         const AlertId& alert_id)
 {
     StatisticsBackendData::get_instance()->database_->remove_alert(alert_id);
+}
+
+void StatisticsBackend::set_alerts_polling_time(
+        const std::chrono::milliseconds& polling_time)
+{
+    StatisticsBackendData::get_instance()->set_alerts_polling_time(polling_time);
 }
 
 std::string StatisticsBackend::deserialize_guid(

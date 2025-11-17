@@ -7,7 +7,7 @@ Set entity alert
 
 Function |set_alert-api| allows the user to set an alert on a specific entity.
 When the alert is triggered, the listener callback *on_alert_triggered* will be called with the corresponding parameters.
-In addition, if no entity matches the alert, the listener callback *on_alert_unmatched* will be called periodically
+In addition, if no entity matches the alert, the listener callback *on_alert_timeout* will be called periodically
 If a valid script is passed as an advanced parameter, it will be executed when the alert is triggered.
 
 .. literalinclude:: /code/StatisticsBackendTests.cpp
