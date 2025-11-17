@@ -298,10 +298,10 @@ public:
             const EntityDataSample& data);
 
     /**
-     * For all alerts in the database, check if they have matching entities.
-     * If they don't, they are triggered with an appropriate message
+     * For all alerts in the database, check if they have timed out.
+     * If they have, they are triggered with an appropriate message
      */
-    void check_alerts_matching_entities();
+    void check_alerts_timeouts();
 
     /**
      * @brief Create the link between a participant and a process.
@@ -605,6 +605,16 @@ public:
      * @return The StatusLevel of the given entity.
      */
     StatusLevel get_entity_status(
+            EntityId entity_id) const;
+
+    /**
+     * @brief Get GUID string given an EntityId.
+     *
+     * @param entity_id The EntityId of the entity.
+     * @throws eprosima::statistics_backend::BadParameter if there is no entity with the given ID.
+     * @return The GUID string of the given entity.
+     */
+    std::string get_entity_guid(
             EntityId entity_id) const;
 
     /**
@@ -1026,6 +1036,17 @@ protected:
     const std::vector<std::shared_ptr<const Entity>> get_entities_nts(
             EntityKind entity_kind,
             const std::shared_ptr<const Entity>& entity) const;
+
+    /**
+     * @brief Get GUID string given an EntityId. This method is not thread safe.
+     *
+     * @param entity_id The EntityId of the entity.
+     * @throws eprosima::statistics_backend::BadParameter if there is no entity with
+     * the given ID.
+     * @return The GUID string of the given entity.
+     */
+    std::string get_entity_guid_nts(
+            EntityId entity_id) const;
 
     /**
      * @brief Auxiliar function for boilerplate code to update a Locator with either a DataReader or a DataWriter using it. This method is not thread safe.

@@ -1167,13 +1167,18 @@ void Database::trigger_alerts_of_kind_nts(
             {
                 // Update trigger info such as last trigger timestamp
                 alert_info->trigger();
-                // Convert the data to str and notify the alert has been triggered
-                std::string data_str = convert_stat_to_string(data);
-                details::StatisticsBackendData::get_instance()->on_alert_triggered(
-                    domain_id,
-                    entity_id,
-                    *alert_info,
-                    data_str);
+                // Notify the alert has been triggered
+                // TODO (eProsima) Workaround to avoid deadlock if callback implementation requires taking the database
+                // mutex (e.g. by calling get_info). A refactor for not calling on_domain_view_graph_update from within
+                // this function would be required.
+                execute_without_lock([&]()
+                        {
+                            details::StatisticsBackendData::get_instance()->on_alert_triggered(
+                                domain_id,
+                                entity_id,
+                                *alert_info,
+                                convert_stat_to_string(data));
+                        });
             }
         }
     }
@@ -1215,21 +1220,26 @@ void Database::trigger_alerts_of_kind_nts(
             {
                 // Update trigger info such as last trigger timestamp
                 alert_info->trigger();
-                // Convert the data to str and notify the alert has been triggered
-                std::string data_str = convert_stat_to_string(data);
-                details::StatisticsBackendData::get_instance()->on_alert_triggered(
-                    domain_id,
-                    entity_id,
-                    *alert_info,
-                    data_str);
+                // Notify the alert has been triggered
+                // TODO (eProsima) Workaround to avoid deadlock if callback implementation requires taking the database
+                // mutex (e.g. by calling get_info). A refactor for not calling on_domain_view_graph_update from within
+                // this function would be required.
+                execute_without_lock([&]()
+                        {
+                            details::StatisticsBackendData::get_instance()->on_alert_triggered(
+                                domain_id,
+                                entity_id,
+                                *alert_info,
+                                convert_stat_to_string(data));
+                        });
             }
         }
     }
 }
 
-void Database::check_alerts_matching_entities()
+void Database::check_alerts_timeouts()
 {
-    std::lock_guard<std::shared_timed_mutex> guard(mutex_);
+    std::shared_lock<std::shared_timed_mutex> lock(mutex_);
     for (auto& domain_it : domains_)
     {
         EntityId domainId = domain_it.first;
@@ -1239,60 +1249,18 @@ void Database::check_alerts_matching_entities()
             for (auto& alert_it : alerts_in_domain->second)
             {
                 std::shared_ptr<AlertInfo> alert_info = alert_it.second;
-                if (alert_info->time_allows_trigger())
+                if (alert_info->check_timeout())
                 {
-                    bool match = false;
-                    auto datawriters_it = datawriters_.find(alert_info->get_domain_id());
-                    if (datawriters_it != datawriters_.end())
-                    {
-                        for (auto& endpoint_it : datawriters_it->second)
-                        {
-                            auto& endpoint = endpoint_it.second;
-                            // Get the metadata from the entity that sent the stats
-                            std::string topic_name = endpoint->topic->name;
-                            std::string user_name  = endpoint->participant->process->user->name;
-                            std::string host_name  = endpoint->participant->process->user->host->name;
-                            if (alert_info->entity_matches(host_name, user_name, topic_name))
+                    // Notify the alert has been triggered
+                    // TODO (eProsima) Workaround to avoid deadlock if callback implementation requires taking the database
+                    // mutex (e.g. by calling get_info). A refactor for not calling on_domain_view_graph_update from within
+                    // this function would be required.
+                    execute_without_lock([&]()
                             {
-                                match = true;
-                                break;
-                            }
-                        }
-                    }
-                    if (!match)
-                    {
-                        auto datareaders_it = datareaders_.find(alert_info->get_domain_id());
-                        if (datareaders_it != datareaders_.end())
-                        {
-                            for (auto& endpoint_it : datareaders_it->second)
-                            {
-                                auto& endpoint = endpoint_it.second;
-                                // Get the metadata from the entity that sent the stats
-                                std::string topic_name = endpoint->topic->name;
-                                std::string user_name  = endpoint->participant->process->user->name;
-                                std::string host_name  = endpoint->participant->process->user->host->name;
-                                if (alert_info->entity_matches(host_name, user_name, topic_name))
-                                {
-                                    match = true;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                    if (!match)
-                    {
-                        alert_info->trigger();
-                        // Notify the alert has been triggered
-                        // TODO (eProsima) Workaround to avoid deadlock if callback implementation requires taking the database
-                        // mutex (e.g. by calling get_info). A refactor for not calling on_domain_view_graph_update from within
-                        // this function would be required.
-                        execute_without_lock([&]()
-                                {
-                                    details::StatisticsBackendData::get_instance()->on_alert_unmatched(
-                                        domainId,
-                                        *alert_info);
-                                });
-                    }
+                                details::StatisticsBackendData::get_instance()->on_alert_timeout(
+                                    domainId,
+                                    *alert_info);
+                            });
                 }
             }
         }
@@ -3995,6 +3963,27 @@ StatusLevel Database::get_entity_status(
     return get_entity_nts(entity_id)->status;
 }
 
+std::string Database::get_entity_guid(
+        EntityId entity_id) const
+{
+    std::shared_lock<std::shared_timed_mutex> lock(mutex_);
+    return get_entity_guid_nts(entity_id);
+}
+
+std::string Database::get_entity_guid_nts(
+        EntityId entity_id) const
+{
+    std::shared_ptr<const Entity> db_entity_const = get_entity_nts(entity_id);
+    if (!db_entity_const->is_dds_entity())
+    {
+        throw BadParameter("Entity with id " + std::to_string(entity_id.value()) + " is not a DDS Entity");
+    }
+
+    std::shared_ptr<DDSEntity> db_entity =
+            std::const_pointer_cast<DDSEntity>(std::static_pointer_cast<const DDSEntity>(db_entity_const));
+    return db_entity->guid;
+}
+
 Graph Database::get_domain_view_graph(
         const EntityId& domain_id) const
 {
@@ -4768,6 +4757,31 @@ bool Database::update_participant_discovery_info(
                    status, app_id, app_metadata, discovery_source, original_domain);
 }
 
+bool update_enabled(
+        DiscoverySource current_source,
+        DiscoverySource new_source)
+{
+    switch (current_source)
+    {
+        case DiscoverySource::DISCOVERY:
+            // Discovery can only be updated by Discovery
+            return (new_source == DiscoverySource::DISCOVERY);
+        case DiscoverySource::PROXY:
+            // Proxy can be updated by Discovery or Proxy
+            return (new_source == DiscoverySource::DISCOVERY ||
+                   new_source == DiscoverySource::PROXY);
+        case DiscoverySource::INFERRED:
+            // Inferred can be updated by anything except unknown
+            return (new_source == DiscoverySource::DISCOVERY ||
+                   new_source == DiscoverySource::PROXY ||
+                   new_source == DiscoverySource::INFERRED);
+        case DiscoverySource::UNKNOWN:
+        default:
+            // Anything can update unknown sources
+            return true;
+    }
+}
+
 bool Database::update_participant_discovery_info_nts(
         const EntityId& participant_id,
         const std::string& host,
@@ -4789,8 +4803,20 @@ bool Database::update_participant_discovery_info_nts(
         throw BadParameter("Entity with id " + std::to_string(participant_id.value()) + " is not a Participant");
     }
 
-    // Update of the participant inner information
     std::shared_ptr<DomainParticipant> db_participant = std::static_pointer_cast<DomainParticipant>(db_entity);
+
+    // Not all updates are allowed, it depends on both the current and the new discovery sources
+    if (!update_enabled(db_participant->discovery_source, discovery_source))
+    {
+        EPROSIMA_LOG_WARNING(BACKEND_DATABASE,
+                "Participant discovery info update not allowed. Current source was " +
+                std::string(discovery_source_str[static_cast<int>(db_participant->discovery_source)]) +
+                " but new source is " +
+                std::string(discovery_source_str[static_cast<int>(discovery_source)]); );
+        return false;
+    }
+
+    // Participant information update
     db_participant->name = name;
     db_participant->qos = qos;
     db_participant->guid = guid;
@@ -4799,8 +4825,10 @@ bool Database::update_participant_discovery_info_nts(
     db_participant->app_metadata = app_metadata;
     db_participant->discovery_source = discovery_source;
     db_participant->original_domain = original_domain;
-    db_participant->alias = db_participant->name;
-
+    if (db_participant->alias.empty() || db_participant->alias == "Inferred Participant")
+    {
+        db_participant->alias = Entity::normalize_entity_name(db_participant->name);
+    }
     // Update of other entities that are linked to the participant
     std::map<std::string, EntityId> physical_entities_ids;
     physical_entities_ids[HOST_ENTITY_TAG] = EntityId::invalid();
@@ -4826,11 +4854,90 @@ bool Database::update_participant_discovery_info_nts(
             process_pid = process.substr(separator_pos + 1);
         }
 
+        // There are 4 possibilities respect to participants + physical entities:
+        // 1. The real participant already existed in the db (And thus its physical entities too)
+        // 2. The process existed, but not the participant (user and host must exist too).
+        // 3. The user existed, but not the process nor the participant (host must too)
+        // 4. None of them existed, so we can reuse the whole inferred participant and its physical entities
+        bool physical_entities_found = false;
+        auto process_entities = get_entities_by_name_nts(EntityKind::PROCESS, process_name);
+        for (const auto& process_entity_pair : process_entities)
+        {
+            // CASE 1: No physical from placeholder is reused
+            // Domain must not be checked since physical devices can be shared among domains
+            std::shared_ptr<Entity> entity = get_mutable_entity_nts(process_entity_pair.second);
+            std::shared_ptr<Process> process_entity = std::dynamic_pointer_cast<Process>(entity);
+            if (process_entity->user != nullptr &&
+                    process_entity->user->name == user &&
+                    process_entity->user->host != nullptr &&
+                    process_entity->user->host->name == host)
+            {
+                // Found matching physical entities chain
+                db_participant->process.reset();
+                link_participant_with_process_nts(participant_id, process_entity->id);
+                physical_entities_found = true;
+                break;
+            }
+        }
 
-        db_participant->process->name = process_name;
-        db_participant->process->pid = process_pid;
-        db_participant->process->user->name = user;
-        db_participant->process->user->host->name = host;
+        if (!physical_entities_found)
+        {
+            // CASE 2: Process information must be updated in the placeholder struct
+            db_participant->process->name = process_name;
+            db_participant->process->alias = process_name;
+            db_participant->process->pid = process_pid;
+            db_participant->process->discovery_source = discovery_source;
+
+            auto user_entities = get_entities_by_name_nts(EntityKind::USER, user);
+            for (const auto& user_entity_pair : user_entities)
+            {
+                // Domain must not be checked since physical devices can be shared among domains
+                std::shared_ptr<Entity> entity = get_mutable_entity_nts(user_entity_pair.second);
+                std::shared_ptr<User> user_entity = std::dynamic_pointer_cast<User>(entity);
+                if (user_entity->host != nullptr && user_entity->host->name == host)
+                {
+                    // Found matching physical entities
+                    db_participant->process->user = user_entity;
+                    user_entity->processes[db_participant->process->id] = db_participant->process;
+                    db_participant->process->user->discovery_source = discovery_source;
+                    db_participant->process->user->host->discovery_source = discovery_source;
+                    physical_entities_found = true;
+                    break;
+                }
+            }
+        }
+
+        if (!physical_entities_found)
+        {
+            // CASE 3: User information must be updated in the placeholder struct
+            db_participant->process->user->name = user;
+            db_participant->process->user->alias = user;
+            db_participant->process->user->discovery_source = discovery_source;
+
+            auto hosts = get_entities_by_name_nts(EntityKind::HOST, host);
+            if (!hosts.empty())
+            {
+                // Only one host per name is allowed
+                auto host_entity_pair = hosts.begin();
+                // Domain must not be checked since physical devices can be shared among domains
+                std::shared_ptr<Entity> entity = get_mutable_entity_nts(host_entity_pair->second);
+                std::shared_ptr<Host> host_entity = std::dynamic_pointer_cast<Host>(entity);
+                // Found matching host
+                db_participant->process->user->host = host_entity;
+                host_entity->users[db_participant->process->user->id] = db_participant->process->user;
+                db_participant->process->user->host->discovery_source = discovery_source;
+                physical_entities_found = true;
+            }
+        }
+
+        if (!physical_entities_found)
+        {
+            // CASE 4: Host information must be updated in the placeholder struct
+            db_participant->process->user->host->name = host;
+            db_participant->process->user->host->alias = host;
+            db_participant->process->user->host->discovery_source = discovery_source;
+        }
+
         physical_entities_ids[PROCESS_ENTITY_TAG] = db_participant->process->id;
         physical_entities_ids[USER_ENTITY_TAG] = db_participant->process->user->id;
         physical_entities_ids[HOST_ENTITY_TAG] = db_participant->process->user->host->id;
@@ -4847,7 +4954,9 @@ bool Database::update_participant_discovery_info_nts(
     if (graph_updated)
     {
         details::StatisticsBackendData::get_instance()->on_domain_view_graph_update(domain_id);
+        regenerate_domain_graph_nts(domain_id);
     }
+
 
     return graph_updated;
 }
@@ -6429,7 +6538,8 @@ bool Database::is_proxy(
         const EntityId& entity_id)
 {
     std::shared_lock<std::shared_timed_mutex> lock(mutex_);
-    return (get_entity_nts(entity_id)->discovery_source == DiscoverySource::PROXY);
+    return (get_entity_nts(entity_id)->discovery_source == DiscoverySource::PROXY ||
+           get_entity_nts(entity_id)->discovery_source == DiscoverySource::INFERRED);
 }
 
 Info Database::get_info(

@@ -396,7 +396,10 @@ enum class DiscoverySource
     DISCOVERY,
 
     /// Discovered because their data reached the backend by other means
-    PROXY
+    PROXY,
+
+    /// Inferred from other proxy messages but not explicitly discovered
+    INFERRED
 };
 
 /** @struct MonitorServiceSample

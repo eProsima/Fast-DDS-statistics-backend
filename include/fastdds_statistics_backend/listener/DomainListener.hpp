@@ -226,12 +226,14 @@ public:
             EntityId domain_id,
             EntityId entity_id,
             AlertInfo& alert,
+            const std::string& entity_guid,
             const std::string& data)
     {
         static_cast<void>(domain_id);
         static_cast<void>(entity_id);
         static_cast<void>(alert);
         static_cast<void>(data);
+        static_cast<void>(entity_guid);
     }
 
     /*!
@@ -240,7 +242,7 @@ public:
      * @param domain_id Entity ID of the domain to which the alert belongs.
      * @param alert Information about the alert being triggered.
      */
-    virtual void on_alert_unmatched(
+    virtual void on_alert_timeout(
             EntityId domain_id,
             AlertInfo& alert)
     {
