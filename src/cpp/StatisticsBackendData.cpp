@@ -594,14 +594,16 @@ void StatisticsBackendData::start_topic_spy(
     auto topic_it = monitor->user_data_topics.find(topic_name);
     if (topic_it == monitor->user_data_topics.end())
     {
-        fastdds::dds::DynamicType::_ref_type topic_type = monitor->user_data_context.get_type_from_topic_name(topic_name);
+        fastdds::dds::DynamicType::_ref_type topic_type =
+                monitor->user_data_context.get_type_from_topic_name(topic_name);
         if (!topic_type)
         {
             throw Error("Unable to get the type for topic '" + topic_name + "'");
         }
 
         std::string type_name = topic_type->get_name().to_string();
-        fastdds::dds::TypeSupport type_support = fastdds::dds::TypeSupport(new fastdds::dds::DynamicPubSubType(topic_type));
+        fastdds::dds::TypeSupport type_support =
+                fastdds::dds::TypeSupport(new fastdds::dds::DynamicPubSubType(topic_type));
         if (fastdds::dds::RETCODE_OK != type_support.register_type(monitor->participant, type_name))
         {
             throw Error("Error registering type for topic '" + topic_name + "'");

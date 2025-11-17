@@ -45,6 +45,7 @@ public:
         discovered_user_data_types_.clear();
         discovered_topics_.clear();
     }
+
 };
 
 class user_data_reader_listener_tests : public ::testing::Test
@@ -104,7 +105,8 @@ public:
 TEST_F(user_data_reader_listener_tests, process_data_from_known_type)
 {
     // Precondition: The data type is already known
-    DynamicTypeBuilder::_ref_type type_builder = DynamicTypeBuilderFactory::get_instance()->create_type_w_uri("../../types/UserData/FooType.idl", "FooType", std::vector<std::string>());
+    DynamicTypeBuilder::_ref_type type_builder = DynamicTypeBuilderFactory::get_instance()->create_type_w_uri(
+        "../../types/UserData/FooType.idl", "FooType", std::vector<std::string>());
     ASSERT_NE(type_builder, nullptr);
     DynamicType::_ref_type type = type_builder->build();
     user_data_context_.register_user_data_topic("FooTopic", type);
@@ -115,8 +117,8 @@ TEST_F(user_data_reader_listener_tests, process_data_from_known_type)
     data->set_int32_value(0, 2);
     data->set_string_value(1, "FooMessage");
     json expected_message = {
-            {"num", 2},
-            {"msg", "FooMessage"}
+        {"num", 2},
+        {"msg", "FooMessage"}
     };
 
     add_sample_to_reader_history(data, info);
@@ -137,7 +139,8 @@ TEST_F(user_data_reader_listener_tests, process_data_from_unknown_type)
 {
     // Simulate data reception from a topic which type is unknown (i.e: not registered in the context).
     std::shared_ptr<SampleInfo> info = get_default_info();
-    DynamicTypeBuilder::_ref_type type_builder = DynamicTypeBuilderFactory::get_instance()->create_type_w_uri("../../types/UserData/FooType.idl", "FooType", std::vector<std::string>());
+    DynamicTypeBuilder::_ref_type type_builder = DynamicTypeBuilderFactory::get_instance()->create_type_w_uri(
+        "../../types/UserData/FooType.idl", "FooType", std::vector<std::string>());
     ASSERT_NE(type_builder, nullptr);
     DynamicType::_ref_type type = type_builder->build();
     DynamicData::_ref_type data = DynamicDataFactory::get_instance()->create_data(type);
@@ -159,7 +162,8 @@ TEST_F(user_data_reader_listener_tests, process_data_from_unknown_type)
 
 TEST_F(user_data_reader_listener_tests, process_invalid_sample)
 {
-    DynamicTypeBuilder::_ref_type type_builder = DynamicTypeBuilderFactory::get_instance()->create_type_w_uri("../../types/UserData/FooType.idl", "FooType", std::vector<std::string>());
+    DynamicTypeBuilder::_ref_type type_builder = DynamicTypeBuilderFactory::get_instance()->create_type_w_uri(
+        "../../types/UserData/FooType.idl", "FooType", std::vector<std::string>());
     ASSERT_NE(type_builder, nullptr);
     DynamicType::_ref_type type = type_builder->build();
     user_data_context_.register_user_data_topic("FooTopic", type);

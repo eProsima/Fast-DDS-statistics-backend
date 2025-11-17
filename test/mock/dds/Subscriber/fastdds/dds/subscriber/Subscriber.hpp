@@ -66,7 +66,7 @@ public:
             listener,
             mask,
             payload_pool
-        );
+            );
     }
 
     MOCK_METHOD1(

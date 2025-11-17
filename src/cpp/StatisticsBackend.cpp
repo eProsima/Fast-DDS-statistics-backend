@@ -561,9 +561,9 @@ void StatisticsBackend::clear_monitor(
 }
 
 void StatisticsBackend::start_topic_spy(
-            EntityId monitor_id,
-            const std::string& topic_name,
-            std::function<void(const std::string& data)> on_data_received)
+        EntityId monitor_id,
+        const std::string& topic_name,
+        std::function<void(const std::string& data)> on_data_received)
 {
     StatisticsBackendData::get_instance()->start_topic_spy(monitor_id, topic_name, on_data_received);
 }

@@ -43,8 +43,8 @@ using namespace eprosima::fastdds::dds;
 UserDataReaderListener::UserDataReaderListener(
         std::function<void(const std::string& data)> on_data_received,
         UserDataContext* ctx) noexcept
-    : on_data_received_(on_data_received),
-      ctx_(ctx)
+    : on_data_received_(on_data_received)
+    , ctx_(ctx)
 {
 }
 
