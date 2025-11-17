@@ -36,7 +36,8 @@
 using namespace eprosima::statistics_backend;
 using namespace eprosima::statistics_backend::database;
 
-class statistics_backend_spy_tests : public ::testing::TestWithParam<std::tuple<EntityKind, size_t, std::vector<size_t>>>
+class statistics_backend_spy_tests : public ::testing::TestWithParam<std::tuple<EntityKind, size_t,
+            std::vector<size_t>>>
 {
 public:
 

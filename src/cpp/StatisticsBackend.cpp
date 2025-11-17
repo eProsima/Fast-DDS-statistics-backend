@@ -259,9 +259,11 @@ EntityId create_and_register_monitor(
             EPROSIMA_BACKEND_MAKE_SCOPE_EXIT(
         DomainParticipantFactory::get_instance()->delete_participant(monitor->participant));
 
+    SubscriberQos subscriber_qos = SUBSCRIBER_QOS_DEFAULT;
+    subscriber_qos.partition().push_back("*");
     /* Create Subscriber */
     monitor->subscriber = monitor->participant->create_subscriber(
-        SUBSCRIBER_QOS_DEFAULT,
+        subscriber_qos,
         nullptr,
         StatusMask::none());
 
