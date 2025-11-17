@@ -122,6 +122,7 @@ fastdds::dds::DynamicType::_ref_type UserDataContext::get_type_from_type_name_nt
         return nullptr;
     }
 
+    // Check if "type_name" type exists
     auto it = discovered_user_data_types_.find(type_name);
     if (it != discovered_user_data_types_.end())
     {
