@@ -159,7 +159,6 @@ void StatisticsParticipantListener::on_data_writer_discovery(
 
     // Build the discovery info for the queue
     EntityDiscoveryInfo discovery_info = get_discovery_info(domain_id_, info, reason, DiscoverySource::DISCOVERY);
-
     entity_queue_->push(timestamp, discovery_info);
 
     // Wait until the entity queue is processed and restart the data queues

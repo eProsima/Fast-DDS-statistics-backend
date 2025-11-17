@@ -54,6 +54,12 @@ public:
 
 protected:
 
+    /**
+     * @brief Converts the data contained in the DynamicData object into a JSON like string
+     * @param [in] data The DynamicData object containing the user data
+     * @param [in] type The DynamicType of the DynamicData object
+     * @return The serialized user data as a string
+     */
     std::string serialize_user_data(
             fastdds::dds::DynamicData::_ref_type data,
             fastdds::dds::DynamicType::_ref_type type) const;

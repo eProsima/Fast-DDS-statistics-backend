@@ -99,6 +99,7 @@ fastdds::dds::DynamicType::_ref_type UserDataContext::get_type_from_topic_name_n
         return nullptr;
     }
 
+    // Check if "topic_name" exists
     auto it = discovered_topics_.find(topic_name);
     if (it != discovered_topics_.end())
     {

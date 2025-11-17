@@ -107,10 +107,20 @@ public:
 
 protected:
 
+    /**
+     * @brief Update the user data context with the information contained in the discovered entity
+     * @param [in] reason The discovery reason.
+     * @param [in] info   The discovered publisher information.
+     */
     void update_user_data_context(
             fastdds::rtps::WriterDiscoveryStatus reason,
             const fastdds::dds::PublicationBuiltinTopicData& info);
 
+    /**
+     * @brief Update the user data context with the information contained in the discovered entity
+     * @param [in] reason The discovery reason.
+     * @param [in] info   The discovered subscriber information.
+     */
     void update_user_data_context(
             fastdds::rtps::ReaderDiscoveryStatus reason,
             const fastdds::rtps::SubscriptionBuiltinTopicData& info);
