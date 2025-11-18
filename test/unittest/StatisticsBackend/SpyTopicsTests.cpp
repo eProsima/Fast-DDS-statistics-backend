@@ -212,7 +212,7 @@ TEST_F(spy_topics_tests, no_callback_called_if_no_write)
                     }
 
                 }
-                catch (const std::exception& e)
+                catch (const std::exception& /*e*/)
                 {
                     // Exceptions are ignored to avoid breaking the topic spy
 
@@ -256,7 +256,7 @@ TEST_F(spy_topics_tests, spy_simple_message)
 
                     reception_cv.notify_one();
                 }
-                catch (const std::exception& e)
+                catch (const std::exception& /*e*/)
                 {
                     // Exceptions are ignored to avoid breaking the topic spy
 
@@ -313,7 +313,7 @@ TEST_F(spy_topics_tests, second_spy_on_topic_ignored)
                     }
 
                 }
-                catch (const std::exception& e)
+                catch (const std::exception& /*e*/)
                 {
                     // Exceptions are ignored to avoid breaking the topic spy
 
@@ -333,7 +333,7 @@ TEST_F(spy_topics_tests, second_spy_on_topic_ignored)
                     }
 
                 }
-                catch (const std::exception& e)
+                catch (const std::exception& /*e*/)
                 {
                     // Exceptions are ignored to avoid breaking the topic spy
 
