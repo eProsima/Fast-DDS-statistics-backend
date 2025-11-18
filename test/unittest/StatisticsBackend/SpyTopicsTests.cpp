@@ -220,7 +220,7 @@ TEST_F(spy_topics_tests, no_callback_called_if_no_write)
             });
 
 
-    // Give some time for the monito to set up everything
+    // Give some time for the monitor to set up everything
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
     // Validate no callback was called
@@ -264,7 +264,7 @@ TEST_F(spy_topics_tests, spy_simple_message)
             });
 
 
-    // Give some time for the monito to set up everything
+    // Give some time for the monitor to set up everything
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
     // Write data
@@ -340,7 +340,7 @@ TEST_F(spy_topics_tests, second_spy_on_topic_ignored)
                 }
             });
 
-    // Give some time for the monito to set up everything
+    // Give some time for the monitor to set up everything
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
     writer.write(5, "Hello World");
