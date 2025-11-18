@@ -20,7 +20,16 @@
 #include <gtest_aux.hpp>
 #include <gtest/gtest.h>
 
+#include <fastdds/dds/publisher/DataWriter.hpp>
+#include <fastdds/dds/publisher/DataWriterListener.hpp>
 #include <fastdds/dds/domain/DomainParticipantFactory.hpp>
+#include <fastdds/dds/domain/DomainParticipant.hpp>
+#include <fastdds/dds/publisher/Publisher.hpp>
+#include <fastdds/dds/topic/Topic.hpp>
+#include <fastdds/dds/xtypes/dynamic_types/DynamicData.hpp>
+#include <fastdds/dds/xtypes/dynamic_types/DynamicDataFactory.hpp>
+#include <fastdds/dds/xtypes/dynamic_types/DynamicTypeBuilder.hpp>
+#include <fastdds/dds/xtypes/dynamic_types/DynamicTypeBuilderFactory.hpp>
 
 #include <StatisticsBackend.hpp>
 #include <StatisticsBackendData.hpp>
@@ -33,10 +42,131 @@
 #include <database/database.hpp>
 #include <DatabaseUtils.hpp>
 
+using namespace eprosima::fastdds::dds;
 using namespace eprosima::statistics_backend;
-using namespace eprosima::statistics_backend::database;
 
-class statistics_backend_spy_tests : public ::testing::TestWithParam<std::tuple<EntityKind, size_t,
+using DomainParticipantFactory = eprosima::fastdds::dds::DomainParticipantFactory;
+using DomainParticipant = eprosima::fastdds::dds::DomainParticipant;
+using Publisher = eprosima::fastdds::dds::Publisher;
+using Topic = eprosima::fastdds::dds::Topic;
+using DataWriter = eprosima::fastdds::dds::DataWriter;
+using TopicDataType = eprosima::fastdds::dds::TopicDataType;
+using TypeSupport = eprosima::fastdds::dds::TypeSupport;
+
+class WriterHelper : public eprosima::fastdds::dds::DataWriterListener
+{
+public:
+
+    WriterHelper()
+    {
+        // Creates a publisher in the given domain with a topic with the given name
+        // and waits until the monitor discovers it
+        participant_ =
+                DomainParticipantFactory::get_instance()->create_participant(0, PARTICIPANT_QOS_DEFAULT);
+        if (nullptr == participant_)
+        {
+            // Error
+            return;
+        }
+
+        publisher_ = participant_->create_publisher(PUBLISHER_QOS_DEFAULT);
+        if (nullptr == publisher_)
+        {
+            // Error
+            return;
+        }
+
+        auto type_builder =
+                DynamicTypeBuilderFactory::get_instance()->create_type_w_uri(
+            "../../types/UserData/FooType.idl",
+            "FooType",
+            {});
+
+        dyn_type_ = type_builder->build();
+        dyn_ts_ = TypeSupport(new DynamicPubSubType(dyn_type_));
+        participant_->register_type(dyn_ts_);
+
+        topic_name_ = "FooTopic";
+        topic_ = participant_->create_topic(
+            topic_name_,
+            "FooType",
+            TOPIC_QOS_DEFAULT);
+        if (!topic_)
+        {
+            throw std::runtime_error("Error creating topic");
+        }
+
+        writer_ = publisher_->create_datawriter(topic_, eprosima::fastdds::dds::DATAWRITER_QOS_DEFAULT,
+                        this);
+        if (!writer_)
+        {
+            throw std::runtime_error("Error creating writer");
+        }
+
+    }
+
+    // Listener callback
+    void on_publication_matched(
+            eprosima::fastdds::dds::DataWriter* /*writer*/,
+            const PublicationMatchedStatus& info) override
+    {
+        if (info.current_count_change > 0)
+        {
+            matched_ = true;
+        }
+        else
+        {
+            matched_ = false;
+        }
+    }
+
+    // Write method for a simple string message
+    void write(
+            long num,
+            const std::string& message)
+    {
+        DynamicData::_ref_type data = DynamicDataFactory::get_instance()->create_data(dyn_type_);
+        data->set_int32_value(0, num);
+        data->set_string_value(1, message);
+        writer_->write(&data);
+    }
+
+    // Cleanup
+    ~WriterHelper()
+    {
+        if (publisher_ && writer_)
+        {
+            publisher_->delete_datawriter(writer_);
+        }
+
+        if (participant_ && topic_)
+        {
+            participant_->delete_topic(topic_);
+        }
+
+        if (participant_ && publisher_)
+        {
+            participant_->delete_publisher(publisher_);
+        }
+
+        if (participant_)
+        {
+            DomainParticipantFactory::get_instance()->delete_participant(participant_);
+        }
+    }
+
+    eprosima::fastdds::dds::DomainParticipant* participant_;
+    Publisher* publisher_;
+    eprosima::fastdds::dds::DataWriter* writer_;
+    eprosima::fastdds::dds::Topic* topic_;
+    std::string topic_name_;
+    TypeSupport dyn_ts_;
+    eprosima::fastdds::dds::DynamicType::_ref_type dyn_type_;
+    bool matched_ = false;
+};
+
+
+class spy_topics_tests : public ::testing::TestWithParam<std::tuple<EntityKind, size_t,
             std::vector<size_t>>>
 {
 public:
@@ -45,166 +175,204 @@ public:
 
     void SetUp()
     {
-        db = new DataBaseTest;
-        entities = PopulateDatabase::populate_database(*db);
+        // Setting up the monitor
+        monitor_id_ = StatisticsBackend::init_monitor(
+            0,
+            nullptr,
+            CallbackMask::none(),
+            DataKindMask::all(),
+            "test_monitor",
+            "metadata");
     }
 
     void TearDown()
     {
-        if (!StatisticsBackendTest::unset_database())
-        {
-            delete db;
-        }
+        StatisticsBackend::stop_monitor(monitor_id_);
     }
 
-    DataBaseTest* db;
-    std::map<TestId, std::shared_ptr<const Entity>> entities;
+    EntityId monitor_id_;
 };
 
-
-// Check the get_info StatisticsBackend method
-TEST_F(statistics_backend_spy_tests, spy_check_datareader_creation)
+TEST_F(spy_topics_tests, no_callback_called_if_no_write)
 {
-    StatisticsBackendTest::set_database(db);
+    // Create a publisher with a topic
+    WriterHelper writer;
+    std::mutex reception_mutex;
+    bool data_received = false;
 
-    ASSERT_ANY_THROW(StatisticsBackendTest::get_info(entities[0]->id));
 
-    // Erase invalid entity
-    entities.erase(0);
+    StatisticsBackend::start_topic_spy(monitor_id_, writer.topic_name_,
+            [&](const std::string& /*data*/)
+            {
+                try
+                {
+                    {
+                        std::lock_guard<std::mutex> lock(reception_mutex);
+                        data_received = true;
+                    }
 
-    for (auto pair : entities)
+                }
+                catch (const std::exception& e)
+                {
+                    // Exceptions are ignored to avoid breaking the topic spy
+
+                }
+            });
+
+
+    // Give some time for the monito to set up everything
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+    // Validate no callback was called
     {
-        std::shared_ptr<const Entity> entity = pair.second;
-        Info info = StatisticsBackendTest::get_info(entity->id);
-
-        // Check generic info
-        // Once the info is checked, it is erased so the final check is confirm that the info is empty (there is no
-        // more information than the expected)
-        EXPECT_EQ(entity->id, EntityId(info[ID_TAG]));
-        info.erase(ID_TAG);
-        EXPECT_EQ(entity_kind_str[(int)entity->kind], info[KIND_TAG]);
-        info.erase(KIND_TAG);
-        EXPECT_EQ(entity->name, info[NAME_TAG]);
-        info.erase(NAME_TAG);
-        EXPECT_EQ(entity->alias, info[ALIAS_TAG]);
-        info.erase(ALIAS_TAG);
-        EXPECT_EQ(entity->active, info[ALIVE_TAG]);
-        info.erase(ALIVE_TAG);
-        EXPECT_EQ(entity->metatraffic, info[METATRAFFIC_TAG]);
-        info.erase(METATRAFFIC_TAG);
-        EXPECT_EQ(discovery_source_str[(int)entity->discovery_source], info[DISCOVERY_SOURCE_TAG]);
-        info.erase(DISCOVERY_SOURCE_TAG);
-        EXPECT_EQ(status_level_str[(int)entity->status], info[STATUS_TAG]);
-        info.erase(STATUS_TAG);
-
-        // Check specific info
-        switch (entity->kind)
-        {
-            case EntityKind::PROCESS:
-            {
-                std::shared_ptr<const Process> process =
-                        std::dynamic_pointer_cast<const Process>(entity);
-                EXPECT_EQ(process->pid, info[PID_TAG]);
-                info.erase(PID_TAG);
-                break;
-            }
-            case EntityKind::TOPIC:
-            {
-                std::shared_ptr<const Topic> topic =
-                        std::dynamic_pointer_cast<const Topic>(entity);
-                EXPECT_EQ(topic->data_type, info[DATA_TYPE_TAG]);
-                info.erase(DATA_TYPE_TAG);
-                break;
-            }
-            case EntityKind::PARTICIPANT:
-            {
-                std::shared_ptr<const DomainParticipant> participant =
-                        std::dynamic_pointer_cast<const DomainParticipant>(entity);
-                EXPECT_EQ(participant->guid, info[GUID_TAG]);
-                info.erase(GUID_TAG);
-                EXPECT_EQ(participant->qos, info[QOS_TAG]);
-                info.erase(QOS_TAG);
-                EXPECT_EQ(app_id_str[(int)participant->app_id], info[APP_ID_TAG]);
-                info.erase(APP_ID_TAG);
-                EXPECT_EQ(participant->app_metadata, info[APP_METADATA_TAG]);
-                info.erase(APP_METADATA_TAG);
-                EXPECT_EQ(participant->dds_vendor, info[DDS_VENDOR_TAG]);
-                info.erase(DDS_VENDOR_TAG);
-                EXPECT_EQ(participant->original_domain, info[ORIGINAL_DOMAIN_TAG]);
-                info.erase(ORIGINAL_DOMAIN_TAG);
-
-                // Obtain the locators list associated to the participant's endpoints
-                std::vector<std::string> locators;
-                for (auto reader : participant->data_readers)
-                {
-                    for (auto locator : reader.second.get()->locators)
-                    {
-                        locators.push_back(locator.second.get()->name);
-                    }
-                }
-                for (auto writer : participant->data_writers)
-                {
-                    for (auto locator : writer.second.get()->locators)
-                    {
-                        locators.push_back(locator.second.get()->name);
-                    }
-                }
-                // Remove duplicates
-                auto last = std::unique(locators.begin(), locators.end(), [](
-                                    const std::string& first,
-                                    const std::string& second)
-                                {
-                                    return first.compare(second) == 0;
-                                });
-                locators.erase(last, locators.end());
-
-                // Check that every locator is included in the Info object
-                for (auto locator_name : locators)
-                {
-                    auto locator_it = std::find(info[LOCATOR_CONTAINER_TAG].begin(),
-                                    info[LOCATOR_CONTAINER_TAG].end(), locator_name);
-                    ASSERT_NE(locator_it, info[LOCATOR_CONTAINER_TAG].end());
-                    info[LOCATOR_CONTAINER_TAG].erase(locator_it);
-                }
-                EXPECT_TRUE(info[LOCATOR_CONTAINER_TAG].empty());
-                info.erase(LOCATOR_CONTAINER_TAG);
-                break;
-            }
-            case EntityKind::DOMAIN:
-            {
-                std::shared_ptr<const Domain> domain =
-                        std::dynamic_pointer_cast<const Domain>(entity);
-                EXPECT_EQ(domain->domain_id, info[DOMAIN_ID_TAG]);
-                info.erase(DOMAIN_ID_TAG);
-                break;
-            }
-            case EntityKind::DATAWRITER:
-            case EntityKind::DATAREADER:
-            {
-                std::shared_ptr<const DDSEntity> dds_entity =
-                        std::dynamic_pointer_cast<const DDSEntity>(entity);
-                EXPECT_EQ(dds_entity->guid, info[GUID_TAG]);
-                info.erase(GUID_TAG);
-                EXPECT_EQ(dds_entity->qos, info[QOS_TAG]);
-                info.erase(QOS_TAG);
-                EXPECT_EQ(app_id_str[(int)dds_entity->app_id], info[APP_ID_TAG]);
-                info.erase(APP_ID_TAG);
-                EXPECT_EQ(dds_entity->app_metadata, info[APP_METADATA_TAG]);
-                info.erase(APP_METADATA_TAG);
-                EXPECT_EQ(dds_entity->dds_vendor, info[DDS_VENDOR_TAG]);
-                info.erase(DDS_VENDOR_TAG);
-                break;
-            }
-            default:
-            {
-                break;
-            }
-        }
-        EXPECT_TRUE(info.empty());
+        std::lock_guard<std::mutex> lock(reception_mutex);
+        EXPECT_EQ(data_received, false);
     }
+
+    // Cleanup
+    StatisticsBackend::stop_topic_spy(monitor_id_, writer.topic_name_);
 }
 
-TEST_F(statistics_backend_tests, spy_check_datareader_creation)
+TEST_F(spy_topics_tests, spy_simple_message)
 {
+    // Create a publisher with a topic
+    WriterHelper writer;
+    std::mutex reception_mutex;
+    bool data_received = false;
+    std::condition_variable reception_cv;
+    std::string incoming_data;
 
+
+    StatisticsBackend::start_topic_spy(monitor_id_, writer.topic_name_,
+            [&](const std::string& data)
+            {
+                try
+                {
+                    {
+                        std::lock_guard<std::mutex> lock(reception_mutex);
+                        incoming_data = data;
+                        data_received = true;
+                    }
+
+                    reception_cv.notify_one();
+                }
+                catch (const std::exception& e)
+                {
+                    // Exceptions are ignored to avoid breaking the topic spy
+
+                }
+            });
+
+
+    // Give some time for the monito to set up everything
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+    // Write data
+    std::string expected_json = R"({"msg":"Hello World","num":5})";
+    writer.write(5, "Hello World");
+
+    // Wait for the callback to process some data
+    {
+        std::unique_lock<std::mutex> lock(reception_mutex);
+        reception_cv.wait_for(lock, std::chrono::seconds(2), [&]
+                {
+                    return data_received;
+                });
+    }
+
+    auto clean_string = [](std::string s)
+            {
+                s.erase(std::remove_if(s.begin(), s.end(), ::isspace), s.end());
+                return s;
+            };
+
+    // Validate received JSON
+    ASSERT_EQ(clean_string(incoming_data), clean_string(expected_json));
+
+    // Cleanup
+    StatisticsBackend::stop_topic_spy(monitor_id_, writer.topic_name_);
+}
+
+
+TEST_F(spy_topics_tests, second_spy_on_topic_ignored)
+{
+    // Create a publisher with a topic
+    WriterHelper writer;
+    std::mutex reception_mutex;
+    bool data_received = false;
+    bool data_received_2 = false;
+
+    StatisticsBackend::start_topic_spy(monitor_id_, writer.topic_name_,
+            [&](const std::string& /*data*/)
+            {
+                try
+                {
+                    {
+                        std::lock_guard<std::mutex> lock(reception_mutex);
+                        data_received = true;
+                    }
+
+                }
+                catch (const std::exception& e)
+                {
+                    // Exceptions are ignored to avoid breaking the topic spy
+
+                }
+            });
+
+
+    // Second call, should be ignored
+    StatisticsBackend::start_topic_spy(monitor_id_, writer.topic_name_,
+            [&](const std::string& /*data*/)
+            {
+                try
+                {
+                    {
+                        std::lock_guard<std::mutex> lock(reception_mutex);
+                        data_received_2 = true;
+                    }
+
+                }
+                catch (const std::exception& e)
+                {
+                    // Exceptions are ignored to avoid breaking the topic spy
+
+                }
+            });
+
+    // Give some time for the monito to set up everything
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+    writer.write(5, "Hello World");
+
+    // Validate no callback was called
+    {
+        std::lock_guard<std::mutex> lock(reception_mutex);
+        EXPECT_EQ(data_received, true);
+        EXPECT_EQ(data_received_2, false);
+    }
+
+    // Cleanup
+    StatisticsBackend::stop_topic_spy(monitor_id_, writer.topic_name_);
+}
+
+
+TEST_F(spy_topics_tests, exception_with_unknown_topic)
+{
+    // Create a publisher with a topic
+    EXPECT_THROW(
+        StatisticsBackend::start_topic_spy(monitor_id_, "unknown_topic_name",
+        [&](const std::string& /*data*/)
+        {
+            // No need to have content here
+        });
+        , Error);
+}
+
+int main(
+        int argc,
+        char** argv)
+{
+    ::testing::InitGoogleTest(&argc, argv);
+    return RUN_ALL_TESTS();
 }

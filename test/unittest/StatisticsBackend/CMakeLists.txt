@@ -1052,3 +1052,70 @@ if(GTEST_FOUND AND GMOCK_FOUND)
         endif(TEST_FRIENDLY_PATH)
     endforeach()
 endif()
+
+# spy_topics_tests
+##################################################################
+
+if(GTEST_FOUND AND GMOCK_FOUND)
+
+    add_executable(spy_topics_tests SpyTopicsTests.cpp
+        ${PROJECT_SOURCE_DIR}/src/cpp/database/data.cpp
+        ${PROJECT_SOURCE_DIR}/src/cpp/database/database_queue.cpp
+        ${PROJECT_SOURCE_DIR}/src/cpp/database/database.cpp
+        ${PROJECT_SOURCE_DIR}/src/cpp/database/entities.cpp
+        ${PROJECT_SOURCE_DIR}/src/cpp/database/samples.cpp
+        ${PROJECT_SOURCE_DIR}/src/cpp/exception/Exception.cpp
+        ${PROJECT_SOURCE_DIR}/src/cpp/StatisticsBackend.cpp
+        ${PROJECT_SOURCE_DIR}/src/cpp/StatisticsBackendData.cpp
+        ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/QosSerializer.cpp
+        ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/ProxyDiscoveryInfo.cpp
+        ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/UserDataContext.cpp
+        ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsParticipantListener.cpp
+        ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/StatisticsReaderListener.cpp
+        ${PROJECT_SOURCE_DIR}/src/cpp/subscriber/UserDataReaderListener.cpp
+        ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesTypeObjectSupport.cxx
+        ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesPubSubTypes.cxx
+        ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/typesPubSubTypes.cxx
+        ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/typesTypeObjectSupport.cxx
+        ${PROJECT_SOURCE_DIR}/src/cpp/types/EntityId.cpp
+        ${PROJECT_SOURCE_DIR}/src/cpp/types/types.cpp
+)
+
+    if(MSVC)
+        target_compile_definitions(spy_topics_tests
+            PRIVATE _CRT_DECLARE_NONSTDC_NAMES=0 FASTDDS_STATISTICS_BACKEND_SOURCE)
+    endif(MSVC)
+
+    target_include_directories(spy_topics_tests PRIVATE
+        ${GTEST_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIRS}
+        ${PROJECT_SOURCE_DIR}/test/unittest/TestUtils
+        ${PROJECT_SOURCE_DIR}/include
+        ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}
+        ${PROJECT_BINARY_DIR}/include
+        ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME}
+        ${PROJECT_SOURCE_DIR}/src/cpp
+        ${TINYXML2_INCLUDE_DIR})
+
+    target_link_libraries(spy_topics_tests PUBLIC
+        ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} fastdds fastcdr ${TINYXML2_LIBRARY})
+
+    get_win32_path_dependencies(spy_topics_tests TEST_FRIENDLY_PATH)
+
+    # Add all tests manually here
+    set(IS_ACTIVE_TEST_LIST
+        exception_with_unknown_topic
+        no_callback_called_if_no_write
+        spy_simple_message
+        second_spy_on_topic_ignored
+    )
+
+    foreach(test_name ${IS_ACTIVE_TEST_LIST})
+        add_test(NAME spy_topics_tests.${test_name}
+                COMMAND spy_topics_tests
+                --gtest_filter=spy_topics_tests.${test_name}:*/spy_topics_tests.${test_name}/*)
+
+        if(TEST_FRIENDLY_PATH)
+            set_tests_properties(spy_topics_tests.${test_name} PROPERTIES ENVIRONMENT "PATH=${TEST_FRIENDLY_PATH}")
+        endif(TEST_FRIENDLY_PATH)
+    endforeach()
+endif()
