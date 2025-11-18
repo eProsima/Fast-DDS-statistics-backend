@@ -6,4 +6,4 @@ Full example
 Next steps
 """"""""""
 You may find this example at the *eProsima Fast DDS Statistics Backend* Github repository, by following
-`this <https://github.com/eProsima/Fast-DDS-statistics-backend/tree/main/examples/cpp/HelloWorldExample>`_ link.
+`this <https://github.com/eProsima/Fast-DDS-statistics-backend/tree/v2.4.0/examples/cpp/HelloWorldExample>`_ link.
