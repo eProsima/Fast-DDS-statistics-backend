@@ -34,7 +34,7 @@
 
 #include "database/database_queue.hpp"
 #include "subscriber/QosSerializer.hpp"
-
+#include "UserDataContext.hpp"
 
 namespace eprosima {
 namespace statistics_backend {
@@ -68,7 +68,8 @@ StatisticsParticipantListener::StatisticsParticipantListener(
         database::Database* database,
         database::DatabaseEntityQueue* entity_queue,
         database::DatabaseDataQueue<eprosima::fastdds::statistics::Data>* data_queue,
-        database::DatabaseDataQueue<database::ExtendedMonitorServiceStatusData>* monitor_service_data_queue)
+        database::DatabaseDataQueue<database::ExtendedMonitorServiceStatusData>* monitor_service_data_queue,
+        UserDataContext* ctx)
 noexcept
     : DomainParticipantListener()
     , domain_id_(domain_id)
@@ -76,6 +77,7 @@ noexcept
     , entity_queue_(entity_queue)
     , data_queue_(data_queue)
     , monitor_service_status_data_queue_(monitor_service_data_queue)
+    , ctx_(ctx)
 {
 }
 
@@ -122,6 +124,10 @@ void StatisticsParticipantListener::on_data_reader_discovery(
     }
 
     std::chrono::system_clock::time_point timestamp = now();
+
+    // Update user data context with the discovery info
+    update_user_data_context(reason, info);
+
     // Build the discovery info for the queue
     EntityDiscoveryInfo discovery_info = get_discovery_info(domain_id_, info, reason, DiscoverySource::DISCOVERY);
     entity_queue_->push(timestamp, discovery_info);
@@ -147,6 +153,10 @@ void StatisticsParticipantListener::on_data_writer_discovery(
     monitor_service_status_data_queue_->stop_consumer();
 
     std::chrono::system_clock::time_point timestamp = now();
+
+    // Update user data context with the discovery info
+    update_user_data_context(reason, info);
+
     // Build the discovery info for the queue
     EntityDiscoveryInfo discovery_info = get_discovery_info(domain_id_, info, reason, DiscoverySource::DISCOVERY);
     entity_queue_->push(timestamp, discovery_info);
@@ -155,6 +165,56 @@ void StatisticsParticipantListener::on_data_writer_discovery(
     entity_queue_->flush();
     data_queue_->start_consumer();
     monitor_service_status_data_queue_->start_consumer();
+}
+
+void StatisticsParticipantListener::update_user_data_context(
+        WriterDiscoveryStatus reason,
+        const PublicationBuiltinTopicData& info)
+{
+    if (WriterDiscoveryStatus::DISCOVERED_WRITER == reason && info.type_information.assigned() == true)
+    {
+        xtypes::TypeObject remote_type_object;
+        if (RETCODE_OK != DomainParticipantFactory::get_instance()->type_object_registry().get_type_object(
+                    info.type_information.type_information.complete().typeid_with_size().type_id(),
+                    remote_type_object))
+        {
+            EPROSIMA_LOG_ERROR(STATISTICS_PARTICIPANT_LISTENER,
+                    "Error getting type object for type " << info.type_name);
+            return;
+        }
+
+        // Build remotely discovered type
+        DynamicType::_ref_type remote_type = DynamicTypeBuilderFactory::get_instance()->create_type_w_type_object(
+            remote_type_object)->build();
+
+        // Add the topic to the discovered topics if not already present
+        ctx_->register_user_data_topic(info.topic_name.to_string(), remote_type);
+    }
+}
+
+void StatisticsParticipantListener::update_user_data_context(
+        ReaderDiscoveryStatus reason,
+        const SubscriptionBuiltinTopicData& info)
+{
+    if (ReaderDiscoveryStatus::DISCOVERED_READER == reason && info.type_information.assigned() == true)
+    {
+        xtypes::TypeObject remote_type_object;
+        if (RETCODE_OK != DomainParticipantFactory::get_instance()->type_object_registry().get_type_object(
+                    info.type_information.type_information.complete().typeid_with_size().type_id(),
+                    remote_type_object))
+        {
+            EPROSIMA_LOG_ERROR(STATISTICS_PARTICIPANT_LISTENER,
+                    "Error getting type object for type " << info.type_name);
+            return;
+        }
+
+        // Build remotely discovered type
+        DynamicType::_ref_type remote_type = DynamicTypeBuilderFactory::get_instance()->create_type_w_type_object(
+            remote_type_object)->build();
+
+        // Add the topic to the discovered topics if not already present
+        ctx_->register_user_data_topic(info.topic_name.to_string(), remote_type);
+    }
 }
 
 } //namespace database

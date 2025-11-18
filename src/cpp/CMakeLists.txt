@@ -35,6 +35,8 @@ set(${PROJECT_NAME}_SOURCES
     subscriber/ProxyDiscoveryInfo.cpp
     subscriber/StatisticsParticipantListener.cpp
     subscriber/StatisticsReaderListener.cpp
+    subscriber/UserDataContext.cpp
+    subscriber/UserDataReaderListener.cpp
     ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesPubSubTypes.cxx
     ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/monitorservice_typesTypeObjectSupport.cxx
     ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/topic_types/typesPubSubTypes.cxx

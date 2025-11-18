@@ -27,28 +27,47 @@
 #include <fastdds/dds/core/status/StatusMask.hpp>
 #include <fastdds/dds/domain/DomainParticipant.hpp>
 #include <fastdds/dds/subscriber/qos/DataReaderQos.hpp>
+#include <fastdds/rtps/history/IPayloadPool.hpp>
+
 namespace eprosima {
 namespace fastdds {
 namespace dds {
 
 class DataReaderListener;
 class DataReader;
-class Topic;
+class TopicDescription;
 
 class Subscriber
 {
 
 public:
 
-    MOCK_METHOD4(
-        create_datareader,
+    MOCK_METHOD5(
+        create_datareader_mock_method,
         DataReader *
         (
-            Topic * topic,
+            TopicDescription * topic,
             const DataReaderQos& qos,
             DataReaderListener * listener,
-            const StatusMask& mask
+            const StatusMask& mask,
+            std::shared_ptr<fastdds::rtps::IPayloadPool> payload_pool
         ));
+
+    DataReader* create_datareader(
+            TopicDescription* topic,
+            const DataReaderQos& reader_qos,
+            DataReaderListener* listener = nullptr,
+            const StatusMask& mask = StatusMask::all(),
+            std::shared_ptr<fastdds::rtps::IPayloadPool> payload_pool = nullptr)
+    {
+        return create_datareader_mock_method(
+            topic,
+            reader_qos,
+            listener,
+            mask,
+            payload_pool
+            );
+    }
 
     MOCK_METHOD1(
         delete_datareader,

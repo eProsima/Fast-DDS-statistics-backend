@@ -28,8 +28,9 @@
 #include <database/entities.hpp>
 
 #include <fastdds_statistics_backend/topic_types/monitorservice_types.hpp>
-
 #include <fastdds_statistics_backend/types/app_names.h>
+
+#include "UserDataContext.hpp"
 
 namespace eprosima {
 namespace statistics_backend {
@@ -61,7 +62,8 @@ public:
             database::Database* database,
             database::DatabaseEntityQueue* entity_queue,
             database::DatabaseDataQueue<eprosima::fastdds::statistics::Data>* data_queue,
-            database::DatabaseDataQueue<database::ExtendedMonitorServiceStatusData>* monitor_service_data_queue)
+            database::DatabaseDataQueue<database::ExtendedMonitorServiceStatusData>* monitor_service_data_queue,
+            UserDataContext* ctx)
     noexcept;
 
     /*!
@@ -105,12 +107,31 @@ public:
 
 protected:
 
+    /**
+     * @brief Update the user data context with the information contained in the discovered entity
+     * @param [in] reason The discovery reason.
+     * @param [in] info   The discovered publisher information.
+     */
+    void update_user_data_context(
+            fastdds::rtps::WriterDiscoveryStatus reason,
+            const fastdds::dds::PublicationBuiltinTopicData& info);
+
+    /**
+     * @brief Update the user data context with the information contained in the discovered entity
+     * @param [in] reason The discovery reason.
+     * @param [in] info   The discovered subscriber information.
+     */
+    void update_user_data_context(
+            fastdds::rtps::ReaderDiscoveryStatus reason,
+            const fastdds::rtps::SubscriptionBuiltinTopicData& info);
+
     EntityId domain_id_;                                                                                                ///< The DomainId this listener is monitoring
     database::Database* database_;                                                                                      ///< Reference to the statistics database. Injected on construction
     database::DatabaseEntityQueue* entity_queue_;                                                                       ///< Reference to the statistics entity queue. Injected on construction
     database::DatabaseDataQueue<eprosima::fastdds::statistics::Data>* data_queue_;                                      ///< Reference to the statistics data queue. Injected on construction
-    database::DatabaseDataQueue<database::ExtendedMonitorServiceStatusData>*
-            monitor_service_status_data_queue_;                                                                                      ///< Reference to the monitor service status data queue. Injected on construction
+    database::DatabaseDataQueue<database::ExtendedMonitorServiceStatusData>*                                            ///< Reference to the monitor service status data queue. Injected on construction
+            monitor_service_status_data_queue_;
+    UserDataContext* ctx_;                                                                                              ///< Reference to the user data context. Injected on construction
 };
 
 

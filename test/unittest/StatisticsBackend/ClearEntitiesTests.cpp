@@ -18,10 +18,11 @@
 
 #include "fastdds/dds/domain/DomainParticipant.hpp"
 
-#include <database/database.hpp>
 #include <database/database_queue.hpp>
+#include <database/database.hpp>
 #include <DatabaseUtils.hpp>
 #include <subscriber/StatisticsParticipantListener.hpp>
+#include <subscriber/UserDataContext.hpp>
 
 #include <utility>
 
@@ -61,8 +62,9 @@ public:
         entity_queue = new DatabaseEntityQueue(db);
         data_queue = new DatabaseDataQueue<eprosima::fastdds::statistics::Data>(db);
         monitor_service_data_queue = new DatabaseDataQueue<ExtendedMonitorServiceStatusData>(db);
+        user_data_ctx = new UserDataContext();
         participant_listener = new StatisticsParticipantListener(domain->id, db, entity_queue, data_queue,
-                        monitor_service_data_queue);
+                        monitor_service_data_queue, user_data_ctx);
 
         // Simulate that the backend is monitorizing the domain
         std::unique_ptr<details::Monitor> monitor = std::make_unique<details::Monitor>();
@@ -113,6 +115,7 @@ public:
         delete data_queue;
         delete monitor_service_data_queue;
         delete participant_listener;
+        delete user_data_ctx;
 
         if (!StatisticsBackendTest::unset_database())
         {
@@ -142,6 +145,8 @@ public:
     eprosima::fastdds::dds::DomainParticipant statistics_participant;
     // Listener under tests. Will receive a pointer to statistics_participant
     StatisticsParticipantListener* participant_listener = nullptr;
+    // The user data context used by the listener
+    UserDataContext* user_data_ctx = nullptr;
 };
 
 // Windows dll does not export ParticipantProxyData / WriterProxyData class members (private APIs)

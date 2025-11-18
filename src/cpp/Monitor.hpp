@@ -26,6 +26,10 @@
 #include <fastdds_statistics_backend/listener/DomainListener.hpp>
 #include <fastdds_statistics_backend/types/EntityId.hpp>
 
+#include <fastdds/dds/topic/TypeSupport.hpp>
+
+#include "subscriber/UserDataContext.hpp"
+
 namespace eprosima {
 namespace fastdds {
 namespace dds {
@@ -65,23 +69,35 @@ struct Monitor
     //! The participant created to communicate with the statistics reporting endpoints in this monitor
     fastdds::dds::DomainParticipant* participant = nullptr;
 
-    //! The listener linked to the \c participant
+    //! The listener linked to the \c statistics_participant
     //! It will process the entity discoveries
     fastdds::dds::DomainParticipantListener* participant_listener = nullptr;
 
-    //! The participant created to communicate with the statistics reporting publishers in this monitor
+    //! The subscriber created to communicate with other endpoints in this monitor
     fastdds::dds::Subscriber* subscriber = nullptr;
 
     //! Holds the topic object created for each of the statistics topics
-    std::map<std::string, fastdds::dds::Topic*> topics{};
+    std::map<std::string, fastdds::dds::Topic*> statistics_topics{};
 
-    //! Holds the datareader object created for each of the statistics topics
-    std::map<std::string, fastdds::dds::DataReader*> readers{};
+    //! Holds the datareader object created for each statistics topic
+    std::map<std::string, fastdds::dds::DataReader*> statistics_readers{};
 
-    //! The listener linked to the \c readers
-    //! All readers will use the same listener
+    //! The listener linked to the \c statistics readers
+    //! All statistics readers will use the same listener
     //! The listener will decide how to process the data according to the topic of the reader
-    fastdds::dds::DataReaderListener* reader_listener = nullptr;
+    fastdds::dds::DataReaderListener* statistics_reader_listener = nullptr;
+
+    //! Holds the topic object created for each of the user data topics
+    std::map<std::string, fastdds::dds::Topic*> user_data_topics{};
+
+    //! Holds the datareader object created for each user data topic
+    std::map<std::string, fastdds::dds::DataReader*> user_data_readers{};
+
+    //! Holds the datareader listener object created for each user data topic
+    std::map<std::string, fastdds::dds::DataReaderListener*> user_data_listeners{};
+
+    //! Holds the information required to process the user data
+    subscriber::UserDataContext user_data_context;
 
     //! Participant discovery status. Used in the participant discovery user callback
     DomainListener::Status participant_status_{};
