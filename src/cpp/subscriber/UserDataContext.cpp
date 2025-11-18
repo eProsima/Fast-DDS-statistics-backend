@@ -47,13 +47,6 @@ fastdds::dds::DynamicType::_ref_type UserDataContext::get_type_from_topic_name(
     return get_type_from_topic_name_nts(topic_name);
 }
 
-fastdds::dds::DynamicType::_ref_type UserDataContext::get_type_from_type_name(
-        const std::string& type_name)
-{
-    std::lock_guard<std::mutex> lock(mutex_);
-    return get_type_from_type_name_nts(type_name);
-}
-
 void UserDataContext::register_user_data_topic_nts(
         const std::string& topic_name,
         fastdds::dds::DynamicType::_ref_type type)
@@ -108,29 +101,6 @@ fastdds::dds::DynamicType::_ref_type UserDataContext::get_type_from_topic_name_n
 
     EPROSIMA_LOG_WARNING(USER_DATA_CONTEXT,
             "Topic with name '" << topic_name << "' not found");
-
-    return nullptr;
-}
-
-fastdds::dds::DynamicType::_ref_type UserDataContext::get_type_from_type_name_nts(
-        const std::string& type_name)
-{
-    if (type_name.empty())
-    {
-        EPROSIMA_LOG_ERROR(USER_DATA_CONTEXT,
-                "Cannot get type with empty name");
-        return nullptr;
-    }
-
-    // Check if "type_name" type exists
-    auto it = discovered_user_data_types_.find(type_name);
-    if (it != discovered_user_data_types_.end())
-    {
-        return it->second;
-    }
-
-    EPROSIMA_LOG_WARNING(USER_DATA_CONTEXT,
-            "Type with name '" << type_name << "' not found");
 
     return nullptr;
 }

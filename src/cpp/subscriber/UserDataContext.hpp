@@ -56,14 +56,6 @@ public:
     fastdds::dds::DynamicType::_ref_type get_type_from_topic_name(
             const std::string& topic_name);
 
-    /**
-     * Get the dynamic type associated with a type name.
-     * @param type_name Type name.
-     * @return Dynamic type associated with the type name.
-     */
-    fastdds::dds::DynamicType::_ref_type get_type_from_type_name(
-            const std::string& type_name);
-
 protected:
 
     /**
@@ -82,14 +74,6 @@ protected:
      */
     fastdds::dds::DynamicType::_ref_type get_type_from_topic_name_nts(
             const std::string& topic_name);
-
-    /**
-     * Get the dynamic type associated with a type name. Non thread-safe version.
-     * @param type_name Type name.
-     * @return Dynamic type associated with the type name.
-     */
-    fastdds::dds::DynamicType::_ref_type get_type_from_type_name_nts(
-            const std::string& type_name);
 
     // Mutex to protect access to the maps
     std::mutex mutex_;
