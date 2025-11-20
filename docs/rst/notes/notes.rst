@@ -36,7 +36,7 @@ This release includes the following **dependencies update**:
     *   - Fast DDS
         - `eProsima/Fast-DDS <https://github.com/eProsima/Fast-DDS>`__
         - `v3.3.0 <https://github.com/eProsima/Fast-DDS/releases/tag/v3.3.0>`__
-        - `v3.4.0 <https://github.com/eProsima/Fast-DDS/releases/tag/v3.4.0>`__
+        - `v3.4.1 <https://github.com/eProsima/Fast-DDS/releases/tag/v3.4.1>`__
     *   - Fast DDS Gen
         - `eProsima/Fast-DDS-Gen <https://github.com/eProsima/Fast-DDS-Gen>`__
         - `v4.1.0 <https://github.com/eProsima/Fast-DDS-Gen/releases/tag/v4.1.0>`__
