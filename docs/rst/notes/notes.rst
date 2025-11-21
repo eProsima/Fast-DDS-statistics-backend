@@ -1,25 +1,24 @@
 .. _release_notes:
 
-Version 2.3.0
+Version 2.4.0
 #############
 
 This release includes the following **features**:
 
-* Save optional QoS.
-* Support initialize monitors using xml profiles.
+- Greedy discovery mode
+- Spy mode
+- Alerts and notifications
 
 This release includes the following **improvements and bugfixes**:
 
-* Fix backend graph json dump exception.
-* Fix build with tests.
+- Represent domain_id and domain_name separately in Domain Graph
+- Fix flaky tests
+- Add throw of exception when SHM locators are used in discovery server initialization
+- Making system libraries as private in target_link_libraries
 
 This release includes the following **updates**:
 
-* Extend ROS 2 metatraffic topics.
-* Bump setuptools from 70.0.0 to 78.1.1 in /docs.
-* Remove deprecated windows-2019 runner.
-* Update types for Fast DDS Gen v4.1.0 Release.
-* Update GitHub actions according to eProsima-CI v0.37.0.
+- Update types for Fast DDS Gen v4.2.0 Release
 
 This release includes the following **dependencies update**:
 
@@ -33,23 +32,25 @@ This release includes the following **dependencies update**:
     *   - Fast CDR
         - `eProsima/Fast-CDR <https://github.com/eProsima/Fast-CDR>`__
         - `v2.3.0 <https://github.com/eProsima/Fast-CDR/releases/tag/v2.3.0>`__
-        - `v2.3.0 <https://github.com/eProsima/Fast-CDR/releases/tag/v2.3.0>`__
+        - `v2.3.4 <https://github.com/eProsima/Fast-CDR/releases/tag/v2.3.4>`__
     *   - Fast DDS
         - `eProsima/Fast-DDS <https://github.com/eProsima/Fast-DDS>`__
-        - `v3.2.2 <https://github.com/eProsima/Fast-DDS/releases/tag/v3.2.2>`__
         - `v3.3.0 <https://github.com/eProsima/Fast-DDS/releases/tag/v3.3.0>`__
+        - `v3.4.1 <https://github.com/eProsima/Fast-DDS/releases/tag/v3.4.1>`__
     *   - Fast DDS Gen
         - `eProsima/Fast-DDS-Gen <https://github.com/eProsima/Fast-DDS-Gen>`__
-        - `v4.0.4 <https://github.com/eProsima/Fast-DDS-Gen/releases/tag/v4.0.4>`__
         - `v4.1.0 <https://github.com/eProsima/Fast-DDS-Gen/releases/tag/v4.1.0>`__
+        - `v4.2.0 <https://github.com/eProsima/Fast-DDS-Gen/releases/tag/v4.2.0>`__
     *   - IDL Parser
         - `eProsima/IDL-Parser <https://github.com/eProsima/IDL-Parser.git>`__
-        - `v4.0.4 <https://github.com/eProsima/IDL-Parser/releases/tag/v4.0.4>`__
         - `v4.1.0 <https://github.com/eProsima/IDL-Parser/releases/tag/v4.1.0>`__
+        - `v4.2.0 <https://github.com/eProsima/IDL-Parser/releases/tag/v4.2.0>`__
+
 
 Previous versions
 #################
 
+.. include:: previous_versions/v2.3.0.rst
 .. include:: previous_versions/v2.2.0.rst
 .. include:: previous_versions/v2.1.0.rst
 .. include:: previous_versions/v2.0.0.rst

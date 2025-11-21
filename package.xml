@@ -3,13 +3,13 @@
 <package format="3">
   <name>fastdds_statistics_backend</name>
   <!-->There must be a release. Update version accordingly<-->
-  <version>2.3.0</version>
+  <version>2.4.0</version>
   <description>
     C++ library to collect data from eProsima Fast DDS Statistics module and generate statistical information.
   </description>
   <!-->Update maintainer information<-->
   <maintainer email="RaulSanchezMateos@eprosima.com">Raul Sánchez-Mateos</maintainer>
-  <maintainer email="carlosespinoza@eprosima.com">Carlos Espinoza</maintainer>
+  <maintainer email="emiliocuesta@eprosima.com">Emilio Cuesta</maintainer>
   <maintainer email="miguelcompany@eprosima.com">Miguel Company</maintainer>
   <license file="LICENSE">Apache 2.0</license>
 
