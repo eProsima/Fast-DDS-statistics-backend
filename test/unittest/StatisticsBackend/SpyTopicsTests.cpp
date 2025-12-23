@@ -376,10 +376,10 @@ TEST_F(spy_topics_tests, exception_when_spying_statistics_topic)
     try
     {
         StatisticsBackend::start_topic_spy(monitor_id_, statistics_topic_name,
-            [&](const std::string& /*data*/)
-            {
-                // Callback should never be called
-            });
+                [&](const std::string& /*data*/)
+                {
+                    // Callback should never be called
+                });
         // If we reach here, the test should fail
         FAIL() << "Expected Error exception to be thrown";
     }
@@ -405,7 +405,7 @@ TEST_F(spy_topics_tests, can_spy_on_non_statistics_topics)
         {
             // Regular callback
         })
-    );
+        );
     // Cleanup
     StatisticsBackend::stop_topic_spy(monitor_id_, writer.topic_name_);
 }
