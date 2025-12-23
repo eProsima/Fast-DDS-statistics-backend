@@ -636,6 +636,12 @@ void StatisticsBackendData::start_topic_spy(
         return;
     }
 
+    auto stat_topic_it = monitor->statistics_topics.find(topic_name);
+    if (stat_topic_it != monitor->statistics_topics.end())
+    {
+        throw Error("Cannot spy on statistics topics");
+    }
+
     fastdds::dds::Topic* topic = nullptr;
 
     auto topic_it = monitor->user_data_topics.find(topic_name);
