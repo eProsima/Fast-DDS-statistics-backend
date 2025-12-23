@@ -369,6 +369,47 @@ TEST_F(spy_topics_tests, exception_with_unknown_topic)
         , Error);
 }
 
+TEST_F(spy_topics_tests, exception_when_spying_statistics_topic)
+{
+    // A random statistics topic name
+    std::string statistics_topic_name = "_fastdds_statistics_network_latency";
+    try
+    {
+        StatisticsBackend::start_topic_spy(monitor_id_, statistics_topic_name,
+            [&](const std::string& /*data*/)
+            {
+                // Callback should never be called
+            });
+        // If we reach here, the test should fail
+        FAIL() << "Expected Error exception to be thrown";
+    }
+    catch (const Error& e)
+    {
+        // Verify the error message is correct
+        EXPECT_STREQ(e.what(), "Cannot spy on statistics topics");
+    }
+    catch (...)
+    {
+        FAIL() << "Expected Error exception, but different exception was thrown";
+    }
+}
+
+TEST_F(spy_topics_tests, can_spy_on_non_statistics_topics)
+{
+    // Create a regular user topic (not a statistics topic)
+    WriterHelper writer;
+    // This should NOT throw an exception
+    EXPECT_NO_THROW(
+        StatisticsBackend::start_topic_spy(monitor_id_, writer.topic_name_,
+        [&](const std::string& /*data*/)
+        {
+            // Regular callback
+        })
+    );
+    // Cleanup
+    StatisticsBackend::stop_topic_spy(monitor_id_, writer.topic_name_);
+}
+
 int main(
         int argc,
         char** argv)
