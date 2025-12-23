@@ -4782,6 +4782,7 @@ bool update_enabled(
     }
 }
 
+
 bool Database::update_participant_discovery_info_nts(
         const EntityId& participant_id,
         const std::string& host,

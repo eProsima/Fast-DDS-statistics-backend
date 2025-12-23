@@ -64,9 +64,9 @@ template<typename T>
 bool StatisticsReaderListener::get_available_data(
         eprosima::fastdds::dds::DataReader* reader,
         T& inner_data,
+        eprosima::fastdds::dds::SampleInfo& info,
         std::chrono::system_clock::time_point& timestamp)
 {
-    SampleInfo info;
     if (reader->take_next_sample(&inner_data, &info) == RETCODE_OK)
     {
         if (!info.valid_data)
@@ -194,16 +194,17 @@ void StatisticsReaderListener::on_data_available(
 
     bool enqueue = false;
 
+    eprosima::fastdds::dds::SampleInfo info;
     if (MONITOR_SERVICE_TOPIC == topic_name)
     {
         MonitorServiceStatusData inner_data;
-        if (get_available_data(reader, inner_data, timestamp))
+        if (get_available_data(reader, inner_data, info, timestamp))
         {
             enqueue = true;
         }
         if (!enqueue)
         {
-            // Nothing to push to queue
+            // Nothing to push to statistics queue
             return;
         }
 
@@ -212,21 +213,34 @@ void StatisticsReaderListener::on_data_available(
 
         monitor_service_status_data->data = inner_data;
 
-        // Deserialize optional QoS information for proxy samples
-        if (fastdds::statistics::StatusKind::PROXY == inner_data.status_kind())
+        if (info.instance_state == ALIVE_INSTANCE_STATE)
         {
-            database::Qos qos;
-            auto participant = eprosima::fastdds::statistics::dds::DomainParticipant::narrow(
-                reader->get_subscriber()->get_participant());
-
-            if (!deserialize_proxy_data(
-                        const_cast<eprosima::fastdds::statistics::dds::DomainParticipant*>(participant),
-                        inner_data,
-                        *monitor_service_status_data))
+            // Deserialize optional QoS information for proxy samples
+            if (fastdds::statistics::StatusKind::PROXY == inner_data.status_kind())
             {
-                EPROSIMA_LOG_ERROR(STATISTICSREADERLISTENER,
-                        "Failed to get optional QoS from proxy sample.");
-                return;
+                database::Qos qos;
+                auto participant = eprosima::fastdds::statistics::dds::DomainParticipant::narrow(
+                    reader->get_subscriber()->get_participant());
+
+                if (!deserialize_proxy_data(
+                            const_cast<eprosima::fastdds::statistics::dds::DomainParticipant*>(participant),
+                            inner_data,
+                            *monitor_service_status_data))
+                {
+                    EPROSIMA_LOG_ERROR(STATISTICSREADERLISTENER,
+                            "Failed to get optional QoS from proxy sample.");
+                    return;
+                }
+            }
+        }
+        else
+        {
+            // Deserialize optional QoS information for proxy samples
+            if (fastdds::statistics::StatusKind::PROXY == inner_data.status_kind())
+            {
+                // TODO: Specify cases that trigger undiscovery
+                // Handling proxy undiscovery, entities will be undiscovered if they are proxy and receive a not alive change
+                monitor_service_status_data->entity_discovery_info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY;
             }
         }
 
@@ -238,7 +252,7 @@ void StatisticsReaderListener::on_data_available(
         if (HISTORY_LATENCY_TOPIC == topic_name)
         {
             WriterReaderData inner_data;
-            if (get_available_data(reader, inner_data, timestamp))
+            if (get_available_data(reader, inner_data, info, timestamp))
             {
                 data->writer_reader_data(inner_data);
                 enqueue = true;
@@ -247,7 +261,7 @@ void StatisticsReaderListener::on_data_available(
         else if (NETWORK_LATENCY_TOPIC == topic_name)
         {
             Locator2LocatorData inner_data;
-            if (get_available_data(reader, inner_data, timestamp))
+            if (get_available_data(reader, inner_data, info, timestamp))
             {
                 data->locator2locator_data(inner_data);
                 enqueue = true;
@@ -256,7 +270,7 @@ void StatisticsReaderListener::on_data_available(
         else if (PUBLICATION_THROUGHPUT_TOPIC == topic_name || SUBSCRIPTION_THROUGHPUT_TOPIC == topic_name)
         {
             EntityData inner_data;
-            if (get_available_data(reader, inner_data, timestamp))
+            if (get_available_data(reader, inner_data, info, timestamp))
             {
                 data->entity_data(inner_data);
                 enqueue = true;
@@ -265,7 +279,7 @@ void StatisticsReaderListener::on_data_available(
         else if (RTPS_SENT_TOPIC == topic_name || RTPS_LOST_TOPIC == topic_name)
         {
             Entity2LocatorTraffic inner_data;
-            if (get_available_data(reader, inner_data, timestamp))
+            if (get_available_data(reader, inner_data, info, timestamp))
             {
                 data->entity2locator_traffic(inner_data);
                 enqueue = true;
@@ -277,7 +291,7 @@ void StatisticsReaderListener::on_data_available(
                 DATA_COUNT_TOPIC == topic_name || PDP_PACKETS_TOPIC == topic_name || EDP_PACKETS_TOPIC == topic_name)
         {
             EntityCount inner_data;
-            if (get_available_data(reader, inner_data, timestamp))
+            if (get_available_data(reader, inner_data, info, timestamp))
             {
                 data->entity_count(inner_data);
                 enqueue = true;
@@ -286,7 +300,7 @@ void StatisticsReaderListener::on_data_available(
         else if (DISCOVERY_TOPIC == topic_name)
         {
             DiscoveryTime inner_data;
-            if (get_available_data(reader, inner_data, timestamp))
+            if (get_available_data(reader, inner_data, info, timestamp))
             {
                 data->discovery_time(inner_data);
                 enqueue = true;
@@ -295,7 +309,7 @@ void StatisticsReaderListener::on_data_available(
         else if (SAMPLE_DATAS_TOPIC == topic_name)
         {
             SampleIdentityCount inner_data;
-            if (get_available_data(reader, inner_data, timestamp))
+            if (get_available_data(reader, inner_data, info, timestamp))
             {
                 data->sample_identity_count(inner_data);
                 enqueue = true;

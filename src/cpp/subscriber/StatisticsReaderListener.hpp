@@ -22,6 +22,7 @@
 
 #include "fastdds/dds/subscriber/DataReaderListener.hpp"
 #include "fastdds/dds/core/status/StatusMask.hpp"
+#include <fastdds/dds/subscriber/SampleInfo.hpp>
 #include <fastdds/statistics/dds/domain/DomainParticipant.hpp>
 
 #include <fastdds_statistics_backend/topic_types/monitorservice_types.hpp>
@@ -80,6 +81,7 @@ protected:
     bool get_available_data(
             eprosima::fastdds::dds::DataReader* reader,
             T& inner_data,
+            eprosima::fastdds::dds::SampleInfo& info,
             std::chrono::system_clock::time_point& timestamp);
 
     /**

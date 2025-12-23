@@ -1503,9 +1503,16 @@ void DatabaseDataQueue<ExtendedMonitorServiceStatusData>::process_sample()
                 updated_entity = database_->insert(domain, entity, sample);
                 database_->update_entity_qos(entity, item.second->optional_qos);
 
-                if (item.second->entity_discovery_info.kind() == EntityKind::PARTICIPANT &&
+                if (item.second->entity_discovery_info.discovery_status == details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY &&
                         database_->get_entity(entity)->discovery_source != DiscoverySource::DISCOVERY)
                 {
+                    // If the PROXY message is a change to UNDISCOVERY, mark the entity as inactive
+                    database_->change_entity_status(entity, false);
+                }
+                else if (item.second->entity_discovery_info.kind() == EntityKind::PARTICIPANT &&
+                        database_->get_entity(entity)->discovery_source != DiscoverySource::DISCOVERY)
+                {
+                    // Only update participants when the operation is
                     // NOTE: Proxy can only update unknown, proxy or inferred participants, not discovered ones
                     // as they usually contain more complete information
                     database_->update_participant_discovery_info(entity,
