@@ -294,6 +294,35 @@ EntityId create_and_register_monitor(
             }
         );
 
+    DomainParticipantQos spy_qos = participant_qos;
+
+    spy_qos.properties().properties().emplace_back("fastdds.statistics", "", "true");
+    spy_qos.wire_protocol().builtin.discovery_config.ignoreParticipantFlags = eprosima::fastdds::rtps::ParticipantFilteringFlags::FILTER_SAME_PROCESS;
+
+    monitor->spy_participant = DomainParticipantFactory::get_instance()->create_participant(
+        domain_id,
+        spy_qos,
+        nullptr,
+        StatusMask::none());
+
+    if (monitor->spy_participant == nullptr)
+    {
+        throw Error("Error creating spy participant");
+    }
+
+    SubscriberQos spy_subscriber_qos = SUBSCRIBER_QOS_DEFAULT;
+    spy_subscriber_qos.partition().push_back("*");
+
+    monitor->spy_subscriber = monitor->spy_participant->create_subscriber(
+        spy_subscriber_qos,
+        nullptr,
+        StatusMask::none());
+    
+    if (monitor->spy_subscriber == nullptr)
+    {
+        throw Error("Error creating spy subscriber");
+    }
+
     for (const auto& topic : topics)
     {
         /* Register the type and topic*/

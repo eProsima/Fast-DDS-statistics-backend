@@ -636,12 +636,6 @@ void StatisticsBackendData::start_topic_spy(
         return;
     }
 
-    auto stat_topic_it = monitor->statistics_topics.find(topic_name);
-    if (stat_topic_it != monitor->statistics_topics.end())
-    {
-        throw Error("Cannot spy on statistics topics");
-    }
-
     fastdds::dds::Topic* topic = nullptr;
 
     auto topic_it = monitor->user_data_topics.find(topic_name);
@@ -657,13 +651,13 @@ void StatisticsBackendData::start_topic_spy(
         std::string type_name = topic_type->get_name().to_string();
         fastdds::dds::TypeSupport type_support =
                 fastdds::dds::TypeSupport(new fastdds::dds::DynamicPubSubType(topic_type));
-        if (fastdds::dds::RETCODE_OK != type_support.register_type(monitor->participant, type_name))
+        if (fastdds::dds::RETCODE_OK != type_support.register_type(monitor->spy_participant, type_name))
         {
             throw Error("Error registering type for topic '" + topic_name + "'");
         }
 
         fastdds::dds::TopicQos topic_qos;
-        topic = monitor->participant->create_topic(topic_name, type_name, topic_qos);
+        topic = monitor->spy_participant->create_topic(topic_name, type_name, topic_qos);
         if (!topic)
         {
             throw Error("Error creating topic '" + topic_name + "'");
@@ -681,7 +675,7 @@ void StatisticsBackendData::start_topic_spy(
         &monitor->user_data_context);
     monitor->user_data_listeners[topic_name] = listener;
 
-    fastdds::dds::DataReader* reader = monitor->subscriber->create_datareader(
+    fastdds::dds::DataReader* reader = monitor->spy_subscriber->create_datareader(
         topic,
         fastdds::dds::DATAREADER_QOS_DEFAULT,
         listener);
@@ -718,7 +712,7 @@ void StatisticsBackendData::stop_topic_spy(
         return;
     }
 
-    monitor->subscriber->delete_datareader(monitor->user_data_readers[topic_name]);
+    monitor->spy_subscriber->delete_datareader(monitor->user_data_readers[topic_name]);
     monitor->user_data_readers.erase(topic_name);
     delete monitor->user_data_listeners[topic_name];
     monitor->user_data_listeners.erase(topic_name);

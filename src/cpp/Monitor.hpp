@@ -110,6 +110,12 @@ struct Monitor
 
     //! DataWriter discovery status. Used in the datawriter discovery user callback
     DomainListener::Status datawriter_status_{};
+
+    //! Dedicated participant for user data spy (statistics DISABLED)
+    fastdds::dds::DomainParticipant* spy_participant = nullptr;
+
+    //! Subscriber for spy participant
+    fastdds::dds::Subscriber* spy_subscriber = nullptr;
 };
 
 } // namespace details
