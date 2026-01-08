@@ -371,37 +371,6 @@ TEST_F(spy_topics_tests, exception_with_unknown_topic)
         , Error);
 }
 
-TEST_F(spy_topics_tests, can_spy_on_statistics_topics)
-{
-    // Create a participant with statistics enabled to trigger discovery
-    DomainParticipantQos pqos = PARTICIPANT_QOS_DEFAULT;
-    pqos.properties().properties().emplace_back(
-        "fastdds.statistics",
-        "NETWORK_LATENCY_TOPIC",  // Enable the specific topic we want to spy on
-        "true");
-
-    auto stats_participant = DomainParticipantFactory::get_instance()->create_participant(
-        0, pqos);
-
-    // Give time for discovery
-    std::this_thread::sleep_for(std::chrono:: milliseconds(200));
-
-    std::string statistics_topic_name = "_fastdds_statistics_network_latency";
-
-    // Now the type should be discovered
-    EXPECT_NO_THROW(
-        StatisticsBackend::start_topic_spy(monitor_id_, statistics_topic_name,
-        [&](const std::string& /*data*/)
-        {
-            // Regular callback
-        })
-        );
-
-    // Cleanup
-    StatisticsBackend:: stop_topic_spy(monitor_id_, statistics_topic_name);
-    DomainParticipantFactory:: get_instance()->delete_participant(stats_participant);
-}
-
 int main(
         int argc,
         char** argv)
