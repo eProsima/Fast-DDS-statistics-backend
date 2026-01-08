@@ -297,8 +297,6 @@ EntityId create_and_register_monitor(
     DomainParticipantQos spy_qos = participant_qos;
 
     spy_qos.properties().properties().emplace_back("fastdds.statistics", "", "true");
-    spy_qos.wire_protocol().builtin.discovery_config.ignoreParticipantFlags =
-            eprosima::fastdds::rtps::ParticipantFilteringFlags::FILTER_SAME_PROCESS;
 
     monitor->spy_participant = DomainParticipantFactory::get_instance()->create_participant(
         domain_id,

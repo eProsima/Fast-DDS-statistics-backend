@@ -369,45 +369,35 @@ TEST_F(spy_topics_tests, exception_with_unknown_topic)
         , Error);
 }
 
-TEST_F(spy_topics_tests, exception_when_spying_statistics_topic)
+TEST_F(spy_topics_tests, can_spy_on_statistics_topics)
 {
-    // A random statistics topic name
-    std::string statistics_topic_name = "_fastdds_statistics_network_latency";
-    try
-    {
-        StatisticsBackend::start_topic_spy(monitor_id_, statistics_topic_name,
-                [&](const std::string& /*data*/)
-                {
-                    // Callback should never be called
-                });
-        // If we reach here, the test should fail
-        FAIL() << "Expected Error exception to be thrown";
-    }
-    catch (const Error& e)
-    {
-        // Verify the error message is correct
-        EXPECT_STREQ(e.what(), "Cannot spy on statistics topics");
-    }
-    catch (...)
-    {
-        FAIL() << "Expected Error exception, but different exception was thrown";
-    }
-}
+    // Create a participant with statistics enabled to trigger discovery
+    DomainParticipantQos pqos = PARTICIPANT_QOS_DEFAULT;
+    pqos.properties().properties().emplace_back(
+        "fastdds.statistics",
+        "NETWORK_LATENCY_TOPIC",  // Enable the specific topic we want to spy on
+        "true");
 
-TEST_F(spy_topics_tests, can_spy_on_non_statistics_topics)
-{
-    // Create a regular user topic (not a statistics topic)
-    WriterHelper writer;
-    // This should NOT throw an exception
+    auto stats_participant = DomainParticipantFactory::get_instance()->create_participant(
+        0, pqos);
+
+    // Give time for discovery
+    std::this_thread::sleep_for(std::chrono:: milliseconds(200));
+
+    std::string statistics_topic_name = "_fastdds_statistics_network_latency";
+
+    // Now the type should be discovered
     EXPECT_NO_THROW(
-        StatisticsBackend::start_topic_spy(monitor_id_, writer.topic_name_,
+        StatisticsBackend::start_topic_spy(monitor_id_, statistics_topic_name,
         [&](const std::string& /*data*/)
         {
             // Regular callback
         })
         );
+
     // Cleanup
-    StatisticsBackend::stop_topic_spy(monitor_id_, writer.topic_name_);
+    StatisticsBackend:: stop_topic_spy(monitor_id_, statistics_topic_name);
+    DomainParticipantFactory:: get_instance()->delete_participant(stats_participant);
 }
 
 int main(
