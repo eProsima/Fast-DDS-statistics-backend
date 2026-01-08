@@ -182,7 +182,9 @@ public:
             CallbackMask::none(),
             DataKindMask::all(),
             "test_monitor",
-            "metadata");
+            "metadata",
+            "",
+            false);
     }
 
     void TearDown()

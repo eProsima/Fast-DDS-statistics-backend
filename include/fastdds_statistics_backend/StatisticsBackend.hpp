@@ -87,7 +87,8 @@ public:
             DataKindMask data_mask = DataKindMask::none(),
             std::string app_id = app_id_str[(int)AppId::UNKNOWN],
             std::string app_metadata = "",
-            std::string easy_mode_ip = "");
+            std::string easy_mode_ip = "",
+            bool enable_same_process_filtering = true);
 
     /**
      * @brief Starts monitoring the network corresponding to a server.
@@ -118,7 +119,8 @@ public:
             CallbackMask callback_mask = CallbackMask::all(),
             DataKindMask data_mask = DataKindMask::none(),
             std::string app_id = app_id_str[(int)AppId::UNKNOWN],
-            std::string app_metadata = "");
+            std::string app_metadata = "",
+            bool enable_same_process_filtering = true);
 
 
     /**
@@ -142,7 +144,8 @@ public:
             CallbackMask callback_mask = CallbackMask::all(),
             DataKindMask data_mask = DataKindMask::none(),
             std::string app_id = app_id_str[(int)AppId::UNKNOWN],
-            std::string app_metadata = "");
+            std::string app_metadata = "",
+            bool enable_same_process_filtering = true);
 
     /**
      * @brief Restarts a given monitor.
