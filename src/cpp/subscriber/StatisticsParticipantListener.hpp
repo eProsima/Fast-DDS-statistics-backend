@@ -63,7 +63,8 @@ public:
             database::DatabaseEntityQueue* entity_queue,
             database::DatabaseDataQueue<eprosima::fastdds::statistics::Data>* data_queue,
             database::DatabaseDataQueue<database::ExtendedMonitorServiceStatusData>* monitor_service_data_queue,
-            UserDataContext* ctx)
+            UserDataContext* ctx,
+            eprosima::fastdds::rtps::GuidPrefix_t* spy_guid_prefix = nullptr)
     noexcept;
 
     /*!
@@ -132,6 +133,23 @@ protected:
     database::DatabaseDataQueue<database::ExtendedMonitorServiceStatusData>*                                            ///< Reference to the monitor service status data queue. Injected on construction
             monitor_service_status_data_queue_;
     UserDataContext* ctx_;                                                                                              ///< Reference to the user data context. Injected on construction
+
+private:
+
+    /**
+     * @brief Check if a participant is the spy participant
+     */
+    bool is_spy_participant(
+            const eprosima::fastdds::dds::ParticipantBuiltinTopicData& info);
+
+    /**
+     * @brief Check if an endpoint belongs to the spy participant
+     */
+    bool is_spy_endpoint(
+            const fastdds::rtps::GUID_t& guid);
+
+    // Store spy GUID prefix for filtering
+    eprosima::fastdds::rtps::GuidPrefix_t* spy_guid_prefix_;
 };
 
 

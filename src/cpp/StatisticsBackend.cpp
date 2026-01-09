@@ -191,8 +191,7 @@ EntityId create_and_register_monitor(
         const CallbackMask& callback_mask,
         const DataKindMask& data_mask,
         DomainParticipantQos& participant_qos,
-        const DomainId domain_id = 0,
-        bool enable_same_process_filtering = true)
+        const DomainId domain_id = 0)
 {
     // NOTE: This method is quite awful to read because of the error handle of every entity
     // This could be done much nicer encapsulating this in Monitor creation in destruction, but you know...
@@ -233,7 +232,8 @@ EntityId create_and_register_monitor(
         backend_data->entity_queue_,
         backend_data->data_queue_,
         backend_data->monitor_service_status_data_queue_,
-        &monitor->user_data_context);
+        &monitor->user_data_context,
+        &monitor->spy_guid_prefix);
     auto se_participant_listener_ = EPROSIMA_BACKEND_MAKE_SCOPE_EXIT(delete monitor->participant_listener);
 
     monitor->statistics_reader_listener = new subscriber::StatisticsReaderListener(
@@ -246,11 +246,6 @@ EntityId create_and_register_monitor(
     /* Create DomainParticipant */
     StatusMask participant_mask = StatusMask::all();
     participant_mask ^= StatusMask::data_on_readers();
-    if (enable_same_process_filtering)
-    {
-        participant_qos.wire_protocol().builtin.discovery_config.ignoreParticipantFlags =
-                eprosima::fastdds::rtps::ParticipantFilteringFlags::FILTER_SAME_PROCESS;
-    }
     monitor->participant = DomainParticipantFactory::get_instance()->create_participant(
         domain_id,
         participant_qos,
@@ -304,12 +299,6 @@ EntityId create_and_register_monitor(
 
     spy_qos.properties().properties().emplace_back("fastdds.statistics", "", "true");
 
-    if (enable_same_process_filtering)
-    {
-        spy_qos.wire_protocol().builtin.discovery_config.ignoreParticipantFlags =
-                eprosima::fastdds::rtps::ParticipantFilteringFlags::FILTER_SAME_PROCESS;
-    }
-
     monitor->spy_participant = DomainParticipantFactory::get_instance()->create_participant(
         domain_id,
         spy_qos,
@@ -320,6 +309,11 @@ EntityId create_and_register_monitor(
     {
         throw Error("Error creating spy participant");
     }
+    auto se_spy_participant_ =
+            EPROSIMA_BACKEND_MAKE_SCOPE_EXIT(
+        DomainParticipantFactory::get_instance()->delete_participant(monitor->spy_participant));
+
+    monitor->spy_guid_prefix = monitor->spy_participant->guid().guidPrefix;
 
     SubscriberQos spy_subscriber_qos = SUBSCRIBER_QOS_DEFAULT;
     spy_subscriber_qos.partition().push_back("*");
@@ -333,6 +327,9 @@ EntityId create_and_register_monitor(
     {
         throw Error("Error creating spy subscriber");
     }
+    auto se_spy_subscriber_ =
+            EPROSIMA_BACKEND_MAKE_SCOPE_EXIT(
+        monitor->spy_participant->delete_subscriber(monitor->spy_subscriber));
 
     for (const auto& topic : topics)
     {
@@ -375,6 +372,8 @@ EntityId create_and_register_monitor(
     se_reader_listener_.cancel();
     se_participant_.cancel();
     se_subscriber_.cancel();
+    se_spy_participant_.cancel();
+    se_spy_subscriber_.cancel();
     se_topics_datareaders_.cancel();
 
     return domain->id;
@@ -418,8 +417,7 @@ EntityId StatisticsBackend::init_monitor(
         DataKindMask data_mask,
         std::string app_id,
         std::string app_metadata,
-        std::string easy_mode_ip,
-        bool enable_same_process_filtering)
+        std::string easy_mode_ip)
 {
     /* Deactivate statistics in case they were set */
 #ifdef _WIN32
@@ -456,7 +454,7 @@ EntityId StatisticsBackend::init_monitor(
     }
 
     return create_and_register_monitor(domain_name.str(), domain_listener, callback_mask, data_mask, participant_qos,
-                   domain_id, enable_same_process_filtering);
+                   domain_id);
 }
 
 void StatisticsBackend::stop_monitor(
@@ -471,8 +469,7 @@ EntityId StatisticsBackend::init_monitor(
         CallbackMask callback_mask,
         DataKindMask data_mask,
         std::string app_id,
-        std::string app_metadata,
-        bool enable_same_process_filtering)
+        std::string app_metadata)
 {
     /* Deactivate statistics in case they were set */
 #ifdef _WIN32
@@ -548,7 +545,7 @@ EntityId StatisticsBackend::init_monitor(
     }
 
     return create_and_register_monitor(participant_name, domain_listener, callback_mask, data_mask,
-                   participant_qos, enable_same_process_filtering);
+                   participant_qos);
 }
 
 EntityId StatisticsBackend::init_monitor_with_profile(
@@ -557,8 +554,7 @@ EntityId StatisticsBackend::init_monitor_with_profile(
         CallbackMask callback_mask,
         DataKindMask data_mask,
         std::string app_id,
-        std::string app_metadata,
-        bool enable_same_process_filtering)
+        std::string app_metadata)
 {
     /* Deactivate statistics in case they were set */
 #ifdef _WIN32
@@ -590,7 +586,7 @@ EntityId StatisticsBackend::init_monitor_with_profile(
 
     return create_and_register_monitor(
         domain_name.str(), domain_listener, callback_mask, data_mask, profile_extended_qos,
-        profile_extended_qos.domainId(), enable_same_process_filtering);
+        profile_extended_qos.domainId());
 }
 
 void StatisticsBackend::restart_monitor(

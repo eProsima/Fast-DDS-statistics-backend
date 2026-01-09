@@ -116,6 +116,9 @@ struct Monitor
 
     //! Subscriber for spy participant
     fastdds::dds::Subscriber* spy_subscriber = nullptr;
+
+    //! GUID prefix of spy participant (for filtering in listener)
+    eprosima::fastdds::rtps::GuidPrefix_t spy_guid_prefix{};
 };
 
 } // namespace details
