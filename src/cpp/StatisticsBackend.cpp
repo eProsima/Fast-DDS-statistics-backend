@@ -226,6 +226,28 @@ EntityId create_and_register_monitor(
     auto se_erase_monitor_database_ =
             EPROSIMA_BACKEND_MAKE_SCOPE_EXIT(backend_data->monitors_by_entity_.erase(domain->id));
 
+    DomainParticipantQos spy_qos = participant_qos;
+
+    spy_qos.properties().properties().emplace_back("fastdds.statistics", "", "true");
+
+    monitor->spy_participant = DomainParticipantFactory::get_instance()->create_participant(
+        domain_id,
+        spy_qos,
+        nullptr,
+        StatusMask::none());
+
+    if (monitor->spy_participant == nullptr)
+    {
+        throw Error("Error creating spy participant");
+    }
+
+    monitor->spy_guid_prefix = monitor->spy_participant->guid().guidPrefix;
+
+    auto se_spy_participant_ =
+            EPROSIMA_BACKEND_MAKE_SCOPE_EXIT(
+        DomainParticipantFactory::get_instance()->delete_participant(monitor->spy_participant));
+
+
     monitor->participant_listener = new subscriber::StatisticsParticipantListener(
         domain->id,
         backend_data->database_.get(),
@@ -294,26 +316,6 @@ EntityId create_and_register_monitor(
                 }
             }
         );
-
-    DomainParticipantQos spy_qos = participant_qos;
-
-    spy_qos.properties().properties().emplace_back("fastdds.statistics", "", "true");
-
-    monitor->spy_participant = DomainParticipantFactory::get_instance()->create_participant(
-        domain_id,
-        spy_qos,
-        nullptr,
-        StatusMask::none());
-
-    if (monitor->spy_participant == nullptr)
-    {
-        throw Error("Error creating spy participant");
-    }
-    auto se_spy_participant_ =
-            EPROSIMA_BACKEND_MAKE_SCOPE_EXIT(
-        DomainParticipantFactory::get_instance()->delete_participant(monitor->spy_participant));
-
-    monitor->spy_guid_prefix = monitor->spy_participant->guid().guidPrefix;
 
     SubscriberQos spy_subscriber_qos = SUBSCRIBER_QOS_DEFAULT;
     spy_subscriber_qos.partition().push_back("*");
