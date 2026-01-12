@@ -90,7 +90,7 @@ void StatisticsParticipantListener::on_participant_discovery(
         bool& should_be_ignored)
 {
     // Check if this is our spy participant - if so, ignore it
-    if (is_spy_participant(info))
+    if (is_spy(info.guid))
     {
         should_be_ignored = true;
         EPROSIMA_LOG_INFO(STATISTICS_PARTICIPANT_LISTENER,
@@ -134,7 +134,7 @@ void StatisticsParticipantListener::on_data_reader_discovery(
     }
 
     // Check if this reader belongs to the spy participant
-    if (is_spy_endpoint(info.guid))
+    if (is_spy(info.guid))
     {
         should_be_ignored = true;
         EPROSIMA_LOG_INFO(STATISTICS_PARTICIPANT_LISTENER,
@@ -164,7 +164,7 @@ void StatisticsParticipantListener::on_data_writer_discovery(
         bool& should_be_ignored)
 {
     // Check if this writer belongs to the spy participant
-    if (is_spy_endpoint(info.guid))
+    if (is_spy(info.guid))
     {
         should_be_ignored = true;
         EPROSIMA_LOG_INFO(STATISTICS_PARTICIPANT_LISTENER,
@@ -244,18 +244,7 @@ void StatisticsParticipantListener::update_user_data_context(
     }
 }
 
-bool StatisticsParticipantListener::is_spy_participant(
-        const eprosima::fastdds::dds::ParticipantBuiltinTopicData& info)
-{
-    if (spy_guid_prefix_ &&
-            spy_guid_prefix_->value[0] != 0)
-    {
-        return info.guid.guidPrefix == *spy_guid_prefix_;
-    }
-    return false;
-}
-
-bool StatisticsParticipantListener::is_spy_endpoint(
+bool StatisticsParticipantListener::is_spy(
         const fastdds::rtps::GUID_t& guid)
 {
     if (spy_guid_prefix_ &&

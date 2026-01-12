@@ -137,15 +137,9 @@ protected:
 private:
 
     /**
-     * @brief Check if a participant is the spy participant
+     * @brief Check if a guid is the spy participant
      */
-    bool is_spy_participant(
-            const eprosima::fastdds::dds::ParticipantBuiltinTopicData& info);
-
-    /**
-     * @brief Check if an endpoint belongs to the spy participant
-     */
-    bool is_spy_endpoint(
+    bool is_spy(
             const fastdds::rtps::GUID_t& guid);
 
     // Store spy GUID prefix for filtering
