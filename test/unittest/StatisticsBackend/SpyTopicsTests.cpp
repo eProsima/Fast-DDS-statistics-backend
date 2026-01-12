@@ -61,8 +61,12 @@ public:
     {
         // Creates a publisher in the given domain with a topic with the given name
         // and waits until the monitor discovers it
+        DomainParticipantQos participant_qos = DomainParticipantFactory::get_instance()->get_default_participant_qos();
+        participant_qos.properties().properties().emplace_back("fastdds.statistics",
+            "NETWORK_LATENCY_TOPIC", // We just need this topic to test can_spy_on_statistics_topics
+            "true");
         participant_ =
-                DomainParticipantFactory::get_instance()->create_participant(0, PARTICIPANT_QOS_DEFAULT);
+                DomainParticipantFactory::get_instance()->create_participant(0, participant_qos);
         if (nullptr == participant_)
         {
             // Error
@@ -372,21 +376,9 @@ TEST_F(spy_topics_tests, exception_with_unknown_topic)
 
 TEST_F(spy_topics_tests, can_spy_on_statistics_topics)
 {
-    // Create a participant with statistics enabled to trigger discovery
-    DomainParticipantQos pqos = PARTICIPANT_QOS_DEFAULT;
-    pqos.properties().properties().emplace_back(
-        "fastdds.statistics",
-        "NETWORK_LATENCY_TOPIC",  // Enable the specific topic we want to spy on
-        "true");
-
     std::string statistics_topic_name = "_fastdds_statistics_network_latency";
-    auto stats_participant = DomainParticipantFactory::get_instance()->create_participant(
-        0, pqos);
-
     // Give time for discovery
-    std::this_thread::sleep_for(std::chrono:: milliseconds(200));
-
-    // Now the type should be discovered
+    std::this_thread::sleep_for(std::chrono:: milliseconds(3000));
     EXPECT_NO_THROW(
         StatisticsBackend::start_topic_spy(monitor_id_, statistics_topic_name,
         [&](const std::string& /*data*/)
@@ -395,7 +387,6 @@ TEST_F(spy_topics_tests, can_spy_on_statistics_topics)
         })
         );
     StatisticsBackend:: stop_topic_spy(monitor_id_, statistics_topic_name);
-    DomainParticipantFactory:: get_instance()->delete_participant(stats_participant);
 }
 
 int main(

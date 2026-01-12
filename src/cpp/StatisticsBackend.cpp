@@ -190,7 +190,7 @@ EntityId create_and_register_monitor(
         DomainListener* domain_listener,
         const CallbackMask& callback_mask,
         const DataKindMask& data_mask,
-        DomainParticipantQos& participant_qos,
+        const DomainParticipantQos& participant_qos,
         const DomainId domain_id = 0)
 {
     // NOTE: This method is quite awful to read because of the error handle of every entity
