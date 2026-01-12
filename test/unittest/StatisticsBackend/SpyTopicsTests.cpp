@@ -63,8 +63,8 @@ public:
         // and waits until the monitor discovers it
         DomainParticipantQos participant_qos = DomainParticipantFactory::get_instance()->get_default_participant_qos();
         participant_qos.properties().properties().emplace_back("fastdds.statistics",
-            "NETWORK_LATENCY_TOPIC", // We just need this topic to test can_spy_on_statistics_topics
-            "true");
+                "NETWORK_LATENCY_TOPIC", // We just need this topic to test can_spy_on_statistics_topics
+                "true");
         participant_ =
                 DomainParticipantFactory::get_instance()->create_participant(0, participant_qos);
         if (nullptr == participant_)
