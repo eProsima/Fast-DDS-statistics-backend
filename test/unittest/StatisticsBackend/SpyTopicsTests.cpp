@@ -193,6 +193,7 @@ public:
     void TearDown()
     {
         StatisticsBackend::stop_monitor(monitor_id_);
+        details::StatisticsBackendData::reset_instance();
     }
 
     EntityId monitor_id_;
@@ -377,8 +378,35 @@ TEST_F(spy_topics_tests, exception_with_unknown_topic)
 TEST_F(spy_topics_tests, can_spy_on_statistics_topics)
 {
     std::string statistics_topic_name = "_fastdds_statistics_network_latency";
-    // Give time for discovery
-    std::this_thread::sleep_for(std::chrono:: milliseconds(3000));
+
+    WriterHelper writer;
+
+    // Wait with timeout and check for topic discovery
+    auto start = std::chrono::steady_clock::now();
+    bool topic_discovered = false;
+
+    while (std::chrono::steady_clock::now() - start < std::chrono::seconds(5))
+    {
+        try
+        {
+            // Try to get the type - if it exists, we can spy on it
+            auto& monitor = details::StatisticsBackendData::get_instance()->monitors_by_entity_[monitor_id_];
+            auto type = monitor->user_data_context.get_type_from_topic_name(statistics_topic_name);
+            if (type)
+            {
+                topic_discovered = true;
+                break;
+            }
+        }
+        catch (...)
+        {
+            // Not discovered yet
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+
+    ASSERT_TRUE(topic_discovered) << "Statistics topic was not discovered";
+
     EXPECT_NO_THROW(
         StatisticsBackend::start_topic_spy(monitor_id_, statistics_topic_name,
         [&](const std::string& /*data*/)
@@ -386,7 +414,8 @@ TEST_F(spy_topics_tests, can_spy_on_statistics_topics)
             // Regular callback
         })
         );
-    StatisticsBackend:: stop_topic_spy(monitor_id_, statistics_topic_name);
+
+    StatisticsBackend::stop_topic_spy(monitor_id_, statistics_topic_name);
 }
 
 int main(
