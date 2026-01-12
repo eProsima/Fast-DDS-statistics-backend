@@ -520,11 +520,6 @@ void StatisticsBackendData::stop_monitor(
                 monitor->subscriber->delete_datareader(reader.second);
             }
 
-            for (auto& reader : monitor->user_data_readers)
-            {
-                monitor->subscriber->delete_datareader(reader.second);
-            }
-
             monitor->participant->delete_subscriber(monitor->subscriber);
         }
 
@@ -533,12 +528,27 @@ void StatisticsBackendData::stop_monitor(
             monitor->participant->delete_topic(topic.second);
         }
 
-        for (auto& topic : monitor->user_data_topics)
+        fastdds::dds::DomainParticipantFactory::get_instance()->delete_participant(monitor->participant);
+    }
+
+    if (monitor->spy_participant)
+    {
+        if (monitor->spy_subscriber)
         {
-            monitor->participant->delete_topic(topic.second);
+            for (auto& reader : monitor->user_data_readers)
+            {
+                monitor->spy_subscriber->delete_datareader(reader.second);
+            }
+
+            monitor->spy_participant->delete_subscriber(monitor->spy_subscriber);
         }
 
-        fastdds::dds::DomainParticipantFactory::get_instance()->delete_participant(monitor->participant);
+        for (auto& topic : monitor->user_data_topics)
+        {
+            monitor->spy_participant->delete_topic(topic.second);
+        }
+
+        fastdds::dds::DomainParticipantFactory::get_instance()->delete_participant(monitor->spy_participant);
     }
 
     if (monitor->statistics_reader_listener)
