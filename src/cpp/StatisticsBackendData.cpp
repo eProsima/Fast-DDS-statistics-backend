@@ -203,12 +203,14 @@ void StatisticsBackendData::on_alert_triggered(
         switch (alert.get_alert_kind())
         {
             case AlertKind::NEW_DATA_ALERT:
-                StatisticsBackendData::get_instance()->database_->trigger_notifier(notifier_id, "[FAST DDS MONITOR INSTANCE] Alert " +
+                StatisticsBackendData::get_instance()->database_->trigger_notifier(notifier_id,
+                        "[FAST DDS MONITOR INSTANCE] Alert " +
                         alert.get_alert_name() + " was triggered. Entity " + entity_guid +
                         " emitted a DATA_COUNT sample of " + data);
                 break;
             case AlertKind::NO_DATA_ALERT:
-                StatisticsBackendData::get_instance()->database_->trigger_notifier(notifier_id, "[FAST DDS MONITOR INSTANCE] Alert " +
+                StatisticsBackendData::get_instance()->database_->trigger_notifier(notifier_id,
+                        "[FAST DDS MONITOR INSTANCE] Alert " +
                         alert.get_alert_name() + " was triggered. Entity " + entity_guid +
                         " emitted a SUBSCRIPTION_THROUGHPUT sample of " + data);
             default:
