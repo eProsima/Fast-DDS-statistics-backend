@@ -1483,7 +1483,8 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample()
 /**
  * Converts a GUID string to a GUID_s structure.
  */
-eprosima::fastdds::statistics::detail::GUID_s string_to_guid_s(const std::string& guid_str)
+eprosima::fastdds::statistics::detail::GUID_s string_to_guid_s(
+        const std::string& guid_str)
 {
     eprosima::fastdds::statistics::detail::GUID_s guid_s;
 
@@ -1546,13 +1547,15 @@ void DatabaseDataQueue<ExtendedMonitorServiceStatusData>::process_sample()
             sample.src_ts = item.first;
             try
             {
-                if(item.second->entity_discovery_info.is_proxy_undiscovery)
+                if (item.second->entity_discovery_info.is_proxy_undiscovery)
                 {
-                    if(proxy_entity_handles_to_guid.find(item.second->instance_handle) == proxy_entity_handles_to_guid.end())
+                    if (proxy_entity_handles_to_guid.find(item.second->instance_handle) ==
+                            proxy_entity_handles_to_guid.end())
                     {
                         // Instance handle was not stored, so the proxy entity is unknown and cannot be undiscovered
                         EPROSIMA_LOG_WARNING(BACKEND_DATABASE_QUEUE,
-                                "Attempt to undiscover unknown proxy entity with handle " << item.second->instance_handle);
+                                "Attempt to undiscover unknown proxy entity with handle " <<
+                                            item.second->instance_handle);
                         return;
                     }
 
@@ -1562,9 +1565,11 @@ void DatabaseDataQueue<ExtendedMonitorServiceStatusData>::process_sample()
                             << item.second->instance_handle
                             << " and GUID " << proxy_entity_handles_to_guid.at(item.second->instance_handle));
 
-                    StatisticsGuid guid = string_to_guid_s(proxy_entity_handles_to_guid.at(item.second->instance_handle));
+                    StatisticsGuid guid =
+                            string_to_guid_s(proxy_entity_handles_to_guid.at(item.second->instance_handle));
                     EntityKind entity_kind = database_->get_entity_kind_by_guid(guid);
-                    auto matched_domain_entity = database_->get_entity_by_guid(entity_kind, proxy_entity_handles_to_guid.at(item.second->instance_handle));
+                    auto matched_domain_entity = database_->get_entity_by_guid(entity_kind, proxy_entity_handles_to_guid.at(
+                                        item.second->instance_handle));
                     domain = matched_domain_entity.first;
                     entity = matched_domain_entity.second;
                     database_->change_entity_status(entity, false);
@@ -1580,7 +1585,8 @@ void DatabaseDataQueue<ExtendedMonitorServiceStatusData>::process_sample()
                 updated_entity = database_->insert(domain, entity, sample);
                 database_->update_entity_qos(entity, item.second->optional_qos);
 
-                if (item.second->entity_discovery_info.discovery_status == details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY &&
+                if (item.second->entity_discovery_info.discovery_status ==
+                        details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY &&
                         database_->get_entity(entity)->discovery_source != DiscoverySource::DISCOVERY)
                 {
                     // If the PROXY message is a change to UNDISCOVERY, mark the entity as inactive

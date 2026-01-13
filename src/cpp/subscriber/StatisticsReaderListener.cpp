@@ -221,19 +221,19 @@ void StatisticsReaderListener::on_data_available(
         {
             if (info.instance_state == ALIVE_INSTANCE_STATE)
             {
-                    database::Qos qos;
-                    auto participant = eprosima::fastdds::statistics::dds::DomainParticipant::narrow(
-                        reader->get_subscriber()->get_participant());
+                database::Qos qos;
+                auto participant = eprosima::fastdds::statistics::dds::DomainParticipant::narrow(
+                    reader->get_subscriber()->get_participant());
 
-                    if (!deserialize_proxy_data(
-                                const_cast<eprosima::fastdds::statistics::dds::DomainParticipant*>(participant),
-                                inner_data,
-                                *monitor_service_status_data))
-                    {
-                        EPROSIMA_LOG_ERROR(STATISTICSREADERLISTENER,
-                                "Failed to get optional QoS from proxy sample.");
-                        return;
-                    }
+                if (!deserialize_proxy_data(
+                            const_cast<eprosima::fastdds::statistics::dds::DomainParticipant*>(participant),
+                            inner_data,
+                            *monitor_service_status_data))
+                {
+                    EPROSIMA_LOG_ERROR(STATISTICSREADERLISTENER,
+                            "Failed to get optional QoS from proxy sample.");
+                    return;
+                }
             }
             else if (info.instance_state == NOT_ALIVE_NO_WRITERS_INSTANCE_STATE)
             {
