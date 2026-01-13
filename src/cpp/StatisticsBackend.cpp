@@ -228,8 +228,6 @@ EntityId create_and_register_monitor(
 
     DomainParticipantQos spy_qos = participant_qos;
 
-    spy_qos.properties().properties().emplace_back("fastdds.statistics", "", "true");
-
     monitor->spy_participant = DomainParticipantFactory::get_instance()->create_participant(
         domain_id,
         spy_qos,
@@ -255,7 +253,7 @@ EntityId create_and_register_monitor(
         backend_data->data_queue_,
         backend_data->monitor_service_status_data_queue_,
         &monitor->user_data_context,
-        &monitor->spy_guid_prefix);
+        monitor->spy_guid_prefix);
     auto se_participant_listener_ = EPROSIMA_BACKEND_MAKE_SCOPE_EXIT(delete monitor->participant_listener);
 
     monitor->statistics_reader_listener = new subscriber::StatisticsReaderListener(

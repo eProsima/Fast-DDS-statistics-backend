@@ -64,7 +64,7 @@ public:
             database::DatabaseDataQueue<eprosima::fastdds::statistics::Data>* data_queue,
             database::DatabaseDataQueue<database::ExtendedMonitorServiceStatusData>* monitor_service_data_queue,
             UserDataContext* ctx,
-            eprosima::fastdds::rtps::GuidPrefix_t* spy_guid_prefix = nullptr)
+            eprosima::fastdds::rtps::GuidPrefix_t spy_guid_prefix = eprosima::fastdds::rtps::GuidPrefix_t())
     noexcept;
 
     /*!
@@ -143,7 +143,7 @@ private:
             const fastdds::rtps::GUID_t& guid);
 
     // Store spy GUID prefix for filtering
-    eprosima::fastdds::rtps::GuidPrefix_t* spy_guid_prefix_;
+    eprosima::fastdds::rtps::GuidPrefix_t spy_guid_prefix_;
 };
 
 

@@ -70,7 +70,7 @@ StatisticsParticipantListener::StatisticsParticipantListener(
         database::DatabaseDataQueue<eprosima::fastdds::statistics::Data>* data_queue,
         database::DatabaseDataQueue<database::ExtendedMonitorServiceStatusData>* monitor_service_data_queue,
         UserDataContext* ctx,
-        eprosima::fastdds::rtps::GuidPrefix_t* spy_guid_prefix)
+        GuidPrefix_t spy_guid_prefix)
 noexcept
     : DomainParticipantListener()
     , domain_id_(domain_id)
@@ -247,12 +247,7 @@ void StatisticsParticipantListener::update_user_data_context(
 bool StatisticsParticipantListener::is_spy(
         const fastdds::rtps::GUID_t& guid)
 {
-    if (spy_guid_prefix_ &&
-            spy_guid_prefix_->value[0] != 0)
-    {
-        return guid.guidPrefix == *spy_guid_prefix_;
-    }
-    return false;
+    return guid.guidPrefix == spy_guid_prefix_;
 }
 
 } //namespace database
