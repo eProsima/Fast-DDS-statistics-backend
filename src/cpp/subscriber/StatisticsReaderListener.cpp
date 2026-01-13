@@ -69,11 +69,14 @@ bool StatisticsReaderListener::get_available_data(
 {
     if (reader->take_next_sample(&inner_data, &info) == RETCODE_OK)
     {
-        if (!info.valid_data)
+        if (!info.valid_data && info.instance_state != NOT_ALIVE_NO_WRITERS_INSTANCE_STATE)
         {
-            // Received data not valid
+            // It is important return true in NOT_ALIVE_NO_WRITERS_INSTANCE_STATE samples even if
+            // they are marked as invalid data, as they are used internally by DDS to signal that
+            // there are no writers
             return false;
         }
+
         timestamp = nanoseconds_to_systemclock(info.source_timestamp.to_ns());
         return true;
     }
@@ -213,37 +216,36 @@ void StatisticsReaderListener::on_data_available(
 
         monitor_service_status_data->data = inner_data;
 
-        if (info.instance_state == ALIVE_INSTANCE_STATE)
+        // Deserialize optional QoS information for proxy samples
+        if (fastdds::statistics::StatusKind::PROXY == inner_data.status_kind())
         {
-            // Deserialize optional QoS information for proxy samples
-            if (fastdds::statistics::StatusKind::PROXY == inner_data.status_kind())
+            if (info.instance_state == ALIVE_INSTANCE_STATE)
             {
-                database::Qos qos;
-                auto participant = eprosima::fastdds::statistics::dds::DomainParticipant::narrow(
-                    reader->get_subscriber()->get_participant());
+                    database::Qos qos;
+                    auto participant = eprosima::fastdds::statistics::dds::DomainParticipant::narrow(
+                        reader->get_subscriber()->get_participant());
 
-                if (!deserialize_proxy_data(
-                            const_cast<eprosima::fastdds::statistics::dds::DomainParticipant*>(participant),
-                            inner_data,
-                            *monitor_service_status_data))
-                {
-                    EPROSIMA_LOG_ERROR(STATISTICSREADERLISTENER,
-                            "Failed to get optional QoS from proxy sample.");
-                    return;
-                }
+                    if (!deserialize_proxy_data(
+                                const_cast<eprosima::fastdds::statistics::dds::DomainParticipant*>(participant),
+                                inner_data,
+                                *monitor_service_status_data))
+                    {
+                        EPROSIMA_LOG_ERROR(STATISTICSREADERLISTENER,
+                                "Failed to get optional QoS from proxy sample.");
+                        return;
+                    }
             }
-        }
-        else
-        {
-            // Deserialize optional QoS information for proxy samples
-            if (fastdds::statistics::StatusKind::PROXY == inner_data.status_kind())
+            else if (info.instance_state == NOT_ALIVE_NO_WRITERS_INSTANCE_STATE)
             {
-                // TODO: Specify cases that trigger undiscovery
-                // Handling proxy undiscovery, entities will be undiscovered if they are proxy and receive a not alive change
-                monitor_service_status_data->entity_discovery_info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::UNDISCOVERY;
+                // Proxy entities will be undiscovered if they are proxy and a NOT_ALIVE_NO_WRITERS_INSTANCE_STATE state
+                // is received.
+                monitor_service_status_data->entity_discovery_info.is_proxy_undiscovery = true;
             }
-        }
 
+            // Instance handle is required to be able to undiscover proxy entities later, when receiving a
+            // NOT_ALIVE_NO_WRITERS_INSTANCE_STATE that contains just the instance handle.
+            monitor_service_status_data->instance_handle = info.instance_handle;
+        }
         monitor_service_status_data_queue_->push(timestamp, monitor_service_status_data);
     }
     else

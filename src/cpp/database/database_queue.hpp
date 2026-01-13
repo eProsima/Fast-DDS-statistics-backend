@@ -27,11 +27,12 @@
 #include <queue>
 #include <thread>
 
+#include <fastdds/dds/common/InstanceHandle.hpp>
+#include <fastdds/dds/log/Log.hpp>
 #include <fastdds/rtps/common/Guid.hpp>
 #include <fastdds/rtps/common/Locator.hpp>
 #include <fastdds/rtps/common/SequenceNumber.hpp>
 #include <fastdds/rtps/common/RemoteLocators.hpp>
-#include <fastdds/dds/log/Log.hpp>
 #include <fastdds_statistics_backend/types/JSONTags.h>
 
 #include <database/database.hpp>
@@ -393,6 +394,9 @@ struct EntityDiscoveryInfo
     // useful when discovery_source is PROXY
     DomainId original_domain_id;
 
+    // Information to handle undiscovery of proxy entities
+    bool is_proxy_undiscovery = false;
+
     EntityDiscoveryInfo()
         : EntityDiscoveryInfo(EntityKind::INVALID)
     {
@@ -425,6 +429,11 @@ struct ExtendedMonitorServiceStatusData
 
     // Deserialized entity optional QoS information received through Monitor Service's proxy samples
     database::Qos optional_qos;
+
+    // Instance handle of the sample. This is the instance corresponding to a "PROXY" status type
+    // and the entity's GUID
+    fastdds::dds::InstanceHandle_t instance_handle;
+
 };
 
 class DatabaseEntityQueue : public DatabaseQueue<EntityDiscoveryInfo>
@@ -663,6 +672,9 @@ protected:
 
     // Structure to keep if the discovery of a participant has already been enqueued
     std::map<eprosima::fastdds::rtps::GUID_t, bool> participant_enqueued;
+
+    // Structure to map InstanceHandles to GUID strings for proxy entities
+    std::map<eprosima::fastdds::rtps::InstanceHandle_t, std::string> proxy_entity_handles_to_guid;
 };
 
 template<>
