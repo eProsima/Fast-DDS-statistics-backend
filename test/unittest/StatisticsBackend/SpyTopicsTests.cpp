@@ -64,8 +64,7 @@ public:
         DomainParticipantQos participant_qos = DomainParticipantFactory::get_instance()->get_default_participant_qos();
         participant_qos.properties().properties().emplace_back(
             "fastdds.statistics",
-            "NETWORK_LATENCY_TOPIC",     // We just need this topic to test can_spy_on_statistics_topics
-            "true");
+            "HISTORY_LATENCY_TOPIC");     // We just need this topic to test can_spy_on_statistics_topics
         participant_ =
                 DomainParticipantFactory::get_instance()->create_participant(0, participant_qos);
         if (nullptr == participant_)
@@ -377,7 +376,7 @@ TEST_F(spy_topics_tests, exception_with_unknown_topic)
 
 TEST_F(spy_topics_tests, can_spy_on_statistics_topics)
 {
-    std::string statistics_topic_name = "_fastdds_statistics_network_latency";
+    std::string statistics_topic_name = "_fastdds_statistics_history2history_latency";
 
     WriterHelper writer;
 
