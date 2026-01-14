@@ -137,7 +137,7 @@ public:
                          + deadlock by absence of run() loop activity (by using both_empty() call)
                          */
                         return !consuming_ || both_empty() ||
-                        ( empty() && last_loop != current_loop_);
+                               ( empty() && last_loop != current_loop_);
                     });
             last_loop = current_loop_;
         }
@@ -398,7 +398,8 @@ struct EntityDiscoveryInfo
     bool is_proxy_undiscovery = false;
 
     EntityDiscoveryInfo()
-        : EntityDiscoveryInfo(EntityKind::INVALID)
+        : EntityDiscoveryInfo(
+                EntityKind::INVALID)
     {
     }
 

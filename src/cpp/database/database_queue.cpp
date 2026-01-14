@@ -1555,7 +1555,7 @@ void DatabaseDataQueue<ExtendedMonitorServiceStatusData>::process_sample()
                         // Instance handle was not stored, so the proxy entity is unknown and cannot be undiscovered
                         EPROSIMA_LOG_WARNING(BACKEND_DATABASE_QUEUE,
                                 "Attempt to undiscover unknown proxy entity with handle " <<
-                                            item.second->instance_handle);
+                                item.second->instance_handle);
                         return;
                     }
 
@@ -1568,7 +1568,8 @@ void DatabaseDataQueue<ExtendedMonitorServiceStatusData>::process_sample()
                     StatisticsGuid guid =
                             string_to_guid_s(proxy_entity_handles_to_guid.at(item.second->instance_handle));
                     EntityKind entity_kind = database_->get_entity_kind_by_guid(guid);
-                    auto matched_domain_entity = database_->get_entity_by_guid(entity_kind, proxy_entity_handles_to_guid.at(
+                    auto matched_domain_entity = database_->get_entity_by_guid(entity_kind,
+                                    proxy_entity_handles_to_guid.at(
                                         item.second->instance_handle));
                     domain = matched_domain_entity.first;
                     entity = matched_domain_entity.second;
