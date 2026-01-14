@@ -537,7 +537,7 @@ void StatisticsBackendData::stop_monitor(
     {
         if (monitor->spy_subscriber)
         {
-            for (auto& reader : monitor->user_data_readers)
+            for (auto& reader : monitor->spy_readers)
             {
                 monitor->spy_subscriber->delete_datareader(reader.second);
             }
@@ -545,7 +545,7 @@ void StatisticsBackendData::stop_monitor(
             monitor->spy_participant->delete_subscriber(monitor->spy_subscriber);
         }
 
-        for (auto& topic : monitor->user_data_topics)
+        for (auto& topic : monitor->spy_topics)
         {
             monitor->spy_participant->delete_topic(topic.second);
         }
@@ -558,7 +558,7 @@ void StatisticsBackendData::stop_monitor(
         delete monitor->statistics_reader_listener;
     }
 
-    for (auto& user_data_listener : monitor->user_data_listeners)
+    for (auto& user_data_listener : monitor->spy_listeners)
     {
         delete user_data_listener.second;
     }
@@ -642,7 +642,7 @@ void StatisticsBackendData::start_topic_spy(
     auto& monitor = monitor_it->second;
 
     // If the topic is already being spied, do nothing
-    if (monitor->user_data_readers.find(topic_name) != monitor->user_data_readers.end())
+    if (monitor->spy_readers.find(topic_name) != monitor->spy_readers.end())
     {
         EPROSIMA_LOG_WARNING(STATISTICS_BACKEND_DATA, "Topic '" << topic_name << "' is already being spied");
         return;
@@ -650,8 +650,8 @@ void StatisticsBackendData::start_topic_spy(
 
     fastdds::dds::Topic* topic = nullptr;
 
-    auto topic_it = monitor->user_data_topics.find(topic_name);
-    if (topic_it == monitor->user_data_topics.end())
+    auto topic_it = monitor->spy_topics.find(topic_name);
+    if (topic_it == monitor->spy_topics.end())
     {
         fastdds::dds::DynamicType::_ref_type topic_type =
                 monitor->user_data_context.get_type_from_topic_name(topic_name);
@@ -674,7 +674,7 @@ void StatisticsBackendData::start_topic_spy(
         {
             throw Error("Error creating topic '" + topic_name + "'");
         }
-        monitor->user_data_topics[topic_name] = topic;
+        monitor->spy_topics[topic_name] = topic;
     }
     else
     {
@@ -685,7 +685,7 @@ void StatisticsBackendData::start_topic_spy(
     fastdds::dds::DataReaderListener* listener = new subscriber::UserDataReaderListener(
         on_data_received,
         &monitor->user_data_context);
-    monitor->user_data_listeners[topic_name] = listener;
+    monitor->spy_listeners[topic_name] = listener;
 
     fastdds::dds::DataReader* reader = monitor->spy_subscriber->create_datareader(
         topic,
@@ -695,7 +695,7 @@ void StatisticsBackendData::start_topic_spy(
     {
         throw Error("Error creating user data reader in topic '" + topic_name + "'");
     }
-    monitor->user_data_readers[topic_name] = reader;
+    monitor->spy_readers[topic_name] = reader;
 }
 
 void StatisticsBackendData::stop_topic_spy(
@@ -711,23 +711,23 @@ void StatisticsBackendData::stop_topic_spy(
     }
     auto& monitor = it->second;
 
-    auto topic_it = monitor->user_data_topics.find(topic_name);
-    if (topic_it == monitor->user_data_topics.end())
+    auto topic_it = monitor->spy_topics.find(topic_name);
+    if (topic_it == monitor->spy_topics.end())
     {
         throw BadParameter("User data topic '" + topic_name + "' not found in monitor");
     }
 
     // If the topic is not being spied, do nothing
-    if (monitor->user_data_readers.find(topic_name) == monitor->user_data_readers.end())
+    if (monitor->spy_readers.find(topic_name) == monitor->spy_readers.end())
     {
         EPROSIMA_LOG_WARNING(STATISTICS_BACKEND_DATA, "Topic '" << topic_name << "' is not being spied");
         return;
     }
 
-    monitor->spy_subscriber->delete_datareader(monitor->user_data_readers[topic_name]);
-    monitor->user_data_readers.erase(topic_name);
-    delete monitor->user_data_listeners[topic_name];
-    monitor->user_data_listeners.erase(topic_name);
+    monitor->spy_subscriber->delete_datareader(monitor->spy_readers[topic_name]);
+    monitor->spy_readers.erase(topic_name);
+    delete monitor->spy_listeners[topic_name];
+    monitor->spy_listeners.erase(topic_name);
 }
 
 } // namespace details

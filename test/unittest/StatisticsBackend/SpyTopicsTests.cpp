@@ -64,7 +64,7 @@ public:
         DomainParticipantQos participant_qos = DomainParticipantFactory::get_instance()->get_default_participant_qos();
         participant_qos.properties().properties().emplace_back(
             "fastdds.statistics",
-            "HISTORY_LATENCY_TOPIC");     // We just need this topic to test can_spy_on_statistics_topics
+            "PUBLICATION_THROUGHPUT_TOPIC"); // We just need this topic to test can_spy_on_statistics_topics
         participant_ =
                 DomainParticipantFactory::get_instance()->create_participant(0, participant_qos);
         if (nullptr == participant_)
@@ -376,7 +376,7 @@ TEST_F(spy_topics_tests, exception_with_unknown_topic)
 
 TEST_F(spy_topics_tests, can_spy_on_statistics_topics)
 {
-    std::string statistics_topic_name = "_fastdds_statistics_history2history_latency";
+    std::string statistics_topic_name = "_fastdds_statistics_publication_throughput";
 
     WriterHelper writer;
 
@@ -406,13 +406,39 @@ TEST_F(spy_topics_tests, can_spy_on_statistics_topics)
 
     ASSERT_TRUE(topic_discovered) << "Statistics topic was not discovered";
 
+    std::mutex callback_mutex;
+    std::condition_variable callback_cv;
+    bool callback_called = false;
+
     EXPECT_NO_THROW(
         StatisticsBackend::start_topic_spy(monitor_id_, statistics_topic_name,
         [&](const std::string& /*data*/)
         {
-            // Regular callback
+            std::lock_guard<std::mutex> lock(callback_mutex);
+            callback_called = true;
+            callback_cv.notify_one();
         })
         );
+
+    // Give time for spy to set up
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+    // This should trigger throughput statistics
+    for (int i = 0; i < 10; i++)
+    {
+        writer.write(i, "Message " + std::to_string(i));
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+    }
+
+    {
+        std::unique_lock<std::mutex> lock(callback_mutex);
+        bool received = callback_cv.wait_for(lock, std::chrono::seconds(5), [&]
+                        {
+                            return callback_called;
+                        });
+
+        EXPECT_TRUE(received) << "Callback was never called for statistics topic";
+    }
 
     StatisticsBackend::stop_topic_spy(monitor_id_, statistics_topic_name);
 }

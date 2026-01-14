@@ -137,7 +137,7 @@ protected:
 private:
 
     /**
-     * @brief Check if a guid is the spy participant
+     * @brief Check if a guid is the spy participant or is inside it
      */
     bool is_spy(
             const fastdds::rtps::GUID_t& guid);

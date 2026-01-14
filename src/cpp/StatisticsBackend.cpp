@@ -226,11 +226,9 @@ EntityId create_and_register_monitor(
     auto se_erase_monitor_database_ =
             EPROSIMA_BACKEND_MAKE_SCOPE_EXIT(backend_data->monitors_by_entity_.erase(domain->id));
 
-    DomainParticipantQos spy_qos = participant_qos;
-
     monitor->spy_participant = DomainParticipantFactory::get_instance()->create_participant(
         domain_id,
-        spy_qos,
+        participant_qos,
         nullptr,
         StatusMask::none());
 
@@ -238,8 +236,6 @@ EntityId create_and_register_monitor(
     {
         throw Error("Error creating spy participant");
     }
-
-    monitor->spy_guid_prefix = monitor->spy_participant->guid().guidPrefix;
 
     auto se_spy_participant_ =
             EPROSIMA_BACKEND_MAKE_SCOPE_EXIT(
@@ -253,7 +249,7 @@ EntityId create_and_register_monitor(
         backend_data->data_queue_,
         backend_data->monitor_service_status_data_queue_,
         &monitor->user_data_context,
-        monitor->spy_guid_prefix);
+        monitor->spy_participant->guid().guidPrefix);
     auto se_participant_listener_ = EPROSIMA_BACKEND_MAKE_SCOPE_EXIT(delete monitor->participant_listener);
 
     monitor->statistics_reader_listener = new subscriber::StatisticsReaderListener(
@@ -280,11 +276,9 @@ EntityId create_and_register_monitor(
             EPROSIMA_BACKEND_MAKE_SCOPE_EXIT(
         DomainParticipantFactory::get_instance()->delete_participant(monitor->participant));
 
-    SubscriberQos subscriber_qos = SUBSCRIBER_QOS_DEFAULT;
-    subscriber_qos.partition().push_back("*");
     /* Create Subscriber */
     monitor->subscriber = monitor->participant->create_subscriber(
-        subscriber_qos,
+        SUBSCRIBER_QOS_DEFAULT,
         nullptr,
         StatusMask::none());
 
@@ -417,7 +411,7 @@ EntityId StatisticsBackend::init_monitor(
         DataKindMask data_mask,
         std::string app_id,
         std::string app_metadata,
-        std::string easy_mode_ip)
+        std::string easy_mode_ip /* = "" */)
 {
     /* Deactivate statistics in case they were set */
 #ifdef _WIN32

@@ -163,6 +163,12 @@ void StatisticsParticipantListener::on_data_writer_discovery(
         const PublicationBuiltinTopicData& info,
         bool& should_be_ignored)
 {
+    // Filter out our own statistics writers
+    if (participant->guid().guidPrefix == info.guid.guidPrefix)
+    {
+        return;
+    }
+
     // Check if this writer belongs to the spy participant
     if (is_spy(info.guid))
     {
