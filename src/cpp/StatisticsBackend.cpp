@@ -276,9 +276,11 @@ EntityId create_and_register_monitor(
             EPROSIMA_BACKEND_MAKE_SCOPE_EXIT(
         DomainParticipantFactory::get_instance()->delete_participant(monitor->participant));
 
+    SubscriberQos subscriber_qos = SUBSCRIBER_QOS_DEFAULT;
+    subscriber_qos.partition().push_back("*");
     /* Create Subscriber */
     monitor->subscriber = monitor->participant->create_subscriber(
-        SUBSCRIBER_QOS_DEFAULT,
+        subscriber_qos,
         nullptr,
         StatusMask::none());
 
@@ -309,11 +311,8 @@ EntityId create_and_register_monitor(
             }
         );
 
-    SubscriberQos spy_subscriber_qos = SUBSCRIBER_QOS_DEFAULT;
-    spy_subscriber_qos.partition().push_back("*");
-
     monitor->spy_subscriber = monitor->spy_participant->create_subscriber(
-        spy_subscriber_qos,
+        subscriber_qos,
         nullptr,
         StatusMask::none());
 
