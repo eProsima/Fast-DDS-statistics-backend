@@ -5886,7 +5886,8 @@ TEST_F(database_queue_tests, push_proxy_undiscovery_ok)
     proxy_discovery_data->data.status_kind(kind);
     proxy_discovery_data->data.value(value);
     proxy_discovery_data->entity_discovery_info = EntityDiscoveryInfo(EntityKind::PARTICIPANT);
-    proxy_discovery_data->entity_discovery_info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::DISCOVERY;
+    proxy_discovery_data->entity_discovery_info.discovery_status =
+            details::StatisticsBackendData::DiscoveryStatus::DISCOVERY;
     proxy_discovery_data->entity_discovery_info.domain_id = 1;
     proxy_discovery_data->entity_discovery_info.guid = guid_;
     proxy_discovery_data->entity_discovery_info.participant_guid = guid_;
@@ -5911,9 +5912,9 @@ TEST_F(database_queue_tests, push_proxy_undiscovery_ok)
     EXPECT_CALL(database, get_entity_kind_by_guid(guid)).Times(2);
     // Called twice, once per message. Force exception on first to simulate non-existing entity
     EXPECT_CALL(database, get_entity_by_guid(_, guid_str))
-    .Times(2)
-    .WillOnce(Throw(eprosima::statistics_backend::Exception("Entity not found")))
-    .WillOnce(Return(std::make_pair(EntityId(0), EntityId(1))));
+            .Times(2)
+            .WillOnce(Throw(eprosima::statistics_backend::Exception("Entity not found")))
+            .WillOnce(Return(std::make_pair(EntityId(0), EntityId(1))));
     // Called once, on undiscovery
     EXPECT_CALL(database, change_entity_status(EntityId(1), false)).Times(1);
     // Called once, on undiscovery
