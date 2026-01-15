@@ -124,7 +124,7 @@ if(GTEST_FOUND AND GMOCK_FOUND)
         push_monitor_sample_lost_no_entity
         push_monitor_extended_incompatible_qos
         push_monitor_extended_incompatible_qos_no_entity
-        push_monitor_statuses_size
+        push_proxy_undiscovery_ok
         )
 
     foreach(test_name ${DATABASEQUEUE_TEST_LIST})

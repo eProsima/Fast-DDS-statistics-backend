@@ -5855,6 +5855,74 @@ TEST_F(database_queue_tests, push_monitor_statuses_size)
     monitor_data_queue.flush();
 }
 
+TEST_F(database_queue_tests, push_proxy_undiscovery_ok)
+{
+    std::chrono::system_clock::time_point timestamp = std::chrono::system_clock::now();
+
+    // Build the reader GUID
+    std::array<uint8_t, 12> prefix = {1, 15, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    std::array<uint8_t, 4> suffix = {0, 0, 0, 0};
+    std::string guid_str = "01.0f.03.04.05.06.07.08.09.0a.0b.0c|0.0.0.0";
+    DatabaseDataQueueWrapper::StatisticsGuidPrefix guid_prefix;
+    guid_prefix.value(prefix);
+    DatabaseDataQueueWrapper::StatisticsEntityId entity_id;
+    entity_id.value(suffix);
+    DatabaseDataQueueWrapper::StatisticsGuid guid;
+    guid.guidPrefix(guid_prefix);
+    guid.entityId(entity_id);
+
+    GUID_t guid_;
+    std::copy(prefix.begin(), prefix.end(), guid_.guidPrefix.value);
+    std::copy(suffix.begin(), suffix.end(), guid_.entityId.value);
+    InstanceHandle_t handle(guid_);
+
+    // PRECONDITION: Insert a PROXY participant in the database
+    std::shared_ptr<ExtendedMonitorServiceStatusData> proxy_discovery_data = std::make_shared<ExtendedMonitorServiceStatusData>();
+    eprosima::fastdds::statistics::StatusKind::StatusKind kind = eprosima::fastdds::statistics::StatusKind::PROXY;
+    MonitorServiceData value;
+    std::vector<uint8_t> proxy = {0x50, 0x52, 0x4f, 0x58, 0x59};
+    value.entity_proxy(proxy);
+    proxy_discovery_data->data.local_entity(guid);
+    proxy_discovery_data->data.status_kind(kind);
+    proxy_discovery_data->data.value(value);
+    proxy_discovery_data->entity_discovery_info = EntityDiscoveryInfo(EntityKind::PARTICIPANT);
+    proxy_discovery_data->entity_discovery_info.discovery_status = details::StatisticsBackendData::DiscoveryStatus::DISCOVERY;
+    proxy_discovery_data->entity_discovery_info.domain_id = 1;
+    proxy_discovery_data->entity_discovery_info.guid = guid_;
+    proxy_discovery_data->entity_discovery_info.participant_guid = guid_;
+    proxy_discovery_data->entity_discovery_info.participant_name = "Proxy Participant";
+    proxy_discovery_data->entity_discovery_info.app_id = AppId::UNKNOWN;
+    proxy_discovery_data->entity_discovery_info.host = "Unknown";
+    proxy_discovery_data->entity_discovery_info.user = "Unknown";
+    proxy_discovery_data->entity_discovery_info.process = "Unknown";
+    proxy_discovery_data->entity_discovery_info.entity_status = StatusLevel::OK_STATUS;
+    proxy_discovery_data->entity_discovery_info.discovery_source = DiscoverySource::PROXY;
+    proxy_discovery_data->entity_discovery_info.original_domain_id = 0;
+    proxy_discovery_data->instance_handle = handle;
+    // Insertion of undiscovery message
+    std::shared_ptr<ExtendedMonitorServiceStatusData> proxy_undiscovery_data = std::make_shared<ExtendedMonitorServiceStatusData>();
+    proxy_undiscovery_data->data.status_kind(kind);
+    proxy_undiscovery_data->entity_discovery_info.is_proxy_undiscovery = true;
+    proxy_undiscovery_data->instance_handle = handle;
+
+
+    // Expectations-> database insert called to add the proxy participant
+    // Called twice, once per message
+    EXPECT_CALL(database, get_entity_kind_by_guid(guid)).Times(2);
+    // Called twice, once per message. Force exception on first to simulate non-existing entity
+    EXPECT_CALL(database, get_entity_by_guid(_, guid_str))
+    .Times(2)
+    .WillOnce(Throw(eprosima::statistics_backend::Exception("Entity not found")))
+    .WillOnce(Return(std::make_pair(EntityId(0), EntityId(1))));
+    // Called once, on undiscovery
+    EXPECT_CALL(database, change_entity_status(EntityId(1), false)).Times(1);
+    // Called once, on undiscovery
+    EXPECT_CALL(database, update_graph_on_updated_entity(EntityId(0), EntityId(1))).Times(1);
+    monitor_data_queue.push(timestamp, proxy_discovery_data);
+    monitor_data_queue.push(timestamp, proxy_undiscovery_data);
+    monitor_data_queue.flush();
+}
+
 int main(
         int argc,
         char** argv)
