@@ -226,13 +226,30 @@ EntityId create_and_register_monitor(
     auto se_erase_monitor_database_ =
             EPROSIMA_BACKEND_MAKE_SCOPE_EXIT(backend_data->monitors_by_entity_.erase(domain->id));
 
+    monitor->spy_participant = DomainParticipantFactory::get_instance()->create_participant(
+        domain_id,
+        participant_qos,
+        nullptr,
+        StatusMask::none());
+
+    if (monitor->spy_participant == nullptr)
+    {
+        throw Error("Error creating spy participant");
+    }
+
+    auto se_spy_participant_ =
+            EPROSIMA_BACKEND_MAKE_SCOPE_EXIT(
+        DomainParticipantFactory::get_instance()->delete_participant(monitor->spy_participant));
+
+
     monitor->participant_listener = new subscriber::StatisticsParticipantListener(
         domain->id,
         backend_data->database_.get(),
         backend_data->entity_queue_,
         backend_data->data_queue_,
         backend_data->monitor_service_status_data_queue_,
-        &monitor->user_data_context);
+        &monitor->user_data_context,
+        monitor->spy_participant->guid().guidPrefix);
     auto se_participant_listener_ = EPROSIMA_BACKEND_MAKE_SCOPE_EXIT(delete monitor->participant_listener);
 
     monitor->statistics_reader_listener = new subscriber::StatisticsReaderListener(
@@ -294,6 +311,19 @@ EntityId create_and_register_monitor(
             }
         );
 
+    monitor->spy_subscriber = monitor->spy_participant->create_subscriber(
+        subscriber_qos,
+        nullptr,
+        StatusMask::none());
+
+    if (monitor->spy_subscriber == nullptr)
+    {
+        throw Error("Error creating spy subscriber");
+    }
+    auto se_spy_subscriber_ =
+            EPROSIMA_BACKEND_MAKE_SCOPE_EXIT(
+        monitor->spy_participant->delete_subscriber(monitor->spy_subscriber));
+
     for (const auto& topic : topics)
     {
         /* Register the type and topic*/
@@ -335,6 +365,8 @@ EntityId create_and_register_monitor(
     se_reader_listener_.cancel();
     se_participant_.cancel();
     se_subscriber_.cancel();
+    se_spy_participant_.cancel();
+    se_spy_subscriber_.cancel();
     se_topics_datareaders_.cancel();
 
     return domain->id;

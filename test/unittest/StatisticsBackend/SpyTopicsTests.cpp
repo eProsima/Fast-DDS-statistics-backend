@@ -61,8 +61,12 @@ public:
     {
         // Creates a publisher in the given domain with a topic with the given name
         // and waits until the monitor discovers it
+        DomainParticipantQos participant_qos = DomainParticipantFactory::get_instance()->get_default_participant_qos();
+        participant_qos.properties().properties().emplace_back(
+            "fastdds.statistics",
+            "PUBLICATION_THROUGHPUT_TOPIC"); // We just need this topic to test can_spy_on_statistics_topics
         participant_ =
-                DomainParticipantFactory::get_instance()->create_participant(0, PARTICIPANT_QOS_DEFAULT);
+                DomainParticipantFactory::get_instance()->create_participant(0, participant_qos);
         if (nullptr == participant_)
         {
             // Error
@@ -188,6 +192,7 @@ public:
     void TearDown()
     {
         StatisticsBackend::stop_monitor(monitor_id_);
+        details::StatisticsBackendData::reset_instance();
     }
 
     EntityId monitor_id_;
@@ -367,6 +372,75 @@ TEST_F(spy_topics_tests, exception_with_unknown_topic)
             // No need to have content here
         });
         , Error);
+}
+
+TEST_F(spy_topics_tests, can_spy_on_statistics_topics)
+{
+    std::string statistics_topic_name = "_fastdds_statistics_publication_throughput";
+
+    WriterHelper writer;
+
+    // Wait with timeout and check for topic discovery
+    auto start = std::chrono::steady_clock::now();
+    bool topic_discovered = false;
+
+    while (std::chrono::steady_clock::now() - start < std::chrono::seconds(5))
+    {
+        try
+        {
+            // Try to get the type - if it exists, we can spy on it
+            auto& monitor = details::StatisticsBackendData::get_instance()->monitors_by_entity_[monitor_id_];
+            auto type = monitor->user_data_context.get_type_from_topic_name(statistics_topic_name);
+            if (type)
+            {
+                topic_discovered = true;
+                break;
+            }
+        }
+        catch (...)
+        {
+            // Not discovered yet
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+
+    ASSERT_TRUE(topic_discovered) << "Statistics topic was not discovered";
+
+    std::mutex callback_mutex;
+    std::condition_variable callback_cv;
+    bool callback_called = false;
+
+    EXPECT_NO_THROW(
+        StatisticsBackend::start_topic_spy(monitor_id_, statistics_topic_name,
+        [&](const std::string& /*data*/)
+        {
+            std::lock_guard<std::mutex> lock(callback_mutex);
+            callback_called = true;
+            callback_cv.notify_one();
+        })
+        );
+
+    // Give time for spy to set up
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+    // This should trigger throughput statistics
+    for (int i = 0; i < 10; i++)
+    {
+        writer.write(i, "Message " + std::to_string(i));
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+    }
+
+    {
+        std::unique_lock<std::mutex> lock(callback_mutex);
+        bool received = callback_cv.wait_for(lock, std::chrono::seconds(5), [&]
+                        {
+                            return callback_called;
+                        });
+
+        EXPECT_TRUE(received) << "Callback was never called for statistics topic";
+    }
+
+    StatisticsBackend::stop_topic_spy(monitor_id_, statistics_topic_name);
 }
 
 int main(

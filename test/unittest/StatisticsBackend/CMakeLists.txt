@@ -1107,6 +1107,7 @@ if(GTEST_FOUND AND GMOCK_FOUND)
         no_callback_called_if_no_write
         spy_simple_message
         second_spy_on_topic_ignored
+        can_spy_on_statistics_topics
     )
 
     foreach(test_name ${IS_ACTIVE_TEST_LIST})

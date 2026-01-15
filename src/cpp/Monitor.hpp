@@ -87,14 +87,14 @@ struct Monitor
     //! The listener will decide how to process the data according to the topic of the reader
     fastdds::dds::DataReaderListener* statistics_reader_listener = nullptr;
 
-    //! Holds the topic object created for each of the user data topics
-    std::map<std::string, fastdds::dds::Topic*> user_data_topics{};
+    //! Holds the topic object created for each of the spy topics
+    std::map<std::string, fastdds::dds::Topic*> spy_topics{};
 
-    //! Holds the datareader object created for each user data topic
-    std::map<std::string, fastdds::dds::DataReader*> user_data_readers{};
+    //! Holds the datareader object created for each spy topic
+    std::map<std::string, fastdds::dds::DataReader*> spy_readers{};
 
-    //! Holds the datareader listener object created for each user data topic
-    std::map<std::string, fastdds::dds::DataReaderListener*> user_data_listeners{};
+    //! Holds the datareader listener object created for each spy topic
+    std::map<std::string, fastdds::dds::DataReaderListener*> spy_listeners{};
 
     //! Holds the information required to process the user data
     subscriber::UserDataContext user_data_context;
@@ -110,6 +110,12 @@ struct Monitor
 
     //! DataWriter discovery status. Used in the datawriter discovery user callback
     DomainListener::Status datawriter_status_{};
+
+    //! Dedicated participant for user data spy (statistics DISABLED)
+    fastdds::dds::DomainParticipant* spy_participant = nullptr;
+
+    //! Subscriber for spy participant
+    fastdds::dds::Subscriber* spy_subscriber = nullptr;
 };
 
 } // namespace details

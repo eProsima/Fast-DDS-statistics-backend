@@ -69,7 +69,8 @@ StatisticsParticipantListener::StatisticsParticipantListener(
         database::DatabaseEntityQueue* entity_queue,
         database::DatabaseDataQueue<eprosima::fastdds::statistics::Data>* data_queue,
         database::DatabaseDataQueue<database::ExtendedMonitorServiceStatusData>* monitor_service_data_queue,
-        UserDataContext* ctx)
+        UserDataContext* ctx,
+        GuidPrefix_t spy_guid_prefix)
 noexcept
     : DomainParticipantListener()
     , domain_id_(domain_id)
@@ -78,6 +79,7 @@ noexcept
     , data_queue_(data_queue)
     , monitor_service_status_data_queue_(monitor_service_data_queue)
     , ctx_(ctx)
+    , spy_guid_prefix_(spy_guid_prefix)
 {
 }
 
@@ -85,8 +87,16 @@ void StatisticsParticipantListener::on_participant_discovery(
         DomainParticipant* /*participant*/,
         ParticipantDiscoveryStatus reason,
         const ParticipantBuiltinTopicData& info,
-        bool& /*should_be_ignored*/)
+        bool& should_be_ignored)
 {
+    // Check if this is our spy participant - if so, ignore it
+    if (is_spy(info.guid))
+    {
+        should_be_ignored = true;
+        EPROSIMA_LOG_INFO(STATISTICS_PARTICIPANT_LISTENER,
+                "Ignoring spy participant: " << info.guid);
+        return;
+    }
     // First stop the data queues until the new entity is created
     data_queue_->stop_consumer();
     monitor_service_status_data_queue_->stop_consumer();
@@ -115,11 +125,20 @@ void StatisticsParticipantListener::on_data_reader_discovery(
         DomainParticipant* participant,
         ReaderDiscoveryStatus reason,
         const SubscriptionBuiltinTopicData& info,
-        bool& /*should_be_ignored*/)
+        bool& should_be_ignored)
 {
     // Filter out our own statistics readers
     if (participant->guid().guidPrefix == info.guid.guidPrefix)
     {
+        return;
+    }
+
+    // Check if this reader belongs to the spy participant
+    if (is_spy(info.guid))
+    {
+        should_be_ignored = true;
+        EPROSIMA_LOG_INFO(STATISTICS_PARTICIPANT_LISTENER,
+                "Ignoring spy reader: " << info.guid);
         return;
     }
 
@@ -142,8 +161,22 @@ void StatisticsParticipantListener::on_data_writer_discovery(
         DomainParticipant* participant,
         WriterDiscoveryStatus reason,
         const PublicationBuiltinTopicData& info,
-        bool& /*should_be_ignored*/)
+        bool& should_be_ignored)
 {
+    // Filter out our own statistics writers
+    if (participant->guid().guidPrefix == info.guid.guidPrefix)
+    {
+        return;
+    }
+
+    // Check if this writer belongs to the spy participant
+    if (is_spy(info.guid))
+    {
+        should_be_ignored = true;
+        EPROSIMA_LOG_INFO(STATISTICS_PARTICIPANT_LISTENER,
+                "Ignoring spy writer: " << info.guid);
+        return;
+    }
     // Contrary to what it's done in on_subscriber_discovery, here we do not filter our own datawritters, as
     // deactivation of fastdds statistics module is enforced for the statistics backend, and hence none is ever created
     static_cast<void>(participant);
@@ -215,6 +248,12 @@ void StatisticsParticipantListener::update_user_data_context(
         // Add the topic to the discovered topics if not already present
         ctx_->register_user_data_topic(info.topic_name.to_string(), remote_type);
     }
+}
+
+bool StatisticsParticipantListener::is_spy(
+        const fastdds::rtps::GUID_t& guid)
+{
+    return guid.guidPrefix == spy_guid_prefix_;
 }
 
 } //namespace database
