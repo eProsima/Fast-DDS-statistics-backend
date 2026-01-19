@@ -69,7 +69,8 @@ bool StatisticsReaderListener::get_available_data(
 {
     if (reader->take_next_sample(&inner_data, &info) == RETCODE_OK)
     {
-        if (!info.valid_data && info.instance_state != NOT_ALIVE_NO_WRITERS_INSTANCE_STATE)
+        if (!info.valid_data && info.instance_state != NOT_ALIVE_NO_WRITERS_INSTANCE_STATE &&
+            info.instance_state != NOT_ALIVE_DISPOSED_INSTANCE_STATE)
         {
             // It is important return true in NOT_ALIVE_NO_WRITERS_INSTANCE_STATE samples even if
             // they are marked as invalid data, as they are used internally by DDS to signal that
@@ -235,10 +236,11 @@ void StatisticsReaderListener::on_data_available(
                     return;
                 }
             }
-            else if (info.instance_state == NOT_ALIVE_NO_WRITERS_INSTANCE_STATE)
+            else if (info.instance_state == NOT_ALIVE_DISPOSED_INSTANCE_STATE ||
+                     info.instance_state == NOT_ALIVE_NO_WRITERS_INSTANCE_STATE)
             {
-                // Proxy entities will be undiscovered if they are proxy and a NOT_ALIVE_NO_WRITERS_INSTANCE_STATE state
-                // is received.
+                // Proxy entities will be undiscovered if they are proxy and either a NOT_ALIVE_DISPOSED_INSTANCE_STATE state
+                // or a NOT_ALIVE_NO_WRITERS_INSTANCE_STATE state is received.
                 monitor_service_status_data->entity_discovery_info.is_proxy_undiscovery = true;
             }
 
