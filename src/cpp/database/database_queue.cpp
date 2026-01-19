@@ -1480,57 +1480,6 @@ void DatabaseDataQueue<eprosima::fastdds::statistics::Data>::process_sample()
     }
 }
 
-/**
- * Converts a GUID string to a GUID_s structure.
- */
-eprosima::fastdds::statistics::detail::GUID_s string_to_guid_s(
-        const std::string& guid_str)
-{
-    eprosima::fastdds::statistics::detail::GUID_s guid_s;
-
-    // GUID string format is typically: "01.0f.00.00.01.00.00.00.00.00.00.00|00.00.01.c1"
-    // Split by '|' to separate guidPrefix and entityId
-    size_t separator_pos = guid_str.find('|');
-    if (separator_pos == std::string::npos)
-    {
-        throw std::invalid_argument("Invalid GUID format: missing '|' separator");
-    }
-
-    std::string prefix_str = guid_str.substr(0, separator_pos);
-    std::string entity_str = guid_str.substr(separator_pos + 1);
-
-    // Parse guidPrefix (12 bytes, format: "01.0f.00.00.01.00.00.00.00.00.00.00")
-    std::istringstream prefix_stream(prefix_str);
-    std::string byte_str;
-    int prefix_idx = 0;
-
-    while (std::getline(prefix_stream, byte_str, '.') && prefix_idx < 12)
-    {
-        guid_s.guidPrefix().value()[prefix_idx++] = static_cast<uint8_t>(std::stoi(byte_str, nullptr, 16));
-    }
-
-    if (prefix_idx != 12)
-    {
-        throw std::invalid_argument("Invalid GUID format: guidPrefix must have 12 bytes");
-    }
-
-    // Parse entityId (4 bytes, format: "00.00.01.c1")
-    std::istringstream entity_stream(entity_str);
-    int entity_idx = 0;
-
-    while (std::getline(entity_stream, byte_str, '.') && entity_idx < 4)
-    {
-        guid_s.entityId().value()[entity_idx++] = static_cast<uint8_t>(std::stoi(byte_str, nullptr, 16));
-    }
-
-    if (entity_idx != 4)
-    {
-        throw std::invalid_argument("Invalid GUID format: entityId must have 4 bytes");
-    }
-
-    return guid_s;
-}
-
 template<>
 void DatabaseDataQueue<ExtendedMonitorServiceStatusData>::process_sample()
 {
@@ -1562,11 +1511,10 @@ void DatabaseDataQueue<ExtendedMonitorServiceStatusData>::process_sample()
 
                     try
                     {
-                        StatisticsGuid guid =
-                                string_to_guid_s(proxy_entity_handles_to_guid.at(item.second->instance_handle));
+                        auto guid_str = proxy_entity_handles_to_guid.at(item.second->instance_handle);
+                        StatisticsGuid guid = serialize_guid(guid_str);
                         EntityKind entity_kind = database_->get_entity_kind_by_guid(guid);
-                        auto matched_domain_entity = database_->get_entity_by_guid(entity_kind,
-                                        proxy_entity_handles_to_guid.at(item.second->instance_handle));
+                        auto matched_domain_entity = database_->get_entity_by_guid(entity_kind, guid_str);
                         domain = matched_domain_entity.first;
                         entity = matched_domain_entity.second;
                         database_->change_entity_status(entity, false);
@@ -1574,9 +1522,11 @@ void DatabaseDataQueue<ExtendedMonitorServiceStatusData>::process_sample()
                         EPROSIMA_LOG_INFO(BACKEND_DATABASE_QUEUE,
                                 "Setting proxy entity as inactive with handle "
                                 << item.second->instance_handle
-                                << " and GUID " << proxy_entity_handles_to_guid.at(item.second->instance_handle));
+                                << " and GUID " << guid_str);
                         // Mark as updated so the graph is also updated below
                         updated_entity = true;
+                        // Remove from the stored proxy handles map
+                        proxy_entity_handles_to_guid.erase(item.second->instance_handle);
                     }
                     catch (const eprosima::statistics_backend::Exception&)
                     {
@@ -1584,6 +1534,8 @@ void DatabaseDataQueue<ExtendedMonitorServiceStatusData>::process_sample()
                         EPROSIMA_LOG_WARNING(BACKEND_DATABASE_QUEUE,
                                 "Failed attempt to undiscover unknown proxy entity with handle " <<
                                 item.second->instance_handle);
+                        // Somehow the DB and the handles map were inconsistent, remove the handle to avoid future issues
+                        proxy_entity_handles_to_guid.erase(item.second->instance_handle);
                         return;
                     }
 
@@ -1618,9 +1570,8 @@ void DatabaseDataQueue<ExtendedMonitorServiceStatusData>::process_sample()
                             item.second->entity_discovery_info.original_domain_id);
 
                     // Keep track of updated instance handle in order to be able to undiscover later on
-                    std::ostringstream oss;
-                    oss << item.second->entity_discovery_info.guid;
-                    proxy_entity_handles_to_guid[item.second->instance_handle] = oss.str();
+                    proxy_entity_handles_to_guid[item.second->instance_handle] =
+                            to_string(item.second->entity_discovery_info.guid);
                 }
 
                 details::StatisticsBackendData::get_instance()->on_status_reported(domain, entity, StatusKind::PROXY);
@@ -1649,9 +1600,9 @@ void DatabaseDataQueue<ExtendedMonitorServiceStatusData>::process_sample()
                     }
 
                     // Store participant proxy instance handle to guid mapping
-                    std::ostringstream oss;
-                    oss << item.second->entity_discovery_info.guid;
-                    proxy_entity_handles_to_guid[item.second->instance_handle] = oss.str();
+                    proxy_entity_handles_to_guid[item.second->instance_handle] =
+                            to_string(item.second->entity_discovery_info.guid);
+
 
                     timestamp = now();
                     details::StatisticsBackendData::get_instance()->get_entity_queue()->push(timestamp,
@@ -1697,17 +1648,16 @@ void DatabaseDataQueue<ExtendedMonitorServiceStatusData>::process_sample()
                     // Mark the participant as enqueued to avoid creating more participant placeholders
                     participant_enqueued[item.second->entity_discovery_info.participant_guid] = true;
                     // Store placeholder participant proxy instance handle to guid mapping
-                    std::ostringstream oss;
-                    oss << participant_discovery_info.guid;
-                    proxy_entity_handles_to_guid[item.second->instance_handle] = oss.str();
+                    proxy_entity_handles_to_guid[item.second->instance_handle] =
+                            to_string(participant_discovery_info.guid);
+
                     // Adding endpoint entity
                     timestamp = now();
                     details::StatisticsBackendData::get_instance()->get_entity_queue()->push(timestamp,
                             item.second->entity_discovery_info);
                     // Store endpoint proxy instance handle to guid mapping
-                    oss.str("");
-                    oss << item.second->entity_discovery_info.guid;
-                    proxy_entity_handles_to_guid[item.second->instance_handle] = oss.str();
+                    proxy_entity_handles_to_guid[item.second->instance_handle] =
+                            to_string(item.second->entity_discovery_info.guid);
                 }
                 else
                 {
@@ -1717,9 +1667,8 @@ void DatabaseDataQueue<ExtendedMonitorServiceStatusData>::process_sample()
                     details::StatisticsBackendData::get_instance()->get_entity_queue()->push(timestamp,
                             item.second->entity_discovery_info);
                     // Store endpoint proxy instance handle to guid mapping
-                    std::ostringstream oss;
-                    oss << item.second->entity_discovery_info.guid;
-                    proxy_entity_handles_to_guid[item.second->instance_handle] = oss.str();
+                    proxy_entity_handles_to_guid[item.second->instance_handle] =
+                            to_string(item.second->entity_discovery_info.guid);
                 }
             }
             break;
