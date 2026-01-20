@@ -1496,6 +1496,52 @@ void DatabaseDataQueue<ExtendedMonitorServiceStatusData>::process_sample()
             sample.src_ts = item.first;
             try
             {
+                if (item.second->entity_discovery_info.is_proxy_undiscovery)
+                {
+                    // Undiscovery of PROXY entities
+                    if (proxy_entity_handles_to_guid.find(item.second->instance_handle) ==
+                            proxy_entity_handles_to_guid.end())
+                    {
+                        // Instance handle was not stored, so the proxy entity is unknown and cannot be undiscovered
+                        EPROSIMA_LOG_WARNING(BACKEND_DATABASE_QUEUE,
+                                "Failed attempt to undiscover unknown proxy entity with handle " <<
+                                item.second->instance_handle);
+                        return;
+                    }
+
+                    try
+                    {
+                        auto guid_str = proxy_entity_handles_to_guid.at(item.second->instance_handle);
+                        StatisticsGuid guid = serialize_guid(guid_str);
+                        EntityKind entity_kind = database_->get_entity_kind_by_guid(guid);
+                        auto matched_domain_entity = database_->get_entity_by_guid(entity_kind, guid_str);
+                        domain = matched_domain_entity.first;
+                        entity = matched_domain_entity.second;
+                        database_->change_entity_status(entity, false);
+                        // Set proxy entity as inactive in the database
+                        EPROSIMA_LOG_INFO(BACKEND_DATABASE_QUEUE,
+                                "Setting proxy entity as inactive with handle "
+                                << item.second->instance_handle
+                                << " and GUID " << guid_str);
+                        // Mark as updated so the graph is also updated below
+                        updated_entity = true;
+                        // Remove from the stored proxy handles map
+                        proxy_entity_handles_to_guid.erase(item.second->instance_handle);
+                    }
+                    catch (const eprosima::statistics_backend::Exception&)
+                    {
+                        // Entity associated to given instance was not found in the db, cannot be undiscovered
+                        EPROSIMA_LOG_WARNING(BACKEND_DATABASE_QUEUE,
+                                "Failed attempt to undiscover unknown proxy entity with handle " <<
+                                item.second->instance_handle);
+                        // Somehow the DB and the handles map were inconsistent, remove the handle to avoid future issues
+                        proxy_entity_handles_to_guid.erase(item.second->instance_handle);
+                        return;
+                    }
+
+                    break;
+                }
+
                 auto source_guid = item.second->data.local_entity();
                 process_sample_type(domain, entity, source_guid, sample,
                         item.second->data.value().entity_proxy());
@@ -1506,6 +1552,7 @@ void DatabaseDataQueue<ExtendedMonitorServiceStatusData>::process_sample()
                 if (item.second->entity_discovery_info.kind() == EntityKind::PARTICIPANT &&
                         database_->get_entity(entity)->discovery_source != DiscoverySource::DISCOVERY)
                 {
+                    // Update of PROXY entities
                     // NOTE: Proxy can only update unknown, proxy or inferred participants, not discovered ones
                     // as they usually contain more complete information
                     database_->update_participant_discovery_info(entity,
@@ -1521,6 +1568,10 @@ void DatabaseDataQueue<ExtendedMonitorServiceStatusData>::process_sample()
                             item.second->entity_discovery_info.app_metadata,
                             item.second->entity_discovery_info.discovery_source,
                             item.second->entity_discovery_info.original_domain_id);
+
+                    // Keep track of updated instance handle in order to be able to undiscover later on
+                    proxy_entity_handles_to_guid[item.second->instance_handle] =
+                            to_string(item.second->entity_discovery_info.guid);
                 }
 
                 details::StatisticsBackendData::get_instance()->on_status_reported(domain, entity, StatusKind::PROXY);
@@ -1547,6 +1598,11 @@ void DatabaseDataQueue<ExtendedMonitorServiceStatusData>::process_sample()
                         item.second->entity_discovery_info.discovery_status =
                                 details::StatisticsBackendData::DiscoveryStatus::UPDATE;
                     }
+
+                    // Store participant proxy instance handle to guid mapping
+                    proxy_entity_handles_to_guid[item.second->instance_handle] =
+                            to_string(item.second->entity_discovery_info.guid);
+
 
                     timestamp = now();
                     details::StatisticsBackendData::get_instance()->get_entity_queue()->push(timestamp,
@@ -1591,10 +1647,17 @@ void DatabaseDataQueue<ExtendedMonitorServiceStatusData>::process_sample()
                             participant_discovery_info);
                     // Mark the participant as enqueued to avoid creating more participant placeholders
                     participant_enqueued[item.second->entity_discovery_info.participant_guid] = true;
+                    // Store placeholder participant proxy instance handle to guid mapping
+                    proxy_entity_handles_to_guid[item.second->instance_handle] =
+                            to_string(participant_discovery_info.guid);
+
                     // Adding endpoint entity
                     timestamp = now();
                     details::StatisticsBackendData::get_instance()->get_entity_queue()->push(timestamp,
                             item.second->entity_discovery_info);
+                    // Store endpoint proxy instance handle to guid mapping
+                    proxy_entity_handles_to_guid[item.second->instance_handle] =
+                            to_string(item.second->entity_discovery_info.guid);
                 }
                 else
                 {
@@ -1603,6 +1666,9 @@ void DatabaseDataQueue<ExtendedMonitorServiceStatusData>::process_sample()
                     timestamp = now();
                     details::StatisticsBackendData::get_instance()->get_entity_queue()->push(timestamp,
                             item.second->entity_discovery_info);
+                    // Store endpoint proxy instance handle to guid mapping
+                    proxy_entity_handles_to_guid[item.second->instance_handle] =
+                            to_string(item.second->entity_discovery_info.guid);
                 }
             }
             break;

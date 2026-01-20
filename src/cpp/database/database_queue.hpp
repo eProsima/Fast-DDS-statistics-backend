@@ -27,11 +27,12 @@
 #include <queue>
 #include <thread>
 
+#include <fastdds/dds/common/InstanceHandle.hpp>
+#include <fastdds/dds/log/Log.hpp>
 #include <fastdds/rtps/common/Guid.hpp>
 #include <fastdds/rtps/common/Locator.hpp>
 #include <fastdds/rtps/common/SequenceNumber.hpp>
 #include <fastdds/rtps/common/RemoteLocators.hpp>
-#include <fastdds/dds/log/Log.hpp>
 #include <fastdds_statistics_backend/types/JSONTags.h>
 
 #include <database/database.hpp>
@@ -136,7 +137,7 @@ public:
                          + deadlock by absence of run() loop activity (by using both_empty() call)
                          */
                         return !consuming_ || both_empty() ||
-                        ( empty() && last_loop != current_loop_);
+                               ( empty() && last_loop != current_loop_);
                     });
             last_loop = current_loop_;
         }
@@ -393,8 +394,12 @@ struct EntityDiscoveryInfo
     // useful when discovery_source is PROXY
     DomainId original_domain_id;
 
+    // Information to handle undiscovery of proxy entities
+    bool is_proxy_undiscovery = false;
+
     EntityDiscoveryInfo()
-        : EntityDiscoveryInfo(EntityKind::INVALID)
+        : EntityDiscoveryInfo(
+                EntityKind::INVALID)
     {
     }
 
@@ -425,6 +430,11 @@ struct ExtendedMonitorServiceStatusData
 
     // Deserialized entity optional QoS information received through Monitor Service's proxy samples
     database::Qos optional_qos;
+
+    // Instance handle of the sample. This is the instance corresponding to a "PROXY" status type
+    // and the entity's GUID
+    fastdds::dds::InstanceHandle_t instance_handle;
+
 };
 
 class DatabaseEntityQueue : public DatabaseQueue<EntityDiscoveryInfo>
@@ -595,6 +605,38 @@ public:
 
 protected:
 
+    StatisticsGuid serialize_guid(
+            const std::string& guid_str) const
+    {
+        fastdds::statistics::detail::GUID_s guid_s;
+        std::istringstream iss(guid_str);
+        std::string byte_str;
+
+        // Parse the guidPrefix part
+        uint8_t guid_prefix_size = static_cast<uint8_t>(fastdds::rtps::GuidPrefix_t::size);
+        for (uint8_t i = 0; i < guid_prefix_size; ++i)
+        {
+            if (i == (guid_prefix_size - 1))
+            {
+                std::getline(iss, byte_str, '|');
+            }
+            else
+            {
+                std::getline(iss, byte_str, '.');
+            }
+            guid_s.guidPrefix().value()[i] = static_cast<uint8_t>(std::stoul(byte_str, nullptr, 16));
+        }
+
+        // Parse the entityId part
+        for (uint8_t i = 0; i < static_cast<uint8_t>(fastdds::rtps::EntityId_t::size); ++i)
+        {
+            std::getline(iss, byte_str, '.');
+            guid_s.entityId().value()[i] = static_cast<uint8_t>(std::stoul(byte_str, nullptr, 16));
+        }
+
+        return guid_s;
+    }
+
     std::string deserialize_guid(
             StatisticsGuid data) const
     {
@@ -663,6 +705,9 @@ protected:
 
     // Structure to keep if the discovery of a participant has already been enqueued
     std::map<eprosima::fastdds::rtps::GUID_t, bool> participant_enqueued;
+
+    // Structure to map InstanceHandles to GUID strings for proxy entities
+    std::map<eprosima::fastdds::rtps::InstanceHandle_t, std::string> proxy_entity_handles_to_guid;
 };
 
 template<>

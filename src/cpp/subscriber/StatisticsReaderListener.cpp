@@ -64,16 +64,20 @@ template<typename T>
 bool StatisticsReaderListener::get_available_data(
         eprosima::fastdds::dds::DataReader* reader,
         T& inner_data,
+        eprosima::fastdds::dds::SampleInfo& info,
         std::chrono::system_clock::time_point& timestamp)
 {
-    SampleInfo info;
     if (reader->take_next_sample(&inner_data, &info) == RETCODE_OK)
     {
-        if (!info.valid_data)
+        if (!info.valid_data && info.instance_state != NOT_ALIVE_NO_WRITERS_INSTANCE_STATE &&
+                info.instance_state != NOT_ALIVE_DISPOSED_INSTANCE_STATE)
         {
-            // Received data not valid
+            // It is important return true in NOT_ALIVE_NO_WRITERS_INSTANCE_STATE samples even if
+            // they are marked as invalid data, as they are used internally by DDS to signal that
+            // there are no writers
             return false;
         }
+
         timestamp = nanoseconds_to_systemclock(info.source_timestamp.to_ns());
         return true;
     }
@@ -194,16 +198,17 @@ void StatisticsReaderListener::on_data_available(
 
     bool enqueue = false;
 
+    eprosima::fastdds::dds::SampleInfo info;
     if (MONITOR_SERVICE_TOPIC == topic_name)
     {
         MonitorServiceStatusData inner_data;
-        if (get_available_data(reader, inner_data, timestamp))
+        if (get_available_data(reader, inner_data, info, timestamp))
         {
             enqueue = true;
         }
         if (!enqueue)
         {
-            // Nothing to push to queue
+            // Nothing to push to statistics queue
             return;
         }
 
@@ -215,21 +220,34 @@ void StatisticsReaderListener::on_data_available(
         // Deserialize optional QoS information for proxy samples
         if (fastdds::statistics::StatusKind::PROXY == inner_data.status_kind())
         {
-            database::Qos qos;
-            auto participant = eprosima::fastdds::statistics::dds::DomainParticipant::narrow(
-                reader->get_subscriber()->get_participant());
-
-            if (!deserialize_proxy_data(
-                        const_cast<eprosima::fastdds::statistics::dds::DomainParticipant*>(participant),
-                        inner_data,
-                        *monitor_service_status_data))
+            if (info.instance_state == ALIVE_INSTANCE_STATE)
             {
-                EPROSIMA_LOG_ERROR(STATISTICSREADERLISTENER,
-                        "Failed to get optional QoS from proxy sample.");
-                return;
-            }
-        }
+                database::Qos qos;
+                auto participant = eprosima::fastdds::statistics::dds::DomainParticipant::narrow(
+                    reader->get_subscriber()->get_participant());
 
+                if (!deserialize_proxy_data(
+                            const_cast<eprosima::fastdds::statistics::dds::DomainParticipant*>(participant),
+                            inner_data,
+                            *monitor_service_status_data))
+                {
+                    EPROSIMA_LOG_ERROR(STATISTICSREADERLISTENER,
+                            "Failed to get optional QoS from proxy sample.");
+                    return;
+                }
+            }
+            else if (info.instance_state == NOT_ALIVE_DISPOSED_INSTANCE_STATE ||
+                    info.instance_state == NOT_ALIVE_NO_WRITERS_INSTANCE_STATE)
+            {
+                // Proxy entities will be undiscovered if they are proxy and either a NOT_ALIVE_DISPOSED_INSTANCE_STATE state
+                // or a NOT_ALIVE_NO_WRITERS_INSTANCE_STATE state is received.
+                monitor_service_status_data->entity_discovery_info.is_proxy_undiscovery = true;
+            }
+
+            // Instance handle is required to be able to undiscover proxy entities later, when receiving a
+            // NOT_ALIVE_NO_WRITERS_INSTANCE_STATE that contains just the instance handle.
+            monitor_service_status_data->instance_handle = info.instance_handle;
+        }
         monitor_service_status_data_queue_->push(timestamp, monitor_service_status_data);
     }
     else
@@ -238,7 +256,7 @@ void StatisticsReaderListener::on_data_available(
         if (HISTORY_LATENCY_TOPIC == topic_name)
         {
             WriterReaderData inner_data;
-            if (get_available_data(reader, inner_data, timestamp))
+            if (get_available_data(reader, inner_data, info, timestamp))
             {
                 data->writer_reader_data(inner_data);
                 enqueue = true;
@@ -247,7 +265,7 @@ void StatisticsReaderListener::on_data_available(
         else if (NETWORK_LATENCY_TOPIC == topic_name)
         {
             Locator2LocatorData inner_data;
-            if (get_available_data(reader, inner_data, timestamp))
+            if (get_available_data(reader, inner_data, info, timestamp))
             {
                 data->locator2locator_data(inner_data);
                 enqueue = true;
@@ -256,7 +274,7 @@ void StatisticsReaderListener::on_data_available(
         else if (PUBLICATION_THROUGHPUT_TOPIC == topic_name || SUBSCRIPTION_THROUGHPUT_TOPIC == topic_name)
         {
             EntityData inner_data;
-            if (get_available_data(reader, inner_data, timestamp))
+            if (get_available_data(reader, inner_data, info, timestamp))
             {
                 data->entity_data(inner_data);
                 enqueue = true;
@@ -265,7 +283,7 @@ void StatisticsReaderListener::on_data_available(
         else if (RTPS_SENT_TOPIC == topic_name || RTPS_LOST_TOPIC == topic_name)
         {
             Entity2LocatorTraffic inner_data;
-            if (get_available_data(reader, inner_data, timestamp))
+            if (get_available_data(reader, inner_data, info, timestamp))
             {
                 data->entity2locator_traffic(inner_data);
                 enqueue = true;
@@ -277,7 +295,7 @@ void StatisticsReaderListener::on_data_available(
                 DATA_COUNT_TOPIC == topic_name || PDP_PACKETS_TOPIC == topic_name || EDP_PACKETS_TOPIC == topic_name)
         {
             EntityCount inner_data;
-            if (get_available_data(reader, inner_data, timestamp))
+            if (get_available_data(reader, inner_data, info, timestamp))
             {
                 data->entity_count(inner_data);
                 enqueue = true;
@@ -286,7 +304,7 @@ void StatisticsReaderListener::on_data_available(
         else if (DISCOVERY_TOPIC == topic_name)
         {
             DiscoveryTime inner_data;
-            if (get_available_data(reader, inner_data, timestamp))
+            if (get_available_data(reader, inner_data, info, timestamp))
             {
                 data->discovery_time(inner_data);
                 enqueue = true;
@@ -295,7 +313,7 @@ void StatisticsReaderListener::on_data_available(
         else if (SAMPLE_DATAS_TOPIC == topic_name)
         {
             SampleIdentityCount inner_data;
-            if (get_available_data(reader, inner_data, timestamp))
+            if (get_available_data(reader, inner_data, info, timestamp))
             {
                 data->sample_identity_count(inner_data);
                 enqueue = true;

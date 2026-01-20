@@ -125,6 +125,11 @@ if(GTEST_FOUND AND GMOCK_FOUND)
         push_monitor_extended_incompatible_qos
         push_monitor_extended_incompatible_qos_no_entity
         push_monitor_statuses_size
+        push_proxy_undiscovery_ok
+        push_proxy_undiscovery_unknown_entity
+        push_proxy_undiscovery_ok_separate_flush
+        push_proxy_undiscovery_with_explicit_participant_discovery
+        push_proxy_undiscovery_with_implicit_participant_discovery
         )
 
     foreach(test_name ${DATABASEQUEUE_TEST_LIST})
