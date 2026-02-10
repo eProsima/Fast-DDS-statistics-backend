@@ -277,7 +277,6 @@ EntityId create_and_register_monitor(
         DomainParticipantFactory::get_instance()->delete_participant(monitor->participant));
 
     SubscriberQos subscriber_qos = SUBSCRIBER_QOS_DEFAULT;
-    subscriber_qos.partition().push_back("*");
     /* Create Subscriber */
     monitor->subscriber = monitor->participant->create_subscriber(
         subscriber_qos,
@@ -293,24 +292,25 @@ EntityId create_and_register_monitor(
 
     auto se_topics_datareaders_ =
             EPROSIMA_BACKEND_MAKE_SCOPE_EXIT(
+        {
+            for (auto& it : monitor->statistics_readers)
             {
-                for (auto& it : monitor->statistics_readers)
+                if (nullptr != it.second)
                 {
-                    if (nullptr != it.second)
-                    {
-                        monitor->subscriber->delete_datareader(it.second);
-                    }
-                }
-                for (auto& it : monitor->statistics_topics)
-                {
-                    if (nullptr != it.second)
-                    {
-                        monitor->participant->delete_topic(it.second);
-                    }
+                    monitor->subscriber->delete_datareader(it.second);
                 }
             }
+            for (auto& it : monitor->statistics_topics)
+            {
+                if (nullptr != it.second)
+                {
+                    monitor->participant->delete_topic(it.second);
+                }
+            }
+        }
         );
 
+    subscriber_qos.partition().push_back("*");
     monitor->spy_subscriber = monitor->spy_participant->create_subscriber(
         subscriber_qos,
         nullptr,
@@ -892,7 +892,7 @@ std::vector<StatisticsData> StatisticsBackend::get_data(
         statistic);
 }
 
-template <typename T>
+template<typename T>
 void StatisticsBackend::get_status_data(
         const EntityId& entity_id,
         T& status_data)
@@ -901,7 +901,7 @@ void StatisticsBackend::get_status_data(
     throw BadParameter("Unsupported MonitorServiceStatus sample");
 }
 
-template <>
+template<>
 FASTDDS_STATISTICS_BACKEND_DllAPI
 void StatisticsBackend::get_status_data(
         const EntityId& entity_id,
@@ -910,7 +910,7 @@ void StatisticsBackend::get_status_data(
     StatisticsBackendData::get_instance()->database_->get_status_data<ProxySample>(entity_id, status_data);
 }
 
-template <>
+template<>
 FASTDDS_STATISTICS_BACKEND_DllAPI
 void StatisticsBackend::get_status_data(
         const EntityId& entity_id,
@@ -919,7 +919,7 @@ void StatisticsBackend::get_status_data(
     StatisticsBackendData::get_instance()->database_->get_status_data<ConnectionListSample>(entity_id, status_data);
 }
 
-template <>
+template<>
 FASTDDS_STATISTICS_BACKEND_DllAPI
 void StatisticsBackend::get_status_data(
         const EntityId& entity_id,
@@ -928,7 +928,7 @@ void StatisticsBackend::get_status_data(
     StatisticsBackendData::get_instance()->database_->get_status_data<IncompatibleQosSample>(entity_id, status_data);
 }
 
-template <>
+template<>
 FASTDDS_STATISTICS_BACKEND_DllAPI
 void StatisticsBackend::get_status_data(
         const EntityId& entity_id,
@@ -937,7 +937,7 @@ void StatisticsBackend::get_status_data(
     StatisticsBackendData::get_instance()->database_->get_status_data<InconsistentTopicSample>(entity_id, status_data);
 }
 
-template <>
+template<>
 FASTDDS_STATISTICS_BACKEND_DllAPI
 void StatisticsBackend::get_status_data(
         const EntityId& entity_id,
@@ -946,7 +946,7 @@ void StatisticsBackend::get_status_data(
     StatisticsBackendData::get_instance()->database_->get_status_data<LivelinessLostSample>(entity_id, status_data);
 }
 
-template <>
+template<>
 FASTDDS_STATISTICS_BACKEND_DllAPI
 void StatisticsBackend::get_status_data(
         const EntityId& entity_id,
@@ -955,7 +955,7 @@ void StatisticsBackend::get_status_data(
     StatisticsBackendData::get_instance()->database_->get_status_data<LivelinessChangedSample>(entity_id, status_data);
 }
 
-template <>
+template<>
 FASTDDS_STATISTICS_BACKEND_DllAPI
 void StatisticsBackend::get_status_data(
         const EntityId& entity_id,
@@ -964,7 +964,7 @@ void StatisticsBackend::get_status_data(
     StatisticsBackendData::get_instance()->database_->get_status_data<DeadlineMissedSample>(entity_id, status_data);
 }
 
-template <>
+template<>
 FASTDDS_STATISTICS_BACKEND_DllAPI
 void StatisticsBackend::get_status_data(
         const EntityId& entity_id,
@@ -973,7 +973,7 @@ void StatisticsBackend::get_status_data(
     StatisticsBackendData::get_instance()->database_->get_status_data<SampleLostSample>(entity_id, status_data);
 }
 
-template <>
+template<>
 FASTDDS_STATISTICS_BACKEND_DllAPI
 void StatisticsBackend::get_status_data(
         const EntityId& entity_id,
@@ -1122,10 +1122,10 @@ std::vector<std::pair<EntityKind, EntityKind>> StatisticsBackend::get_data_suppo
              {std::pair<EntityKind, EntityKind> (EntityKind::PARTICIPANT, EntityKind::INVALID)})},
 
         {DataKind::DISCOVERY_TIME, std::vector<std::pair<EntityKind, EntityKind>>(
-                    {
-                        std::pair<EntityKind, EntityKind> (EntityKind::PARTICIPANT, EntityKind::PARTICIPANT),
-                        std::pair<EntityKind, EntityKind> (EntityKind::PARTICIPANT, EntityKind::DATAWRITER),
-                        std::pair<EntityKind, EntityKind> (EntityKind::PARTICIPANT, EntityKind::DATAREADER)})},
+             {
+                 std::pair<EntityKind, EntityKind> (EntityKind::PARTICIPANT, EntityKind::PARTICIPANT),
+                 std::pair<EntityKind, EntityKind> (EntityKind::PARTICIPANT, EntityKind::DATAWRITER),
+                 std::pair<EntityKind, EntityKind> (EntityKind::PARTICIPANT, EntityKind::DATAREADER)})},
 
         {DataKind::SAMPLE_DATAS, std::vector<std::pair<EntityKind, EntityKind>>(
              {std::pair<EntityKind, EntityKind> (EntityKind::DATAWRITER, EntityKind::INVALID)})}
