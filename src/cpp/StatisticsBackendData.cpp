@@ -663,8 +663,12 @@ void StatisticsBackendData::start_topic_spy(
         std::string type_name = topic_type->get_name().to_string();
         fastdds::dds::TypeSupport type_support =
                 fastdds::dds::TypeSupport(new fastdds::dds::DynamicPubSubType(topic_type));
-        if (fastdds::dds::RETCODE_OK != type_support.register_type(monitor->spy_participant, type_name))
+        if (fastdds::dds::RETCODE_BAD_PARAMETER == type_support.register_type(monitor->spy_participant, type_name))
         {
+            // With Security, the type seems to have been already registered by the participant, so this
+            // function returns RETCODE_PRECONDITION_NOT_MET. Thats the reason to check only for BAD_PARAMETER,
+            // which means the type cannot be registered and the spy cannot be started. In other cases, the
+            // type is already registered but may not be an error.
             throw Error("Error registering type for topic '" + topic_name + "'");
         }
 
