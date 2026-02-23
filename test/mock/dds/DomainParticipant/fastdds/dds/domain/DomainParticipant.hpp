@@ -125,6 +125,12 @@ public:
             Topic * topic
         ));
 
+    MOCK_METHOD0(
+        delete_contained_entities,
+        void
+        (
+        ));
+
     MOCK_METHOD3(
         create_publisher,
         Publisher *
