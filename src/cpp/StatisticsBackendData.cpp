@@ -535,21 +535,7 @@ void StatisticsBackendData::stop_monitor(
 
     if (monitor->spy_participant)
     {
-        if (monitor->spy_subscriber)
-        {
-            for (auto& reader : monitor->spy_readers)
-            {
-                monitor->spy_subscriber->delete_datareader(reader.second);
-            }
-
-            monitor->spy_participant->delete_subscriber(monitor->spy_subscriber);
-        }
-
-        for (auto& topic : monitor->spy_topics)
-        {
-            monitor->spy_participant->delete_topic(topic.second);
-        }
-
+        monitor->spy_participant->delete_contained_entities();
         fastdds::dds::DomainParticipantFactory::get_instance()->delete_participant(monitor->spy_participant);
     }
 
@@ -669,11 +655,17 @@ void StatisticsBackendData::start_topic_spy(
         }
 
         fastdds::dds::TopicQos topic_qos;
-        topic = monitor->spy_participant->create_topic(topic_name, type_name, topic_qos);
+        topic = monitor->spy_participant->find_topic(topic_name, fastdds::dds::Duration_t(1));
         if (!topic)
         {
-            throw Error("Error creating topic '" + topic_name + "'");
+            // Only create if not found
+            topic = monitor->spy_participant->create_topic(topic_name, type_name, topic_qos);
+            if (!topic)
+            {
+                throw Error("Error creating topic '" + topic_name + "'");
+            }
         }
+
         monitor->spy_topics[topic_name] = topic;
     }
     else
@@ -724,8 +716,11 @@ void StatisticsBackendData::stop_topic_spy(
         return;
     }
 
-    monitor->spy_subscriber->delete_datareader(monitor->spy_readers[topic_name]);
+    // Remove datareader from subscriber
+    monitor->spy_subscriber->delete_contained_entities();
+    monitor->spy_participant->delete_topic(monitor->spy_topics.at(topic_name));
     monitor->spy_readers.erase(topic_name);
+    monitor->spy_topics.erase(topic_name);
     delete monitor->spy_listeners[topic_name];
     monitor->spy_listeners.erase(topic_name);
 }
