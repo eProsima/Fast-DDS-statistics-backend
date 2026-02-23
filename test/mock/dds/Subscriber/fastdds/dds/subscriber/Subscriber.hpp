@@ -83,6 +83,10 @@ public:
     MOCK_CONST_METHOD0(
         get_participant,
         DomainParticipant * ());
+
+    MOCK_METHOD0(
+        delete_contained_entities,
+        ReturnCode_t ());
 };
 
 
