@@ -177,5 +177,6 @@ void CommunicationPubSubType::register_type_object_representation()
     register_Communication_type_identifier(type_identifiers_);
 }
 
+
 // Include auxiliary functions like for serializing/deserializing.
 #include "CommunicationCdrAux.ipp"

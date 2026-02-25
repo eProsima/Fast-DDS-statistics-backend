@@ -23,6 +23,7 @@
 #define FAST_DDS_GENERATED__EPROSIMA_FASTDDS_STATISTICS_TYPESCDRAUX_HPP
 
 #include "types.hpp"
+
 constexpr uint32_t eprosima_fastdds_statistics_DiscoveryTime_max_cdr_typesize {852UL};
 constexpr uint32_t eprosima_fastdds_statistics_DiscoveryTime_max_key_cdr_typesize {56UL};
 

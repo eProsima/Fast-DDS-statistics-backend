@@ -1247,5 +1247,6 @@ void MonitorServiceStatusDataPubSubType::register_type_object_representation()
 
 } // namespace eprosima
 
+
 // Include auxiliary functions like for serializing/deserializing.
 #include "monitorservice_typesCdrAux.ipp"

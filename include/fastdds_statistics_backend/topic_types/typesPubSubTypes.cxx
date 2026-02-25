@@ -2507,5 +2507,6 @@ namespace EventKind {
 
 } // namespace eprosima
 
+
 // Include auxiliary functions like for serializing/deserializing.
 #include "typesCdrAux.ipp"

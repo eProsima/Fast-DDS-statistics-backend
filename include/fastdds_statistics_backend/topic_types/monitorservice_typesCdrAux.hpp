@@ -23,6 +23,7 @@
 #define FAST_DDS_GENERATED__EPROSIMA_FASTDDS_STATISTICS_MONITORSERVICE_TYPESCDRAUX_HPP
 
 #include "monitorservice_types.hpp"
+
 constexpr uint32_t eprosima_fastdds_statistics_BaseStatus_s_max_cdr_typesize {8UL};
 constexpr uint32_t eprosima_fastdds_statistics_BaseStatus_s_max_key_cdr_typesize {0UL};
 
