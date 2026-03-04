@@ -679,9 +679,12 @@ void StatisticsBackendData::start_topic_spy(
         &monitor->user_data_context);
     monitor->spy_listeners[topic_name] = listener;
 
+    // NOTE: Spy datareader uses the QoS of the first discovered writer in that topic
+    // This could lead to issues when there are multiple writers with different QoS
+    fastdds::dds::DataReaderQos reader_qos = monitor->user_data_context.get_spy_reader_qos(topic_name);
     fastdds::dds::DataReader* reader = monitor->spy_subscriber->create_datareader(
         topic,
-        fastdds::dds::DATAREADER_QOS_DEFAULT,
+        reader_qos,
         listener);
     if (!reader)
     {
