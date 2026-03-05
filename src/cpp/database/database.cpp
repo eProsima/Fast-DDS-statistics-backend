@@ -4570,12 +4570,37 @@ Graph Database::get_entity_subgraph_nts(
 
     std::shared_ptr<const Entity> entity = get_entity_nts(entity_id);
 
-    entity_graph[KIND_TAG] =  entity_kind_str[(int)entity->kind];
-    entity_graph[DISCOVERY_SOURCE_TAG] =  discovery_source_str[(int)entity->discovery_source];
+    constexpr int app_id_str_size = sizeof(app_id_str) / sizeof(app_id_str[0]);
+    auto safe_app_id_str = [](int idx) -> const char* {
+        return (idx >= 0 && idx < app_id_str_size) ? app_id_str[idx] : app_id_str[0];
+    };
 
-    if ( entity_graph[DISCOVERY_SOURCE_TAG] != entity->discovery_source)
+    constexpr int discovery_source_str_size = sizeof(discovery_source_str) / sizeof(discovery_source_str[0]);
+    auto safe_discovery_source_str = [](int idx) -> const char* {
+        return (idx >= 0 && idx < discovery_source_str_size) ? discovery_source_str[idx] : discovery_source_str[0];
+    };
+
+    constexpr int entity_kind_str_size = sizeof(entity_kind_str) / sizeof(entity_kind_str[0]);
+    auto safe_entity_kind_str = [](int idx) -> const char* {
+        return (idx >= 0 && idx < entity_kind_str_size) ? entity_kind_str[idx] : entity_kind_str[0];
+    };
+
+    constexpr int status_level_str_size = sizeof(status_level_str) / sizeof(status_level_str[0]);
+    auto safe_status_level_str = [](int idx) -> const char* {
+        return (idx >= 0 && idx < status_level_str_size) ? status_level_str[idx] : status_level_str[0];
+    };
+
+    constexpr int dds_vendor_str_size = sizeof(dds_vendor_str) / sizeof(dds_vendor_str[0]);
+    auto safe_dds_vendor_str = [](int idx) -> const char* {
+        return (idx >= 0 && idx < dds_vendor_str_size) ? dds_vendor_str[idx] : dds_vendor_str[0];
+    };
+
+    entity_graph[KIND_TAG] = safe_entity_kind_str(static_cast<int>(entity->kind));
+    entity_graph[DISCOVERY_SOURCE_TAG] = safe_discovery_source_str(static_cast<int>(entity->discovery_source));
+
+    if (entity_graph[DISCOVERY_SOURCE_TAG] != safe_discovery_source_str(static_cast<int>(entity->discovery_source)))
     {
-        entity_graph[DISCOVERY_SOURCE_TAG] =  discovery_source_str[(int)entity->discovery_source];
+        entity_graph[DISCOVERY_SOURCE_TAG] = safe_discovery_source_str(static_cast<int>(entity->discovery_source));
         entity_graph_updated = true;
     }
 
@@ -4587,9 +4612,10 @@ Graph Database::get_entity_subgraph_nts(
 
     entity_graph[METATRAFFIC_TAG] =  entity->metatraffic;
 
-    if (entity->kind != EntityKind::TOPIC && entity_graph[STATUS_TAG] != status_level_str[(int)entity->status])
+    if (entity->kind != EntityKind::TOPIC &&
+        entity_graph[STATUS_TAG] != safe_status_level_str(static_cast<int>(entity->status)))
     {
-        entity_graph[STATUS_TAG] = status_level_str[(int)entity->status];
+        entity_graph[STATUS_TAG] = safe_status_level_str(static_cast<int>(entity->status));
         entity_graph_updated = true;
     }
 
@@ -4606,9 +4632,9 @@ Graph Database::get_entity_subgraph_nts(
         {
             std::shared_ptr<const DomainParticipant> participant =
                     std::dynamic_pointer_cast<const DomainParticipant>(entity);
-            if (entity_graph[APP_ID_TAG] != app_id_str[(int)participant->app_id])
+            if (entity_graph[APP_ID_TAG] != safe_app_id_str(static_cast<int>(participant->app_id)))
             {
-                entity_graph[APP_ID_TAG] =  app_id_str[(int)participant->app_id];
+                entity_graph[APP_ID_TAG] = safe_app_id_str(static_cast<int>(participant->app_id));
                 entity_graph_updated = true;
             }
             if (entity_graph[APP_METADATA_TAG] != participant->app_metadata)
@@ -4616,9 +4642,9 @@ Graph Database::get_entity_subgraph_nts(
                 entity_graph[APP_METADATA_TAG] =  participant->app_metadata;
                 entity_graph_updated = true;
             }
-            if (entity_graph[DDS_VENDOR_TAG] != dds_vendor_str[static_cast<int>(participant->dds_vendor)])
+            if (entity_graph[DDS_VENDOR_TAG] != safe_dds_vendor_str(static_cast<int>(participant->dds_vendor)))
             {
-                entity_graph[DDS_VENDOR_TAG] = dds_vendor_str[static_cast<int>(participant->dds_vendor)];
+                entity_graph[DDS_VENDOR_TAG] = safe_dds_vendor_str(static_cast<int>(participant->dds_vendor));
                 entity_graph_updated = true;
             }
             break;
@@ -4629,9 +4655,9 @@ Graph Database::get_entity_subgraph_nts(
             std::shared_ptr<const DDSEndpoint> endpoint =
                     std::dynamic_pointer_cast<const DDSEndpoint>(entity);
             entity_graph[TOPIC_ENTITY_TAG] =  std::to_string(endpoint->topic->id.value());
-            if (entity_graph[APP_ID_TAG] != app_id_str[(int)endpoint->app_id])
+            if (entity_graph[APP_ID_TAG] != safe_app_id_str(static_cast<int>(endpoint->app_id)))
             {
-                entity_graph[APP_ID_TAG] =  app_id_str[(int)endpoint->app_id];
+                entity_graph[APP_ID_TAG] = safe_app_id_str(static_cast<int>(endpoint->app_id));
                 entity_graph_updated = true;
             }
             if (entity_graph[APP_METADATA_TAG] != endpoint->app_metadata)

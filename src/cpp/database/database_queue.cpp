@@ -166,15 +166,15 @@ EntityId DatabaseEntityQueue::process_participant(
             participant_id,
             physical_entities_ids);
 
+        graph_updated = database_->update_participant_in_graph(
+            info.domain_id, physical_entities_ids[HOST_ENTITY_TAG], physical_entities_ids[USER_ENTITY_TAG],
+            physical_entities_ids[PROCESS_ENTITY_TAG], participant_id);
     }
     catch (const std::exception& e)
     {
         EPROSIMA_LOG_ERROR(BACKEND_DATABASE_QUEUE, e.what());
     }
 
-    graph_updated = database_->update_participant_in_graph(
-        info.domain_id, physical_entities_ids[HOST_ENTITY_TAG], physical_entities_ids[USER_ENTITY_TAG],
-        physical_entities_ids[PROCESS_ENTITY_TAG], participant_id);
 
     if (graph_updated)
     {
