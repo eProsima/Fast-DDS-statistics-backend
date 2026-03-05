@@ -4571,32 +4571,32 @@ Graph Database::get_entity_subgraph_nts(
     std::shared_ptr<const Entity> entity = get_entity_nts(entity_id);
 
     constexpr int app_id_str_size = sizeof(app_id_str) / sizeof(app_id_str[0]);
-    auto safe_app_id_str = [](int idx) -> const char*
+    auto safe_app_id_str = [app_id_str_size](int idx) -> const char*
             {
                 return (idx >= 0 && idx < app_id_str_size) ? app_id_str[idx] : app_id_str[0];
             };
 
     constexpr int discovery_source_str_size = sizeof(discovery_source_str) / sizeof(discovery_source_str[0]);
-    auto safe_discovery_source_str = [](int idx) -> const char*
+    auto safe_discovery_source_str = [discovery_source_str_size](int idx) -> const char*
             {
                 return (idx >= 0 &&
                        idx < discovery_source_str_size) ? discovery_source_str[idx] : discovery_source_str[0];
             };
 
     constexpr int entity_kind_str_size = sizeof(entity_kind_str) / sizeof(entity_kind_str[0]);
-    auto safe_entity_kind_str = [](int idx) -> const char*
+    auto safe_entity_kind_str = [entity_kind_str_size](int idx) -> const char*
             {
                 return (idx >= 0 && idx < entity_kind_str_size) ? entity_kind_str[idx] : entity_kind_str[0];
             };
 
     constexpr int status_level_str_size = sizeof(status_level_str) / sizeof(status_level_str[0]);
-    auto safe_status_level_str = [](int idx) -> const char*
+    auto safe_status_level_str = [status_level_str_size](int idx) -> const char*
             {
                 return (idx >= 0 && idx < status_level_str_size) ? status_level_str[idx] : status_level_str[0];
             };
 
     constexpr int dds_vendor_str_size = sizeof(dds_vendor_str) / sizeof(dds_vendor_str[0]);
-    auto safe_dds_vendor_str = [](int idx) -> const char*
+    auto safe_dds_vendor_str = [dds_vendor_str_size](int idx) -> const char*
             {
                 return (idx >= 0 && idx < dds_vendor_str_size) ? dds_vendor_str[idx] : dds_vendor_str[0];
             };
