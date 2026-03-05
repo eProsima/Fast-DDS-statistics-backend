@@ -441,7 +441,7 @@ EntityId DatabaseEntityQueue::process_endpoint_discovery(
     return endpoint_id;
 }
 
-template <typename T>
+template<typename T>
 EntityId DatabaseDataQueue<T>::get_or_create_locator(
         const std::string& locator_name) const
 {
@@ -1504,8 +1504,8 @@ void DatabaseDataQueue<ExtendedMonitorServiceStatusData>::process_sample()
                     {
                         // Instance handle was not stored, so the proxy entity is unknown and cannot be undiscovered
                         EPROSIMA_LOG_WARNING(BACKEND_DATABASE_QUEUE,
-                                "Failed attempt to undiscover unknown proxy entity with handle " <<
-                                item.second->instance_handle);
+                                "Failed attempt to undiscover unknown proxy entity with handle "
+                                << item.second->instance_handle);
                         return;
                     }
 
@@ -1532,8 +1532,8 @@ void DatabaseDataQueue<ExtendedMonitorServiceStatusData>::process_sample()
                     {
                         // Entity associated to given instance was not found in the db, cannot be undiscovered
                         EPROSIMA_LOG_WARNING(BACKEND_DATABASE_QUEUE,
-                                "Failed attempt to undiscover unknown proxy entity with handle " <<
-                                item.second->instance_handle);
+                                "Failed attempt to undiscover unknown proxy entity with handle "
+                                << item.second->instance_handle);
                         // Somehow the DB and the handles map were inconsistent, remove the handle to avoid future issues
                         proxy_entity_handles_to_guid.erase(item.second->instance_handle);
                         return;
