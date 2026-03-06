@@ -513,7 +513,7 @@ protected:
 
 };
 
-template <typename T>
+template<typename T>
 class DatabaseDataQueue : public DatabaseQueue<std::shared_ptr<T>>
 {
 
