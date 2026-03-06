@@ -357,8 +357,9 @@ protected:
 
 struct EntityDiscoveryInfo
 {
-    details::StatisticsBackendData::DiscoveryStatus discovery_status;
-    EntityId domain_id;
+    details::StatisticsBackendData::DiscoveryStatus discovery_status =
+            details::StatisticsBackendData::DiscoveryStatus::DISCOVERY;
+    EntityId domain_id = EntityId::invalid();
 
     fastdds::rtps::GUID_t guid;
     database::Qos qos;
@@ -367,7 +368,7 @@ struct EntityDiscoveryInfo
     fastdds::rtps::GUID_t participant_guid;
     std::string address;
     std::string participant_name;
-    AppId app_id;
+    AppId app_id = AppId::UNKNOWN;
     std::string app_metadata;
 
     //Physical data
@@ -386,13 +387,13 @@ struct EntityDiscoveryInfo
     bool is_virtual_metatraffic = false;
 
     // Status
-    StatusLevel entity_status;
+    StatusLevel entity_status = StatusLevel::OK_STATUS;
 
     // Discovery source information
-    DiscoverySource discovery_source;
+    DiscoverySource discovery_source = DiscoverySource::UNKNOWN;
     // Original domain id where the entity was discovered,
     // useful when discovery_source is PROXY
-    DomainId original_domain_id;
+    DomainId original_domain_id = UNKNOWN_DOMAIN_ID;
 
     // Information to handle undiscovery of proxy entities
     bool is_proxy_undiscovery = false;

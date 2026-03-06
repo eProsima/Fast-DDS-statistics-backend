@@ -554,7 +554,7 @@ EntityId Database::insert_new_endpoint(
     return entity_id;
 }
 
-template<typename T>
+template <typename T>
 std::shared_ptr<DDSEndpoint> Database::create_endpoint_nts(
         const std::string& endpoint_guid,
         const std::string& name,
@@ -3531,7 +3531,7 @@ std::vector<const StatisticsSample*> Database::select(
     return samples;
 }
 
-template<>
+template <>
 void Database::get_status_data(
         const EntityId& entity_id,
         ProxySample& status_data)
@@ -3577,7 +3577,7 @@ void Database::get_status_data(
     }
 }
 
-template<>
+template <>
 void Database::get_status_data(
         const EntityId& entity_id,
         ConnectionListSample& status_data)
@@ -3623,7 +3623,7 @@ void Database::get_status_data(
     }
 }
 
-template<>
+template <>
 void Database::get_status_data(
         const EntityId& entity_id,
         IncompatibleQosSample& status_data)
@@ -3659,7 +3659,7 @@ void Database::get_status_data(
     }
 }
 
-template<>
+template <>
 void Database::get_status_data(
         const EntityId& entity_id,
         InconsistentTopicSample& status_data)
@@ -3695,7 +3695,7 @@ void Database::get_status_data(
     }
 }
 
-template<>
+template <>
 void Database::get_status_data(
         const EntityId& entity_id,
         LivelinessLostSample& status_data)
@@ -3718,7 +3718,7 @@ void Database::get_status_data(
     }
 }
 
-template<>
+template <>
 void Database::get_status_data(
         const EntityId& entity_id,
         LivelinessChangedSample& status_data)
@@ -3741,7 +3741,7 @@ void Database::get_status_data(
     }
 }
 
-template<>
+template <>
 void Database::get_status_data(
         const EntityId& entity_id,
         DeadlineMissedSample& status_data)
@@ -3777,7 +3777,7 @@ void Database::get_status_data(
     }
 }
 
-template<>
+template <>
 void Database::get_status_data(
         const EntityId& entity_id,
         SampleLostSample& status_data)
@@ -3800,7 +3800,7 @@ void Database::get_status_data(
     }
 }
 
-template<>
+template <>
 void Database::get_status_data(
         const EntityId& entity_id,
         ExtendedIncompatibleQosSample& status_data)
@@ -4570,43 +4570,12 @@ Graph Database::get_entity_subgraph_nts(
 
     std::shared_ptr<const Entity> entity = get_entity_nts(entity_id);
 
-    constexpr int app_id_str_size = sizeof(app_id_str) / sizeof(app_id_str[0]);
-    auto safe_app_id_str = [app_id_str_size](int idx) -> const char*
-            {
-                return (idx >= 0 && idx < app_id_str_size) ? app_id_str[idx] : app_id_str[0];
-            };
+    entity_graph[KIND_TAG] =  entity_kind_str[(int)entity->kind];
+    entity_graph[DISCOVERY_SOURCE_TAG] =  discovery_source_str[(int)entity->discovery_source];
 
-    constexpr int discovery_source_str_size = sizeof(discovery_source_str) / sizeof(discovery_source_str[0]);
-    auto safe_discovery_source_str = [discovery_source_str_size](int idx) -> const char*
-            {
-                return (idx >= 0 &&
-                       idx < discovery_source_str_size) ? discovery_source_str[idx] : discovery_source_str[0];
-            };
-
-    constexpr int entity_kind_str_size = sizeof(entity_kind_str) / sizeof(entity_kind_str[0]);
-    auto safe_entity_kind_str = [entity_kind_str_size](int idx) -> const char*
-            {
-                return (idx >= 0 && idx < entity_kind_str_size) ? entity_kind_str[idx] : entity_kind_str[0];
-            };
-
-    constexpr int status_level_str_size = sizeof(status_level_str) / sizeof(status_level_str[0]);
-    auto safe_status_level_str = [status_level_str_size](int idx) -> const char*
-            {
-                return (idx >= 0 && idx < status_level_str_size) ? status_level_str[idx] : status_level_str[0];
-            };
-
-    constexpr int dds_vendor_str_size = sizeof(dds_vendor_str) / sizeof(dds_vendor_str[0]);
-    auto safe_dds_vendor_str = [dds_vendor_str_size](int idx) -> const char*
-            {
-                return (idx >= 0 && idx < dds_vendor_str_size) ? dds_vendor_str[idx] : dds_vendor_str[0];
-            };
-
-    entity_graph[KIND_TAG] = safe_entity_kind_str(static_cast<int>(entity->kind));
-    entity_graph[DISCOVERY_SOURCE_TAG] = safe_discovery_source_str(static_cast<int>(entity->discovery_source));
-
-    if (entity_graph[DISCOVERY_SOURCE_TAG] != safe_discovery_source_str(static_cast<int>(entity->discovery_source)))
+    if ( entity_graph[DISCOVERY_SOURCE_TAG] != entity->discovery_source)
     {
-        entity_graph[DISCOVERY_SOURCE_TAG] = safe_discovery_source_str(static_cast<int>(entity->discovery_source));
+        entity_graph[DISCOVERY_SOURCE_TAG] =  discovery_source_str[(int)entity->discovery_source];
         entity_graph_updated = true;
     }
 
@@ -4618,10 +4587,9 @@ Graph Database::get_entity_subgraph_nts(
 
     entity_graph[METATRAFFIC_TAG] =  entity->metatraffic;
 
-    if (entity->kind != EntityKind::TOPIC &&
-            entity_graph[STATUS_TAG] != safe_status_level_str(static_cast<int>(entity->status)))
+    if (entity->kind != EntityKind::TOPIC && entity_graph[STATUS_TAG] != status_level_str[(int)entity->status])
     {
-        entity_graph[STATUS_TAG] = safe_status_level_str(static_cast<int>(entity->status));
+        entity_graph[STATUS_TAG] = status_level_str[(int)entity->status];
         entity_graph_updated = true;
     }
 
@@ -4638,9 +4606,9 @@ Graph Database::get_entity_subgraph_nts(
         {
             std::shared_ptr<const DomainParticipant> participant =
                     std::dynamic_pointer_cast<const DomainParticipant>(entity);
-            if (entity_graph[APP_ID_TAG] != safe_app_id_str(static_cast<int>(participant->app_id)))
+            if (entity_graph[APP_ID_TAG] != app_id_str[(int)participant->app_id])
             {
-                entity_graph[APP_ID_TAG] = safe_app_id_str(static_cast<int>(participant->app_id));
+                entity_graph[APP_ID_TAG] =  app_id_str[(int)participant->app_id];
                 entity_graph_updated = true;
             }
             if (entity_graph[APP_METADATA_TAG] != participant->app_metadata)
@@ -4648,9 +4616,9 @@ Graph Database::get_entity_subgraph_nts(
                 entity_graph[APP_METADATA_TAG] =  participant->app_metadata;
                 entity_graph_updated = true;
             }
-            if (entity_graph[DDS_VENDOR_TAG] != safe_dds_vendor_str(static_cast<int>(participant->dds_vendor)))
+            if (entity_graph[DDS_VENDOR_TAG] != dds_vendor_str[static_cast<int>(participant->dds_vendor)])
             {
-                entity_graph[DDS_VENDOR_TAG] = safe_dds_vendor_str(static_cast<int>(participant->dds_vendor));
+                entity_graph[DDS_VENDOR_TAG] = dds_vendor_str[static_cast<int>(participant->dds_vendor)];
                 entity_graph_updated = true;
             }
             break;
@@ -4661,9 +4629,9 @@ Graph Database::get_entity_subgraph_nts(
             std::shared_ptr<const DDSEndpoint> endpoint =
                     std::dynamic_pointer_cast<const DDSEndpoint>(entity);
             entity_graph[TOPIC_ENTITY_TAG] =  std::to_string(endpoint->topic->id.value());
-            if (entity_graph[APP_ID_TAG] != safe_app_id_str(static_cast<int>(endpoint->app_id)))
+            if (entity_graph[APP_ID_TAG] != app_id_str[(int)endpoint->app_id])
             {
-                entity_graph[APP_ID_TAG] = safe_app_id_str(static_cast<int>(endpoint->app_id));
+                entity_graph[APP_ID_TAG] =  app_id_str[(int)endpoint->app_id];
                 entity_graph_updated = true;
             }
             if (entity_graph[APP_METADATA_TAG] != endpoint->app_metadata)
@@ -4682,7 +4650,7 @@ Graph Database::get_entity_subgraph_nts(
     return entity_graph_updated;
 }
 
-template<>
+template <>
 bool Database::update_entity_status_nts(
         std::shared_ptr<DataReader>& entity)
 {
@@ -4712,7 +4680,7 @@ bool Database::update_entity_status_nts(
     return entity_status_logic_nts(entity_error, entity_warning, entity->status);
 }
 
-template<>
+template <>
 bool Database::update_entity_status_nts(
         std::shared_ptr<DataWriter>& entity)
 {
@@ -5159,7 +5127,7 @@ void map_to_vector(
 }
 
 // Auxiliar function to convert a map of maps to a vector
-template<typename T>
+template <typename T>
 void map_of_maps_to_vector(
         const std::map<EntityId, std::map<EntityId, std::shared_ptr<T>>>& map,
         std::vector<std::shared_ptr<const Entity>>& vec)
