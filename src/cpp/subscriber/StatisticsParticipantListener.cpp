@@ -222,6 +222,9 @@ void StatisticsParticipantListener::update_user_data_context(
 
         // Add the topic to the discovered topics if not already present
         ctx_->register_user_data_topic(info.topic_name.to_string(), remote_type);
+
+        // Store compatible reader QoS for this topic
+        ctx_->register_qos_for_spy_reader(info);
     }
 }
 

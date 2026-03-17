@@ -24,6 +24,8 @@
 #include <mutex>
 #include <string>
 
+#include <fastdds/dds/builtin/topic/PublicationBuiltinTopicData.hpp>
+#include <fastdds/dds/subscriber/qos/DataReaderQos.hpp>
 #include <fastdds/dds/xtypes/dynamic_types/DynamicType.hpp>
 
 namespace eprosima {
@@ -48,6 +50,7 @@ public:
     void register_user_data_topic(
             const std::string& topic_name,
             fastdds::dds::DynamicType::_ref_type type);
+
     /**
      * Get the dynamic type associated with a topic name.
      * @param topic_name Topic name.
@@ -55,6 +58,23 @@ public:
      */
     fastdds::dds::DynamicType::_ref_type get_type_from_topic_name(
             const std::string& topic_name);
+
+    /**
+     * Get a DataReaderQos compatible with the first discovered writer for the given topic.
+     * @param topic_name Topic name.
+     * @return DataReaderQos derived from the writer's QoS or DATAREADER_QOS_DEFAULT if no
+     * writer has been discovered for that topic.
+     */
+    fastdds::dds::DataReaderQos get_spy_reader_qos(
+            const std::string& topic_name);
+
+    /**
+     * Store a DataReaderQos compatible with the given writer's QoS for the topic.
+     * Only stores the QoS for the first discovered writer on the topic.
+     * @param info Publication builtin topic data from the discovered writer.
+     */
+    void register_qos_for_spy_reader(
+            const fastdds::dds::PublicationBuiltinTopicData& info);
 
 protected:
 
@@ -75,12 +95,22 @@ protected:
     fastdds::dds::DynamicType::_ref_type get_type_from_topic_name_nts(
             const std::string& topic_name);
 
+    /**
+     * Store a DataReaderQos compatible with the given writer's QoS for the topic.
+     * Only stores the QoS for the first discovered writer on the topic. Non thread-safe version.
+     * @param info Publication builtin topic data from the discovered writer.
+     */
+    void register_qos_for_spy_reader_nts(
+            const fastdds::dds::PublicationBuiltinTopicData& info);
+
     // Mutex to protect access to the maps
     std::mutex mutex_;
     // Map of type name to dynamic type
     std::map<std::string, fastdds::dds::DynamicType::_ref_type> discovered_user_data_types_;
     // Map of topic name to type name
     std::map<std::string, std::string> discovered_topics_;
+    // Map of topic name to DataReaderQos compatible with the first discovered writer on that topic
+    std::map<std::string, fastdds::dds::DataReaderQos> spy_reader_qos_per_topic_;
 };
 
 } // namespace subscriber
