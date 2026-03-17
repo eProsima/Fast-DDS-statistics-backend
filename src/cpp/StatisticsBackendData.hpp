@@ -45,7 +45,7 @@ namespace database {
 
 struct ExtendedMonitorServiceStatusData;
 class DatabaseEntityQueue;
-template <typename T>
+template<typename T>
 class DatabaseDataQueue;
 
 } // namespace database
@@ -319,6 +319,7 @@ public:
      * @brief Method executed by the alert watcher thread
      */
     void alert_watcher();
+
     /**
      * @brief Starts a topic spy on a given topic.
      *
@@ -404,6 +405,19 @@ protected:
     void prepare_entity_discovery_status(
             DiscoveryStatus discovery_status,
             DomainListener::Status& status);
+
+    /**
+     * @brief Finds or creates a topic with the specified name and type in the monitor_spy
+     * participant.
+     * @param monitor Reference to the monitor to which the topic belongs
+     * @param topic_name The name of the topic to find or create
+     * @param type The type of the topic to find or create
+     * @throws BadParameter if no monitor with the specified ID exists
+     */
+    void find_or_create_spy_topic_and_type_nts(
+            Monitor& monitor,
+            const std::string& topic_name,
+            const fastdds::dds::TypeSupport& type);
 
     /**
      * @brief Reference to the instance of the Singleton.

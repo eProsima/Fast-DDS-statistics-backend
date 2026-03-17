@@ -535,21 +535,7 @@ void StatisticsBackendData::stop_monitor(
 
     if (monitor->spy_participant)
     {
-        if (monitor->spy_subscriber)
-        {
-            for (auto& reader : monitor->spy_readers)
-            {
-                monitor->spy_subscriber->delete_datareader(reader.second);
-            }
-
-            monitor->spy_participant->delete_subscriber(monitor->spy_subscriber);
-        }
-
-        for (auto& topic : monitor->spy_topics)
-        {
-            monitor->spy_participant->delete_topic(topic.second);
-        }
-
+        monitor->spy_participant->delete_contained_entities();
         fastdds::dds::DomainParticipantFactory::get_instance()->delete_participant(monitor->spy_participant);
     }
 
@@ -627,6 +613,45 @@ void StatisticsBackendData::stop_alert_watcher()
     }
 }
 
+void StatisticsBackendData::find_or_create_spy_topic_and_type_nts(
+        Monitor& monitor,
+        const std::string& topic_name,
+        const fastdds::dds::TypeSupport& type)
+{
+    // Find if the topic has been already created and if the associated type is correct
+    fastdds::dds::TopicDescription* topic_desc = monitor.spy_participant->lookup_topicdescription(topic_name);
+    if (nullptr != topic_desc)
+    {
+        if (topic_desc->get_type_name() != type->get_name())
+        {
+            throw Error(topic_name + " is not using expected type " + type->get_name() +
+                          " and is using instead type " + topic_desc->get_type_name());
+        }
+
+        try
+        {
+            monitor.spy_topics[topic_name] = dynamic_cast<fastdds::dds::Topic*>(topic_desc);
+        }
+        catch (const std::bad_cast& e)
+        {
+            throw Error(topic_name + " is already used but is not a simple Topic: " + e.what());
+        }
+
+    }
+    else
+    {
+        if (fastdds::dds::RETCODE_PRECONDITION_NOT_MET == monitor.spy_participant->register_type(type,
+                type->get_name()))
+        {
+            // Name already in use
+            throw Error(std::string("Type name ") + type->get_name() + " is already in use");
+        }
+        fastdds::dds::TopicQos topic_qos;
+        monitor.spy_topics[topic_name] =
+                monitor.spy_participant->create_topic(topic_name, type->get_name(), topic_qos);
+    }
+}
+
 void StatisticsBackendData::start_topic_spy(
         EntityId monitor_id,
         const std::string& topic_name,
@@ -663,18 +688,9 @@ void StatisticsBackendData::start_topic_spy(
         std::string type_name = topic_type->get_name().to_string();
         fastdds::dds::TypeSupport type_support =
                 fastdds::dds::TypeSupport(new fastdds::dds::DynamicPubSubType(topic_type));
-        if (fastdds::dds::RETCODE_OK != type_support.register_type(monitor->spy_participant, type_name))
-        {
-            throw Error("Error registering type for topic '" + topic_name + "'");
-        }
 
-        fastdds::dds::TopicQos topic_qos;
-        topic = monitor->spy_participant->create_topic(topic_name, type_name, topic_qos);
-        if (!topic)
-        {
-            throw Error("Error creating topic '" + topic_name + "'");
-        }
-        monitor->spy_topics[topic_name] = topic;
+        find_or_create_spy_topic_and_type_nts(*monitor, topic_name, type_support);
+        topic = monitor->spy_topics.at(topic_name);
     }
     else
     {
@@ -695,6 +711,7 @@ void StatisticsBackendData::start_topic_spy(
     {
         throw Error("Error creating user data reader in topic '" + topic_name + "'");
     }
+
     monitor->spy_readers[topic_name] = reader;
 }
 
@@ -724,8 +741,11 @@ void StatisticsBackendData::stop_topic_spy(
         return;
     }
 
-    monitor->spy_subscriber->delete_datareader(monitor->spy_readers[topic_name]);
+    // Remove only this topic's datareader (not all readers as other spy topics may be active)
+    monitor->spy_subscriber->delete_datareader(monitor->spy_readers.at(topic_name));
+    monitor->spy_participant->delete_topic(monitor->spy_topics.at(topic_name));
     monitor->spy_readers.erase(topic_name);
+    monitor->spy_topics.erase(topic_name);
     delete monitor->spy_listeners[topic_name];
     monitor->spy_listeners.erase(topic_name);
 }

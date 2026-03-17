@@ -34,7 +34,7 @@ namespace statistics_backend {
 
 namespace database {
 
-template <typename T>
+template<typename T>
 class DatabaseDataQueue;
 class Database;
 class DatabaseEntityQueue;
