@@ -118,11 +118,25 @@ public:
             const TopicQos& qos
         ));
 
+    MOCK_METHOD2(
+        find_topic,
+        Topic *
+        (
+            const std::string& topic_name,
+            const fastdds::dds::Duration_t& timeout
+        ));
+
     MOCK_METHOD1(
         delete_topic,
         void
         (
             Topic * topic
+        ));
+
+    MOCK_METHOD0(
+        delete_contained_entities,
+        void
+        (
         ));
 
     MOCK_METHOD3(

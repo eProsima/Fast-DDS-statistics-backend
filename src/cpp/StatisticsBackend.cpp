@@ -190,7 +190,8 @@ EntityId create_and_register_monitor(
         DomainListener* domain_listener,
         const CallbackMask& callback_mask,
         const DataKindMask& data_mask,
-        const DomainParticipantQos& participant_qos,
+        const DomainParticipantQos& monitor_participant_qos,
+        const DomainParticipantQos& spy_participant_qos,
         const DomainId domain_id = 0)
 {
     // NOTE: This method is quite awful to read because of the error handle of every entity
@@ -228,7 +229,7 @@ EntityId create_and_register_monitor(
 
     monitor->spy_participant = DomainParticipantFactory::get_instance()->create_participant(
         domain_id,
-        participant_qos,
+        spy_participant_qos,
         nullptr,
         StatusMask::none());
 
@@ -264,7 +265,7 @@ EntityId create_and_register_monitor(
     participant_mask ^= StatusMask::data_on_readers();
     monitor->participant = DomainParticipantFactory::get_instance()->create_participant(
         domain_id,
-        participant_qos,
+        monitor_participant_qos,
         monitor->participant_listener,
         participant_mask);
 
@@ -403,6 +404,22 @@ void StatisticsBackend::set_domain_listener(
     monitor->second->data_mask = data_mask;
 }
 
+void remove_statistics_from_qos(
+        DomainParticipantQos& qos)
+{
+    auto& props = qos.properties().properties();
+    props.erase(
+        std::remove_if(props.begin(), props.end(),
+        [](const eprosima::fastdds::rtps::Property& prop)
+        {
+            return prop.name() == "fastdds.statistics";
+        }),
+        props.end()
+        );
+
+    return;
+}
+
 EntityId StatisticsBackend::init_monitor(
         DomainId domain_id,
         DomainListener* domain_listener,
@@ -424,30 +441,42 @@ EntityId StatisticsBackend::init_monitor(
     domain_name << domain_id;
 
     /* Set DomainParticipantQoS */
+    /* QoS for the monitor participant*/
     /* Since configuring the default Qos from an XML is a posibility, we need to load the XML profiles just in case */
     DomainParticipantFactory::get_instance()->load_profiles();
-    DomainParticipantQos participant_qos = DomainParticipantFactory::get_instance()->get_default_participant_qos();
+    DomainParticipantQos monitor_participant_qos =
+            DomainParticipantFactory::get_instance()->get_default_participant_qos();
     /* Previous string conversion is needed for string_255 */
     std::string participant_name = "monitor_domain_" + std::to_string(domain_id);
-    participant_qos.name(participant_name);
+    monitor_participant_qos.name(participant_name);
 
-    participant_qos.properties().properties().emplace_back(
+    monitor_participant_qos.properties().properties().emplace_back(
         "fastdds.application.id",
         app_id,
         "true");
-    participant_qos.properties().properties().emplace_back(
+    monitor_participant_qos.properties().properties().emplace_back(
         "fastdds.application.metadata",
         app_metadata,
         "true");
 
-    ReturnCode_t retcode = participant_qos.wire_protocol().easy_mode(easy_mode_ip);
+    ReturnCode_t retcode = monitor_participant_qos.wire_protocol().easy_mode(easy_mode_ip);
     if (RETCODE_OK != retcode)
     {
         throw Error("Error setting easy mode IP: " + std::to_string(retcode));
     }
+    /* Remove statistics from monitor participant QoS */
+    remove_statistics_from_qos(monitor_participant_qos);
 
-    return create_and_register_monitor(domain_name.str(), domain_listener, callback_mask, data_mask, participant_qos,
-                   domain_id);
+    /* QoS for the spy participant*/
+    DomainParticipantQos spy_participant_qos = monitor_participant_qos;
+    /* Overwrite partipant name to differentiate here*/
+    std::string spy_participant_name = "monitor_spy_domain_" + std::to_string(domain_id);
+    spy_participant_qos.name(spy_participant_name);
+    /* Remove statistics from spy participant QoS */
+    remove_statistics_from_qos(spy_participant_qos);
+
+    return create_and_register_monitor(domain_name.str(), domain_listener, callback_mask, data_mask,
+                   monitor_participant_qos, spy_participant_qos, domain_id);
 }
 
 void StatisticsBackend::stop_monitor(
@@ -474,24 +503,25 @@ EntityId StatisticsBackend::init_monitor(
     /* Set DomainParticipantQoS */
     /* Since configuring the default Qos from an XML is a posibility, we need to load the XML profiles just in case */
     DomainParticipantFactory::get_instance()->load_profiles();
-    DomainParticipantQos participant_qos = DomainParticipantFactory::get_instance()->get_default_participant_qos();
+    DomainParticipantQos monitor_participant_qos =
+            DomainParticipantFactory::get_instance()->get_default_participant_qos();
     /* Avoid using SHM transport by default */
     std::shared_ptr<eprosima::fastdds::rtps::UDPv4TransportDescriptor> udp_transport =
             std::make_shared<eprosima::fastdds::rtps::UDPv4TransportDescriptor>();
-    participant_qos.transport().user_transports.push_back(udp_transport);
-    participant_qos.transport().use_builtin_transports = false;
+    monitor_participant_qos.transport().user_transports.push_back(udp_transport);
+    monitor_participant_qos.transport().use_builtin_transports = false;
 
-    participant_qos.properties().properties().emplace_back(
+    monitor_participant_qos.properties().properties().emplace_back(
         "fastdds.application.id",
         app_id,
         "true");
-    participant_qos.properties().properties().emplace_back(
+    monitor_participant_qos.properties().properties().emplace_back(
         "fastdds.application.metadata",
         app_metadata,
         "true");
 
     // Set monitor as SUPER CLIENT
-    participant_qos.wire_protocol().builtin.discovery_config.discoveryProtocol =
+    monitor_participant_qos.wire_protocol().builtin.discovery_config.discoveryProtocol =
             eprosima::fastdds::rtps::DiscoveryProtocol::SUPER_CLIENT;
 
     // Add locators
@@ -520,15 +550,15 @@ EntityId StatisticsBackend::init_monitor(
         // Check unicast/multicast address
         if (eprosima::fastdds::rtps::IPLocator::isMulticast(locator))
         {
-            participant_qos.wire_protocol().builtin.metatrafficMulticastLocatorList.push_back(locator);
+            monitor_participant_qos.wire_protocol().builtin.metatrafficMulticastLocatorList.push_back(locator);
         }
         else
         {
-            participant_qos.wire_protocol().builtin.metatrafficUnicastLocatorList.push_back(locator);
+            monitor_participant_qos.wire_protocol().builtin.metatrafficUnicastLocatorList.push_back(locator);
         }
 
         // Add remote SERVER to Monitor's list of SERVERs
-        participant_qos.wire_protocol().builtin.discovery_config.m_DiscoveryServers.push_back(locator);
+        monitor_participant_qos.wire_protocol().builtin.discovery_config.m_DiscoveryServers.push_back(locator);
 
         if (!set_locator)
         {
@@ -537,8 +567,18 @@ EntityId StatisticsBackend::init_monitor(
         }
     }
 
+    /* Remove statistics from monitor participant QoS */
+    remove_statistics_from_qos(monitor_participant_qos);
+
+    /* QoS for the spy participant*/
+    DomainParticipantQos spy_participant_qos = monitor_participant_qos;
+    /* Overwrite partipant name to differentiate here*/
+    std::string spy_participant_name = "monitor_spy_domain_" + locator_str;
+    spy_participant_qos.name(spy_participant_name);
+    remove_statistics_from_qos(spy_participant_qos);
+
     return create_and_register_monitor(participant_name, domain_listener, callback_mask, data_mask,
-                   participant_qos);
+                   monitor_participant_qos, spy_participant_qos);
 }
 
 EntityId StatisticsBackend::init_monitor_with_profile(
@@ -576,9 +616,16 @@ EntityId StatisticsBackend::init_monitor_with_profile(
         "fastdds.application.metadata",
         app_metadata,
         "true");
+    remove_statistics_from_qos(profile_extended_qos);
+
+    // Spy participant QoS
+    DomainParticipantQos spy_participant_qos = profile_extended_qos;
+    /* Overwrite partipant name to differentiate here*/
+    std::string participant_name = "monitor_spy_domain_" + std::to_string(profile_extended_qos.domainId());
+    spy_participant_qos.name(participant_name);
 
     return create_and_register_monitor(
-        domain_name.str(), domain_listener, callback_mask, data_mask, profile_extended_qos,
+        domain_name.str(), domain_listener, callback_mask, data_mask, profile_extended_qos, spy_participant_qos,
         profile_extended_qos.domainId());
 }
 
