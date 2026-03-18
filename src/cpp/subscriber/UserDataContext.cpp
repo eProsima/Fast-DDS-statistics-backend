@@ -105,6 +105,61 @@ fastdds::dds::DynamicType::_ref_type UserDataContext::get_type_from_topic_name_n
     return nullptr;
 }
 
+void UserDataContext::register_qos_for_spy_reader(
+        const fastdds::dds::PublicationBuiltinTopicData& info)
+{
+    std::lock_guard<std::mutex> lock(mutex_);
+    register_qos_for_spy_reader_nts(info);
+}
+
+fastdds::dds::DataReaderQos UserDataContext::get_spy_reader_qos(
+        const std::string& topic_name)
+{
+    std::lock_guard<std::mutex> lock(mutex_);
+
+    auto it = spy_reader_qos_per_topic_.find(topic_name);
+    if (it != spy_reader_qos_per_topic_.end())
+    {
+        return it->second;
+    }
+
+    // If not found, default to DATAREADER_QOS_DEFAULT.
+    return fastdds::dds::DATAREADER_QOS_DEFAULT;
+}
+
+void UserDataContext::register_qos_for_spy_reader_nts(
+        const fastdds::dds::PublicationBuiltinTopicData& info)
+{
+    std::string topic_name = info.topic_name.to_string();
+
+    if (topic_name.empty())
+    {
+        return;
+    }
+
+    // Only store QoS for the first discovered writer on each topic
+    if (spy_reader_qos_per_topic_.count(topic_name) > 0)
+    {
+        return;
+    }
+
+    // Copy only QoS that may affect matching
+    fastdds::dds::DataReaderQos reader_qos;
+    reader_qos.reliability(info.reliability);
+    reader_qos.durability(info.durability);
+    reader_qos.deadline(info.deadline);
+    reader_qos.latency_budget(info.latency_budget);
+    reader_qos.liveliness(info.liveliness);
+    reader_qos.ownership(info.ownership);
+    reader_qos.destination_order(info.destination_order);
+    if (info.history.has_value())
+    {
+        reader_qos.history(info.history.value());
+    }
+
+    spy_reader_qos_per_topic_[topic_name] = reader_qos;
+}
+
 } // namespace subscriber
 } // namespace statistics_backend
 } // namespace eprosima
