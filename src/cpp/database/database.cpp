@@ -554,7 +554,7 @@ EntityId Database::insert_new_endpoint(
     return entity_id;
 }
 
-template <typename T>
+template<typename T>
 std::shared_ptr<DDSEndpoint> Database::create_endpoint_nts(
         const std::string& endpoint_guid,
         const std::string& name,
@@ -3532,7 +3532,7 @@ std::vector<const StatisticsSample*> Database::select(
     return samples;
 }
 
-template <>
+template<>
 void Database::get_status_data(
         const EntityId& entity_id,
         ProxySample& status_data)
@@ -3578,7 +3578,7 @@ void Database::get_status_data(
     }
 }
 
-template <>
+template<>
 void Database::get_status_data(
         const EntityId& entity_id,
         ConnectionListSample& status_data)
@@ -3624,7 +3624,7 @@ void Database::get_status_data(
     }
 }
 
-template <>
+template<>
 void Database::get_status_data(
         const EntityId& entity_id,
         IncompatibleQosSample& status_data)
@@ -3660,7 +3660,7 @@ void Database::get_status_data(
     }
 }
 
-template <>
+template<>
 void Database::get_status_data(
         const EntityId& entity_id,
         InconsistentTopicSample& status_data)
@@ -3696,7 +3696,7 @@ void Database::get_status_data(
     }
 }
 
-template <>
+template<>
 void Database::get_status_data(
         const EntityId& entity_id,
         LivelinessLostSample& status_data)
@@ -3719,7 +3719,7 @@ void Database::get_status_data(
     }
 }
 
-template <>
+template<>
 void Database::get_status_data(
         const EntityId& entity_id,
         LivelinessChangedSample& status_data)
@@ -3742,7 +3742,7 @@ void Database::get_status_data(
     }
 }
 
-template <>
+template<>
 void Database::get_status_data(
         const EntityId& entity_id,
         DeadlineMissedSample& status_data)
@@ -3778,7 +3778,7 @@ void Database::get_status_data(
     }
 }
 
-template <>
+template<>
 void Database::get_status_data(
         const EntityId& entity_id,
         SampleLostSample& status_data)
@@ -3801,7 +3801,7 @@ void Database::get_status_data(
     }
 }
 
-template <>
+template<>
 void Database::get_status_data(
         const EntityId& entity_id,
         ExtendedIncompatibleQosSample& status_data)
@@ -4651,7 +4651,7 @@ Graph Database::get_entity_subgraph_nts(
     return entity_graph_updated;
 }
 
-template <>
+template<>
 bool Database::update_entity_status_nts(
         std::shared_ptr<DataReader>& entity)
 {
@@ -4681,7 +4681,7 @@ bool Database::update_entity_status_nts(
     return entity_status_logic_nts(entity_error, entity_warning, entity->status);
 }
 
-template <>
+template<>
 bool Database::update_entity_status_nts(
         std::shared_ptr<DataWriter>& entity)
 {
@@ -5128,7 +5128,7 @@ void map_to_vector(
 }
 
 // Auxiliar function to convert a map of maps to a vector
-template <typename T>
+template<typename T>
 void map_of_maps_to_vector(
         const std::map<EntityId, std::map<EntityId, std::shared_ptr<T>>>& map,
         std::vector<std::shared_ptr<const Entity>>& vec)
