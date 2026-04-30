@@ -554,7 +554,7 @@ EntityId Database::insert_new_endpoint(
     return entity_id;
 }
 
-template <typename T>
+template<typename T>
 std::shared_ptr<DDSEndpoint> Database::create_endpoint_nts(
         const std::string& endpoint_guid,
         const std::string& name,
@@ -1239,31 +1239,32 @@ void Database::trigger_alerts_of_kind_nts(
 
 void Database::check_alerts_timeouts()
 {
-    std::shared_lock<std::shared_timed_mutex> lock(mutex_);
-    for (auto& domain_it : domains_)
+    std::vector<std::pair<EntityId, AlertInfo>> timed_out;
     {
-        EntityId domainId = domain_it.first;
-        auto alerts_in_domain = alerts_.find(domainId);
-        if (alerts_in_domain != alerts_.end())
+        std::lock_guard<std::shared_timed_mutex> lock(mutex_);
+        for (auto& domain_it : domains_)
         {
-            for (auto& alert_it : alerts_in_domain->second)
+            EntityId domainId = domain_it.first;
+            auto alerts_in_domain = alerts_.find(domainId);
+            if (alerts_in_domain != alerts_.end())
             {
-                std::shared_ptr<AlertInfo> alert_info = alert_it.second;
-                if (alert_info->check_timeout())
+                for (auto& alert_it : alerts_in_domain->second)
                 {
-                    // Notify the alert has been triggered
-                    // TODO (eProsima) Workaround to avoid deadlock if callback implementation requires taking the database
-                    // mutex (e.g. by calling get_info). A refactor for not calling on_domain_view_graph_update from within
-                    // this function would be required.
-                    execute_without_lock([&]()
-                            {
-                                details::StatisticsBackendData::get_instance()->on_alert_timeout(
-                                    domainId,
-                                    *alert_info);
-                            });
+                    std::shared_ptr<AlertInfo> alert_info = alert_it.second;
+                    if (alert_info->check_timeout())
+                    {
+                        timed_out.emplace_back(domainId, *alert_info);
+                    }
                 }
             }
         }
+    }
+
+    for (auto& entry : timed_out)
+    {
+        details::StatisticsBackendData::get_instance()->on_alert_timeout(
+            entry.first,
+            entry.second);
     }
 }
 
@@ -3531,7 +3532,7 @@ std::vector<const StatisticsSample*> Database::select(
     return samples;
 }
 
-template <>
+template<>
 void Database::get_status_data(
         const EntityId& entity_id,
         ProxySample& status_data)
@@ -3577,7 +3578,7 @@ void Database::get_status_data(
     }
 }
 
-template <>
+template<>
 void Database::get_status_data(
         const EntityId& entity_id,
         ConnectionListSample& status_data)
@@ -3623,7 +3624,7 @@ void Database::get_status_data(
     }
 }
 
-template <>
+template<>
 void Database::get_status_data(
         const EntityId& entity_id,
         IncompatibleQosSample& status_data)
@@ -3659,7 +3660,7 @@ void Database::get_status_data(
     }
 }
 
-template <>
+template<>
 void Database::get_status_data(
         const EntityId& entity_id,
         InconsistentTopicSample& status_data)
@@ -3695,7 +3696,7 @@ void Database::get_status_data(
     }
 }
 
-template <>
+template<>
 void Database::get_status_data(
         const EntityId& entity_id,
         LivelinessLostSample& status_data)
@@ -3718,7 +3719,7 @@ void Database::get_status_data(
     }
 }
 
-template <>
+template<>
 void Database::get_status_data(
         const EntityId& entity_id,
         LivelinessChangedSample& status_data)
@@ -3741,7 +3742,7 @@ void Database::get_status_data(
     }
 }
 
-template <>
+template<>
 void Database::get_status_data(
         const EntityId& entity_id,
         DeadlineMissedSample& status_data)
@@ -3777,7 +3778,7 @@ void Database::get_status_data(
     }
 }
 
-template <>
+template<>
 void Database::get_status_data(
         const EntityId& entity_id,
         SampleLostSample& status_data)
@@ -3800,7 +3801,7 @@ void Database::get_status_data(
     }
 }
 
-template <>
+template<>
 void Database::get_status_data(
         const EntityId& entity_id,
         ExtendedIncompatibleQosSample& status_data)
@@ -4650,7 +4651,7 @@ Graph Database::get_entity_subgraph_nts(
     return entity_graph_updated;
 }
 
-template <>
+template<>
 bool Database::update_entity_status_nts(
         std::shared_ptr<DataReader>& entity)
 {
@@ -4680,7 +4681,7 @@ bool Database::update_entity_status_nts(
     return entity_status_logic_nts(entity_error, entity_warning, entity->status);
 }
 
-template <>
+template<>
 bool Database::update_entity_status_nts(
         std::shared_ptr<DataWriter>& entity)
 {
@@ -5127,7 +5128,7 @@ void map_to_vector(
 }
 
 // Auxiliar function to convert a map of maps to a vector
-template <typename T>
+template<typename T>
 void map_of_maps_to_vector(
         const std::map<EntityId, std::map<EntityId, std::shared_ptr<T>>>& map,
         std::vector<std::shared_ptr<const Entity>>& vec)
