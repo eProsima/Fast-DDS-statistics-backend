@@ -1239,31 +1239,32 @@ void Database::trigger_alerts_of_kind_nts(
 
 void Database::check_alerts_timeouts()
 {
-    std::shared_lock<std::shared_timed_mutex> lock(mutex_);
-    for (auto& domain_it : domains_)
+    std::vector<std::pair<EntityId, AlertInfo>> timed_out;
     {
-        EntityId domainId = domain_it.first;
-        auto alerts_in_domain = alerts_.find(domainId);
-        if (alerts_in_domain != alerts_.end())
+        std::lock_guard<std::shared_timed_mutex> lock(mutex_);
+        for (auto& domain_it : domains_)
         {
-            for (auto& alert_it : alerts_in_domain->second)
+            EntityId domainId = domain_it.first;
+            auto alerts_in_domain = alerts_.find(domainId);
+            if (alerts_in_domain != alerts_.end())
             {
-                std::shared_ptr<AlertInfo> alert_info = alert_it.second;
-                if (alert_info->check_timeout())
+                for (auto& alert_it : alerts_in_domain->second)
                 {
-                    // Notify the alert has been triggered
-                    // TODO (eProsima) Workaround to avoid deadlock if callback implementation requires taking the database
-                    // mutex (e.g. by calling get_info). A refactor for not calling on_domain_view_graph_update from within
-                    // this function would be required.
-                    execute_without_lock([&]()
-                            {
-                                details::StatisticsBackendData::get_instance()->on_alert_timeout(
-                                    domainId,
-                                    *alert_info);
-                            });
+                    std::shared_ptr<AlertInfo> alert_info = alert_it.second;
+                    if (alert_info->check_timeout())
+                    {
+                        timed_out.emplace_back(domainId, *alert_info);
+                    }
                 }
             }
         }
+    }
+
+    for (auto& entry : timed_out)
+    {
+        details::StatisticsBackendData::get_instance()->on_alert_timeout(
+            entry.first,
+            entry.second);
     }
 }
 
