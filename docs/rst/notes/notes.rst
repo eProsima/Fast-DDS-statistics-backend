@@ -9,7 +9,7 @@ This release includes the following **improvements and bugfixes**:
 - Hotfix/undiscovery endpoints
 - Fix Spy DataReader created with incompatible QoS
 - Fix failure of Spy mode when statistics are enabled on XML
-- Initialize enums correctly in EntityDiscoveryInfo
+- Initialize `enums` correctly in EntityDiscoveryInfo
 - Fix monitor subscriber partition issue with *
 - Add undiscovery of proxy entities
 - Allow statistics topics to be spied
@@ -20,7 +20,7 @@ This release includes the following **updates**:
 
 This release includes the following CI improvements:
 
-- Upgrade Linters CI runner image to `ubuntu-24.04`
+- Upgrade `Linters` CI runner image to `ubuntu-24.04`
 
 This release includes the following **dependencies update**:
 
