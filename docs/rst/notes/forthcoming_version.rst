@@ -5,3 +5,7 @@
 ###################
 Forthcoming Version
 ###################
+
+This release includes the following **features**:
+
+- Support per-topic DataReader QoS customization via XML profiles in ``init_monitor``.
