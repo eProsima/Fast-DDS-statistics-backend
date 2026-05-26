@@ -80,6 +80,36 @@ public:
         get_default_datareader_qos,
         DataReaderQos & ());
 
+    MOCK_CONST_METHOD2(
+        get_datareader_qos_from_profile,
+        ReturnCode_t(
+            const std::string& profile_name,
+            DataReaderQos & qos));
+
+    MOCK_METHOD5(
+        create_datareader_with_profile_mock_method,
+        DataReader * (
+            TopicDescription * topic,
+            const std::string& profile_name,
+            DataReaderListener * listener,
+            const StatusMask& mask,
+            std::shared_ptr<fastdds::rtps::IPayloadPool> payload_pool));
+
+    DataReader* create_datareader_with_profile(
+            TopicDescription* topic,
+            const std::string& profile_name,
+            DataReaderListener* listener = nullptr,
+            const StatusMask& mask = StatusMask::all(),
+            std::shared_ptr<fastdds::rtps::IPayloadPool> payload_pool = nullptr)
+    {
+        return create_datareader_with_profile_mock_method(
+            topic,
+            profile_name,
+            listener,
+            mask,
+            payload_pool);
+    }
+
     MOCK_CONST_METHOD0(
         get_participant,
         DomainParticipant * ());

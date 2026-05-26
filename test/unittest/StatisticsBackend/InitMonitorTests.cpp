@@ -20,6 +20,8 @@
 #include <gmock/gmock.h>
 
 #include <fastdds/dds/domain/DomainParticipant.hpp>
+#include <fastdds/dds/subscriber/DataReader.hpp>
+#include <fastdds/dds/subscriber/qos/DataReaderQos.hpp>
 #include <fastdds/dds/domain/DomainParticipantFactory.hpp>
 #include <fastdds/dds/domain/qos/DomainParticipantQos.hpp>
 #include <fastdds/dds/topic/TopicDataType.hpp>
@@ -149,7 +151,8 @@ public:
         }
 
         // Set the profile to ignore discovery data from other processes
-        eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->load_XML_profiles_file("profiles/profile.xml");
+        eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->load_XML_profiles_file(
+            "profiles/profile.xml");
         eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->load_profiles();
     }
 
@@ -259,7 +262,7 @@ public:
         //Get data from participant discovery info
         auto get_property_value =
                 [](const eprosima::fastdds::rtps::PropertySeq& properties,
-                        const std::string& property_name) -> std::string
+                const std::string& property_name) -> std::string
                 {
                     auto property = std::find_if(
                         properties.begin(),
@@ -805,6 +808,69 @@ TEST_F(init_monitor_tests, profile_does_not_exist)
                 &domain_listener,
                 all_callback_mask_,
                 all_datakind_mask_), Error);
+}
+
+TEST_F(init_monitor_tests, init_monitor_datareader_uses_default_qos)
+{
+    DomainId domain_id = 0;
+    DomainListener domain_listener;
+
+    EntityId monitor_id = StatisticsBackend::init_monitor(
+        domain_id,
+        &domain_listener,
+        all_callback_mask_,
+        all_datakind_mask_);
+
+    ASSERT_TRUE(monitor_id.is_valid());
+
+    auto domain_monitors = test::get_monitors_from_database();
+    ASSERT_EQ(domain_monitors.size(), 1u);
+
+    auto* monitor = domain_monitors[monitor_id];
+
+    auto* reader = monitor->statistics_readers[HISTORY_LATENCY_TOPIC];
+    ASSERT_NE(nullptr, reader);
+
+    DataReaderQos reader_qos;
+    reader->get_qos(reader_qos);
+
+    EXPECT_EQ(reader_qos.durability().kind, eprosima::fastdds::dds::TRANSIENT_LOCAL_DURABILITY_QOS);
+
+    StatisticsBackend::stop_monitor(monitor_id);
+}
+
+TEST_F(init_monitor_tests, init_monitor_datareader_uses_profile_qos)
+{
+    eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->load_XML_profiles_file(
+        "profiles/datareader_profile.xml");
+
+    DomainId domain_id = 0;
+    DomainListener domain_listener;
+
+    EntityId monitor_id = StatisticsBackend::init_monitor(
+        domain_id,
+        &domain_listener,
+        all_callback_mask_,
+        all_datakind_mask_);
+
+    ASSERT_TRUE(monitor_id.is_valid());
+
+    auto domain_monitors = test::get_monitors_from_database();
+    ASSERT_EQ(domain_monitors.size(), 1u);
+
+    auto* monitor = domain_monitors[monitor_id];
+
+    auto* reader = monitor->statistics_readers[HISTORY_LATENCY_TOPIC];
+    ASSERT_NE(nullptr, reader);
+
+    DataReaderQos reader_qos;
+    reader->get_qos(reader_qos);
+
+    EXPECT_EQ(reader_qos.durability().kind, eprosima::fastdds::dds::VOLATILE_DURABILITY_QOS);
+
+    StatisticsBackend::stop_monitor(monitor_id);
+
+    eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->load_profiles();
 }
 
 int main(

@@ -345,6 +345,8 @@ set(INIT_MONITOR_TEST_LIST
     init_monitor_check_participant_transport
     init_monitor_easy_mode
     profile_does_not_exist
+    init_monitor_datareader_uses_default_qos
+    init_monitor_datareader_uses_profile_qos
     )
 
 foreach(test_name ${INIT_MONITOR_TEST_LIST})

@@ -169,6 +169,9 @@ public:
         ON_CALL(subscriber_, get_default_datareader_qos())
                 .WillByDefault(ReturnRef(datareader_qos_));
 
+        ON_CALL(subscriber_, get_datareader_qos_from_profile(_, _))
+                .WillByDefault(Return(eprosima::fastdds::dds::RETCODE_BAD_PARAMETER));
+
         ON_CALL(domain_participant_, register_type(_, _))
                 .WillByDefault(Return(eprosima::fastdds::dds::RETCODE_OK));
 
@@ -193,6 +196,8 @@ public:
         EXPECT_CALL(domain_participant_, get_default_subscriber_qos()).Times(AnyNumber());
         EXPECT_CALL(domain_participant_, get_default_topic_qos()).Times(AnyNumber());
         EXPECT_CALL(subscriber_, get_default_datareader_qos()).Times(AnyNumber());
+        EXPECT_CALL(subscriber_, get_datareader_qos_from_profile(_, _)).Times(AnyNumber());
+        EXPECT_CALL(subscriber_, create_datareader_with_profile_mock_method(_, _, _, _, _)).Times(AnyNumber());
 
         // The default expectations
         EXPECT_CALL(domain_participant_, create_subscriber(_, _, _)).Times(AnyNumber());
