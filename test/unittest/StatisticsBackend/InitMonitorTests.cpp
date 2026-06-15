@@ -873,6 +873,42 @@ TEST_F(init_monitor_tests, init_monitor_datareader_uses_profile_qos)
     eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->load_profiles();
 }
 
+TEST_F(init_monitor_tests, init_monitor_service_datareader_ignores_profile_resource_limits)
+{
+    eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->load_XML_profiles_file(
+        "profiles/monitor_service_datareader_profile.xml");
+
+    DomainId domain_id = 0;
+    DomainListener domain_listener;
+
+    EntityId monitor_id = StatisticsBackend::init_monitor(
+        domain_id,
+        &domain_listener,
+        all_callback_mask_,
+        all_datakind_mask_);
+
+    ASSERT_TRUE(monitor_id.is_valid());
+
+    auto domain_monitors = test::get_monitors_from_database();
+    ASSERT_EQ(domain_monitors.size(), 1u);
+
+    auto* monitor = domain_monitors[monitor_id];
+    auto* reader = monitor->statistics_readers[MONITOR_SERVICE_TOPIC];
+    ASSERT_NE(nullptr, reader);
+
+    DataReaderQos reader_qos;
+    reader->get_qos(reader_qos);
+
+    EXPECT_EQ(reader_qos.resource_limits().max_instances, 1500);
+    EXPECT_EQ(reader_qos.resource_limits().max_samples, 1600);
+    EXPECT_EQ(reader_qos.resource_limits().max_samples_per_instance, 1);
+    EXPECT_EQ(reader_qos.durability().kind, eprosima::fastdds::dds::TRANSIENT_LOCAL_DURABILITY_QOS);
+
+    StatisticsBackend::stop_monitor(monitor_id);
+
+    eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->load_profiles();
+}
+
 int main(
         int argc,
         char** argv)
