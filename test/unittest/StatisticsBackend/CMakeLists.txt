@@ -347,6 +347,7 @@ set(INIT_MONITOR_TEST_LIST
     profile_does_not_exist
     init_monitor_datareader_uses_default_qos
     init_monitor_datareader_uses_profile_qos
+    init_monitor_service_datareader_ignores_profile_resource_limits
     )
 
 foreach(test_name ${INIT_MONITOR_TEST_LIST})

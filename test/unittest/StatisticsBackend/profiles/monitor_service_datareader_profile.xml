@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"  ?>
+<profiles>
+    <data_reader profile_name="_fastdds_monitor_service_status">
+        <qos>
+            <durability>
+                <kind>VOLATILE</kind>
+            </durability>
+        </qos>
+    </data_reader>
+</profiles>

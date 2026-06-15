@@ -57,3 +57,34 @@ Similarly, when initializing a monitor with an XML profile, you can also specify
 
 * |BadParameter-api| if a monitor is already created for the given DDS domain or *Fast DDS* Discovery Server network.
 * |Error-api| if the creation of the monitor fails
+
+
+.. _statistics_backend_init_datareader_profiles:
+
+Topic-name DataReader profile lookup
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+When |init_monitor-api| creates a DataReader for each statistics topic, it looks for a loaded XML profile
+whose name matches the topic name.
+If a matching profile is found, the DataReader is configured using that profile's QoS, giving the user full
+control over fields such as history, durability, memory policy, etc.
+If no matching profile exists, the DataReader falls back to the default statistics QoS constants
+(``STATISTICS_DATAREADER_QOS`` for statistics topics and ``MONITOR_SERVICE_DATAREADER_QOS`` for the monitor service topic).
+
+The following example loads a profile named after the history-to-history latency topic that will be
+automatically applied when creating its DataReader:
+
+.. code-block:: xml
+
+    <dds>
+        <profiles>
+            <data_reader profile_name="_fastdds_statistics_history2history_latency">
+                <historyMemoryPolicy>DYNAMIC</historyMemoryPolicy>
+            </data_reader>
+        </profiles>
+    </dds>
+
+.. note::
+   The monitor service topic (``_fastdds_monitor_service_status``) always uses ``MONITOR_SERVICE_DATAREADER_QOS``
+   regardless of any loaded XML profile, to preserve its required resource limits
+   (``max_instances``, ``max_samples``, ``max_samples_per_instance``).
