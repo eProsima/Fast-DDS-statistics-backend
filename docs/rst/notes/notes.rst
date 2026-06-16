@@ -1,7 +1,55 @@
-.. _release_notes:
+:orphan:
 
+.. TODO uncomment when there are forthcoming notes
+.. .. include:: forthcoming_version.rst
+
+###################
+Version 3.0.0 |Pro|
+###################
+
+This release includes the following **bugfixes**:
+
+- Several spy mode stability fixes, including QoS compatibility and XML profile initialization
+- Fix incorrect enum initialization causing undefined entity discovery behavior
+- Fix endpoint undiscovery handling
+- Fix Windows deadlock in the alerts timeout checker
+
+This release includes the following **features**:
+
+- Publisher pane backend API to publish DDS data from a dockable monitor panel
+- Image pane backend API to display fixed-format image data from DDS topics
+- License check API for automatic license validation at startup
+- Multi-domain alias synchronization refreshing all domain graphs when a shared entity alias is updated
+- Topic spy with source timestamps via extended start_topic_spy() API
+- Safety check to prevent creating a monitor when proxy entities are present
+- Database access optimized to query each DataKind once, reducing redundant lookups
+- EntityKind forwarded as a function argument for faster data retrieval
+
+This release includes the following **dependencies**:
+
+.. list-table::
+    :header-rows: 1
+
+    *   -
+        - Repository
+        - Version
+    *   - Fast CDR
+        - `eProsima/Fast-CDR <https://github.com/eProsima/Fast-CDR>`__
+        - `v2.3.6 <https://github.com/eProsima/Fast-CDR/releases/tag/v2.3.6>`__
+    *   - Fast DDS |Pro|
+        - `eProsima/Fast-DDS-Pro <https://github.com/eProsima/Fast-DDS-Pro>`__
+        - `v3.6.1.1 <https://github.com/eProsima/Fast-DDS-Pro/releases/tag/v3.6.1.1>`__
+    *   - Fast DDS Gen
+        - `eProsima/Fast-DDS-Gen <https://github.com/eProsima/Fast-DDS-Gen>`__
+        - `v4.3.0 <https://github.com/eProsima/Fast-DDS-Gen/releases/tag/v4.3.0>`__
+    *   - IDL Parser
+        - `eProsima/IDL-Parser <https://github.com/eProsima/IDL-Parser.git>`__
+        - `v4.3.0 <https://github.com/eProsima/IDL-Parser/releases/tag/v4.3.0>`__
+
+
+##############
 Version 2.5.0
-#############
+##############
 
 This release includes the following **improvements and bugfixes**:
 
@@ -50,7 +98,7 @@ This release includes the following **dependencies update**:
 
 
 Previous versions
-#################
+=================
 
 .. include:: previous_versions/v2.4.0.rst
 .. include:: previous_versions/v2.3.0.rst

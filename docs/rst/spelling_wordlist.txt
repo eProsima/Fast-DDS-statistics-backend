@@ -14,6 +14,7 @@ demangled
 demangling
 Deserialize
 destructor
+dockable
 eprosima
 eProsima
 ExtendedIncompatibleQosSample
@@ -24,6 +25,7 @@ Github
 Gtest
 guid
 intraprocess
+lookups
 metatraffic
 monitorization
 monitorizations
