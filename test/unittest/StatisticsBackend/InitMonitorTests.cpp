@@ -24,6 +24,7 @@
 #include <fastdds/dds/subscriber/qos/DataReaderQos.hpp>
 #include <fastdds/dds/domain/DomainParticipantFactory.hpp>
 #include <fastdds/dds/domain/qos/DomainParticipantQos.hpp>
+#include <fastdds/dds/topic/Topic.hpp>
 #include <fastdds/dds/topic/TopicDataType.hpp>
 #include <fastdds/rtps/common/GuidPrefix_t.hpp>
 #include <fastdds/rtps/common/Locator.hpp>
@@ -43,6 +44,7 @@
 #include <Monitor.hpp>
 #include <StatisticsBackendData.hpp>
 #include <topic_types/typesPubSubTypes.hpp>
+#include <topic_types/monitorservice_typesPubSubTypes.hpp>
 
 
 using namespace eprosima::statistics_backend;
@@ -138,6 +140,7 @@ public:
         topic_types_[DISCOVERY_TOPIC] = new DiscoveryTimePubSubType();
         topic_types_[SAMPLE_DATAS_TOPIC] = new SampleIdentityCountPubSubType();
         topic_types_[PHYSICAL_DATA_TOPIC] = new PhysicalDataPubSubType();
+        topic_types_[MONITOR_SERVICE_TOPIC] = new MonitorServiceStatusDataPubSubType();
 
         // Set the bits for the masks
         for (auto callback : init_monitor_tests::all_callback_kinds_)
