@@ -7,23 +7,31 @@
 Version 3.0.0 |Pro|
 ###################
 
+This release includes the following **internal changes**:
+
+* Preparation of Monitor Pro repository
+* License update from GPL-3.0 to eProsima Software License Agreement Rev 03
+* Creation of self-hosted CI and mirror
+
 This release includes the following **bugfixes**:
 
-- Several spy mode stability fixes, including QoS compatibility and XML profile initialization
-- Fix incorrect enum initialization causing undefined entity discovery behavior
-- Fix endpoint undiscovery handling
-- Fix Windows deadlock in the alerts timeout checker
+* Fix race condition in backend data access
+* Several spy mode stability fixes, including QoS compatibility and XML profile initialization
+* Fix incorrect enum initialization causing undefined entity discovery behavior
+* Fix endpoint undiscovery handling
+* Fix Windows deadlock in the alerts timeout checker
+* Fix UserDataReaderListener test callback signature
 
 This release includes the following **features**:
 
-- Publisher pane backend API to publish DDS data from a dockable monitor panel
-- Image pane backend API to display fixed-format image data from DDS topics
-- License check API for automatic license validation at startup
-- Multi-domain alias synchronization refreshing all domain graphs when a shared entity alias is updated
-- Topic spy with source timestamps via extended start_topic_spy() API
-- Safety check to prevent creating a monitor when proxy entities are present
-- Database access optimized to query each DataKind once, reducing redundant lookups
-- EntityKind forwarded as a function argument for faster data retrieval
+* Publisher pane backend API to publish DDS data from a dockable monitor panel
+* Image pane backend API to display fixed-format image data from DDS topics
+* License check API for automatic license validation at startup
+* Multi-domain alias synchronization refreshing all domain graphs when a shared entity alias is updated
+* Topic spy with source timestamps via extended start_topic_spy() API
+* Safety check to prevent creating a monitor when proxy entities are present
+* Database access optimized to query each DataKind once, reducing redundant lookups
+* EntityKind forwarded as a function argument for faster data retrieval
 
 This release includes the following **dependencies**:
 
@@ -53,22 +61,22 @@ Version 2.5.0
 
 This release includes the following **improvements and bugfixes**:
 
-- Fix Windows deadlock in check_alerts_timeouts()
-- Hotfix/undiscovery endpoints
-- Fix Spy DataReader created with incompatible QoS
-- Fix failure of Spy mode when statistics are enabled on XML
-- Initialize `enums` correctly in EntityDiscoveryInfo
-- Fix monitor subscriber partition issue with *
-- Add undiscovery of proxy entities
-- Allow statistics topics to be spied
+* Fix Windows deadlock in check_alerts_timeouts()
+* Hotfix/undiscovery endpoints
+* Fix Spy DataReader created with incompatible QoS
+* Fix failure of Spy mode when statistics are enabled on XML
+* Initialize `enums` correctly in EntityDiscoveryInfo
+* Fix monitor subscriber partition issue with *
+* Add undiscovery of proxy entities
+* Allow statistics topics to be spied
 
 This release includes the following **updates**:
 
-- Update types for Fast DDS Gen v4.3.0 Release
+* Update types for Fast DDS Gen v4.3.0 Release
 
 This release includes the following CI improvements:
 
-- Upgrade `Linters` CI runner image to `ubuntu-24.04`
+* Upgrade `Linters` CI runner image to `ubuntu-24.04`
 
 This release includes the following **dependencies update**:
 
