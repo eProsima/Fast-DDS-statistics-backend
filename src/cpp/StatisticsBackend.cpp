@@ -339,19 +339,19 @@ EntityId create_and_register_monitor(
 
         /* Create DataReaders */
         fastdds::dds::DataReaderQos profile_check_qos;
-        if (topic == MONITOR_SERVICE_TOPIC)
-        {
-            monitor->statistics_readers[topic] = monitor->subscriber->create_datareader(
-                monitor->statistics_topics[topic],
-                eprosima::fastdds::statistics::dds::MONITOR_SERVICE_DATAREADER_QOS,
-                monitor->statistics_reader_listener,
-                StatusMask::all());
-        }
-        else if (monitor->subscriber->get_datareader_qos_from_profile(topic, profile_check_qos) == RETCODE_OK)
+        if (monitor->subscriber->get_datareader_qos_from_profile(topic, profile_check_qos) == RETCODE_OK)
         {
             monitor->statistics_readers[topic] = monitor->subscriber->create_datareader_with_profile(
                 monitor->statistics_topics[topic],
                 topic,
+                monitor->statistics_reader_listener,
+                StatusMask::all());
+        }
+        else if (topic == MONITOR_SERVICE_TOPIC)
+        {
+            monitor->statistics_readers[topic] = monitor->subscriber->create_datareader(
+                monitor->statistics_topics[topic],
+                eprosima::fastdds::statistics::dds::MONITOR_SERVICE_DATAREADER_QOS,
                 monitor->statistics_reader_listener,
                 StatusMask::all());
         }
