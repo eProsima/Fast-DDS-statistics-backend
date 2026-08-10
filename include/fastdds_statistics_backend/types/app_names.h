@@ -32,7 +32,7 @@ namespace statistics_backend {
 // App id
 
 //! Identificator for a Fast DDS Statistics Backend app
-constexpr const char* FASTDDS_MONITOR_APP           = "FASTDDS_MONITOR";
+constexpr const char* DDS_MONITOR_APP               = "DDS_MONITOR";
 //! Identificator for a DDS Router app
 constexpr const char* DDS_ROUTER_APP                = "DDS_ROUTER";
 //! Identificator for a Shapes Demo app
@@ -54,12 +54,12 @@ constexpr const char* SUSTAINML_APP                 = "SUSTAINML";
 
 //! Conversion from AppId to string
 constexpr const char* app_id_str[] =
-{"UNKNOWN_APP", FASTDDS_MONITOR_APP, DDS_ROUTER_APP, SHAPES_DEMO_APP, INTEGRATION_SERVICE_APP, FASTDDS_VISUALIZER_APP,
+{"UNKNOWN_APP", DDS_MONITOR_APP, DDS_ROUTER_APP, SHAPES_DEMO_APP, INTEGRATION_SERVICE_APP, FASTDDS_VISUALIZER_APP,
  FASTDDS_SPY_APP, DDS_RECORDER_APP, DDS_REPLAYER_APP, AML_IP_APP, SUSTAINML_APP};
 
 //! Conversion from string to AppId
 const std::map<std::string, AppId> app_id_enum = {
-    {FASTDDS_MONITOR_APP, AppId::FASTDDS_MONITOR},
+    {DDS_MONITOR_APP, AppId::DDS_MONITOR},
     {DDS_ROUTER_APP, AppId::DDS_ROUTER},
     {SHAPES_DEMO_APP, AppId::SHAPES_DEMO},
     {INTEGRATION_SERVICE_APP, AppId::INTEGRATION_SERVICE},

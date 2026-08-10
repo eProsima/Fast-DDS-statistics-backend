@@ -149,7 +149,8 @@ public:
         }
 
         // Set the profile to ignore discovery data from other processes
-        eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->load_XML_profiles_file("profiles/profile.xml");
+        eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->load_XML_profiles_file(
+            "profiles/profile.xml");
         eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->load_profiles();
     }
 
@@ -259,7 +260,7 @@ public:
         //Get data from participant discovery info
         auto get_property_value =
                 [](const eprosima::fastdds::rtps::PropertySeq& properties,
-                        const std::string& property_name) -> std::string
+                const std::string& property_name) -> std::string
                 {
                     auto property = std::find_if(
                         properties.begin(),
@@ -351,7 +352,7 @@ TEST_F(init_monitor_tests, init_monitor_domain_id_all_callback_all_data_known_ap
     std::string server_locators = "UDPv4:[127.0.0.1]:11811";
     std::string participant_profile_name = "participant_domain_3";
 
-    std::string app_id = app_id_str[(int)AppId::FASTDDS_MONITOR];
+    std::string app_id = app_id_str[(int)AppId::DDS_MONITOR];
     std::string app_metadata = "metadata";
     auto domain_monitors = init_monitors(domain_id, &domain_listener, server_locators, participant_profile_name,
                     all_callback_mask_, all_datakind_mask_, app_id, app_metadata);
@@ -765,7 +766,7 @@ TEST_F(init_monitor_tests, init_monitor_easy_mode)
 {
     DomainId domain_id = 0;
     DomainListener domain_listener;
-    std::string app_id = app_id_str[(int)AppId::FASTDDS_MONITOR];
+    std::string app_id = app_id_str[(int)AppId::DDS_MONITOR];
     std::string app_metadata = "metadata";
     std::string easy_mode_ip = "127.0.0.1";
 
