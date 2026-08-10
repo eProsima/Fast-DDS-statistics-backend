@@ -204,13 +204,13 @@ void StatisticsBackendData::on_alert_triggered(
         {
             case AlertKind::NEW_DATA_ALERT:
                 StatisticsBackendData::get_instance()->database_->trigger_notifier(notifier_id,
-                        "[FAST DDS MONITOR INSTANCE] Alert " +
+                        "[DDS MONITOR INSTANCE] Alert " +
                         alert.get_alert_name() + " was triggered. Entity " + entity_guid +
                         " emitted a DATA_COUNT sample of " + data);
                 break;
             case AlertKind::NO_DATA_ALERT:
                 StatisticsBackendData::get_instance()->database_->trigger_notifier(notifier_id,
-                        "[FAST DDS MONITOR INSTANCE] Alert " +
+                        "[DDS MONITOR INSTANCE] Alert " +
                         alert.get_alert_name() + " was triggered. Entity " + entity_guid +
                         " emitted a SUBSCRIPTION_THROUGHPUT sample of " + data);
             default:
@@ -244,7 +244,7 @@ void StatisticsBackendData::on_alert_timeout(
     for (const auto& notifier_id : alert.get_notifiers())
     {
         StatisticsBackendData::get_instance()->database_->trigger_notifier(notifier_id,
-                "[FAST DDS MONITOR INSTANCE] Alert " + alert.get_alert_name() + " timed out");
+                "[DDS MONITOR INSTANCE] Alert " + alert.get_alert_name() + " timed out");
     }
 
     if (should_call_domain_listener(*monitor->second, CallbackKind::ON_ALERT_TIMEOUT))
