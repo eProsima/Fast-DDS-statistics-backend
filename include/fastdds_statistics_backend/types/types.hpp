@@ -166,7 +166,7 @@ enum class AppId
     UNKNOWN,
 
     /// Fast DDS Statistics Backend App
-    FASTDDS_MONITOR,
+    DDS_MONITOR,
 
     /// DDS Router App
     DDS_ROUTER,
