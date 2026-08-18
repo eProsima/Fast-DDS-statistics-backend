@@ -2,6 +2,14 @@
 Previous versions
 ######################
 
+Fast DDS Statistics Backend |Pro|
+==================================
+
+.. include:: previous_versions/v3.0.0-pro.rst
+
+Fast DDS Statistics Backend
+============================
+
 .. include:: previous_versions/v2.4.0.rst
 .. include:: previous_versions/v2.3.0.rst
 .. include:: previous_versions/v2.2.0.rst

@@ -1,0 +1,55 @@
+.. _release_notes:
+
+.. TODO uncomment when there are forthcoming notes
+.. .. include:: forthcoming_version.rst
+
+###################
+Version 4.0.0 |Pro|
+###################
+
+This release includes the following **internal changes**:
+
+* Regenerate types for Buffer<T> and adapt backend to the new type
+* Add types regeneration script
+* Regenerate types with Fast DDS Gen Pro v4.4.0 and include license
+* Fix missing Gtest dependency declaration
+
+This release includes the following **bugfixes**:
+
+* Added mock for update_endpoint_discovery_source and update of C++ version to 17
+* Removed monitor process participants discovery
+* Fix empty Domain View after loading an offline recording
+* Fix offline-mode type schema lookup and Image View not rendering images with non-octet byte element types
+
+This release includes the following **features**:
+
+* Menu option to stop monitoring a domain
+* Add Topic-Name Profile Lookup for Entity Creation
+* Create statistics DataReaders on demand
+* Register Data Type from IDL and under a custom name via alias
+* Spy types with large truncated collections
+* Offline mode (Open recording)
+* Configure Custom User Topics as Image-Compatible Topics
+* Register SOME IP Bridge app
+* Rename references of Fast DDS Monitor to DDS Monitor
+
+This release includes the following **dependencies**:
+
+.. list-table::
+    :header-rows: 1
+
+    *   -
+        - Repository
+        - Version
+    *   - Fast CDR
+        - `eProsima/Fast-CDR <https://github.com/eProsima/Fast-CDR>`__
+        - `v2.4.0 <https://github.com/eProsima/Fast-CDR/releases/tag/v2.4.0>`__
+    *   - Fast DDS |Pro|
+        - `eProsima/Fast-DDS-Pro <https://github.com/eProsima/Fast-DDS-Pro>`__
+        - `v3.7.0.1 <https://github.com/eProsima/Fast-DDS-Pro/releases/tag/v3.7.0.1>`__
+    *   - Fast DDS Gen |Pro|
+        - `eProsima/Fast-DDS-Gen-Pro <https://github.com/eProsima/Fast-DDS-Gen-Pro>`__
+        - `v4.4.0.1 <https://github.com/eProsima/Fast-DDS-Gen-Pro/releases/tag/v4.4.0.1>`__
+    *   - IDL Parser
+        - `eProsima/IDL-Parser <https://github.com/eProsima/IDL-Parser.git>`__
+        - `v4.4.0 <https://github.com/eProsima/IDL-Parser/releases/tag/v4.4.0>`__
