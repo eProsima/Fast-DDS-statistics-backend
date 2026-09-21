@@ -19,7 +19,7 @@ Version 1.2.0
 This release includes the following **updates**:
 
 * Regenerate types with Fast DDS-Gen v3.3.1.
-* Remove the datasharing directory information from the monitor GUI.
+* Remove the Data Sharing directory information from the monitor GUI.
 
 This release includes the following **bugfixes**:
 
@@ -28,7 +28,7 @@ This release includes the following **bugfixes**:
 This release includes the following **CI improvements**:
 
 * Test both Fast DDS v2 and v3 in the CI.
-* Update the uncrustify action version to v0.
+* Update the ``uncrustify`` action version to v0.
 * Remove the Python virtual environment from the workflow.
 
 This release includes the following **dependencies update**:
