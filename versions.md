@@ -1,3 +1,33 @@
+Version 1.2.0
+-------------
+
+**This is the last release of the 1.x series.
+This branch has reached its End-of-Life (EOL) and will receive no further releases, bugfixes or security updates.
+Users are encouraged to migrate to the latest stable version of *eProsima Fast DDS Statistics Backend*.**
+
+This release includes the following **updates**:
+
+* Regenerate types with Fast DDS-Gen v3.3.1.
+* Remove the Data Sharing directory information from the monitor GUI.
+
+This release includes the following **bugfixes**:
+
+* Fix the documentation tests.
+
+This release includes the following **CI improvements**:
+
+* Test both Fast DDS v2 and v3 in the CI.
+* Update the `uncrustify` action version to v0.
+* Remove the Python virtual environment from the workflow.
+
+This release includes the following **dependencies update**:
+|  | Repository | Old Version | New Version |
+|---|---|---|---|
+| Fast CDR | [eProsima/Fast-CDR](https://github.com/eProsima/Fast-CDR) | [v2.2.0](https://github.com/eProsima/Fast-CDR/releases/tag/v2.2.0) | [v2.2.8](https://github.com/eProsima/Fast-CDR/releases/tag/v2.2.8) |
+| Fast DDS | [eProsima/Fast-DDS](https://github.com/eProsima/Fast-DDS) | [v2.14.0](https://github.com/eProsima/Fast-DDS/releases/tag/v2.14.0) | [v2.14.7](https://github.com/eProsima/Fast-DDS/releases/tag/v2.14.7) |
+| Fast DDS Gen | [eProsima/Fast-DDS-Gen](https://github.com/eProsima/Fast-DDS-Gen) | [v3.3.0](https://github.com/eProsima/Fast-DDS-Gen/releases/tag/v3.3.0) | [v3.3.3](https://github.com/eProsima/Fast-DDS-Gen/releases/tag/v3.3.3) |
+| IDL Parser | [eProsima/IDL-Parser](https://github.com/eProsima/IDL-Parser) | [v3.0.0](https://github.com/eProsima/IDL-Parser/releases/tag/v3.0.0) | [v3.0.0](https://github.com/eProsima/IDL-Parser/releases/tag/v3.0.0) |
+
 Version 1.1.0
 -------------
 
