@@ -5,8 +5,6 @@
 > This version of *eProsima Fast DDS Statistics Backend* is no longer maintained and will receive no further releases, bugfixes or security updates.
 > Please migrate to the [latest release](https://github.com/eProsima/Fast-DDS-statistics-backend/releases/latest), which is still compatible with *eProsima Fast DDS* v2.
 
-<a href="http://www.eprosima.com"><img src="https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcSd0PDlVz1U_7MgdTe0FRIWD0Jc9_YH-gGi0ZpLkr-qgCI6ZEoJZ5GBqQ" align="left" hspace="8" vspace="2" width="100" height="100" ></a>
-
 [![License](https://img.shields.io/github/license/eProsima/Fast-DDS-statistics-backend.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Releases](https://img.shields.io/github/v/release/eProsima/Fast-DDS-statistics-backend?sort=semver)](https://github.com/eProsima/Fast-DDS-statistics-backend/releases)
 [![Issues](https://img.shields.io/github/issues/eProsima/Fast-DDS-statistics-backend.svg)](https://github.com/eProsima/Fast-DDS-statistics-backend/issues)
@@ -15,6 +13,7 @@
 [![test](https://github.com/eProsima/Fast-DDS-statistics-backend/actions/workflows/test.yml/badge.svg)](https://github.com/eProsima/Fast-DDS-statistics-backend/actions/workflows/test.yml)
 [![codecov](https://codecov.io/gh/eProsima/Fast-DDS-statistics-backend/branch/main/graph/badge.svg?token=6NA5PVA9QL)](https://codecov.io/gh/eProsima/Fast-DDS-statistics-backend)
 
+<a href="http://www.eprosima.com"><img src="resources/images/eprosima_logo.svg" alt="eProsima" width="100"></a>
 
 *eProsima Fast DDS Statistics Backend* is a C++ library that provides collection and procession the statistics measurements reported by *Fast DDS Statistics Module*.
 The Backend provides a easy-to-use and user friendly API that abstracts the details of receiving and processing
