@@ -12,8 +12,6 @@ jobs:
       fail-fast: false
       matrix:
         version:
-        - fastdds_ref: 'v2'
-          backend_ref: '1.x'
         - fastdds_ref: 'v3'
           backend_ref: 'main'
     name: reusable_tests
