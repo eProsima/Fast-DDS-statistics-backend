@@ -18,7 +18,7 @@ Version 1.2.0
 
 This release includes the following **updates**:
 
-* Regenerate types with Fast DDS-Gen v3.3.1.
+* Regenerate types with Fast DDS-Gen v3.3.3.
 * Remove the Data Sharing directory information from the monitor GUI.
 
 This release includes the following **bugfixes**:
