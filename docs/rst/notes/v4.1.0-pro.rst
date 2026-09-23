@@ -9,7 +9,7 @@ Version 4.1.0 |Pro|
 
 This release includes the following **features**:
 
-* Added DDS Monitor compatibility with safedds license
+* Added DDS Monitor compatibility with Safe DDS license
 * Remove the statistics that Fast DDS no longer publishes
 
 This release includes the following **bugfixes**:
