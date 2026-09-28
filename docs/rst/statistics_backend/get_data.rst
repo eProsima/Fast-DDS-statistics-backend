@@ -5,9 +5,12 @@
 Get statistical data
 --------------------
 
-*Fast DDS Statistics Backend* provides two overloads of |get_data-api| to retrieve statistical data of a given
+*Fast DDS Statistics Backend* provides four overloads of |get_data-api| to retrieve statistical data of a given
 |DataKind-api| within a time frame (for more information about all the reported |DataKind-api|, please refer to
-:ref:`types_data_kind`).
+:ref:`types_data_kind`). Two of them take an explicit ``t_from``/``t_to`` time range (defaulting to the whole
+recorded history when omitted); the other two omit the time range arguments entirely and always use that same
+default, existing only so ``bins`` and ``statistic`` can be passed without also naming the time-range
+parameters - see :ref:`statistics_backend_get_data_no_time_overloads` below.
 This time interval is evenly divided into the specified number of bins, each one with size
 :math:`(t_{to} - t_{from})/(\# bins)`.
 For each of these bins, a new |StatisticsData-api| value is calculated applying the given |StatisticKind-api| to all the
@@ -61,10 +64,16 @@ The following table illustrates the expected inputs depending on the query's |Da
 +-------------------------------+------------------------------------+------------------------------------+
 | |EDP_PACKETS-api|             | |PARTICIPANT-api|                  | Not applicable                     |
 +-------------------------------+------------------------------------+------------------------------------+
-| |DISCOVERY_TIME-api|          | |PARTICIPANT-api|                  | Not applicable                     |
+| |DISCOVERY_TIME-api|          | |PARTICIPANT-api|                  | See note below                     |
 +-------------------------------+------------------------------------+------------------------------------+
 | |SAMPLE_DATAS-api|            | |DATAWRITER-api|                   | Not applicable                     |
 +-------------------------------+------------------------------------+------------------------------------+
+
+.. note::
+   Unlike every other two-entity |DataKind-api|, |DISCOVERY_TIME-api| does not relate to a single fixed pair of
+   |EntityKind-api|. The source is always the discovering |PARTICIPANT-api|, but the target - the discovered
+   entity - can itself be a |PARTICIPANT-api|, a |DATAWRITER-api|, or a |DATAREADER-api|, depending on what was
+   discovered.
 
 |get_data-api| throws |BadParameter-api| if the calling parameters are not consistent.
 
@@ -95,12 +104,31 @@ Finally, call |get_data-api| with the pairs that |get_entities-api| returns.
    If for a given bin, the *Fast DDS Statistics Backend* has no data, the value returned will be the one supplied by
    `std::numeric_limits<double>::quiet_NaN <https://en.cppreference.com/w/cpp/types/numeric_limits/quiet_NaN>`_.
 
+.. _statistics_backend_get_data_no_time_overloads:
+
+Overloads without a time range
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Both entity-shapes of |get_data-api| described above (source/target, and single-entity) also have a second
+overload that takes ``bins`` and ``statistic`` but omits ``t_from``/``t_to`` entirely, always using the same
+default time range those two parameters would otherwise default to (the whole recorded history):
+
+.. literalinclude:: /code/StatisticsBackendTests.cpp
+    :language: c++
+    :start-after: //CONF-GET-DATA-NO-TIME-RANGE-OVERLOADS
+    :end-before: //!
+    :dedent: 8
+
+These exist purely so ``bins`` and ``statistic`` can be passed positionally without also naming ``t_from``/
+``t_to``; they carry the exact same preconditions, |BadParameter-api| behavior, and NaN-on-no-data semantics as
+the overloads that do take a time range.
+
 .. _statistics_backend_get_data_examples:
 
 Examples
 ^^^^^^^^
 
-Following, some example queries are provided to serve a inspiration for applications using
+The following example queries are provided as inspiration for applications using
 *Fast DDS Statistics Backend*.
 
 .. todo::

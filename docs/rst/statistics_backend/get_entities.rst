@@ -156,11 +156,11 @@ This function returns the related entities according to the following table:
   when asking for all the |PARTICIPANT-api| related to a |PROCESS-api|, the return will be all the
   |PARTICIPANT-api| that the |PROCESS-api| contains.
 * **Sub-contains**: The returned entities will be the ones that the entity by which the query is performed sub-contains,
-  i.e. when asking for all the |DataWriter-api| related to a |USER-api|, the return will be all the |DataWriter-api|
+  i.e. when asking for all the |DATAWRITER-api| related to a |USER-api|, the return will be all the |DATAWRITER-api|
   that are contained in each of the |PARTICIPANT-api| in each of the |PROCESS-api| that the |USER-api| contains.
 * **Contained**: The returned entity will be that one in which the entity by which the query is performed is contained,
-  i.e. when asking for all the |TOPIC-api| related to a |DataReader-api|, the return will be the |TOPIC-api| in which
-  the |DataReader-api| is contained.
+  i.e. when asking for all the |TOPIC-api| related to a |DATAREADER-api|, the return will be the |TOPIC-api| in which
+  the |DATAREADER-api| is contained.
 * **Sub-contained**: The returned entity will be the one in which the entity by which the query is performed is
   sub-contained, i.e. when asking for all the |HOST-api| related to a |PARTICIPANT-api|, the return will be the
   |HOST-api| in which the |PARTICIPANT-api| is sub-contained.
@@ -168,6 +168,6 @@ This function returns the related entities according to the following table:
   performed through the DomainParticipant, i.e. when asking for all the |HOST-api| related to a |DOMAIN-api|, the result
   will be all the |HOST-api| that have a |PARTICIPANT-api| running on said |DOMAIN-api|.
 * **By Endpoints**: The returned entities will be the ones that are related to the entity by which the query is
-  performed through the endpoints (|DataReader-api| and |DataWriter-api|), i.e. when asking for all the |LOCATOR-api|
-  related to a |TOPIC-api|, the result will be all the |LOCATOR-api| that are used by all the |DataReader-api| and
-  |DataWriter-api| present in the |TOPIC-api|.
+  performed through the endpoints (|DATAREADER-api| and |DATAWRITER-api|), i.e. when asking for all the |LOCATOR-api|
+  related to a |TOPIC-api|, the result will be all the |LOCATOR-api| that are used by all the |DATAREADER-api| and
+  |DATAWRITER-api| present in the |TOPIC-api|.

@@ -280,6 +280,22 @@ void get_data_examples()
             now);                                                        // t_to
         //!--
     }
+    {
+        DataKind data_type = DataKind::FASTDDS_LATENCY;
+        std::vector<EntityId> entity_ids_source;
+        std::vector<EntityId> entity_ids_target;
+        std::vector<EntityId> entity_ids;
+        uint16_t bins = 0;
+        StatisticKind statistic = StatisticKind::NONE;
+
+        //CONF-GET-DATA-NO-TIME-RANGE-OVERLOADS
+        // Source/target overload, no time range:
+        StatisticsBackend::get_data(data_type, entity_ids_source, entity_ids_target, bins, statistic);
+
+        // Single-entity overload, no time range:
+        StatisticsBackend::get_data(data_type, entity_ids, bins, statistic);
+        //!--
+    }
 }
 
 void get_status_data_examples()

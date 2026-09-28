@@ -36,3 +36,8 @@ CMake options
           a static library.
         - ``ON`` ``OFF``
         - ``ON``
+    *   - :class:`COMPILE_EXAMPLES`
+        - Build the example applications distributed with the |br|
+          library (see :ref:`full_example`).
+        - ``ON`` ``OFF``
+        - ``OFF``

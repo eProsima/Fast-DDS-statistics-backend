@@ -21,6 +21,12 @@ Discovery Server network, and the statistic data related to these entities.
   * |clear_monitor-api| is currently not supported.
     It will be implemented on a future release of *Fast DDS Statistics Backend*.
 
+.. note::
+   |clear_monitor-api| is already fully implemented in *Fast DDS Statistics Backend Pro*: unlike the open-source
+   edition, it does not require the monitor to already be stopped (it stops it automatically), and it fully
+   removes the domain and all of its entities - not only their statistical data - so the same domain can be
+   monitored again from scratch with |init_monitor-api|.
+
 .. literalinclude:: /code/StatisticsBackendTests.cpp
    :language: c++
    :start-after: //CONF-CLEAR-EXAMPLE

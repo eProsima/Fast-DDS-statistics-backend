@@ -16,7 +16,7 @@ Stop a monitor
 *Fast DDS Statistics Backend* allows for a monitorization to be stopped at any time.
 Stopping a monitorization merely means that the internal statistics DataReaders are disabled, but the already received
 data is still accessible to applications through the query API (see :ref:`statistics_backend_get_data`).
-Is is important to note that:
+It is important to note that:
 
 * Calls to |stop_monitor-api| on an already stopped monitor take no effect.
 * |stop_monitor-api| must be called before calling |clear_monitor-api|.

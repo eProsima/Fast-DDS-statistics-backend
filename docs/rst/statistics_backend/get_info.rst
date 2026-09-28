@@ -13,6 +13,10 @@ Depending on the |EntityKind-api|, the returned object can contain extra informa
 ``locators`` or ``data_type``.
 |get_info-api| returns a |Info-api| object.
 
+A second overload of |get_info-api| takes an |AlertId-api| instead of an |EntityId-api|, returning a |Info-api|
+object describing that alert's own configuration (its name, kind, domain, host/user/topic filters, threshold,
+and timing parameters - see :ref:`types_alertinfo`) rather than a monitored DDS entity's.
+
 .. literalinclude:: /code/StatisticsBackendTests.cpp
     :language: c++
     :start-after: //CONF-GET-QOS-EXAMPLE

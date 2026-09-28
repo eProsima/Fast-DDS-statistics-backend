@@ -12,7 +12,9 @@ network, as well as the functions to extract statistics information about said m
 
 *Fast DDS Statistics Backend* can monitor several DDS domains and *Fast DDS* Discovery Server networks at the same time,
 notifying applications about changes in the network and arrival of new statistics data using two listeners which
-contain a set of callbacks that the application implements.
+contain a set of callbacks that the application implements. It can also watch for specific conditions on the
+monitored data by configuring alerts (see :ref:`statistics_backend_set_alert`), which trigger a listener callback
+or run a notifier script when the condition they were set for is met.
 
 .. toctree::
 

@@ -2,7 +2,7 @@
 
 .. _types_status_kind:
 
-StatusData
+StatusKind
 ==========
 
 The *eProsima Fast DDS Statistics Backend* records entities status data of different nature, as provided by the
@@ -26,6 +26,10 @@ refer to the nature of these status data values as their |StatusKind-api|.
   - |DATAWRITER-api| Incompatible QoS Offered.
   - |DATAREADER-api| Incompatible QoS Requested.
 
+- |EXTENDED_INCOMPATIBLE_QOS-api|: Tracks the current incompatible QoS policies of a |DATAWRITER-api| or
+  |DATAREADER-api| with each specific remote entity it is incompatible with, as opposed to
+  |INCOMPATIBLE_QOS-api|'s entity-wide summary.
+
 .. todo::
   - |INCONSISTENT_TOPIC-api|: Status of inconsistent topics of the topic of that entity. Asked to the topic of the
     requested entity.
@@ -45,23 +49,25 @@ refer to the nature of these status data values as their |StatusKind-api|.
 Only |PARTICIPANT-api|, |DATAWRITER-api| and |DATAREADER-api| have associated status data. The following table
 describes which |StatusKind-api| each of these :ref:`entities<types_entity_kind>` has:
 
-+-------------------------------+-----------------+----------------+----------------+
-| StatusKind                    ||PARTICIPANT-api|||DATAWRITER-api|||DATAREADER-api||
-+===============================+=================+================+================+
-| |PROXY-api|                   | Yes             | Yes            | Yes            |
-+-------------------------------+-----------------+----------------+----------------+
-| |CONNECTION_LIST-api|         | Yes             | Yes            | Yes            |
-+-------------------------------+-----------------+----------------+----------------+
-| |INCOMPATIBLE_QOS-api|        | No              | Yes            | Yes            |
-+-------------------------------+-----------------+----------------+----------------+
-| |LIVELINESS_LOST-api|         | No              | Yes            | No             |
-+-------------------------------+-----------------+----------------+----------------+
-| |LIVELINESS_CHANGED-api|      | No              | No             | Yes            |
-+-------------------------------+-----------------+----------------+----------------+
-| |DEADLINE_MISSED-api|         | No              | Yes            | Yes            |
-+-------------------------------+-----------------+----------------+----------------+
-| |SAMPLE_LOST-api|             | No              | No             | Yes            |
-+-------------------------------+-----------------+----------------+----------------+
++---------------------------------+-------------------+------------------+------------------+
+| StatusKind                      | |PARTICIPANT-api| | |DATAWRITER-api| | |DATAREADER-api| |
++=================================+===================+==================+==================+
+| |PROXY-api|                     | Yes               | Yes              | Yes              |
++---------------------------------+-------------------+------------------+------------------+
+| |CONNECTION_LIST-api|           | Yes               | Yes              | Yes              |
++---------------------------------+-------------------+------------------+------------------+
+| |INCOMPATIBLE_QOS-api|          | No                | Yes              | Yes              |
++---------------------------------+-------------------+------------------+------------------+
+| |EXTENDED_INCOMPATIBLE_QOS-api| | No                | Yes              | Yes              |
++---------------------------------+-------------------+------------------+------------------+
+| |LIVELINESS_LOST-api|           | No                | Yes              | No               |
++---------------------------------+-------------------+------------------+------------------+
+| |LIVELINESS_CHANGED-api|        | No                | No               | Yes              |
++---------------------------------+-------------------+------------------+------------------+
+| |DEADLINE_MISSED-api|           | No                | Yes              | Yes              |
++---------------------------------+-------------------+------------------+------------------+
+| |SAMPLE_LOST-api|               | No                | No               | Yes              |
++---------------------------------+-------------------+------------------+------------------+
 
 .. .. todo::
 ..   | |INCONSISTENT_TOPIC-api|      | No              | Yes            | Yes            |
@@ -72,23 +78,25 @@ reports no problem.
 Entity's associated |StatusLevel-api| is obtained from all status data. The following table describes which
 |StatusLevel-api|'s are associated with each |StatusKind-api|:
 
-+-------------------------------+-----------------------+
-| StatusKind                    |StatusLevel's          |
-+===============================+=======================+
-| |PROXY-api|                   | |OK-api|              |
-+-------------------------------+-----------------------+
-| |CONNECTION_LIST-api|         | |OK-api|              |
-+-------------------------------+-----------------------+
-| |INCOMPATIBLE_QOS-api|        | |OK-api|/|ERROR-api|  |
-+-------------------------------+-----------------------+
-| |LIVELINESS_LOST-api|         | |OK-api|/|WARNING-api||
-+-------------------------------+-----------------------+
-| |LIVELINESS_CHANGED-api|      | |OK-api|              |
-+-------------------------------+-----------------------+
-| |DEADLINE_MISSED-api|         | |OK-api|/|WARNING-api||
-+-------------------------------+-----------------------+
-| |SAMPLE_LOST-api|             | |OK-api|/|WARNING-api||
-+-------------------------------+-----------------------+
++---------------------------------+------------------------+
+| StatusKind                      | StatusLevel's          |
++=================================+========================+
+| |PROXY-api|                     | |OK-api|               |
++---------------------------------+------------------------+
+| |CONNECTION_LIST-api|           | |OK-api|               |
++---------------------------------+------------------------+
+| |INCOMPATIBLE_QOS-api|          | |OK-api|/|ERROR-api|   |
++---------------------------------+------------------------+
+| |EXTENDED_INCOMPATIBLE_QOS-api| | |OK-api|/|ERROR-api|   |
++---------------------------------+------------------------+
+| |LIVELINESS_LOST-api|           | |OK-api|/|WARNING-api| |
++---------------------------------+------------------------+
+| |LIVELINESS_CHANGED-api|        | |OK-api|               |
++---------------------------------+------------------------+
+| |DEADLINE_MISSED-api|           | |OK-api|/|WARNING-api| |
++---------------------------------+------------------------+
+| |SAMPLE_LOST-api|               | |OK-api|/|WARNING-api| |
++---------------------------------+------------------------+
 
 .. .. todo::
 ..   | |INCONSISTENT_TOPIC-api|      | \-                    |

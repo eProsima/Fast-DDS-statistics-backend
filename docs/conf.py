@@ -403,10 +403,20 @@ suppress_warnings = [
 todo_include_todos = False
 
 # Global substitutions available in every RST file without needing an explicit include.
+#
+# |Pro| is a real inline role (not a raw:: html node), so it still contributes the text "Pro"
+# when Sphinx needs a plain-text title - e.g. for the sidebar's page-title link and for a
+# bare :ref: whose link text is auto-generated from the target's title. A raw:: html node
+# does not: it is opaque to text extraction, so titles/refs using it used to render with the
+# word "Pro" silently missing. The actual badge styling lives in a real .pro-badge CSS rule
+# (docs/rst/_static/css/pro_badge.css) instead of an inline style attribute, because the
+# downloaded eProsima RTD theme (see select_css() below) applies
+# ``.wy-menu-vertical span{color:...!important}`` to every span in the left sidebar, which an
+# inline (non-!important) style cannot win against.
 rst_prolog = """
-.. |Pro| raw:: html
+.. role:: pro-badge
 
-    <span style="font-size: 0.75em; font-weight: bold; color: var(--color-brand-primary, #0072bc); border: 1px solid currentColor; border-radius: 3px; padding: 1px 5px; vertical-align: middle; white-space: nowrap;">Pro</span>
+.. |Pro| replace:: :pro-badge:`Pro`
 """
 
 
@@ -451,9 +461,24 @@ html_theme = 'sphinx_rtd_theme'
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['rst/_static']
 
+# NOTE: sphinx_rtd_theme's layout.html reads the "css_files" template variable straight from
+# html_context (below), not from Sphinx's own html_css_files setting - setting html_css_files
+# here would be silently shadowed by the html_context assignment and never actually linked.
+# pro_badge.css and sidebar.css are therefore appended to that same list instead, after the
+# downloaded corporate theme so they reliably win the cascade (see conf.py's rst_prolog for
+# pro_badge.css; sidebar.css fixes the theme's own sidebar caption clipping/width).
 html_context = {
-        'css_files': select_css(project_source_docs_dir),
+        'css_files': select_css(project_source_docs_dir) + [
+            '_static/css/pro_badge.css',
+            '_static/css/sidebar.css',
+        ],
         }
+
+# Unlike html_css_files above, the theme does not shadow Sphinx's own JS file handling, so this
+# works normally. See pro_caption_badge.js: it turns the trailing "Pro" word of the
+# "Fast DDS Statistics Backend Pro" sidebar caption into a .pro-badge tag, which cannot be done
+# with CSS alone since it targets only part of a text node.
+html_js_files = ['js/pro_caption_badge.js']
 
 
 # Add any extra paths that contain custom files (such as robots.txt or

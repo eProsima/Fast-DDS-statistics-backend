@@ -17,4 +17,4 @@ The available statistics are:
 - |StatisticsKind::COUNT-api|: Amount of values in the set.
 - |StatisticsKind::SUM-api|: Summation of the values in the set.
 - |StatisticsKind::NONE-api|: Non accumulative kind.
-  It chooses a single data point among those in the set.
+  It chooses a single data point among those in the set - specifically, the first data point in the set.

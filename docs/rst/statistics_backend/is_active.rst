@@ -9,7 +9,12 @@ Check whether an entity is active
 all the entities that have at some point been detected by a monitor.
 However, it is possible that some of this entities have already abandoned the network, thus becoming inactive.
 For this reason, |StatisticsBackend-api| exposes a |is_active-api| function that returns whether an entity is active,
-given its |EntityId-api|.
+given its |EntityId-api|. What "active" means depends on the kind of entity:
+
+* For a monitor, active means that no call to |stop_monitor-api| has been performed since it was last activated.
+* For every other entity, active means that statistical data is currently being reported for it - an entity
+  that has stopped publishing or subscribing, or whose participant has left the network, is no longer active,
+  even though its historical data remains queryable.
 
 .. literalinclude:: /code/StatisticsBackendTests.cpp
     :language: c++

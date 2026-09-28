@@ -58,7 +58,7 @@ Every time new status data is available there will be a callback to Domain Liste
 Examples
 ^^^^^^^^
 
-Following, some example queries are provided to serve a inspiration for applications using
+The following example queries are provided as inspiration for applications using
 *Fast DDS Statistics Backend*.
 
 Proxy example

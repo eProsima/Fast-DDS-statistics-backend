@@ -10,7 +10,7 @@ an action is performed. The ``Notifier`` class represents these notification mec
 
 In the current implementation, the only available notifiers are script notifiers,
 that execute a user-defined script when the alert is triggered. The script path is passed as
-a parameter in the ´set_alert´ method.
+a parameter in the |set_alert-api| method.
 
 
 

@@ -4,6 +4,7 @@
 .. |stop_monitor-api| replace:: :cpp:func:`stop_monitor()<eprosima::statistics_backend::StatisticsBackend::stop_monitor>`
 .. |restart_monitor-api| replace:: :cpp:func:`restart_monitor()<eprosima::statistics_backend::StatisticsBackend::restart_monitor>`
 .. |clear_monitor-api| replace:: :cpp:func:`clear_monitor()<eprosima::statistics_backend::StatisticsBackend::clear_monitor>`
+.. |start_topic_spy-api| replace:: :cpp:func:`start_topic_spy()<eprosima::statistics_backend::StatisticsBackend::start_topic_spy>`
 .. |get_data-api| replace:: :cpp:func:`get_data()<eprosima::statistics_backend::StatisticsBackend::get_data>`
 .. |get_status_data-api| replace:: :cpp:func:`get_status_data()<eprosima::statistics_backend::StatisticsBackend::get_status_data>`
 .. |get_data_supported_entity_kinds-api| replace:: :cpp:func:`get_data_supported_entity_kinds()<eprosima::statistics_backend::StatisticsBackend::get_data_supported_entity_kinds>`
@@ -22,6 +23,9 @@
 .. |set_alias-api| replace:: :cpp:func:`set_alias()<eprosima::statistics_backend::StatisticsBackend::set_alias>`
 .. |set_alert-api| replace:: :cpp:func:`set_alert()<eprosima::statistics_backend::StatisticsBackend::set_alert>`
 .. |remove_alert-api| replace:: :cpp:func:`remove_alert()<eprosima::statistics_backend::StatisticsBackend::remove_alert>`
+.. |get_alerts-api| replace:: :cpp:func:`get_alerts()<eprosima::statistics_backend::StatisticsBackend::get_alerts>`
+.. |set_alerts_polling_time-api| replace:: :cpp:func:`set_alerts_polling_time()<eprosima::statistics_backend::StatisticsBackend::set_alerts_polling_time>`
+.. |AlertId-api| replace:: :cpp:type:`AlertId<eprosima::statistics_backend::AlertId>`
 .. |clear_statistics_data-api| replace:: :cpp:func:`clear_statistics_data()<eprosima::statistics_backend::StatisticsBackend::clear_statistics_data>`
 .. |clear_inactive_entities-api| replace:: :cpp:func:`clear_inactive_entities()<eprosima::statistics_backend::StatisticsBackend::clear_inactive_entities>`
 
@@ -72,6 +76,7 @@
 .. |LIVELINESS_CHANGED-api| replace:: :cpp:enumerator:`LIVELINESS_CHANGED<eprosima::statistics_backend::StatusKind::LIVELINESS_CHANGED>`
 .. |DEADLINE_MISSED-api| replace:: :cpp:enumerator:`DEADLINE_MISSED<eprosima::statistics_backend::StatusKind::DEADLINE_MISSED>`
 .. |SAMPLE_LOST-api| replace:: :cpp:enumerator:`SAMPLE_LOST<eprosima::statistics_backend::StatusKind::SAMPLE_LOST>`
+.. |EXTENDED_INCOMPATIBLE_QOS-api| replace:: :cpp:enumerator:`EXTENDED_INCOMPATIBLE_QOS<eprosima::statistics_backend::StatusKind::EXTENDED_INCOMPATIBLE_QOS>`
 
 .. |StatisticsData-api| replace:: :cpp:type:`StatisticsData<eprosima::statistics_backend::StatisticsData>`
 .. |StatisticKind-api| replace:: :cpp:type:`StatisticKind<eprosima::statistics_backend::StatisticKind>`
@@ -86,6 +91,7 @@
 
 .. |EntityKind-api| replace:: :cpp:type:`EntityKind<eprosima::statistics_backend::EntityKind>`
 .. |EntityId-api| replace:: :cpp:type:`EntityId<eprosima::statistics_backend::EntityId>`
+.. |DomainId-api| replace:: :cpp:type:`DomainId<eprosima::statistics_backend::DomainId>`
 .. |EntityId:all-api| replace:: :cpp:func:`EntityId::all()<eprosima::statistics_backend::EntityId::all>`
 .. |EntityIds-api| replace:: :cpp:type:`EntityIds<eprosima::statistics_backend::EntityId>`
 .. |Info-api| replace:: :cpp:type:`Info<eprosima::statistics_backend::Info>`
@@ -102,6 +108,7 @@
 .. |DATAREADER-api| replace:: :cpp:enumerator:`DATAREADER<eprosima::statistics_backend::EntityKind::DATAREADER>`
 .. |LOCATOR-api| replace:: :cpp:enumerator:`LOCATOR<eprosima::statistics_backend::EntityKind::LOCATOR>`
 
+.. |AlertKind-api| replace:: :cpp:type:`AlertKind<eprosima::statistics_backend::AlertKind>`
 .. |AlertKind::INVALID-api| replace:: :cpp:enumerator:`INVALID<eprosima::statistics_backend::AlertKind::INVALID_ALERT>`
 .. |AlertKind::NEW_DATA-api| replace:: :cpp:enumerator:`NEW_DATA<eprosima::statistics_backend::AlertKind::NEW_DATA_ALERT>`
 .. |AlertKind::NO_DATA-api| replace:: :cpp:enumerator:`NO_DATA<eprosima::statistics_backend::AlertKind::NO_DATA_ALERT>`
@@ -114,3 +121,28 @@
 .. |BadParameter-api| replace:: :cpp:type:`BadParameter<eprosima::statistics_backend::BadParameter>`
 .. |Error-api| replace:: :cpp:type:`Error<eprosima::statistics_backend::Error>`
 .. |PreconditionNotMet-api| replace:: :cpp:type:`PreconditionNotMet<eprosima::statistics_backend::PreconditionNotMet>`
+
+.. Pro-exclusive symbols below. These are not part of this repository's own headers (they are added by
+.. Fast DDS Statistics Backend Pro), so they are plain literal substitutions rather than :cpp: cross-references:
+.. this repository's Doxygen/Breathe setup only scans its own `include/` tree and cannot resolve a target for them.
+
+.. |check_license-api| replace:: ``check_license()``
+.. |register_type-api| replace:: ``register_type()``
+.. |register_type_from_type_object-api| replace:: ``register_type_from_type_object()``
+.. |get_registered_type_names-api| replace:: ``get_registered_type_names()``
+.. |get_registered_type_struct_name-api| replace:: ``get_registered_type_struct_name()``
+.. |get_all_type_idls-api| replace:: ``get_all_type_idls()``
+.. |RegisterTypeStatus-api| replace:: ``RegisterTypeStatus``
+.. |start_topic_publisher-api| replace:: ``start_topic_publisher()``
+.. |publish_topic_sample-api| replace:: ``publish_topic_sample()``
+.. |stop_topic_publisher-api| replace:: ``stop_topic_publisher()``
+.. |start_topic_spy_raw-api| replace:: ``start_topic_spy_raw()``
+.. |stop_topic_spy_raw-api| replace:: ``stop_topic_spy_raw()``
+.. |RawImageSample-api| replace:: ``RawImageSample``
+.. |RawImageFieldMap-api| replace:: ``RawImageFieldMap``
+.. |get_topic_type_schema-api| replace:: ``get_topic_type_schema()``
+.. |get_topic_type_schema_by_type_name-api| replace:: ``get_topic_type_schema_by_type_name()``
+.. |enable_statistics_reader-api| replace:: ``enable_statistics_reader()``
+.. |disable_statistics_reader-api| replace:: ``disable_statistics_reader()``
+.. |get_enabled_statistics_readers-api| replace:: ``get_enabled_statistics_readers()``
+.. |has_proxy_participants-api| replace:: ``has_proxy_participants()``

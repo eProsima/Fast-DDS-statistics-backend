@@ -20,7 +20,10 @@ Server networks, only one ``PhysicalListener`` can be set for the entire applica
     monitoring, so that no physical events are missed.
 
 Furthermore, it is possible to change the |DomainListener-api|, |CallbackMask-api|, and |DataKindMask-api| of any
-monitor at any time.
+monitor at any time. Setting a new |DomainListener-api| (or |PhysicalListener-api|) replaces any listener already
+configured - it does not stack with it. The listener pointer can also be ``nullptr``, which removes the
+currently-configured listener for that monitor (or, for |PhysicalListener-api|, for the whole application)
+without installing a new one.
 
 .. literalinclude:: /code/StatisticsBackendTests.cpp
    :language: c++

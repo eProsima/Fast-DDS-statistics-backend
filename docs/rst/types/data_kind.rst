@@ -2,8 +2,8 @@
 
 .. _types_data_kind:
 
-StatisticsData
-==============
+DataKind
+========
 
 The *eProsima Fast DDS Statistics Backend* records statistics data of different
 nature, as provided by *eProsima Fast DDS Statistics Module*, e.g., latency or message count.
@@ -49,7 +49,7 @@ We refer to the nature of these data values as their |DataKind-api|.
 
 
 Each statistics data kind may relate to one or two :ref:`entities<types_entity_kind>` where they are measured.
-For example, a `FASTDDS_LATENCY` is always measured between a data data writer
+For example, a `FASTDDS_LATENCY` is always measured between a data writer
 and a data reader, whereas `PDP_PACKETS` is always measured in a participant,
 with no other entity involved in the measurement.
 The following table describes which entity kinds are involved in the
@@ -60,7 +60,7 @@ measurement of each data kind:
 +===============================+===================+===============+
 | |FASTDDS_LATENCY-api|         | DataWriter        | DataReader    |
 +-------------------------------+-------------------+---------------+
-| |NETWORK_LATENCY-api|         | Locator           | Locator       |
+| |NETWORK_LATENCY-api|         | DomainParticipant | Locator       |
 +-------------------------------+-------------------+---------------+
 | |PUBLICATION_THROUGHPUT-api|  | DataWriter        | \-            |
 +-------------------------------+-------------------+---------------+
@@ -94,3 +94,10 @@ measurement of each data kind:
 +-------------------------------+-------------------+---------------+
 | |SAMPLE_DATAS-api|            | DataWriter        | \-            |
 +-------------------------------+-------------------+---------------+
+
+.. warning::
+   *Fast DDS Statistics Backend Pro* does not declare every |DataKind-api| listed above: ``NETWORK_LATENCY``,
+   ``RTPS_PACKETS_SENT``, ``RTPS_BYTES_SENT``, ``RTPS_PACKETS_LOST``, ``RTPS_BYTES_LOST``, ``DISCOVERY_TIME`` and
+   ``SAMPLE_DATAS`` are exclusive to the open-source edition - the underlying *Fast DDS Pro* no longer publishes
+   these particular statistics, so the Pro backend's own |DataKind-api| simply does not include them. Code that
+   switches between editions must not assume the two |DataKind-api| enums are interchangeable.

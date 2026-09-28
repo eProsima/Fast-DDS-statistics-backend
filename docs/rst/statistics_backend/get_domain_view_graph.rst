@@ -25,13 +25,18 @@ Example
 ^^^^^^^
 
 The |DomainListener::on_domain_view_graph_update-api| |DomainListener-api| callback notifies when a domain has updated
-its graph. Alternatively, the graph can be regenerated manually by calling |regenerate_domain_graph-api|:
+its graph. Alternatively, the graph can be regenerated manually by calling |regenerate_domain_graph-api|, which
+returns ``true`` if a graph for the given domain existed and was regenerated (triggering
+|DomainListener::on_domain_view_graph_update-api| itself in the process), or ``false`` if no graph was found for
+that domain:
 
 .. literalinclude:: /code/StatisticsBackendTests.cpp
     :language: c++
     :start-after: //CONF-REGENERATE-GRAPH-EXAMPLE
     :end-before: //!
     :dedent: 8
+
+|get_domain_view_graph-api| throws |BadParameter-api| if there is no graph for the specified domain id.
 
 For the following example, a simple scenario is considered, where there is one process running two participants on the
 same domain; one with a data reader and the other one with a data writer (both in the same topic).

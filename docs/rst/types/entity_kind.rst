@@ -17,4 +17,5 @@ The following list shows the different entities that are tracked:
 - |PARTICIPANT-api|: DDS Domain Participant.
 - |DATAWRITER-api|: DDS DataWriter.
 - |DATAREADER-api|: DDS DataReader.
-- |LOCATOR-api|: Physical locator that a communication is using.
+- |LOCATOR-api|: Physical locator that a communication is using (IP + port, or SHM + port). Stores the locator
+  statistic data.

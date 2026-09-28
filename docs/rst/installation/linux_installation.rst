@@ -112,7 +112,7 @@ This section explains how to use it to compile *eProsima Fast DDS Statistics Bac
 
        mkdir ~/Fast-DDS-statistics-backend
        cd ~/Fast-DDS-statistics-backend
-       wget https://raw.githubusercontent.com/eProsima/Fast-DDS-statistics-backend/master/fastdds_statistics_backend.repos
+       wget https://raw.githubusercontent.com/eProsima/Fast-DDS-statistics-backend/main/fastdds_statistics_backend.repos
        mkdir src
        vcs import src < fastdds_statistics_backend.repos
 
@@ -150,7 +150,7 @@ Local installation
 ^^^^^^^^^^^^^^^^^^
 
 #. Follow the `eProsima Fast DDS local installation guide <https://fast-dds.docs.eprosima.com/en/latest/installation/sources/sources_linux.html#local-installation>`_
-   to install *eProsmia Fast DDS* and all its dependencies
+   to install *eProsima Fast DDS* and all its dependencies
 
 #. Install *eProsima Fast DDS Statistics Backend*:
 
@@ -176,7 +176,7 @@ Global installation
 ^^^^^^^^^^^^^^^^^^^
 
 #. Follow the `eProsima Fast DDS global installation guide <https://fast-dds.docs.eprosima.com/en/latest/installation/sources/sources_linux.html#global-installation>`_
-   to install *eProsmia Fast DDS* and all its dependencies
+   to install *eProsima Fast DDS* and all its dependencies
 
 #. Install *eProsima Fast DDS Statistics Backend*:
 
@@ -196,7 +196,7 @@ Run an application
 
 When running an instance of an application using *eProsima Fast DDS Statistics Backend*,
 it must be linked with the library where the packages have been installed,
-which in the case of system-wide installation  is: :code:`/usr/local/lib/`
+which in the case of system-wide installation is: :code:`/usr/local/lib/`
 (if local installation is used, adjust for the correct directory).
 There are two possibilities:
 
@@ -206,7 +206,7 @@ There are two possibilities:
 
       export LD_LIBRARY_PATH=/usr/local/lib/
 
-* Add it permanently it to the :code:`PATH`, by typing:
+* Add it permanently to the :code:`PATH`, by typing:
 
   .. code-block:: bash
 
