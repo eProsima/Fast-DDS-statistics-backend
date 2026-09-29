@@ -60,3 +60,6 @@ behave identically in each:
 * An additional recognized application identifier, ``AppId::DDS_SOMEIP_BRIDGE``, is available in *Fast DDS
   Statistics Backend Pro* for a DDS-SOME/IP Bridge application, alongside the identifiers shared with the
   open-source edition.
+* Both editions create an internal *spy* participant to back the topic spy/publisher features, but only *Fast
+  DDS Statistics Backend Pro* filters it out of discovery, so it never appears as an extra entity in
+  |get_domain_view_graph-api|'s output.

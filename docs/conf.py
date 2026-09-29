@@ -474,12 +474,6 @@ html_context = {
         ],
         }
 
-# Unlike html_css_files above, the theme does not shadow Sphinx's own JS file handling, so this
-# works normally. See pro_caption_badge.js: it turns the trailing "Pro" word of the
-# "Fast DDS Statistics Backend Pro" sidebar caption into a .pro-badge tag, which cannot be done
-# with CSS alone since it targets only part of a text node.
-html_js_files = ['js/pro_caption_badge.js']
-
 
 # Add any extra paths that contain custom files (such as robots.txt or
 # .htaccess) here, relative to this directory. These files are copied

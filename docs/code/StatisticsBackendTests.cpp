@@ -574,6 +574,22 @@ void get_type_example()
     }
 }
 
+void topic_spy_example()
+{
+    {
+        EntityId monitor_id;
+        //CONF-TOPIC-SPY-EXAMPLE
+        StatisticsBackend::start_topic_spy(monitor_id, "Square",
+                [](const std::string& data)
+                {
+                    static_cast<void>(data); // data is a JSON-serialized sample of the topic's dynamic type
+                });
+        // ...
+        StatisticsBackend::stop_topic_spy(monitor_id, "Square");
+        //!--
+    }
+}
+
 void get_status_example()
 {
     {

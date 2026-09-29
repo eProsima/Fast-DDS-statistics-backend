@@ -30,6 +30,7 @@ or run a notifier script when the condition they were set for is met.
     /rst/statistics_backend/get_status_data
     /rst/statistics_backend/get_status
     /rst/statistics_backend/get_type
+    /rst/statistics_backend/topic_spy
     /rst/statistics_backend/set_alias
     /rst/statistics_backend/is_active
     /rst/statistics_backend/is_metatraffic

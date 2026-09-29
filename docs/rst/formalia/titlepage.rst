@@ -11,14 +11,39 @@ eProsima Fast DDS Statistics Backend Documentation
 
 *eProsima Fast DDS Statistics Backend* is a C++ library to collect data from the *Fast DDS Statistics module* and
 generate statistical information to be used by applications.
+Applications use it to build monitoring, observability, and troubleshooting tools on top of a *Fast DDS*
+deployment - *DDS Monitor* itself is built on this library.
+This documentation covers both this open-source edition and its commercial counterpart, *Fast DDS Statistics
+Backend Pro*.
 
-##################
-Commercial support
-##################
+#################################
+Fast DDS Statistics Backend |Pro|
+#################################
 
-Looking for commercial support? Write us to info@eprosima.com.
+*Fast DDS Statistics Backend Pro* is the commercial edition of *Fast DDS Statistics Backend*. It links against
+the same ``StatisticsBackend`` singleton, so almost every application built against the open-source API keeps
+working unmodified against Pro too.
 
-Find more about us at `eProsima's webpage <https://eprosima.com/>`_.
+Except for the complete functionality inherited from *Fast DDS Statistics Backend*, it includes the following
+Pro features:
+
+* :ref:`Type Registration <pro_type_registration>` |Pro| to register a user-supplied data type from its IDL
+  definition (or from a serialized XTypes ``TypeObject``), so it becomes usable on topics whose type was never
+  discovered on the network.
+
+* :ref:`Topic Data Interaction <pro_topic_data_interaction>` |Pro| to publish samples on a topic, to spy a
+  topic's raw (non-JSON-serialized) data for high-throughput streams such as images, and to retrieve a topic's
+  dynamic type as a JSON schema suitable for building a form or a field-mapping editor.
+
+* :ref:`Statistics Collection Control <pro_statistics_control>` |Pro| to create and destroy statistics
+  DataReaders on demand instead of subscribing to every statistics topic up front, and to compute several
+  ``StatisticKind`` values from a single database query.
+
+* :ref:`Licensing and Safety <pro_licensing_safety>` |Pro| to validate the *Fast DDS Pro* / *Safe DDS* license at
+  startup, and to detect whether a domain has proxied (remote) participants before a monitor is created on it.
+
+See :ref:`statistics_backend_pro` for the full description of every Pro feature, including the differences
+between the two editions.
 
 ##################
 Feature Comparison
@@ -76,24 +101,14 @@ Backend Pro*. See :ref:`statistics_backend_pro` for the full description of ever
         <td>Open Source (Apache-2.0)</td>
       </tr>
       <tr>
-        <th>Type registration from IDL / TypeObject</th>
-        <td>✅</td>
-        <td>❌</td>
-      </tr>
-      <tr>
-        <th>Publish samples on a topic</th>
-        <td>✅ Topic Publisher API</td>
-        <td>❌</td>
-      </tr>
-      <tr>
         <th>Topic spy</th>
         <td>✅ JSON spy with source timestamps, plus raw (non-JSON) high-throughput spy</td>
         <td>✅ JSON spy only, no source timestamps</td>
       </tr>
       <tr>
-        <th>Topic type schema (JSON, for building forms/mappings)</th>
-        <td>✅</td>
-        <td>❌</td>
+        <th>DataKind coverage</th>
+        <td>✅ Statistics that Fast DDS Pro no longer publishes are not present</td>
+        <td>✅ Full set</td>
       </tr>
       <tr>
         <th>Statistics DataReaders</th>
@@ -106,26 +121,6 @@ Backend Pro*. See :ref:`statistics_backend_pro` for the full description of ever
         <td>⚠️ One StatisticKind per get_data() call</td>
       </tr>
       <tr>
-        <th>Proxy-domain safety check</th>
-        <td>✅ has_proxy_participants()</td>
-        <td>❌</td>
-      </tr>
-      <tr>
-        <th>Clear monitor (entities + data, reusable domain)</th>
-        <td>✅ Fully implemented</td>
-        <td>❌ Not yet implemented (no-op)</td>
-      </tr>
-      <tr>
-        <th>DataKind coverage</th>
-        <td>⚠️ 7 fewer kinds (Fast DDS Pro no longer publishes them)</td>
-        <td>✅ Full set</td>
-      </tr>
-      <tr>
-        <th>License validation API</th>
-        <td>✅ check_license()</td>
-        <td>Not applicable</td>
-      </tr>
-      <tr>
         <th>Support</th>
         <td>✅ Direct engineering support</td>
         <td>❌ Community-based</td>
@@ -135,10 +130,43 @@ Backend Pro*. See :ref:`statistics_backend_pro` for the full description of ever
         <td>✅ Long-term support with backports</td>
         <td>❌ No guaranteed maintenance</td>
       </tr>
+      <tr>
+        <th>Type registration from IDL / TypeObject</th>
+        <td>✅</td>
+        <td>❌</td>
+      </tr>
+      <tr>
+        <th>Publish samples on a topic</th>
+        <td>✅ Topic Publisher API</td>
+        <td>❌</td>
+      </tr>
+      <tr>
+        <th>Topic type schema (JSON, for building forms/mappings)</th>
+        <td>✅</td>
+        <td>❌</td>
+      </tr>
+      <tr>
+        <th>Proxy-domain safety check</th>
+        <td>✅ has_proxy_participants()</td>
+        <td>❌</td>
+      </tr>
+      <tr>
+        <th>Clear monitor (entities + data, reusable domain)</th>
+        <td>✅ Fully implemented</td>
+        <td>❌</td>
+      </tr>
     </tbody>
   </table>
 
   <div style="height: 2em;"></div>
+
+##################
+Commercial support
+##################
+
+Looking for commercial support? Write us to info@eprosima.com.
+
+Find more about us at `eProsima's webpage <https://eprosima.com/>`_.
 
 ########
 Overview
@@ -162,9 +190,6 @@ system's structure and behavior in an accessible manner.
   Please check the following
   `documentation <https://fast-dds.docs.eprosima.com/en/latest/fastdds/statistics/dds_layer/troubleshooting.html#troubleshooting>`_
   for more details on how to do this.
-
-
-
 
 #################################
 Contributing to the documentation

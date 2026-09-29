@@ -5,8 +5,9 @@
 Topic Data Interaction |Pro|
 ============================
 
-*Fast DDS Statistics Backend* itself only observes a topic's data through |start_topic_spy-api|, which reports
-every sample serialized as a JSON string. *Fast DDS Statistics Backend Pro* extends this with source-timestamp
+*Fast DDS Statistics Backend* itself only observes a topic's data through |start_topic_spy-api| (see
+:ref:`statistics_backend_topic_spy`), which reports every sample serialized as a JSON string. *Fast DDS
+Statistics Backend Pro* extends this with source-timestamp
 reporting on the same JSON spy, the ability to publish samples on a topic, to spy a topic without paying the
 cost of JSON serialization, and to describe a topic's dynamic type as a JSON schema that an application can use
 to build its own editor or field-mapping UI.

@@ -28,7 +28,3 @@ The structure contains the following fields:
 - ``last_timeout_check_ts`` (``std::chrono::system_clock::time_point``) - Timestamp of the last timeout condition check.
 - ``notifiers`` (``std::vector<NotifierId>``) - List of notifier identifiers; each notifier represents an action
   (see :ref:`types_notifier`) executed when the alert triggers.
-
-When the alert's trigger condition is checked, the outcome is reported as an ``AlertTriggerCause``:
-``NO_TRIGGER``, ``THRESHOLD_TRIGGER`` (the comparison against ``trigger_threshold`` matched), or
-``TIMEOUT_TRIGGER`` (``time_to_timeout`` elapsed without new matching data).

@@ -1,12 +1,19 @@
 /* The default eProsima RTD theme's sidebar section captions
  * (`.wy-menu-vertical p.caption`) are `white-space:nowrap` with a fixed
- * single-line `height:32px`. Every caption except "Fast DDS Statistics
- * Backend Pro" fits within that on one line already, so this must stay
- * scoped to just that one caption (via the `.caption-wrap` class added by
- * pro_caption_badge.js) rather than applying to `p.caption` generally -
- * otherwise unrelated captions that already fit start wrapping too.
+ * single-line `height:32px`. "Fast DDS Statistics Backend Pro" is long
+ * enough to silently get clipped mid-word instead of wrapping; every other
+ * caption on this page fits on one line already and must stay that way
+ * (confirmed: enabling this rule for every caption makes the unrelated,
+ * shorter "Fast DDS Statistics Backend" caption wrap too).
  *
- * Fix: let that one long caption wrap onto as many lines as needed, at the
+ * There is no per-instance class or id to select it by, and CSS cannot match
+ * by text content, so this is scoped positionally: the toctree order set in
+ * index.rst is Introduction, Installation Manual, Fast DDS Statistics
+ * Backend Pro, Fast DDS Statistics Backend, Release Notes - making the long
+ * caption the 3rd `p.caption` on every page. If that toctree order ever
+ * changes, this selector must be updated to match.
+ *
+ * Fix: let that one caption wrap onto as many lines as needed, at the
  * sidebar's normal width - only the part of the text that does not fit on
  * the first line moves down.
  *
@@ -16,7 +23,7 @@
  * Force left-alignment back on to keep the wrapped caption reading as normal
  * ragged-right text.
  */
-.wy-menu-vertical p.caption.caption-wrap {
+.wy-menu-vertical p.caption:nth-of-type(3) {
     white-space: normal !important;
     height: auto !important;
     line-height: 1.3 !important;

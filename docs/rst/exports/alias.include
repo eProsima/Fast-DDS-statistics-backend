@@ -5,6 +5,7 @@
 .. |restart_monitor-api| replace:: :cpp:func:`restart_monitor()<eprosima::statistics_backend::StatisticsBackend::restart_monitor>`
 .. |clear_monitor-api| replace:: :cpp:func:`clear_monitor()<eprosima::statistics_backend::StatisticsBackend::clear_monitor>`
 .. |start_topic_spy-api| replace:: :cpp:func:`start_topic_spy()<eprosima::statistics_backend::StatisticsBackend::start_topic_spy>`
+.. |stop_topic_spy-api| replace:: :cpp:func:`stop_topic_spy()<eprosima::statistics_backend::StatisticsBackend::stop_topic_spy>`
 .. |get_data-api| replace:: :cpp:func:`get_data()<eprosima::statistics_backend::StatisticsBackend::get_data>`
 .. |get_status_data-api| replace:: :cpp:func:`get_status_data()<eprosima::statistics_backend::StatisticsBackend::get_status_data>`
 .. |get_data_supported_entity_kinds-api| replace:: :cpp:func:`get_data_supported_entity_kinds()<eprosima::statistics_backend::StatisticsBackend::get_data_supported_entity_kinds>`

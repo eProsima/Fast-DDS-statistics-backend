@@ -11,6 +11,8 @@ statistics topic is subscribed to as soon as its type is enabled on the observed
 Statistics Backend Pro* instead lets an application create the remaining readers on demand, so a monitor only
 consumes the resources needed for the statistics that are actually being observed, and query several
 |StatisticKind-api| values from a single pass over the database instead of one |get_data-api| call per kind.
+Beyond these application-visible controls, several of Pro's internal query paths are also optimized to reduce
+per-call database access overhead, independently of which of the above features an application actually uses.
 
 On-demand statistics readers
 -------------------------------
