@@ -5,14 +5,15 @@
 AlertKind
 ==========
 
-The *eProsima Fast DDS Statistics Backend* keeps track of the alerts generated in the DDS layout.
-The following list shows the different alerts that are tracked:
+The *eProsima Fast DDS Statistics Backend* tracks the alerts generated in the DDS layout.
+The alert kinds are:
 
 - |AlertKind::INVALID-api|: Invalid alert.
-- |AlertKind::NEW_DATA-api|: Triggered when a statistics message with a ``DATA_COUNT`` greater than 0 is received. Note that a NO_DATA alert
-                            does not have timeouts enabled, as its purpose is to notify the reception of new data.
-- |AlertKind::NO_DATA-api|: Triggered when a statistics message with a ``SUBSCRIPTION_THROUGHPUT`` lower than a configured threshold is received.
-                            In addition to their own trigger conditions, ``NO_DATA``` alerts will also trigger every time their timeout period elapses
-                            without having been triggered.
+- |AlertKind::NEW_DATA-api|: Triggered as soon as any new value greater than ``0.0`` is received for the
+  monitored entity. It notifies the reception of new data, so it has no timeout: it fires only when data
+  arrives, never on a period of silence.
+- |AlertKind::NO_DATA-api|: Triggered when the monitored value drops below a configured threshold. Unlike
+  |AlertKind::NEW_DATA-api|, this alert kind has a timeout enabled: besides its threshold-based trigger
+  condition, it also triggers every time its timeout period elapses without a new value resetting it.
 
 

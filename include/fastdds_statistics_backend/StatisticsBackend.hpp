@@ -96,7 +96,7 @@ public:
      * the network of the server with the given locators.
      *
      * The format to specify a locator is: <tt>kind:[IP]:port</tt>, where:
-     *  * \b kind is one of { \c UDPv4, \c TCPv4, \c UDPv6, \c TCPv4 }
+     *  * \b kind is one of { \c UDPv4, \c TCPv4, \c UDPv6, \c TCPv6 }
      *  * \b IP is the IP address
      *  * \b port is the IP port
      * Note that \c SHM locators are not supported. For any server configured with shared memory locators,
@@ -553,7 +553,7 @@ public:
      *     * if there is no specialization template for the requested StatusKind.
      *     * if the EntityKind of the Entity with \c entity_id doesn't have the associated \c status_data.
      */
-    template <typename T>
+    template<typename T>
     static void get_status_data(
             const EntityId& entity_id,
             T& status_data);
@@ -637,7 +637,7 @@ public:
      * - All monitors are removed and cannot be restarted afterwards.
      * - The physical listener is removed.
      * - The physical listener callback mask is set to CallbackMask::none().
-     * - The physical listener data mask is set to DataMask::none().
+     * - The physical listener data mask is set to DataKindMask::none().
      *
      * @pre There are no active monitors. There can be inactive monitors.
      */

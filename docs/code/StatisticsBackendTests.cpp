@@ -280,6 +280,22 @@ void get_data_examples()
             now);                                                        // t_to
         //!--
     }
+    {
+        DataKind data_type = DataKind::FASTDDS_LATENCY;
+        std::vector<EntityId> entity_ids_source;
+        std::vector<EntityId> entity_ids_target;
+        std::vector<EntityId> entity_ids;
+        uint16_t bins = 0;
+        StatisticKind statistic = StatisticKind::NONE;
+
+        //CONF-GET-DATA-NO-TIME-RANGE-OVERLOADS
+        // Source/target overload, no time range:
+        StatisticsBackend::get_data(data_type, entity_ids_source, entity_ids_target, bins, statistic);
+
+        // Single-entity overload, no time range:
+        StatisticsBackend::get_data(data_type, entity_ids, bins, statistic);
+        //!--
+    }
 }
 
 void get_status_data_examples()
@@ -555,6 +571,22 @@ void get_type_example()
         EntityKind kind = StatisticsBackend::get_type(entity_id);
         //!--
         static_cast<void>(kind);
+    }
+}
+
+void topic_spy_example()
+{
+    {
+        EntityId monitor_id;
+        //CONF-TOPIC-SPY-EXAMPLE
+        StatisticsBackend::start_topic_spy(monitor_id, "Square",
+                [](const std::string& data)
+                {
+                    static_cast<void>(data); // data is a JSON-serialized sample of the topic's dynamic type
+                });
+        // ...
+        StatisticsBackend::stop_topic_spy(monitor_id, "Square");
+        //!--
     }
 }
 

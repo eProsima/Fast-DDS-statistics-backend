@@ -1,4 +1,4 @@
-.. _api_exception_statisticsbackend:
+.. _api_statisticsbackend:
 
 .. rst-class:: api-ref
 

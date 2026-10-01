@@ -5,14 +5,16 @@
 StatisticsBackend
 =================
 
-Singleton |StatisticsBackend-api| is the entry point for applications that want to gather statistics information about
-a *Fast DDS* network using *Fast DDS* Statistics module.
-It provides the API necessary for starting and stopping monitorizations on a given domain or *Fast DDS* Discovery Server
-network, as well as the functions to extract statistics information about said monitorizations.
+The |StatisticsBackend-api| singleton is the entry point for applications that gather statistics information about
+a *Fast DDS* network using the *Fast DDS* Statistics module.
+It has the API to start and stop monitorizations on a given domain or *Fast DDS* Discovery Server
+network, and the functions to extract statistics information from those monitorizations.
 
-*Fast DDS Statistics Backend* can monitor several DDS domains and *Fast DDS* Discovery Server networks at the same time,
-notifying applications about changes in the network and arrival of new statistics data using two listeners which
-contain a set of callbacks that the application implements.
+*Fast DDS Statistics Backend* can monitor several DDS domains and *Fast DDS* Discovery Server networks at the same time.
+It notifies applications about changes in the network and the arrival of new statistics data through two listeners,
+which contain a set of callbacks that the application implements. It can also watch for specific conditions on the
+monitored data by configuring alerts (see :ref:`statistics_backend_set_alert`), which trigger a listener callback
+or run a notifier script when the condition they were set for is met.
 
 .. toctree::
 
@@ -28,6 +30,7 @@ contain a set of callbacks that the application implements.
     /rst/statistics_backend/get_status_data
     /rst/statistics_backend/get_status
     /rst/statistics_backend/get_type
+    /rst/statistics_backend/topic_spy
     /rst/statistics_backend/set_alias
     /rst/statistics_backend/is_active
     /rst/statistics_backend/is_metatraffic

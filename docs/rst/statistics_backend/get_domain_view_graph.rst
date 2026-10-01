@@ -5,14 +5,13 @@
 Get entities domain view graph
 -------------------------------
 
-*Fast DDS Statistics Backend* allows to retrieve the entire graph of active entities for which the singleton holds
+|get_domain_view_graph-api| retrieves the entire graph of active entities for which the singleton holds
 statistics data.
-The result of this query is a |Graph-api| tree structure that contains the info of each entity.
-To be able to understand and interpret this tree, it is required to know about all the available entities and the inner
-relations between them.
-Following, there is a diagram of the relation between the *Fast DDS Statistics Backend* entities, and how are they
+The result is a |Graph-api| tree structure that contains the info of each entity.
+Interpreting this tree requires knowing the available entities and the relations between them.
+The diagram below shows how the *Fast DDS Statistics Backend* entities relate to each other, and how they are
 divided into physical and domain related.
-For more information about the different |EntityKind-api| please refer to :ref:`types_entity_kind`.
+For more information about the different |EntityKind-api|, see :ref:`types_entity_kind`.
 
 .. figure:: /rst/figures/internal_db.svg
     :align: center
@@ -25,7 +24,9 @@ Example
 ^^^^^^^
 
 The |DomainListener::on_domain_view_graph_update-api| |DomainListener-api| callback notifies when a domain has updated
-its graph. Alternatively, the graph can be regenerated manually by calling |regenerate_domain_graph-api|:
+its graph. Alternatively, the graph can be regenerated manually by calling |regenerate_domain_graph-api|, which
+returns ``true`` if a graph for the given domain existed and was regenerated (which also triggers
+|DomainListener::on_domain_view_graph_update-api|), or ``false`` if no graph was found for that domain:
 
 .. literalinclude:: /code/StatisticsBackendTests.cpp
     :language: c++
@@ -33,10 +34,12 @@ its graph. Alternatively, the graph can be regenerated manually by calling |rege
     :end-before: //!
     :dedent: 8
 
-For the following example, a simple scenario is considered, where there is one process running two participants on the
-same domain; one with a data reader and the other one with a data writer (both in the same topic).
+|get_domain_view_graph-api| throws |BadParameter-api| if there is no graph for the specified domain id.
+
+The following example uses a simple scenario: two processes, each running one participant on the same domain,
+one with a data reader and the other with a data writer (both in the same topic).
 This means that there is only one |USER-api| within a single |HOST-api|.
-The application can retrieve the network graph by:
+The application retrieves the network graph as follows:
 
 .. literalinclude:: /code/StatisticsBackendTests.cpp
     :language: c++
@@ -44,7 +47,7 @@ The application can retrieve the network graph by:
     :end-before: //!
     :dedent: 8
 
-In this example, the previous call would return a |Graph-api| object similar to the following:
+In this example, the previous call returns a |Graph-api| object similar to the following:
 
 .. todo::
 
@@ -61,7 +64,7 @@ Then, the application can extract information about the entities from the graph 
     :end-before: //!
     :dedent: 8
 
-Running the previous snippet on the given example should output:
+Running the previous snippet on this example outputs:
 
 .. code-block:: text
 
@@ -94,4 +97,4 @@ Running the previous snippet on the given example should output:
         Topic metatraffic: false
 
 
-For more information about the operations available with ``Graph`` objects, please refer to |Graph-api|.
+For the operations available on ``Graph`` objects, see |Graph-api|.
