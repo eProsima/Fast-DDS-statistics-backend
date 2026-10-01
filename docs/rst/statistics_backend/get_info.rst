@@ -5,17 +5,16 @@
 Get entity meta information
 ---------------------------
 
-*Fast DDS Statistics Backend* includes the possibility of retrieving the meta information of any given entity present
-in the network.
+|get_info-api| retrieves the meta information of any entity present in the network and returns it as a |Info-api|
+object.
 The returned tree always includes the basic information about the entity: ``kind``, ``id``, ``name``, ``alias`` and
 if the entity is ``alive``.
 Depending on the |EntityKind-api|, the returned object can contain extra information such as ``pid``, ``guid``, ``qos``,
 ``locators`` or ``data_type``.
-|get_info-api| returns a |Info-api| object.
 
-A second overload of |get_info-api| takes an |AlertId-api| instead of an |EntityId-api|, returning a |Info-api|
-object describing that alert's own configuration (its name, kind, domain, host/user/topic filters, threshold,
-and timing parameters - see :ref:`types_alertinfo`) rather than a monitored DDS entity's.
+A second overload of |get_info-api| takes an |AlertId-api| instead of an |EntityId-api|. It returns a |Info-api|
+object describing that alert's configuration: its name, kind, domain, host/user/topic filters, threshold,
+and timing parameters (see :ref:`types_alertinfo`).
 
 .. literalinclude:: /code/StatisticsBackendTests.cpp
     :language: c++

@@ -8,14 +8,14 @@ Type Registration |Pro|
 Every method described in :ref:`statistics_backend` that needs a topic's data type (spying, charting, dynamic
 type inspection) relies on that type having been *discovered* on the network: a remote participant must have
 propagated its type information over DDS before the backend can use it. *Type Registration* removes that
-requirement by letting an application supply a type definition directly, so it can be used for topics whose
-publisher has not been started yet, or whose type will never be advertised over DDS at all (for example a
-*Safe DDS* topic).
+requirement by letting an application supply a type definition directly. The type can then be used for topics
+whose publisher has not started yet, or whose type is never advertised over DDS (for example a *Safe DDS*
+topic).
 
-A registered type is made available globally: it is added to every active monitor and to any monitor created
-afterwards, and it is resolvable by name from the same spy, publisher, topic-chart and topic-type-schema flows
+A registered type is available globally: it is added to every active monitor and to any monitor created
+afterwards. It is resolvable by name from the same spy, publisher, topic-chart and topic-type-schema flows
 described in :ref:`pro_topic_data_interaction`, for a topic name of the caller's choosing. Registration is
-session-only - registered types are not persisted across a process restart, and must be registered again if
+session-only: registered types are not persisted across a process restart, and must be registered again if
 needed.
 
 Registering from IDL
@@ -64,12 +64,12 @@ human-readable description; nothing already registered is modified.
 Registering from a serialized TypeObject
 ------------------------------------------
 
-|register_type_from_type_object-api| achieves the same effect without going through the IDL text parser: the
-given XTypes ``CompleteTypeObject``, serialized as an XCDRv2 byte string, is deserialized and a ``DynamicType``
-is built directly from it - the same path live discovery itself uses to build a type. This is required for
-types the IDL grammar parser cannot yet handle, such as ``bitset`` or ``bitmask`` members: those build correctly
-from a ``TypeObject`` but fail to re-parse from their own serialized IDL. This is the path used when replaying
-an offline recording, where every recorded type already carries its own ``TypeObject``.
+|register_type_from_type_object-api| does the same without going through the IDL text parser. The given XTypes
+``CompleteTypeObject``, serialized as an XCDRv2 byte string, is deserialized and a ``DynamicType`` is built
+directly from it, the same path live discovery uses to build a type. This is required for types the IDL grammar
+parser cannot yet handle, such as ``bitset`` or ``bitmask`` members: those build correctly from a ``TypeObject``
+but fail to re-parse from their own serialized IDL. Replaying an offline recording also uses this path, since
+every recorded type already carries its own ``TypeObject``.
 
 .. important::
 
@@ -81,13 +81,12 @@ Inspecting registered types
 ------------------------------
 
 * |get_registered_type_names-api| returns the Topic Type Names of every type registered via
-  |register_type-api| or |register_type_from_type_object-api|. Discovered types are not included - only
-  user-registered ones - so a caller can offer them as a distinct list (for example, in a type-registration
-  form).
+  |register_type-api| or |register_type_from_type_object-api|. Discovered types are not included, so a caller
+  can offer the user-registered ones as a distinct list (for example, in a type-registration form).
 * |get_registered_type_struct_name-api| returns the underlying struct name of a registered type: for a type
   registered under an alias this is the aliased struct's name, otherwise it is the same name. This lets a
   caller that persists a registered type (for example, a saved workspace) later re-register it with the correct
   ``struct_name`` so the alias is rebuilt identically.
 * |get_all_type_idls-api| returns every known type that has a stored IDL, whether discovered or registered, as
-  a map of type name to IDL text - useful for offering existing types as a starting point when registering a
-  new one.
+  a map of type name to IDL text. A caller can use it to offer existing types as a starting point when
+  registering a new one.

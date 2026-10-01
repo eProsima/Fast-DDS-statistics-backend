@@ -5,7 +5,7 @@
 CMake options
 =============
 
-*eProsima Fast DDS Statistics Backend* provides several CMake options for build configuration of the library.
+*eProsima Fast DDS Statistics Backend* has the following CMake options to configure the library build.
 
 .. list-table::
     :header-rows: 1

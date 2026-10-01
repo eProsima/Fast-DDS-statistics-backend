@@ -16,12 +16,12 @@ Since the physical aspects of the communication can be shared across different D
 Server networks, only one ``PhysicalListener`` can be set for the entire application.
 
 .. important::
-    Even though the |PhysicalListener-api| can be set at any time, it is recommended to set it prior to initializing any
+    The |PhysicalListener-api| can be set at any time, but it is recommended to set it before initializing any
     monitoring, so that no physical events are missed.
 
-Furthermore, it is possible to change the |DomainListener-api|, |CallbackMask-api|, and |DataKindMask-api| of any
-monitor at any time. Setting a new |DomainListener-api| (or |PhysicalListener-api|) replaces any listener already
-configured - it does not stack with it. The listener pointer can also be ``nullptr``, which removes the
+The |DomainListener-api|, |CallbackMask-api|, and |DataKindMask-api| of any monitor can be changed
+at any time. Setting a new |DomainListener-api| (or |PhysicalListener-api|) replaces any listener already
+configured; listeners do not stack. The listener pointer can also be ``nullptr``, which removes the
 currently-configured listener for that monitor (or, for |PhysicalListener-api|, for the whole application)
 without installing a new one.
 

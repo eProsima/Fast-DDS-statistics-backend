@@ -5,18 +5,17 @@
 Topic Data Interaction |Pro|
 ============================
 
-*Fast DDS Statistics Backend* itself only observes a topic's data through |start_topic_spy-api| (see
+*Fast DDS Statistics Backend* only observes a topic's data through |start_topic_spy-api| (see
 :ref:`statistics_backend_topic_spy`), which reports every sample serialized as a JSON string. *Fast DDS
-Statistics Backend Pro* extends this with source-timestamp
-reporting on the same JSON spy, the ability to publish samples on a topic, to spy a topic without paying the
-cost of JSON serialization, and to describe a topic's dynamic type as a JSON schema that an application can use
-to build its own editor or field-mapping UI.
+Statistics Backend Pro* adds source-timestamp reporting on the same JSON spy. It can also publish samples on a
+topic, spy a topic without the cost of JSON serialization, and describe a topic's dynamic type as a JSON schema
+that an application can use to build its own editor or field-mapping UI.
 
 Topic spy with source timestamps
 -----------------------------------
 
-A second overload of |start_topic_spy-api| additionally reports the DDS sample's source timestamp, in
-nanoseconds since epoch, alongside the same JSON-serialized data the single-argument overload already provides:
+A second overload of |start_topic_spy-api| also reports the DDS sample's source timestamp, in nanoseconds since
+epoch, alongside the same JSON-serialized data the single-argument overload provides:
 
 .. literalinclude:: /code/StatisticsBackendProTests.cpp
     :language: c++
@@ -24,14 +23,14 @@ nanoseconds since epoch, alongside the same JSON-serialized data the single-argu
     :end-before: //!
     :dedent: 8
 
-This overload also accepts an optional ``type_name``: when given, the type is resolved by that (already
-discovered, or :ref:`registered <pro_type_registration>`) data type name instead, allowing a spy on a
-user-chosen topic name whose type was never itself discovered.
+This overload also accepts an optional ``type_name``. When given, the type is resolved by that (already
+discovered, or :ref:`registered <pro_type_registration>`) data type name instead. This allows a spy on a
+user-chosen topic name whose type was never discovered.
 
 .. note::
 
    Any sequence or array member with more than 256 elements is truncated in the serialized JSON and labeled as
-   such, rather than being serialized in full. A sample containing a truncated collection is display-only: it
+   such. A sample containing a truncated collection is display-only: it
    cannot be round-tripped back through |publish_topic_sample-api| or any other JSON deserialization.
 
 Publishing samples on a topic
@@ -49,21 +48,21 @@ subsequent calls, so starting a publisher that is already active is a no-op:
 
 * |publish_topic_sample-api| publishes a single sample from a JSON representation of the topic's dynamic data.
   The JSON string must match the dynamic type of the topic, in the same EPROSIMA JSON format that the spy
-  serialization itself produces - so a sample captured from |start_topic_spy-api| can be replayed verbatim with
+  serialization produces, so a sample captured from |start_topic_spy-api| can be replayed verbatim with
   |publish_topic_sample-api|.
 * |stop_topic_publisher-api| tears down the DataWriter created by |start_topic_publisher-api|. It is idempotent:
   calling it when no publisher is active for the topic is safe.
 
 An optional ``type_name`` parameter on |start_topic_publisher-api| resolves the dynamic type by that
-(already-discovered, or :ref:`registered <pro_type_registration>`) type name instead, letting the publisher be
-created on an arbitrary, user-chosen topic name that itself need not have been discovered.
+(already-discovered, or :ref:`registered <pro_type_registration>`) type name instead. This lets the publisher be
+created on an arbitrary, user-chosen topic name that need not have been discovered.
 
 Raw topic spy
 --------------
 
 |start_topic_spy_raw-api| delivers a topic's fields directly as a |RawImageSample-api| value, bypassing JSON
-serialization entirely. It exists for high-throughput topics - most notably image and video streams - where
-JSON serialization of a large byte buffer on every sample is itself a bottleneck.
+serialization entirely. It is meant for high-throughput topics, most notably image and video streams, where
+JSON serialization of a large byte buffer on every sample is a bottleneck.
 
 .. literalinclude:: /code/StatisticsBackendProTests.cpp
     :language: c++
@@ -83,10 +82,10 @@ Mapping a custom type onto RawImageSample
 
 A second overload of |start_topic_spy_raw-api| takes a |RawImageFieldMap-api| so a topic whose type does not use
 the canonical image member names (``data`` / ``width`` / ``height`` / ``step`` / ``encoding`` / ``format``) can
-still be delivered as a |RawImageSample-api|. Each |RawImageFieldMap-api| slot holds a field path - a list of
-member-name segments from the type's root down to the target member, for example ``{"header", "payload"}`` for
-a nested ``header.payload`` field - or is left empty to leave the corresponding |RawImageSample-api| field at
-its default.
+still be delivered as a |RawImageSample-api|. Each |RawImageFieldMap-api| slot holds a field path, or is left
+empty to leave the corresponding |RawImageSample-api| field at its default. A field path is a list of member-name
+segments from the type's root down to the target member, for example ``{"header", "payload"}`` for a nested
+``header.payload`` field.
 
 .. list-table::
     :header-rows: 1
@@ -125,11 +124,11 @@ or a field-mapping editor such as the one described above, in the shape:
     }
 
 By default, when the discovery-built type is missing nested enum or bitmask metadata, the type is re-parsed
-from its stored IDL to recover it - needed for a full type view, though it can log a recoverable parser error
-for a type whose serialized IDL cannot be round-tripped. Pass ``reparse_idl=false`` to skip this and avoid that
-noise when only the top-level field kinds are needed, for example for a quick feasibility check.
+from its stored IDL to recover it. This is needed for a full type view, though it can log a recoverable parser
+error for a type whose serialized IDL cannot be round-tripped. Pass ``reparse_idl=false`` to skip this and avoid
+that noise when only the top-level field kinds are needed, for example for a quick feasibility check.
 
 |get_topic_type_schema_by_type_name-api| is the same, but resolved directly by type name from the database
 instead of by ``(monitor_id, topic_name)``. It needs no live monitor or discovery-populated context, so unlike
-|get_topic_type_schema-api| it also works for a topic that never went through DDS discovery at all - most
-notably, every topic loaded from an offline recording.
+|get_topic_type_schema-api| it also works for a topic that never went through DDS discovery, most notably every
+topic loaded from an offline recording.

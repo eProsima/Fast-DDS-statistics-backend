@@ -5,49 +5,47 @@
 StatusKind
 ==========
 
-The *eProsima Fast DDS Statistics Backend* records entities status data of different nature, as provided by the
-Monitor Service from *eProsima Fast DDS Statistics Module*, e.g., incompatible QoS or the number of lost samples. We
-refer to the nature of these status data values as their |StatusKind-api|.
+The *eProsima Fast DDS Statistics Backend* records entity status data of different kinds, such as incompatible QoS
+or the number of lost samples, as provided by the Monitor Service from *eProsima Fast DDS Statistics Module*. The
+kind of each status data value is its |StatusKind-api|.
 
 - |PROXY-api|: Collection of parameters describing the proxy data of that entity.
 
-- |CONNECTION_LIST-api|: List of connections used by this entity. Each of the elements is a connection where
-  the possible values for the connection mode are:
+- |CONNECTION_LIST-api|: List of connections used by this entity. Each element is a connection whose
+  connection mode is one of:
 
   - Intraprocess
   - Data sharing
   - Transport
 
-  In addition, information comprising the announced locators and locator in use with each one of the matched entities
-  is also included.
+  It also includes the announced locators and the locator in use with each of the matched entities.
 
 - |INCOMPATIBLE_QOS-api|: Status of the incompatible QoS of that entity.
 
   - |DATAWRITER-api| Incompatible QoS Offered.
   - |DATAREADER-api| Incompatible QoS Requested.
 
-- |EXTENDED_INCOMPATIBLE_QOS-api|: Tracks the current incompatible QoS policies of a |DATAWRITER-api| or
-  |DATAREADER-api| with each specific remote entity it is incompatible with, as opposed to
-  |INCOMPATIBLE_QOS-api|'s entity-wide summary.
+- |EXTENDED_INCOMPATIBLE_QOS-api|: Current incompatible QoS policies of a |DATAWRITER-api| or
+  |DATAREADER-api| with each remote entity it is incompatible with, instead of the entity-wide summary of
+  |INCOMPATIBLE_QOS-api|.
 
 .. todo::
   - |INCONSISTENT_TOPIC-api|: Status of inconsistent topics of the topic of that entity. Asked to the topic of the
     requested entity.
 
-- |LIVELINESS_LOST-api|: Tracks the status of the number of times that liveliness was lost by a |DATAWRITER-api|.
+- |LIVELINESS_LOST-api|: Number of times that a |DATAWRITER-api| lost liveliness.
 
-- |LIVELINESS_CHANGED-api|: Tracks the status of the number of times that liveliness status changed in a
-  |DATAREADER-api|.
+- |LIVELINESS_CHANGED-api|: Number of times that the liveliness status changed in a |DATAREADER-api|.
 
-- |DEADLINE_MISSED-api|: The status of the number of missed deadlines registered in that entity.
+- |DEADLINE_MISSED-api|: Number of missed deadlines registered in that entity.
 
-- |SAMPLE_LOST-api|: Tracks the number of times that this entity lost samples.
+- |SAMPLE_LOST-api|: Number of times that this entity lost samples.
 
 .. todo::
   - |INCONSISTENT_TOPIC-api| status data not supported yet.
 
-Only |PARTICIPANT-api|, |DATAWRITER-api| and |DATAREADER-api| have associated status data. The following table
-describes which |StatusKind-api| each of these :ref:`entities<types_entity_kind>` has:
+Only |PARTICIPANT-api|, |DATAWRITER-api| and |DATAREADER-api| have associated status data. The table lists the
+|StatusKind-api| values each of these :ref:`entities<types_entity_kind>` has:
 
 +---------------------------------+-------------------+------------------+------------------+
 | StatusKind                      | |PARTICIPANT-api| | |DATAWRITER-api| | |DATAREADER-api| |
@@ -73,10 +71,10 @@ describes which |StatusKind-api| each of these :ref:`entities<types_entity_kind>
 ..   | |INCONSISTENT_TOPIC-api|      | No              | Yes            | Yes            |
 ..   +-------------------------------+-----------------+----------------+----------------+
 
-Each |StatusKind-api| has an associated |StatusLevel-api|. |OK-api| status is obtained when the monitor service message
+Each |StatusKind-api| has an associated |StatusLevel-api|, which is |OK-api| when the monitor service message
 reports no problem.
-Entity's associated |StatusLevel-api| is obtained from all status data. The following table describes which
-|StatusLevel-api|'s are associated with each |StatusKind-api|:
+An entity's |StatusLevel-api| is derived from all its status data. The table lists the
+|StatusLevel-api| values associated with each |StatusKind-api|:
 
 +---------------------------------+------------------------+
 | StatusKind                      | StatusLevel's          |
@@ -104,5 +102,5 @@ Entity's associated |StatusLevel-api| is obtained from all status data. The foll
 
 .. note::
 
-  For entity transitions, |WARNING-api| status level takes precedence over |OK-api| level, and |ERROR-api| does over
-  |WARNING-api| and |OK-api| levels.
+  For entity transitions, |WARNING-api| status level takes precedence over |OK-api|, and |ERROR-api| takes
+  precedence over both |WARNING-api| and |OK-api|.
