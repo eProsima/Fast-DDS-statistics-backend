@@ -38,8 +38,8 @@ that domain:
 
 |get_domain_view_graph-api| throws |BadParameter-api| if there is no graph for the specified domain id.
 
-For the following example, a simple scenario is considered, where there is one process running two participants on the
-same domain; one with a data reader and the other one with a data writer (both in the same topic).
+For the following example, a simple scenario is considered, where there are two processes, each running one participant
+on the same domain; one with a data reader and the other one with a data writer (both in the same topic).
 This means that there is only one |USER-api| within a single |HOST-api|.
 The application can retrieve the network graph by:
 

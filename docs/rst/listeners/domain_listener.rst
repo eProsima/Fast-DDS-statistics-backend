@@ -20,11 +20,12 @@ argument alongside the discovered entity's own id, describing the discovery even
 * ``total_count``: total cumulative count of entities of that kind discovered so far. Increases monotonically
   with every new discovery.
 * ``total_count_change``: the change in ``total_count`` since the listener was last called for that entity kind.
+  Positive if entities were discovered since the last call, zero otherwise (it never decreases, since undiscovered
+  entities are not subtracted from ``total_count``).
+* ``current_count``: the number of currently discovered entities of that kind (never negative).
+* ``current_count_change``: the change in ``current_count`` since the listener was last called.
   Positive, negative, or zero, depending on whether entities were discovered, undiscovered, or only had a QoS
   change since the last call.
-* ``current_count``: the number of currently discovered entities of that kind (never negative).
-* ``current_count_change``: the change in ``current_count`` since the listener was last called, with the same
-  sign semantics as ``total_count_change``.
 
 DomainListener defines the following callbacks:
 

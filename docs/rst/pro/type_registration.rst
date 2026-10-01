@@ -33,7 +33,9 @@ The type is parsed into a ``DynamicType`` and registered under ``type_name``. Th
 need to match a struct defined in the IDL: when it differs from an explicitly given ``struct_name``, the built
 struct is wrapped in an XTypes alias named ``type_name``, since DDS/XTypes allows registering a ``TypeSupport``
 under any type name independently of the type's own internal name. When ``struct_name`` is left empty (the
-default), the struct is instead named by ``type_name`` itself, with no alias involved.
+default), ``type_name`` must name a struct in the IDL, and a bare name is resolved to its fully qualified form
+(for example ``Log`` to ``rcl_interfaces::msg::Log``). The type is then registered under that fully qualified
+struct name, with no alias involved.
 
 The IDL may reference auxiliary files through ``#include`` directives; pass their contents via the optional
 ``aux_files`` map, keyed by the relative filename used in the ``#include`` (for example
@@ -54,7 +56,8 @@ human-readable description; nothing already registered is modified.
     * - ``PARSE_ERROR``
       - The IDL could not be parsed.
     * - ``TYPE_NAME_NOT_IN_IDL``
-      - No struct with the given name was found in the IDL.
+      - The struct to build (``struct_name``, or ``type_name`` when ``struct_name`` is empty) does not appear in
+        the IDL.
     * - ``ALREADY_EXISTS``
       - A type with the given name is already known, either discovered or previously registered.
 

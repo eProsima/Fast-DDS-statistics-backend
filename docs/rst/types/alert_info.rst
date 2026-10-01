@@ -9,7 +9,7 @@ Represents an alert configuration and its trigger conditions.
 The ``AlertInfo`` class stores metadata and logic for determining
 when an alert should be triggered based on value comparisons and timing constraints.
 
-The structure contains the following fields:
+The class has the following private data members:
 
 - ``id`` (|AlertId-api|) - Unique identifier for the alert.
 - ``alert_kind`` (|AlertKind-api|) - Type of alert (|AlertKind::NEW_DATA-api| or |AlertKind::NO_DATA-api|).

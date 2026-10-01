@@ -19,7 +19,6 @@ data is still accessible to applications through the query API (see :ref:`statis
 It is important to note that:
 
 * Calls to |stop_monitor-api| on an already stopped monitor take no effect.
-* |stop_monitor-api| must be called before calling |clear_monitor-api|.
 * |stop_monitor-api| throws |BadParameter-api| if the provided monitor ID is not yet registered.
 
 .. todo::

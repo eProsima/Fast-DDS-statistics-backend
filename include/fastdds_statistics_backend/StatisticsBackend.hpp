@@ -637,7 +637,7 @@ public:
      * - All monitors are removed and cannot be restarted afterwards.
      * - The physical listener is removed.
      * - The physical listener callback mask is set to CallbackMask::none().
-     * - The physical listener data mask is set to DataMask::none().
+     * - The physical listener data mask is set to DataKindMask::none().
      *
      * @pre There are no active monitors. There can be inactive monitors.
      */
