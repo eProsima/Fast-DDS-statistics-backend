@@ -39,7 +39,10 @@ features:
   |StatisticKind-api| values from a single database query.
 
 * :ref:`Licensing and Safety <pro_licensing_safety>` |Pro| to validate the *Fast DDS Pro* / *Safe DDS* license at
-  startup, and to detect whether a domain has proxied (remote) participants before a monitor is created on it.
+  startup.
+
+* :ref:`has_proxy_participants() <statistics_backend_has_proxy_participants>` |Pro| to detect whether a domain
+  has proxied (remote) participants before a monitor is created on it.
 
 .. _pro_differences_from_basic:
 
@@ -60,6 +63,3 @@ each:
 * An additional recognized application identifier, ``AppId::DDS_SOMEIP_BRIDGE``, is available in *Fast DDS
   Statistics Backend Pro* for a DDS-SOME/IP Bridge application, alongside the identifiers shared with the
   open-source edition.
-* Both editions create an internal *spy* participant to back the topic spy/publisher features, but only *Fast
-  DDS Statistics Backend Pro* filters it out of discovery, so it never appears as an extra entity in
-  |get_domain_view_graph-api|'s output.

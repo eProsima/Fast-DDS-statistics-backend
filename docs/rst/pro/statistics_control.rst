@@ -5,22 +5,24 @@
 Statistics Collection Control |Pro|
 ====================================
 
-A monitor started with |init_monitor-api| only creates the statistics DataReaders it strictly needs at
-initialization: the monitor service and physical data readers. In *Fast DDS Statistics Backend*, every other
-statistics topic is subscribed to as soon as its type is enabled on the observed participants. *Fast DDS
-Statistics Backend Pro* instead lets an application create the remaining readers on demand, so a monitor only
-consumes the resources needed for the statistics being observed. It also lets an application query several
-|StatisticKind-api| values from a single pass over the database instead of one |get_data-api| call per kind.
-Several of Pro's internal query paths are also optimized to reduce per-call database access overhead, whether or
-not an application uses the features above.
+A monitor started with |init_monitor-api| in *Fast DDS Statistics Backend Pro* only creates the one statistics
+DataReader it always needs: the monitor service reader. In *Fast DDS Statistics Backend*, every statistics
+topic is subscribed to unconditionally at initialization, including the physical data topic - which Pro does
+not have at all, since it derives host, user, and process information directly from participant discovery data
+instead of a dedicated statistics topic. *Fast DDS Statistics Backend Pro* instead lets an application create
+the remaining readers on demand, so a monitor only consumes the resources needed for the statistics being
+observed. It also lets an application query several |StatisticKind-api| values from a single pass over the
+database instead of one |get_data-api| call per kind. Several of Pro's internal query paths are also optimized
+to reduce per-call database access overhead, whether or not an application uses the features above.
 
 On-demand statistics readers
 -------------------------------
 
 * |enable_statistics_reader-api| creates the statistics DataReader for a given statistics topic in a monitor.
   It is idempotent: enabling an already-enabled reader has no effect.
-* |disable_statistics_reader-api| destroys it again. It is also idempotent. The always-on readers (monitor
-  service and physical data) cannot be disabled; attempting to do so throws |BadParameter-api|.
+* |disable_statistics_reader-api| destroys it again. It is also idempotent.
+* The monitor service reader is the only one that is always on; it cannot be toggled through either function.
+  Calling |enable_statistics_reader-api| or |disable_statistics_reader-api| on it throws |BadParameter-api|.
 * |get_enabled_statistics_readers-api| returns the names of the statistics topics that currently have an active
   reader in a given monitor.
 

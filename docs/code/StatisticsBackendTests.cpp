@@ -663,6 +663,17 @@ void is_metatraffic_example()
     }
 }
 
+void is_proxy_example()
+{
+    {
+        EntityId entity_id;
+        //CONF-IS-PROXY-EXAMPLE
+        bool proxy = StatisticsBackend::is_proxy(entity_id);
+        //!--
+        static_cast<void>(proxy);
+    }
+}
+
 void entity_id()
 {
     {

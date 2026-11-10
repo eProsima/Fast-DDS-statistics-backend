@@ -39,6 +39,7 @@ namespace
 NaN
 NewDataAlertInfo
 NoDataAlertInfo
+observability
 Ok
 ostream
 OStream

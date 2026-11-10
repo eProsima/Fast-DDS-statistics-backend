@@ -24,7 +24,7 @@ Fast DDS Statistics Backend |Pro|
 the same ``StatisticsBackend`` singleton, so almost every application built against the open-source API keeps
 working unmodified against Pro too.
 
-Except for the complete functionality inherited from *Fast DDS Statistics Backend*, it includes the following
+In addition to the functionality inherited from *Fast DDS Statistics Backend*, it includes the following
 Pro features:
 
 * :ref:`Type Registration <pro_type_registration>` |Pro| to register a user-supplied data type from its IDL
@@ -40,7 +40,10 @@ Pro features:
   ``StatisticKind`` values from a single database query.
 
 * :ref:`Licensing and Safety <pro_licensing_safety>` |Pro| to validate the *Fast DDS Pro* / *Safe DDS* license at
-  startup, and to detect whether a domain has proxied (remote) participants before a monitor is created on it.
+  startup.
+
+* :ref:`has_proxy_participants() <statistics_backend_has_proxy_participants>` |Pro| to detect whether a domain
+  has proxied (remote) participants before a monitor is created on it.
 
 See :ref:`statistics_backend_pro` for the full description of every Pro feature, including the differences
 between the two editions.

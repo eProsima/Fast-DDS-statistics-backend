@@ -34,5 +34,6 @@ or run a notifier script when the condition they were set for is met.
     /rst/statistics_backend/set_alias
     /rst/statistics_backend/is_active
     /rst/statistics_backend/is_metatraffic
+    /rst/statistics_backend/is_proxy
     /rst/statistics_backend/dump_load
     /rst/statistics_backend/set_alert
