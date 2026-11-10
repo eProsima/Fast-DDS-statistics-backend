@@ -3,8 +3,7 @@
 Linux installation from sources
 ===============================
 
-The instructions for installing the *eProsima Fast DDS Statistics Backend* from sources are provided in this page.
-It is organized as follows:
+This page explains how to install *eProsima Fast DDS Statistics Backend* from sources.
 
 .. contents::
     :local:
@@ -16,11 +15,9 @@ It is organized as follows:
 Fast DDS Statistics Backend installation
 """"""""""""""""""""""""""""""""""""""""
 
-This section describes the instructions for installing *eProsima Fast DDS Statistics Backend*
-in a Linux environment from sources.
-First of all, the :ref:`requirements_source_linux` and :ref:`dependencies_source_linux`
-detailed below need to be met.
-Afterwards, the user can choose whether to follow either the :ref:`colcon <colcon_installation_linux>`
+To install *eProsima Fast DDS Statistics Backend* from sources in a Linux environment, first meet the
+:ref:`requirements_source_linux` and :ref:`dependencies_source_linux` detailed below.
+Then follow either the :ref:`colcon <colcon_installation_linux>`
 or the :ref:`CMake <cmake_installation_linux>` installation instructions.
 
 .. _requirements_source_linux:
@@ -29,8 +26,8 @@ or the :ref:`CMake <cmake_installation_linux>` installation instructions.
 Requirements
 ------------
 
-The installation of *eProsima Fast DDS Statistics Backend* in a Linux environment from sources
-requires the following tools to be installed in the system:
+Installing *eProsima Fast DDS Statistics Backend* from sources in a Linux environment
+requires the following tools:
 
 * :ref:`cmake_gcc_pip3_wget_git_source_linux`
 * :ref:`gtest_source_linux` [optional]
@@ -40,8 +37,8 @@ requires the following tools to be installed in the system:
 CMake, g++, pip3, wget and git
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-These packages provide the tools required to install *eProsima Fast DDS Statistics Backend* and its dependencies
-from command line.
+These packages are needed to install *eProsima Fast DDS Statistics Backend* and its dependencies
+from the command line.
 Install CMake_, `g++ <https://gcc.gnu.org/>`_, pip3_, wget_ and git_ using the package manager of the appropriate
 Linux distribution. For example, on Ubuntu use the command:
 
@@ -56,11 +53,10 @@ Gtest
 
 Gtest is a unit testing library for C++.
 By default, *eProsima Fast DDS Statistics Backend* does not compile tests.
-It is possible to activate them with the opportune
+To build them, set the corresponding
 `CMake configuration options <https://cmake.org/cmake/help/v3.6/manual/cmake.1.html#options>`_
-when calling colcon_ or CMake_.
-For more details, please refer to the :ref:`cmake_options` section.
-For a detailed description of the Gtest installation process, please refer to the
+when calling colcon_ or CMake_ (see :ref:`cmake_options`).
+For the Gtest installation process, see the
 `Gtest Installation Guide <https://github.com/google/googletest>`_.
 
 .. note::
@@ -83,8 +79,8 @@ Dependencies
 eProsima Fast DDS
 ^^^^^^^^^^^^^^^^^
 
-Please, refer to the `eProsima Fast DDS <https://fast-dds.docs.eprosima.com/en/latest/installation/binaries/binaries_linux.html#linux-binaries>`_
-installation documentation to learn the installing procedure
+To install it, see the `eProsima Fast DDS <https://fast-dds.docs.eprosima.com/en/latest/installation/binaries/binaries_linux.html#linux-binaries>`_
+installation documentation.
 
 
 .. _colcon_installation_linux:
@@ -92,10 +88,10 @@ installation documentation to learn the installing procedure
 Colcon installation
 -------------------
 
-colcon_ is a command line tool based on CMake_ aimed at building sets of software packages.
-This section explains how to use it to compile *eProsima Fast DDS Statistics Backend* and its dependencies.
+colcon_ is a command line tool based on CMake_ for building sets of software packages.
+To compile *eProsima Fast DDS Statistics Backend* and its dependencies with colcon_:
 
-#. Install the ROS 2 development tools (colcon_ and vcstool_) by executing the following command:
+#. Install the ROS 2 development tools (colcon_ and vcstool_):
 
    .. code-block:: bash
 
@@ -105,14 +101,14 @@ This section explains how to use it to compile *eProsima Fast DDS Statistics Bac
 
        If this fails due to an Environment Error, add the :code:`--user` flag to the :code:`pip3` installation command.
 
-#. Create a :code:`Fast-DDS-statistics-backend` directory and download the `repos` file that will be used to install
+#. Create a :code:`Fast-DDS-statistics-backend` directory and download the `repos` file used to install
    *eProsima Fast DDS Statistics Backend* and its dependencies:
 
    .. code-block:: bash
 
        mkdir ~/Fast-DDS-statistics-backend
        cd ~/Fast-DDS-statistics-backend
-       wget https://raw.githubusercontent.com/eProsima/Fast-DDS-statistics-backend/master/fastdds_statistics_backend.repos
+       wget https://raw.githubusercontent.com/eProsima/Fast-DDS-statistics-backend/main/fastdds_statistics_backend.repos
        mkdir src
        vcs import src < fastdds_statistics_backend.repos
 
@@ -124,16 +120,16 @@ This section explains how to use it to compile *eProsima Fast DDS Statistics Bac
 
 .. note::
 
-    Being based on CMake_, it is possible to pass the CMake configuration options to the :code:`colcon build`
-    command. For more information on the specific syntax, please refer to the
+    Since colcon_ is based on CMake_, the CMake configuration options can be passed to the :code:`colcon build`
+    command. For the specific syntax, see the
     `CMake specific arguments <https://colcon.readthedocs.io/en/released/reference/verb/build.html#cmake-specific-arguments>`_
     page of the colcon_ manual.
 
-    Instead of passing CMake configuration options on the CLI, it is also possible to use a
+    The configuration can also be set in a
     `colcon.meta file <https://colcon.readthedocs.io/en/released/user/configuration.html?highlight=meta#meta-files>`_
-    to set the configuration.
+    instead of on the CLI.
     The *eProsima Fast DDS Statistics Backend* repository already includes a `colcon.meta` file
-    with the default configuration, which can be tuned by the user.
+    with the default configuration, which the user can adjust.
 
 
 .. _cmake_installation_linux:
@@ -141,7 +137,7 @@ This section explains how to use it to compile *eProsima Fast DDS Statistics Bac
 CMake installation
 ------------------
 
-This section explains how to compile *eProsima Fast DDS Statistics Backend* with CMake_,
+*eProsima Fast DDS Statistics Backend* can be compiled with CMake_,
 either :ref:`locally <local_installation_source_linux>` or :ref:`globally <global_installation_source_linux>`.
 
 .. _local_installation_source_linux:
@@ -150,7 +146,7 @@ Local installation
 ^^^^^^^^^^^^^^^^^^
 
 #. Follow the `eProsima Fast DDS local installation guide <https://fast-dds.docs.eprosima.com/en/latest/installation/sources/sources_linux.html#local-installation>`_
-   to install *eProsmia Fast DDS* and all its dependencies
+   to install *eProsima Fast DDS* and all its dependencies.
 
 #. Install *eProsima Fast DDS Statistics Backend*:
 
@@ -166,8 +162,8 @@ Local installation
 .. note::
 
     By default, *eProsima Fast DDS Statistics Backend* does not compile tests.
-    However, they can be activated by downloading and installing `Gtest <https://github.com/google/googletest>`_,
-    and enabling :ref:`the corresponding cmake option <cmake_options>`.
+    To build them, install `Gtest <https://github.com/google/googletest>`_
+    and enable :ref:`the corresponding cmake option <cmake_options>`.
 
 
 .. _global_installation_source_linux:
@@ -176,7 +172,7 @@ Global installation
 ^^^^^^^^^^^^^^^^^^^
 
 #. Follow the `eProsima Fast DDS global installation guide <https://fast-dds.docs.eprosima.com/en/latest/installation/sources/sources_linux.html#global-installation>`_
-   to install *eProsmia Fast DDS* and all its dependencies
+   to install *eProsima Fast DDS* and all its dependencies.
 
 #. Install *eProsima Fast DDS Statistics Backend*:
 
@@ -194,19 +190,19 @@ Global installation
 Run an application
 ^^^^^^^^^^^^^^^^^^
 
-When running an instance of an application using *eProsima Fast DDS Statistics Backend*,
-it must be linked with the library where the packages have been installed,
-which in the case of system-wide installation  is: :code:`/usr/local/lib/`
-(if local installation is used, adjust for the correct directory).
-There are two possibilities:
+An application using *eProsima Fast DDS Statistics Backend* must be linked with the library
+in the directory where the packages were installed.
+For a system-wide installation this is :code:`/usr/local/lib/`
+(for a local installation, adjust the directory accordingly).
+There are two options:
 
-* Prepare the environment locally by typing the command:
+* Prepare the environment locally:
 
   .. code-block:: bash
 
       export LD_LIBRARY_PATH=/usr/local/lib/
 
-* Add it permanently it to the :code:`PATH`, by typing:
+* Add it permanently to the :code:`PATH`:
 
   .. code-block:: bash
 

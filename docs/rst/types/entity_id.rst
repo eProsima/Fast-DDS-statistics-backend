@@ -5,19 +5,18 @@
 EntityId
 ========
 
-When monitoring a domain (see :ref:`statistics_backend_init`), *Fast DDS Statistics Backend* labels all the different
-discovered entities with an |EntityId-api| identifier that is unique in the context of the |StatisticsBackend-api|
-instance.
-This |EntityId-api| is used by the application, among other things, to query statistical data to the backend (see
+When monitoring a domain (see :ref:`statistics_backend_init`), *Fast DDS Statistics Backend* labels each discovered
+entity with an |EntityId-api| identifier that is unique within the |StatisticsBackend-api| instance.
+The application uses this |EntityId-api|, among other things, to query statistical data from the backend (see
 :ref:`statistics_backend_get_data`).
-To ease the use of the *Fast DDS Statistics Backend* API, |EntityId-api| exposes certain commonly used operations:
+|EntityId-api| also exposes some commonly used operations:
 
 .. _types_entityid_all:
 
 EntityId wildcard
 -----------------
 
-|EntityId-api| allows for retrieving an ID that represents all the `EntityIds`:
+|EntityId-api| can return an ID that represents all the `EntityIds`:
 
 .. literalinclude:: /code/StatisticsBackendTests.cpp
    :language: c++
@@ -30,7 +29,7 @@ EntityId wildcard
 Invalid EntityId
 ----------------
 
-|EntityId-api| allows for retrieving an invalid ID:
+|EntityId-api| can return an invalid ID:
 
 .. literalinclude:: /code/StatisticsBackendTests.cpp
     :language: c++
@@ -43,7 +42,7 @@ Invalid EntityId
 Invalidate an EntityId
 ----------------------
 
-It is also possible to invalidate an |EntityId-api|:
+An |EntityId-api| can be invalidated:
 
 .. literalinclude:: /code/StatisticsBackendTests.cpp
     :language: c++
@@ -56,7 +55,7 @@ It is also possible to invalidate an |EntityId-api|:
 Check validity of an EntityId
 -----------------------------
 
-It can be checked whether an |EntityId-api| is valid:
+To check whether an |EntityId-api| is valid:
 
 .. literalinclude:: /code/StatisticsBackendTests.cpp
     :language: c++
@@ -69,7 +68,7 @@ It can be checked whether an |EntityId-api| is valid:
 Check EntityId represents all Entities
 --------------------------------------
 
-It can be checked whether an |EntityId-api| represents all the `EntityIds`:
+To check whether an |EntityId-api| represents all the `EntityIds`:
 
 .. literalinclude:: /code/StatisticsBackendTests.cpp
     :language: c++
@@ -82,7 +81,7 @@ It can be checked whether an |EntityId-api| represents all the `EntityIds`:
 Check validity and uniqueness of an EntityId
 --------------------------------------------
 
-It can be checked whether an |EntityId-api| is valid and unique:
+To check whether an |EntityId-api| is valid and unique:
 
 .. literalinclude:: /code/StatisticsBackendTests.cpp
     :language: c++
@@ -95,7 +94,7 @@ It can be checked whether an |EntityId-api| is valid and unique:
 Comparison operations
 ---------------------
 
-|EntityIds-api| can be compared between them:
+|EntityIds-api| can be compared with each other:
 
 .. literalinclude:: /code/StatisticsBackendTests.cpp
     :language: c++

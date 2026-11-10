@@ -7,12 +7,12 @@ Initialize a monitor
 
 
 Initializing a monitor on a certain Domain ID makes *eProsima Fast DDS Statistics Backend* start monitoring the statistics data and entity discoveries on that domain.
-No statistics data will be gathered unless there is a monitor initialized in the required domain.
+No statistics data is gathered unless there is a monitor initialized in the required domain.
 
-|StatisticsBackend-api| provides several overloads of |init_monitor-api| that can be used to start a monitorization on a DDS domain or a *Fast DDS* Discovery Server network.
+|StatisticsBackend-api| has several overloads of |init_monitor-api| to start a monitorization on a DDS domain or a *Fast DDS* Discovery Server network.
 
-Additionally, it is possible to initialize a monitor using an XML profile with the new |init_monitor_with_profile-api| method.
-This allows the monitor to be configured according to the settings defined in the XML profile, providing greater flexibility and integration with existing Fast DDS XML configuration workflows.
+|init_monitor_with_profile-api| initializes a monitor from an XML profile, configuring it with the settings defined in that profile.
+This fits into existing Fast DDS XML configuration workflows.
 
 .. literalinclude:: /code/StatisticsBackendTests.cpp
    :language: c++
@@ -20,8 +20,23 @@ This allows the monitor to be configured according to the settings defined in th
    :end-before: //!
    :dedent: 8
 
+The example above shows both overloads: monitoring a DDS domain directly by its :cpp:type:`DomainId
+<eprosima::statistics_backend::DomainId>`, and monitoring the network of a *Fast DDS* Discovery Server by its
+locators instead. Each locator in the Discovery Server overload must follow the format ``kind:[IP]:port``, where
+``kind`` is one of ``UDPv4``, ``TCPv4``, ``UDPv6`` or ``TCPv6``; several locators are given as a
+semicolon-separated list.
 
-The following example demonstrates how to initialize a monitor using an XML profile:
+.. warning::
+   Shared-memory (SHM) locators are not supported by this overload. For a server that has also been configured
+   with SHM locators, initialize the monitor using only its non-shared-memory locators.
+
+All three |init_monitor-api| overloads (domain, Discovery Server locators, and |init_monitor_with_profile-api|)
+also accept an ``app_id`` and ``app_metadata`` pair identifying the monitor's own participant. These
+appear, for instance, as the discovered monitor participant's metadata in the output of |get_domain_view_graph-api|.
+Only the domain-based overload also accepts an ``easy_mode_ip``, the IP address of the remote Discovery
+Server used when the monitored domain relies on ROS 2 Easy Mode.
+
+The following example initializes a monitor using an XML profile:
 
 .. literalinclude:: /code/StatisticsBackendTests.cpp
    :language: c++
@@ -30,8 +45,8 @@ The following example demonstrates how to initialize a monitor using an XML prof
    :dedent: 8
 
 
-Furthermore, it is possible to initialize a monitor with a custom |DomainListener-api|.
-Please refer to :ref:`listeners_domain_listener` for more information about the ``DomainListener`` and its functionality.
+A monitor can also be initialized with a custom |DomainListener-api|.
+For more information about the ``DomainListener``, see :ref:`listeners_domain_listener`.
 
 .. literalinclude:: /code/StatisticsBackendTests.cpp
    :language: c++
@@ -40,9 +55,9 @@ Please refer to :ref:`listeners_domain_listener` for more information about the 
    :dedent: 8
 
 
-In addition, |init_monitor-api| allows for specifying which monitorization events should be notified.
-This is done by setting a |CallbackMask-api| where the active callbacks from the listener are specified.
-Moreover, a mask on statistics data kind of interest can be set creating a |DataKindMask-api|
+|init_monitor-api| can also specify which monitorization events are notified, through a |CallbackMask-api| that sets
+the active callbacks of the listener.
+A mask on the statistics data kinds of interest can also be set with a |DataKindMask-api|.
 
 .. literalinclude:: /code/StatisticsBackendTests.cpp
    :language: c++
@@ -51,7 +66,7 @@ Moreover, a mask on statistics data kind of interest can be set creating a |Data
    :dedent: 8
 
 
-Similarly, when initializing a monitor with an XML profile, you can also specify a custom |DomainListener-api| and callback masks as needed.
+A custom |DomainListener-api| and callback masks can also be specified when initializing a monitor with an XML profile.
 
 |init_monitor-api| throws exceptions in the following cases:
 

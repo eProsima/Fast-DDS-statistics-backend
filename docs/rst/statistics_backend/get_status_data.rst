@@ -5,12 +5,11 @@
 Get status data
 ---------------
 
-*Fast DDS Statistics Backend* provides a template of |get_status_data-api| to retrieve monitor service status data
-sample of a given |StatusKind-api| (for more information about all the reported |StatusKind-api|, please refer to
-:ref:`types_status_kind`).
+|get_status_data-api| is a template that retrieves a monitor service status data sample of a given |StatusKind-api|
+(for all the reported |StatusKind-api|, see :ref:`types_status_kind`).
 
-The sample is passed as an argument to the function  along with the |EntityId-api| of the entity whose status is to
-be known. This sample is populated with the most recent status data of that kind.
+The function takes the sample as an argument, along with the |EntityId-api| of the entity whose status is
+requested, and fills it with the most recent status data of that kind.
 
 Only |PARTICIPANT-api|, |DATAWRITER-api| and |DATAREADER-api| have associated status data. The following table
 describes which |StatusKind-api| each of these :ref:`entities<types_entity_kind>` has:
@@ -45,21 +44,19 @@ describes which |StatusKind-api| each of these :ref:`entities<types_entity_kind>
 
 |get_status_data-api| throws |BadParameter-api| in the following cases:
 
-- If the |EntityId-api| does not reference a Entity contained in the database.
+- If the |EntityId-api| does not reference an Entity contained in the database.
 - If there is no specialization template for the requested |StatusKind-api|.
 - If the |EntityKind-api| of the Entity doesn't have the associated |StatusKind-api|.
 
-Every time new status data is available there will be a callback to Domain Listener's
-|DomainListener::on_status_reported-api| (for more information about |DomainListener-api| callbacks, please refer to
-:ref:`listeners_domain_listener`).
+Every time new status data is available, the Domain Listener's |DomainListener::on_status_reported-api| callback is
+called (for more information about |DomainListener-api| callbacks, see :ref:`listeners_domain_listener`).
 
 .. _statistics_backend_get_status_data_examples:
 
 Examples
 ^^^^^^^^
 
-Following, some example queries are provided to serve a inspiration for applications using
-*Fast DDS Statistics Backend*.
+Applications using *Fast DDS Statistics Backend* can use the following example queries as a starting point.
 
 Proxy example
 """"""""""""""""""""""""""""""""""""""""""""

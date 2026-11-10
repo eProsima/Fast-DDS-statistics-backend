@@ -5,20 +5,20 @@
 JSON Tags
 =========
 
-The |StatisticsBackend-api| uses JSON format to retrieve information in many methods as |get_info-api|,
+Many |StatisticsBackend-api| methods return information in JSON format, such as |get_info-api|,
 |get_domain_view_graph-api| or |dump_database-api|.
 
 .. todo::
 
-    In order to access every item in every JSON generated, the following tags are provided:
+    To access every item in every generated JSON, use the following tags:
 
     Pending table creation
 
 Dump Tags Example
 -----------------
 
-The following snippet shows an example of a database dump, result of calling |dump_database-api| in a database
-with one entity of each |EntityKind-api|, and one data of each |DataKind-api|:
+Example of a database dump, the result of calling |dump_database-api| on a database
+with one entity of each |EntityKind-api| and one data of each |DataKind-api|:
 
 .. todo::
 

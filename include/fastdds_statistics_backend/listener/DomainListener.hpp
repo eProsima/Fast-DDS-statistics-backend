@@ -44,9 +44,9 @@ public:
         /**
          * @brief The change in total_count since the last time the listener was called
          *
-         * This value can be positive, negative or zero, depending on the entity being
-         * discovered, undiscovered or only the QoS of the entity being changed
-         * since the last time the listener was called.
+         * This value is positive if entities were discovered since the last time the
+         * listener was called, and zero otherwise. It never decreases, since undiscovered
+         * entities are not subtracted from total_count.
          */
         int32_t total_count_change = 0;
 

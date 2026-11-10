@@ -22,6 +22,20 @@
    /rst/installation/linux_installation
    /rst/installation/cmake_options
 
+.. _index_statistics_backend_pro:
+
+.. toctree::
+   :caption: Fast DDS Statistics Backend Pro
+   :maxdepth: 2
+   :numbered: 5
+   :hidden:
+
+   /rst/pro/pro_features
+   /rst/pro/type_registration
+   /rst/pro/topic_data_interaction
+   /rst/pro/statistics_control
+   /rst/pro/licensing_and_safety
+
 .. _index_statistics_backend:
 
 .. toctree::

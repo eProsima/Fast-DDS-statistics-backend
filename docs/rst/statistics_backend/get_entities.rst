@@ -5,8 +5,8 @@
 Get entities of a given kind
 ----------------------------
 
-The |StatisticsBackend-api| singleton can be queried about all the entities of a given |EntityKind-api|.
-For example, |get_entities-api| function can be used to retrieve all the |HOST-api| for which statistics are reported.
+|get_entities-api| returns all the entities of a given |EntityKind-api|.
+For example, it can retrieve all the |HOST-api| for which statistics are reported.
 
 .. literalinclude:: /code/StatisticsBackendTests.cpp
     :language: c++
@@ -27,10 +27,8 @@ This call to |get_entities-api| is the same as:
 Get entities of a given kind related to another entity
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The |StatisticsBackend-api| singleton can be queried about all the entities of a given |EntityKind-api| that are related
-to any entity.
-For example, |get_entities-api| function can be used to retrieve all the |PARTICIPANT-api| running on a given
-|HOST-api|.
+|get_entities-api| can also return all the entities of a given |EntityKind-api| that are related to another entity.
+For example, it can retrieve all the |PARTICIPANT-api| running on a given |HOST-api|.
 
 .. literalinclude:: /code/StatisticsBackendTests.cpp
     :language: c++
@@ -41,10 +39,10 @@ For example, |get_entities-api| function can be used to retrieve all the |PARTIC
 |get_entities-api| throws |BadParameter-api| in the following cases:
 
 * if the |EntityKind-api| is |EntityKind_INVALID-api|
-* if the |EntityId-api| does not reference a entity contained in the database or is not |EntityId:all-api|.
+* if the |EntityId-api| does not reference an entity contained in the database or is not |EntityId:all-api|.
 * if the |EntityKind-api| of the |EntityId-api| is |EntityKind_INVALID-api|
 
-This function returns the related entities according to the following table:
+It returns the related entities according to the following table:
 
 .. list-table:: Entity relations
    :header-rows: 1
@@ -150,24 +148,21 @@ This function returns the related entities according to the following table:
      - Contained
      - Itself
 
-* **Itself**: Means that the return will only contain the entity by which the query is performed, i.e. when asking for
-  all the |HOST-api| related to a given |HOST-api|, the return will simply be the |HOST-api| itself.
-* **Contains**: The returned entities will be the ones that the entity by which the query is performed contains, i.e.
-  when asking for all the |PARTICIPANT-api| related to a |PROCESS-api|, the return will be all the
-  |PARTICIPANT-api| that the |PROCESS-api| contains.
-* **Sub-contains**: The returned entities will be the ones that the entity by which the query is performed sub-contains,
-  i.e. when asking for all the |DataWriter-api| related to a |USER-api|, the return will be all the |DataWriter-api|
-  that are contained in each of the |PARTICIPANT-api| in each of the |PROCESS-api| that the |USER-api| contains.
-* **Contained**: The returned entity will be that one in which the entity by which the query is performed is contained,
-  i.e. when asking for all the |TOPIC-api| related to a |DataReader-api|, the return will be the |TOPIC-api| in which
-  the |DataReader-api| is contained.
-* **Sub-contained**: The returned entity will be the one in which the entity by which the query is performed is
-  sub-contained, i.e. when asking for all the |HOST-api| related to a |PARTICIPANT-api|, the return will be the
-  |HOST-api| in which the |PARTICIPANT-api| is sub-contained.
-* **By DomainParticipant**: The returned entities will be the ones that are related to the entity by which the query is
-  performed through the DomainParticipant, i.e. when asking for all the |HOST-api| related to a |DOMAIN-api|, the result
-  will be all the |HOST-api| that have a |PARTICIPANT-api| running on said |DOMAIN-api|.
-* **By Endpoints**: The returned entities will be the ones that are related to the entity by which the query is
-  performed through the endpoints (|DataReader-api| and |DataWriter-api|), i.e. when asking for all the |LOCATOR-api|
-  related to a |TOPIC-api|, the result will be all the |LOCATOR-api| that are used by all the |DataReader-api| and
-  |DataWriter-api| present in the |TOPIC-api|.
+* **Itself**: The result contains only the queried entity. For example, asking for all the |HOST-api| related to a
+  given |HOST-api| returns that |HOST-api|.
+* **Contains**: The result is the entities that the queried entity contains. For example, asking for all the
+  |PARTICIPANT-api| related to a |PROCESS-api| returns all the |PARTICIPANT-api| that the |PROCESS-api| contains.
+* **Sub-contains**: The result is the entities that the queried entity sub-contains. For example, asking for all the
+  |DATAWRITER-api| related to a |USER-api| returns all the |DATAWRITER-api| contained in each of the
+  |PARTICIPANT-api| in each of the |PROCESS-api| that the |USER-api| contains.
+* **Contained**: The result is the entity that contains the queried entity. For example, asking for all the
+  |TOPIC-api| related to a |DATAREADER-api| returns the |TOPIC-api| in which the |DATAREADER-api| is contained.
+* **Sub-contained**: The result is the entity in which the queried entity is sub-contained. For example, asking for
+  all the |HOST-api| related to a |PARTICIPANT-api| returns the |HOST-api| in which the |PARTICIPANT-api| is
+  sub-contained.
+* **By DomainParticipant**: The result is the entities related to the queried entity through the DomainParticipant.
+  For example, asking for all the |HOST-api| related to a |DOMAIN-api| returns all the |HOST-api| that have a
+  |PARTICIPANT-api| running on that |DOMAIN-api|.
+* **By Endpoints**: The result is the entities related to the queried entity through the endpoints (|DATAREADER-api|
+  and |DATAWRITER-api|). For example, asking for all the |LOCATOR-api| related to a |TOPIC-api| returns all the
+  |LOCATOR-api| used by all the |DATAREADER-api| and |DATAWRITER-api| present in the |TOPIC-api|.

@@ -1,0 +1,17 @@
+/* Badge used for the |Pro| substitution (see rst_prolog in conf.py).
+ * Specificity/!important are deliberate: the downloaded eProsima RTD theme
+ * (docs/rst/_static/css/eprosima_rtd_theme.css, fetched at build time) applies
+ * `.wy-menu-vertical span{color:...!important}` to every span in the left sidebar,
+ * which this rule must outrank there as well as in normal page content.
+ */
+span.pro-badge,
+.wy-menu-vertical span.pro-badge {
+    font-size: 0.75em !important;
+    font-weight: bold !important;
+    color: #0072bc !important;
+    border: 1px solid currentColor !important;
+    border-radius: 3px !important;
+    padding: 1px 5px !important;
+    vertical-align: middle !important;
+    white-space: nowrap !important;
+}

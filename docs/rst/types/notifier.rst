@@ -5,12 +5,12 @@
 Notifier
 ========
 
-Alerts can have notification mechanisms attached, so that when they are triggered,
-an action is performed. The ``Notifier`` class represents these notification mechanisms.
+Alerts can have notification mechanisms attached, which perform an action
+when the alert is triggered. The ``Notifier`` class represents these notification mechanisms.
 
-In the current implementation, the only available notifiers are script notifiers,
-that execute a user-defined script when the alert is triggered. The script path is passed as
-a parameter in the ´set_alert´ method.
+Currently, the only available notifiers are script notifiers,
+which execute a user-defined script when the alert is triggered. The script path is passed as
+a parameter of |set_alert-api|.
 
 
 

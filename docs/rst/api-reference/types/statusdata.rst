@@ -18,6 +18,9 @@ StatusData
 .. doxygenstruct:: eprosima::statistics_backend::IncompatibleQosSample
     :project: fastdds_statistics_backend
 
+.. doxygenstruct:: eprosima::statistics_backend::ExtendedIncompatibleQosSample
+    :project: fastdds_statistics_backend
+
 .. doxygenstruct:: eprosima::statistics_backend::InconsistentTopicSample
     :project: fastdds_statistics_backend
 
