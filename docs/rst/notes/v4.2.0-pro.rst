@@ -16,7 +16,7 @@ This release includes the following **features**:
 This release includes the following **bugfixes**:
 
 * Resolve discovered user data types by their announced type name
-* Several general issues fixed found by the MCP Server
+* Fix several general issues found by the MCP Server
 * Solve Windows issue with include headers in 'Type Registration' Tab
 * Windows fixes: crashes, debug performance reports, and license warning
 * Fix user data stopping after publishers restart
