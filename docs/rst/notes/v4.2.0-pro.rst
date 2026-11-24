@@ -4,18 +4,26 @@
 .. .. include:: forthcoming_version.rst
 
 ###################
-Version 4.1.0 |Pro|
+Version 4.2.0 |Pro|
 ###################
 
 This release includes the following **features**:
 
-* Added DDS Monitor compatibility with Safe DDS license
-* Remove the statistics that Fast DDS no longer publishes
+* Use FastDDS license validation logic
+* Add topic sample metadata for Data Tables
+* Add recording of spied user data to MCAP and SQLite files
 
 This release includes the following **bugfixes**:
 
-* Fix for registering types not working in Windows
-* Monitor service data loss on large domains
+* Resolve discovered user data types by their announced type name
+* Fix several general issues found by the MCP Server
+* Solve Windows issue with include headers in 'Type Registration' Tab
+* Windows fixes: crashes, debug performance reports, and license warning
+* Fix user data stopping after publishers restart
+
+This release includes the following **internal changes**:
+
+* Add a CLAUDE.md pointing to the DDS Monitor Pro Claude Code setup
 
 This release includes the following **dependencies**:
 

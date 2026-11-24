@@ -1,0 +1,33 @@
+Version 4.1.0 |Pro|
+-------------------
+
+This release includes the following **features**:
+
+* Added DDS Monitor compatibility with Safe DDS license
+* Remove the statistics that Fast DDS no longer publishes
+
+This release includes the following **bugfixes**:
+
+* Fix for registering types not working in Windows
+* Monitor service data loss on large domains
+
+This release includes the following **dependencies**:
+
+.. list-table::
+    :header-rows: 1
+
+    *   -
+        - Repository
+        - Version
+    *   - Fast CDR
+        - `eProsima/Fast-CDR <https://github.com/eProsima/Fast-CDR>`__
+        - `v2.4.0 <https://github.com/eProsima/Fast-CDR/releases/tag/v2.4.0>`__
+    *   - Fast DDS |Pro|
+        - `eProsima/Fast-DDS-Pro <https://github.com/eProsima/Fast-DDS-Pro>`__
+        - `v3.7.0.1 <https://github.com/eProsima/Fast-DDS-Pro/releases/tag/v3.7.0.1>`__
+    *   - Fast DDS Gen |Pro|
+        - `eProsima/Fast-DDS-Gen-Pro <https://github.com/eProsima/Fast-DDS-Gen-Pro>`__
+        - `v4.4.0.1 <https://github.com/eProsima/Fast-DDS-Gen-Pro/releases/tag/v4.4.0.1>`__
+    *   - IDL Parser
+        - `eProsima/IDL-Parser <https://github.com/eProsima/IDL-Parser.git>`__
+        - `v4.4.0 <https://github.com/eProsima/IDL-Parser/releases/tag/v4.4.0>`__
